@@ -1,0 +1,25 @@
+.close_menu_label{
+	height:50px;
+	width:50px;
+	display:inline-block;
+	position:absolute;
+	right:0;
+	top:0;
+	width:50px !important;
+	height:50px;
+	text-align:center;
+}
+
+.close_menu_label > div{
+	height: 50px;
+	width: 50px;
+	position: relative;
+	display: block;
+}
+
+/*.close_menu_label > div > div{
+	height: 18.5px;
+	width: 18.5px;
+	margin: auto;
+	margin-top:15.75px;
+}*/

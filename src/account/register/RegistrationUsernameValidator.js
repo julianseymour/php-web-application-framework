@@ -1,0 +1,1 @@
+class RegistrationUsernameValidator extends Validator{}

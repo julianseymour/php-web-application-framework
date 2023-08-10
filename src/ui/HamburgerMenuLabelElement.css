@@ -1,0 +1,68 @@
+.hamburger{
+	height:50px; /*calc(5.113043478vh + 1.8r/em);*/
+	width:50px; /*calc(5.113043478vh + 1.8r/em);*/
+	/*pointer-events:auto !important;*/
+	float:right;
+	/*padding:0 16px;*/
+	/*transform: translateY(15px);*/
+	display:inline-block;
+	/*height:50px;*/
+	/*width:50px;*/
+	/*overflow:hidden;*/
+	position:relative;
+	text-align:center;
+}
+.hamburger > div {
+	transform:translate(0, 15px);
+	/*position: relative;*/
+	display:inline-block;
+	height:24px;
+	width:24px;
+}
+.morph_icon{
+	border-radius:0.25rem;
+	height:2px;
+	position:absolute;
+	will-change:background-color, transform;
+}
+.hamburger > div > .morph_icon:not(:nth-child(3)){
+	width:12px; /*4.1421356238px;*/
+	transition:transform 0.5s, background-color 0.5s;
+}
+.hamburger > div > .morph_icon:nth-child(3){
+	transform:translate(0, 9px); /*1.151315790625v/h);*/
+	width:20px;
+	transition:opacity 0.5s, background-color 0.5s;
+}
+/*animated menu icon*/
+	input[type="checkbox"]:not(:checked) + .menu_bar > .hamburger > div > .morph_icon:nth-child(1){
+		transform:translate(0, 3px) rotate(0deg);
+	}
+	input[type="checkbox"]:checked + .menu_bar > .hamburger > div > .morph_icon:nth-child(1){
+		transform:translate(-1px, 5px) rotate(45deg); /*0, 0) rotate(45deg);*/
+	}
+	input[type="checkbox"]:not(:checked) + .menu_bar > .hamburger > div > .morph_icon:nth-child(2){
+		transform:translate(8px, 3px) rotate(0deg); /*5.8578643762px, 3px) rotate(0deg); /*10px, 3px) rotate(0deg);*/
+	}
+	input[type="checkbox"]:checked + .menu_bar > .hamburger > div > .morph_icon:nth-child(2){
+		transform:translate(7px, 5px) rotate(-45deg); /*10px, 0) rotate(-45deg);*/
+	}
+	input[type="checkbox"]:not(:checked) + .menu_bar > .hamburger > div > .morph_icon:nth-child(3){
+		opacity:1;
+	}
+	input[type="checkbox"]:checked + .menu_bar > .hamburger > div > .morph_icon:nth-child(3){
+		opacity:0;
+	}
+	input[type="checkbox"]:not(:checked) + .menu_bar > .hamburger > div > .morph_icon:nth-child(4){
+		transform:translate(0, 15px) rotate(0deg);
+	}
+	input[type="checkbox"]:checked + .menu_bar > .hamburger > div > .morph_icon:nth-child(4){
+		transform:translate(-1px, 13px) rotate(-45deg);
+	}
+	input[type="checkbox"]:not(:checked) + .menu_bar > .hamburger > div > .morph_icon:nth-child(5){
+		transform:translate(8px, 15px) rotate(0deg); /*5.8578643762px, 15px) rotate(0deg); /*10px, 15px) rotate(0deg);*/
+	}
+	input[type="checkbox"]:checked + .menu_bar > .hamburger > div > .morph_icon:nth-child(5){
+		transform:translate(7px, 13px) rotate(45deg); /*10px, 17px) rotate(45deg); /*10px, 17px) rotate(45deg);*/
+	}
+	

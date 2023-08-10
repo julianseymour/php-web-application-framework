@@ -1,0 +1,39 @@
+@charset "UTF-8";
+
+.expand_me{
+	transition:max-height 0.5s, max-width 0.5s;
+	overflow:hidden;
+}
+
+input[type="checkbox"]:not(:checked) + .expander > .expand_me,
+input[type="radio"]:not(:checked) + .expander > .expand_me{
+	max-height:0px !important;
+	/*max-width:0px !important;*/
+}
+
+input[type="checkbox"]:not(:checked) + .expander > .label_container > .collapse_label,
+input[type="radio"]:not(:checked) + .expander > .label_container > .collapse_label,
+input[type="checkbox"]:checked + .expander > .label_container > .expand_label,
+input[type="radio"]:checked + .expander > .label_container > .expand_label{
+	display:none !important;
+} 
+
+.expand_label, .collapse_label{
+	height:50px;
+	border-radius:0.5rem;
+	position:relative;
+	display:inline-block;
+	padding:17px 8px;
+	box-sizing:border-box;
+}
+
+.expander .label_container{
+	/*height:50px;*/
+	display:block;
+	position:relative;
+	box-sizing:border-box;
+}
+
+.expand_toggle:not(:checked) + .expand_me{
+	max-height:0px !important;
+}

@@ -1,0 +1,150 @@
+@CHARSET "ISO-8859-1";
+
+.ss_auth{
+	padding:1rem;
+	text-align:center;
+}
+
+.ss_auth > div:not(:first-of-type){
+	margin-bottom:1rem;
+}
+
+/*.ss_c,*/
+.setlist .btn_c{
+	text-align:center;
+	/*border-top:1px solid #363737;*/
+/*}
+.save_settings_c{*/
+	min-height:50px;
+	/*padding-top:15px;*/
+	padding:0;
+}
+
+.mncns_m ~ .btn_c{
+	transition:max-height 0.25s, opacity 0.5s;
+	max-height:0;
+	height:50px;
+	overflow:hidden;
+}
+
+.ss_auth_c{
+	/*height:400px;*/
+	transition:opacity 0.5s, max-height 0.5s;
+}
+
+.save_settings_c > input{
+	margin-top:15px;
+}
+
+.init_off:checked ~ .ss_auth_c,
+.init_on:not(:checked) ~ .ss_auth_c{
+	max-height:400px !important;
+}
+
+.init_off:checked ~ .btn_c, /*save_settings_c,*/
+.init_on:not(:checked) ~ .btn_c{ /*save_settings_c{*/
+	max-height:52px !important;
+	/*min-height:50px;*/
+}
+
+#notification_settings{
+	transition:opacity 0.5s, max-height 0.5s;
+}
+
+.mfa_qr_c{
+	height:180px;
+}
+
+[id*="mfa_qr_check"]:checked + .mfa_qr_c .label_show_qr,
+[id*="mfa_qr_check"]:not(:checked) + .mfa_qr_c .label_hide_qr{
+	display:none;
+}
+
+[id*="mfa_qr_check"]:not(:checked) + .mfa_qr_c .fade{
+	opacity:0;
+}
+
+.qr_label_c{
+	position:relative;
+}
+
+.qr_label_c > span{
+	display:inline-block;
+	position:relative;
+}
+
+.qr_label_c > span:nth-of-type(1){
+	width:60px;
+	height:1rem;
+	text-align:left;
+}
+
+.qr_label_c > span:nth-of-type(2){
+	position:absolute;
+	/*right:0;*/
+	/*top:0;*/
+	/*padding-top:0.5rem;*/
+	transform:translateX(-2rem);
+}
+
+.qr_label_c label{
+	height:100%;
+	width:100%;
+	position:absolute;
+	top:0;
+	left:0;
+}
+
+.sl{
+	text-align:center;
+	transition:max-height 0.5s, opacity 0.5s;
+}
+
+.sl > div{
+	margin-bottom:0.5rem;
+}
+
+.sl > div:first-of-type{
+	margin-top:1rem;
+}
+
+.list_ip_buttons input{
+	visibility:hidden;
+	display:none;
+	opacity:0;
+}
+
+.mncns_m > span{
+	width:calc(100% - 54px);
+	display:inline-block;
+}
+
+#settings_display_name{
+	text-align:center;
+}
+
+.theme_settings_form .btn_c{
+	padding:0.5rem;
+}
+
+.theme_settings_form label{
+	display:inline-block;
+	min-height:50px;
+	border-radius:0.5rem;
+	padding:0.5rem;
+	margin-left:0.5rem;
+	box-sizing:border-box;
+	min-width:50px;
+}
+
+label[for*="dark_theme"]{
+	background-color:#000;
+	border:1px solid #fff;
+	color:#e4e4e4;
+}
+
+label[for*="light_theme"]{
+	background-color:#fff;
+	color:#000;
+	border:1px solid #000;
+}

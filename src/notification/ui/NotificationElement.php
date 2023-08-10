@@ -1,0 +1,136 @@
+<?php
+namespace JulianSeymour\PHPWebApplicationFramework\notification\ui;
+
+use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\command\control\IfCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\element\AppendChildCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\element\BindElementCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\str\DateStringCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\str\TimeStringCommand;
+use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
+use JulianSeymour\PHPWebApplicationFramework\notification\NotificationData;
+use Exception;
+
+abstract class NotificationElement extends DivElement
+{
+
+	public abstract function getNotificationContent();
+
+	public abstract function getNotificationPreview();
+
+	public abstract function getNotificationTitle();
+
+	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
+	{
+		$f = __METHOD__; //NotificationElement::getShortClass()."(".static::getShortClass().")->__construct()";
+		try {
+			$this->setIdOverride("note");
+			parent::__construct($mode, $context);
+			$this->addClassAttribute("notification");
+		} catch (Exception $x) {
+			x($f, $x);
+		}
+	}
+
+	protected static function getNotificationOptionsElementClass(): string
+	{
+		return NotificationOptionsElement::class;
+	}
+
+	public function getIndividualNotificationForms()
+	{
+		$context = $this->getContext();
+		$mode = $this->getAllocationMode();
+		$options_class = $this->getNotificationOptionsElementClass();
+		$options = new $options_class($mode);
+		$options->setIdOverride("options");
+		$options->setParentNode($this);
+		$options_bound = new AppendChildCommand($this, new BindElementCommand($options, $context));
+		return [
+			$this->getNotificationDateTimeDismissalContainer(),
+			$options_bound
+		];
+	}
+
+	public function getNotificationDateTime()
+	{
+		$mode = $this->getAllocationMode();
+		$notification_datetime = new SpanElement();
+		$notification_datetime->addClassAttribute("notification_datetime");
+		$date = new DivElement();
+		$date->setAllocationMode($mode);
+		$date->addClassAttribute("date");
+		$context = $this->getContext();
+		// $ts = $context->getUpdatedTimestamp();
+		// $time_string = getTimeStringFromTimestamp($ts);
+		// $date_string = getDateStringFromTimestamp($ts);
+		$date->setInnerHTML(new DateStringCommand($context->getColumnValueCommand("updatedTimestamp")));
+		$notification_datetime->appendChild($date);
+		$time = new DivElement();
+		$time->setAllocationMode($mode);
+		$time->addClassAttribute("time");
+		$time->setInnerHTML( // $time_string);
+		new TimeStringCommand($context->getColumnValueCommand("updatedTimestamp")));
+		$notification_datetime->appendChild($time);
+		return $notification_datetime;
+	}
+
+	public function getNotificationDateTimeDismissalContainer()
+	{
+		return $this->getNotificationDateTime();
+	}
+
+	public static function getIdSuffixName()
+	{
+		return NotificationData::getIdentifierNameStatic();
+	}
+
+	public static function getIdAttributeStatic($context)
+	{
+		return new ConcatenateCommand("notification-", $context->getIdAttributeSuffixCommand());
+	}
+
+	public function bindContext($context)
+	{
+		$f = __METHOD__; //NotificationElement::getShortClass()."(".static::getShortClass().")->bindContext()";
+		$context = parent::bindContext($context);
+		$this->setAttribute("count", $context->getColumnValueCommand("notificationCount"));
+		$this->setIdAttribute($this->getIdAttributeStatic($context));
+		$this->setAttribute("tab", $context->getColumnValueCommand("notificationType"));
+		$this->resolveTemplateCommand(IfCommand::hasColumnValue($context, "dismissable")->then($this->addClassCommand("dismissable")));
+		return $context;
+	}
+
+	public function generateChildNodes(): ?array
+	{
+		$f = __METHOD__; //NotificationElement::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
+		try {
+			$notification_content = $this->getNotificationContent();
+			$this->appendChild($notification_content);
+			$forms = $this->getIndividualNotificationForms();
+			$this->appendChild(...$forms);
+			return $this->getChildNodes();
+		} catch (Exception $x) {
+			x($f, $x);
+		}
+	}
+
+	public function getNotificationOptions()
+	{
+		$f = __METHOD__; //NotificationElement::getShortClass()."(".static::getShortClass().")->getNotificationOptions()";
+		$options = [
+			'body' => $this->getNotificationPreview(),
+			'icon' => '/images/smiley.png',
+			'badge' => '/images/smiley.png',
+			'tag' => $this->getIdAttribute()
+		];
+		return $options;
+	}
+
+	public static function isTemplateworthy(): bool
+	{
+		return true;
+	}
+}

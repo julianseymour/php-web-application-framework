@@ -1,0 +1,8 @@
+.clear_search_btn{
+	transition: opacity 0.25s ease 0s;
+	padding: 0 0.5rem !important;
+	transform: translate(-150px, 10px);
+	position: absolute;
+	height: 31px !important;
+	box-sizing: border-box;
+}

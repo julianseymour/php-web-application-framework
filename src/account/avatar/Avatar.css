@@ -1,0 +1,48 @@
+.avatar_c{
+	display:inline-block;
+	margin-right:0.5rem;
+	/*needed for safari webkit*/
+		width:50px;
+		height:50px;
+}
+
+.avatar_c img{
+	transition:opacity 0.5s; /*needed to properly remove avatar thumbnail when closing message preview*/
+	position:relative;
+	z-index:12;
+}
+
+.avatar_bg{
+	background-color:#e7e7e7;
+	overflow:hidden;
+	border-radius:2rem;
+	height:50px;
+	width:50px;
+	box-sizing:border-box;
+	text-align:center;
+	transform:rotate(0deg); /*if absent, overflow will show*/
+	/*needed for safari webkit*/
+		position:absolute;
+		z-index:11;
+}
+
+.avatar_head, .avatar_torso{
+	background-color:#a0a0a0;
+	display:block;
+	border-radius:2rem;
+	position:absolute;
+	z-index:10; /*needed for safari webkit*/
+}
+
+.avatar_head{
+	border-radius:2rem;
+	height:28px;
+	width:28px;
+	transform:translate(11px, 3px);
+}
+
+.avatar_torso{
+	height:45px;
+	width:45px;
+	transform:translate(2.5px, 27.5px);
+}

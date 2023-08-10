@@ -1,0 +1,29 @@
+@charset "UTF-8";
+
+.ip_list{
+	/*margin:0.75rem;*/
+	padding:0.75rem;
+	box-shadow:0 1px 6px rgba(32, 33, 36, 0.28);
+	border-radius:0.5rem;
+	transition:all 0.5s;
+}
+
+.ip_address_form .btn_c{
+	display:inline-block;
+	min-width:151px;
+}
+
+.ip_list .nothing_here{
+	opacity:0;
+	transition:all 0.5s;
+	max-height:0;
+}
+
+.ip_list .nothing_here:nth-child(2){
+	opacity:1;
+	max-height:4rem;
+}
+
+.filter_policy_element{
+	text-align:left;
+}

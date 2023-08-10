@@ -1,0 +1,1 @@
+class FadeElementCommand extends DeleteElementCommand{}

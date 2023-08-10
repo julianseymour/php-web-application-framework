@@ -1,0 +1,45 @@
+.fancy_radio_button, .fancy_checkbox_label{ /*glow_label is used on the order confirmation page and registration form; .glow_label is the version used on the services page
+	/*display:none;*/
+	display:inline-block;
+	/*content:'';*/
+	height:18px;
+	/*opacity:0;*/
+	width:18px;
+	transition:all 0.15s; /*background-color 0.25s, opacity 0.5s;*/
+	cursor:pointer;
+	border-radius:0.25rem;
+	z-index:15;
+	background-color:transparent;
+	border:1px solid;
+}
+
+.fancy_radio_button:hover,
+.fancy_checkbox_label:hover{
+	border:1px solid rgba(0,101,209,0.5); /*#0065d1;*/
+}
+
+input[type="radio"]:checked + .fancy_radio_button,
+.fancy_checkbox:checked + .fancy_checkbox_label{
+	border:1px solid rgba(0,101,209,0.5) !important;
+	border-color:rgba(0,101,209,0.5) !important;
+	border-top-color:rgba(0,101,209,0.5) !important;
+	border-bottom-color:rgba(0,101,209,0.5) !important;
+	border-left-color:rgba(0,101,209,0.5) !important;
+	border-right-color:rgba(0,101,209,0.5) !important;
+	background-color:#0065d1 !important;
+}
+
+.fancy_radio_button:after, .fancy_checkbox_label:after{
+	display:inline-block;
+	font-size:17px;
+	font-weight:700;
+	color:#ffffff;
+	transform:translate(3px, -1px);
+	/*-webkit-transform:translateX(2px);*/
+	font-family:"Raleway", Helvetica, Arial, sans-serif;
+}
+
+input[type="radio"]:checked + .fancy_radio_button::after,
+.fancy_checkbox:checked + .fancy_checkbox_label:after{
+	content:"\2713";
+}

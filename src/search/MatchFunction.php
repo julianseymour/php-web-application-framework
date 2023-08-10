@@ -1,0 +1,185 @@
+<?php
+namespace JulianSeymour\PHPWebApplicationFramework\search;
+
+use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
+use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionalTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ParameterCountingTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
+use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnNamesTrait;
+use JulianSeymour\PHPWebApplicationFramework\query\where\WhereConditionalInterface;
+use Exception;
+
+class MatchFunction extends ExpressionCommand implements StringifiableInterface, WhereConditionalInterface
+{
+
+	use ExpressionalTrait;
+	use MultipleColumnNamesTrait;
+	use ParameterCountingTrait;
+
+	protected $searchModifier;
+
+	public function setSearchModifier($sm)
+	{
+		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->setSearchModifier()";
+		if ($sm == null) {
+			unset($this->searchModifier);
+			return null;
+		} elseif (! is_string($sm)) {
+			Debug::error("{$f} search modifier must be a string");
+		} elseif (empty($sm)) {
+			Debug::error("{$f} empty string");
+		}
+		$sm = strtolower($sm);
+		switch ($sm) {
+			case SEARCH_MODIFIER_BOOLEAN_MODE:
+			case SEARCH_MODIFIER_NATURAL_LANGUAGE_MODE:
+			case SEARCH_MODIFIER_NATURAL_LANGUAGE_QUERY_EXPANSION:
+			case SEARCH_MODIFIER_QUERY_EXPANSION:
+				break;
+			default:
+				Debug::error("{$f} invalid search modifier \"{$sm}\"");
+		}
+		return $this->searchModifier = $sm;
+	}
+
+	public function hasSearchModifier()
+	{
+		return isset($this->searchModifier) && is_string($this->searchModifier) && ! empty($this->searchModifier);
+	}
+
+	public function getSearchModifier()
+	{
+		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->getSearchModifier()";
+		if (! $this->hasSearchModifier()) {
+			Debug::error("{$f} search modifier is undefined");
+		}
+		return $this->searchModifier;
+	}
+
+	public function withSearchModifier($sm): MatchFunction
+	{
+		$this->setSearchModifier($sm);
+		return $this;
+	}
+
+	public function getExpression()
+	{
+		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->getExpression()";
+		$print = false;
+		if (! $this->hasExpression()) {
+			if (! $this->hasParameterCount()) {
+				Debug::error("{$f} parameter count is undefined");
+			} elseif ($print) {
+				Debug::print("{$f} expression is undefined; auto generating one from parameter count");
+			}
+			$count = $this->getParameterCount();
+			if ($print) {
+				Debug::print("{$f} parameter count {$count}");
+			}
+			$string = '?';
+			if ($count == 1) {
+				return $string;
+			}
+			$string = str_pad($string, (2 * $count) - 1, ",?");
+			if ($print) {
+				Debug::print("{$f} returning \"{$string}\"");
+			}
+			return $string;
+		} elseif ($print) {
+			Debug::print("{$f} expression was already defined");
+		}
+		return $this->expression;
+	}
+
+	public function toSQL(): string
+	{
+		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->toSQL()";
+		try {
+			// MATCH (col1,col2,...)
+			$string = "match (" . implode_back_quotes(',', $this->getColumnNames()) . ") ";
+			// AGAINST (expr [search_modifier])
+			$expression = $this->getExpression();
+			if ($expression instanceof SQLInterface) {
+				$expression = $expression->toSQL();
+			}
+			$string .= "against ({$expression}";
+			// search_modifier:{
+			// IN NATURAL LANGUAGE MODE
+			// | IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION
+			// | IN BOOLEAN MODE
+			// | WITH QUERY EXPANSION
+			// }
+			if ($this->hasSearchModifier()) {
+				$string .= $this->getSearchModifier();
+			}
+			$string .= ")";
+			return $string;
+		} catch (Exception $x) {
+			x($f, $x);
+		}
+	}
+
+	public function dispose(): void
+	{
+		parent::dispose();
+		unset($this->parameterCount);
+		unset($this->searchModifier);
+	}
+
+	public static function getCommandId(): string
+	{
+		return "match";
+	}
+
+	public function evaluate(?array $params = null)
+	{
+		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->evaluate()";
+		ErrorMessage::unimplemented($f);
+	}
+
+	public function getFlatWhereConditionArray(): ?array
+	{
+		return [
+			$this
+		];
+	}
+
+	public function getSuperflatWhereConditionArray(): ?array
+	{
+		return $this->getFlatWhereConditionArray();
+	}
+
+	public function audit(): int
+	{
+		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->audit()";
+		ErrorMessage::unimplemented($f);
+		return FAILURE;
+	}
+
+	public function inferParameterCount()
+	{
+		return $this->getParameterCount();
+	}
+
+	public function getConditionalColumnNames(): array
+	{
+		return $this->getColumnNames();
+		/*
+		 * $s = "";
+		 * foreach($this->getColumnNames() as $cn){
+		 * $s .= back_quote($cn);
+		 * }
+		 * return $s;
+		 */
+	}
+
+	public function __toString(): string
+	{
+		return $this->toSQL();
+	}
+}

@@ -1,0 +1,536 @@
+@CHARSET "ISO-8859-1";
+
+.notification{
+	border:1px solid;
+	border-radius:0.5rem;
+	margin-bottom:0.5rem;
+	padding:0.5rem;
+	/*display:inline-block;*/
+	position:relative;
+	box-sizing:border-box;
+	white-space:nowrap;
+	text-decoration:none;
+	height:60px;
+	height:calc(50px + 1.25rem);
+	width:100%;
+	/*overflow-y:hidden;*/
+	/*max-height:60px;*/
+	transition:opacity 0.5s, max-height 0.5s, padding:0.5s, margin 0.5s;
+	opacity:1;
+	/*padding-left:0;*/
+	/*padding-right:0;*/
+}
+
+.notifications_widget_container{
+	position:fixed; /*absolute;*/
+	bottom:0;
+	display:block;
+	height:calc(100% - 50px);
+	width:100%;
+	max-width:100vw;
+	transition:opacity 0.5s ease-in;
+	pointer-events:none;
+}
+
+.notification_list_container{
+	transition:transform 0.3s ease-in, opacity 0.3s ease-in;
+	overflow:hidden;
+	max-width:480px;
+	/*max-height:50px;*/
+	position:absolute;
+	transform:scale3d(0, 0, 0); /*translate(150px, calc(100% - 50px))*/
+	bottom:0;
+	height:100%;
+	z-index:12;
+	width:100%;
+	border-radius:0.5rem;
+	opacity:0;
+	transform-origin:calc(0% + 175px) bottom;
+}
+
+input[id="widget-notifications"]:checked ~ .notifications_widget_container .notification_list_container{
+	max-height:100%;
+	max-width:480px;
+	transform:scale3d(1, 1, 1);
+	border-radius:0;
+	pointer-events:auto;
+	opacity:1;
+}
+
+input[id="widget-notifications"]:checked ~ .notifications_widget_container .notifications_header{
+	opacity:1;
+}
+
+/*input[id="widget-notifications"]:not(:checked) ~ .notifications_widget_container .notification > div > span{
+	opacity:0;
+	transition-delay:none !important;
+	transition:opacity 0.25s;
+}*/
+
+.notification_label_container label[for="widget-none"],
+.notification_label_container label[for="widget-notifications"]{
+	transition:opacity ease-in 0.5s;
+	pointer-events:none;
+	opacity:0;
+}
+
+label[for="widget-notifications"], 
+label[for="widget-notifications"] > img{
+	width:50px;
+	height:50px;
+}
+
+label[for="widget-notifications"]{
+	position:fixed;
+	bottom:0;
+	transition:transform 0.5s, opacity 0.25s;
+	pointer-events:auto;
+}
+
+input[id="widget-notifications"]:checked ~ .notifications_widget_container label[for="widget-notifications"]{
+	opacity:1;
+	pointer-events:auto;
+	pointer-events:none;
+	opacity:0;
+}
+
+/*input[id="widget-notifications"]:not(:checked) ~ .notifications_widget_container label[for="widget-notifications"]{
+	opacity:1;
+	pointer-events:auto;
+}*/
+
+.notification_label_container label[for="widget-none"] > div{
+	/*opacity:0;*/
+	transition:opacity ease-in 0.5s, transform ease-out 0.25s;
+	font-size:2rem;
+	position:absolute;
+	/*transform:translateX(100%);*/
+}
+
+label[for="widget-none"]{
+	right:0;
+}
+
+.notification_label_container label{
+	position:absolute;
+	bottom:0;
+	/*left:200px;*/
+	/*background-color:#00cc00;*/
+	max-width:50px;
+	width:100%;
+	height:50px;
+	/*transition:max-width 0.5s, border-radius 0.5s;*/
+	pointer-events:auto;
+	z-index:13;
+	border-radius:0.5rem;
+	overflow:hidden;
+	/*padding-top: 12px;*/
+	box-sizing: border-box;
+	/*padding-left: 16px;*/
+	cursor:pointer;
+}
+
+input[id="widget-notifications"]:checked ~ .notifications_widget_container .notification_label_container{
+	/*transform:translate(0, calc(100px));*/
+}
+
+input[id="widget-notifications"]:checked ~ .notifications_widget_container .notification_list_container .dismiss_all_form{
+	opacity:1;
+	pointer-events:auto;
+}
+
+.notification_state1{
+	color:#0af;
+}
+
+.notification_state2{
+	color:#f00;
+}
+
+.notification_content{
+	display:inline-block;
+	white-space:nowrap;
+	overflow-x:hidden;
+	/*width:calc(100% - 144px);*/
+	/*height:100%;*/
+	/*margin-left:0.5rem;*/
+	max-width:100%;
+	position:relative;
+	overflow-y:hidden;
+	height:100%;
+}
+
+.notification_title{
+	display:block;
+	position:relative;
+	width:100%;
+	height:14px;
+}
+
+.notification_preview, .conversation_preview{
+	display:block;
+	position:relative;
+	width:100%;
+	height:calc(100% - 14px);
+}
+
+.notification_datetime{
+	display:inline-block;
+	position:relative;
+	height:100%;
+	text-align:center;
+	/*width:104px;*/
+	padding-top:0.5rem;
+	overflow:hidden;
+	position:absolute;
+	right:calc(1rem + 24px);
+	box-sizing:border-box;
+	top:0;
+	/*float:right;*/
+	/*margin-right:0.5rem;*/
+}
+
+.notification_datetime > div{
+	position:relative;
+	display:block;
+}
+
+.notification_list_bg{
+	opacity:0;
+	pointer-events:none;
+	/*height:100vh;*/
+	/*width:100vh;*/
+	/*position:absolute;*/
+}
+
+input[type="radio"]:not(:checked) + .notification_list_bg{
+	/*opacity:1;*/
+	/*pointer-events:auto;*/
+}
+
+.notification_dismiss{
+	/*height:50px;*/
+	/*width:50px;*/
+	position:relative;
+	display:inline-block;
+	z-index:15;
+	box-sizing:border-box;
+	/*background-color:#f00;*/
+	/*position:absolute;*/
+	right:0.5rem;
+	bottom:0.5rem;
+}
+
+.notification_dismiss .btn_c{
+	padding:0;
+	z-index:12;
+}
+
+.order_notification_link{
+	width:calc(100% - 72px);
+	display:inline-block;
+	height:100%;
+	box-sizing:border-box;
+	z-index:11;
+	/*top:0;*/
+	/*left:0;*/
+}
+
+.dismiss_all_form{
+	position:relative;
+	display:inline-block;
+	box-sizing:border-box;
+	pointer-events:none;
+	float:right;
+	z-index:14;
+	opacity:0;
+	transition:opacity 0.5s ease-in;
+}
+
+.notification_label_container{
+	position:absolute;
+	top:0;
+}
+
+.notifications_header, .notification_label_container{
+	width:100%;
+	height:50px;
+	max-width:480px;
+}
+
+.notifications_header{
+	position:relative;
+	/*opacity:0;*/
+	/*pointer-events:none;*/
+	transition:opacity 0.5s ease-in;
+	text-align:center;
+	font-size:16px;
+	padding-top:1rem;
+	box-sizing:border-box;
+}
+
+.notification_label_container > span{
+	display:inline-block;
+}
+
+.notification_label_container > span > div{
+	position:absolute;
+	height:100%;
+	width:100%;
+}
+
+input[type="radio"]:checked ~ .dismissable{
+	max-height:0;
+}
+
+.dismissable{
+	transition:max-height 0.5s ease-in, opacity 0.5s ease-in;
+	/*max-height:50px;*/
+}
+
+.notification_label_container > span:first-of-type{
+	width:calc(100% - 50px);
+	text-align:center;
+	font-size:16px;
+	margin-top:1.25rem;
+	padding-left:50px;
+	position:relative;
+	box-sizing:border-box;
+}
+
+.notification_label_container > span:last-of-type{
+	width:100%;
+	height:100%;
+	position:absolute;
+	left:0;
+}
+
+.notifications_widget_container .close_menu_label{
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 50px;
+}
+.notification_icon{
+	box-sizing:border-box;
+	/*position:relative;*/
+	display:inline-block;
+	width:72px;
+	/*height:100%;*/
+	right:0;
+	top:25%;
+	/* float:right; */
+	position:absolute;
+}
+
+.notification > div{
+	position:relative;
+	display:block;
+	height:100%;
+	width:100%;
+	box-sizing:border-box;
+}
+
+.notification a{
+	text-decoration:none;
+	position:relative;
+	width:calc(100% - 72px);
+	/*overflow-x: hidden;*/
+	white-space: nowrap;
+	display: inline-block;
+	height: 100%;
+}
+
+.notification > span,
+.notification > form,
+.notification > a{
+	/*position:relative;*/
+	/*display:inline-block;*/
+	/*height:100%;*/
+}
+
+/*.notification > div > span{
+	transition:0.5s;
+}*/
+
+/*.notification > div > span:nth-of-type(1){
+	transition-delay:0.5s;
+}*/
+
+/*.notification > div > span:nth-of-type(2){
+	transition-delay:0.75s;
+}*/
+
+/*.notification > div > span:nth-of-type(3){
+	transition-delay:1s;
+}*/
+
+.notifications_header > span{
+	/*display:inline-block;*/
+}
+
+#dismiss_all_form{
+	position:sticky;
+	bottom:0;
+	height:50px;
+	display:none;
+	z-index:16;
+}
+
+.dismissable ~ .dismissable ~ #dismiss_all_form{
+	display:block;
+}
+
+#dismiss_all_form > .btn_c{
+	background-color:#0065d1;
+	opacity:0.8;
+	height:100%;
+	width:100%;
+	text-align:center;
+}
+
+#dismiss_all_form .generated_label{
+	height:50px;
+	display:inline-block;
+	box-sizing:border-box;
+	font-size:16px;
+	padding-top:1.25rem;
+}
+
+.notifications_header label[for="widget-none"]{
+	right:0;
+	display:inline-block;
+	height:50px;
+	width:50px;
+	top:0;
+	position:absolute;
+}
+
+.notification_filter_tabs{
+	position:sticky;
+	top:0;
+	/*height:50px;*/
+	width:100%;
+	display:inline-block;
+	overflow-x:auto;
+}
+
+.notification_filter_tab{
+	/*display:none;*/
+}
+
+.notification_filter_tab[type="all"]{
+	display:inline-block !important;
+}
+
+.notification_filter_tabs label{
+	width:92px;
+}
+
+.pin_cushion{
+	width:25px;
+	position:absolute;
+	right:0;
+	height:100%;
+	box-sizing:border-box;
+}
+
+.pin_notification_form{
+	filter:grayscale(100%);
+}
+
+.sort_notification_form{
+	font-size:20px;
+	/*display:none;*/
+}
+
+.single_notification_options{
+	position:absolute;
+	right:0;
+	/*border:1px solid;*/
+	display:inline-block;
+	z-index:17;
+	transform:translate(1px, 58px);
+	max-height:200px;
+	transition:max-height 0.1s;
+	top:0;
+	/*border-left:1px solid;
+	border-right:1px solid;
+	border-bottom:1px solid;*/
+	border-radius:0 0 0.5rem 0.5rem;
+}
+
+.single_notification_options label{
+	display:block;
+	/*padding:0.25rem;*/
+	/*height:50px;*/
+	box-sizing:border-box;
+	text-align:center;
+	font-size:16px;
+}
+
+.single_notification_options_label{
+	position:absolute;
+	/*right:1rem;*/
+	z-index:16;
+	height:100%;
+	width:100%;
+	top:0;
+	left:0;
+}
+
+.single_notification_options_label_container{
+	position:absolute;
+	right:0;
+	width:2.5rem;
+	height:100%;
+	z-index:16;
+	top:0;
+}
+
+.single_notification_options_label_container .dot{
+	transform:translate(10px, 10px);
+}
+
+.expand_toggle:not(:checked) ~ .single_notification_options_label_container .close,
+.expand_toggle:checked ~ .single_notification_options_label_container .open{
+	display:none;
+}
+
+.notification_counter{
+	border:2px solid #fff;
+	border-radius:1rem;
+	display:inline-block;
+	height:2rem;
+	width:2rem;
+	background-color:#0065d1;
+	border-radius:1rem;
+	/*content:'1';*/
+	text-align:center;
+	padding-top:0.25rem;
+	box-sizing: border-box;
+	z-index:17;
+	transition:opacity 0.25s;
+	/*transform:translate(0.125rem, 0.125rem);*/
+	color:#fff;
+}
+
+.widget_icon .notification_counter{
+	top:-0.125rem;
+	right:0.125rem;
+	position:absolute;
+}
+
+.notification_filter_tab .notification_counter{
+	position:absolute;
+	right:0.5rem;
+	top:0;
+}
+
+.notification_list_container .tab_labels label{
+	height:100%;
+}
+
+.single_notification_options button{
+	background-color:inherit !important;
+}

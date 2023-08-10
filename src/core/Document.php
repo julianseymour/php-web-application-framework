@@ -1,0 +1,444 @@
+<?php
+namespace JulianSeymour\PHPWebApplicationFramework\core;
+
+use JulianSeymour\PHPWebApplicationFramework\command\DocumentVisibilityStateCommand;
+use JulianSeymour\PHPWebApplicationFramework\element\AddressElement;
+use JulianSeymour\PHPWebApplicationFramework\element\ArticleElement;
+use JulianSeymour\PHPWebApplicationFramework\element\AsideElement;
+use JulianSeymour\PHPWebApplicationFramework\element\BodyElement;
+use JulianSeymour\PHPWebApplicationFramework\element\DetailsElement;
+use JulianSeymour\PHPWebApplicationFramework\element\DialogElement;
+use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
+use JulianSeymour\PHPWebApplicationFramework\element\Element;
+use JulianSeymour\PHPWebApplicationFramework\element\FieldsetElement;
+use JulianSeymour\PHPWebApplicationFramework\element\FooterElement;
+use JulianSeymour\PHPWebApplicationFramework\element\FormElement;
+use JulianSeymour\PHPWebApplicationFramework\element\HTMLCommentElement;
+use JulianSeymour\PHPWebApplicationFramework\element\HTMLElement;
+use JulianSeymour\PHPWebApplicationFramework\element\HeadElement;
+use JulianSeymour\PHPWebApplicationFramework\element\HeaderElement;
+use JulianSeymour\PHPWebApplicationFramework\element\LabelElement;
+use JulianSeymour\PHPWebApplicationFramework\element\LinkElement;
+use JulianSeymour\PHPWebApplicationFramework\element\MainElement;
+use JulianSeymour\PHPWebApplicationFramework\element\MetaElement;
+use JulianSeymour\PHPWebApplicationFramework\element\MeterElement;
+use JulianSeymour\PHPWebApplicationFramework\element\NavigationElement;
+use JulianSeymour\PHPWebApplicationFramework\element\NoScriptElement;
+use JulianSeymour\PHPWebApplicationFramework\element\OutputElement;
+use JulianSeymour\PHPWebApplicationFramework\element\ParagraphElement;
+use JulianSeymour\PHPWebApplicationFramework\element\PreformattedTextElement;
+use JulianSeymour\PHPWebApplicationFramework\element\ProgressElement;
+use JulianSeymour\PHPWebApplicationFramework\element\ScriptElement;
+use JulianSeymour\PHPWebApplicationFramework\element\SectionElement;
+use JulianSeymour\PHPWebApplicationFramework\element\StyleElement;
+use JulianSeymour\PHPWebApplicationFramework\element\SummaryElement;
+use JulianSeymour\PHPWebApplicationFramework\element\TitleElement;
+use JulianSeymour\PHPWebApplicationFramework\element\description\DescriptionDetailsElement;
+use JulianSeymour\PHPWebApplicationFramework\element\description\DescriptionListElement;
+use JulianSeymour\PHPWebApplicationFramework\element\description\DescriptionTermElement;
+use JulianSeymour\PHPWebApplicationFramework\element\figure\FigureCaptionElement;
+use JulianSeymour\PHPWebApplicationFramework\element\figure\FigureElement;
+use JulianSeymour\PHPWebApplicationFramework\element\heading\Heading1Element;
+use JulianSeymour\PHPWebApplicationFramework\element\heading\Heading2Element;
+use JulianSeymour\PHPWebApplicationFramework\element\heading\Heading3Element;
+use JulianSeymour\PHPWebApplicationFramework\element\heading\Heading4Element;
+use JulianSeymour\PHPWebApplicationFramework\element\heading\Heading5Element;
+use JulianSeymour\PHPWebApplicationFramework\element\heading\Heading6Element;
+use JulianSeymour\PHPWebApplicationFramework\element\heading\HeadingGroupElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\AbbreviationElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\AnchorElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\BidirectionalIsolateElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\BidirectionalTextOverrideElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\BoldElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\CitationElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\CodeElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\DataElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\DefinitionElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\EmphasisElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\ItalicElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\KeyboardElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\LineBreakElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\MarkElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\SampleElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\SmallElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\StrikethroughElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\StrongElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\SubscriptElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\SuperscriptElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\TimeElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\UnderlineElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\VariableElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\WordBreakElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\edit\DeletedTextElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\edit\InsertionElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\ruby\RubyElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\ruby\RubyFallbackParenthesisElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\ruby\RubyTextContainerElement;
+use JulianSeymour\PHPWebApplicationFramework\element\inline\ruby\RubyTextElement;
+use JulianSeymour\PHPWebApplicationFramework\element\list_\ListItemElement;
+use JulianSeymour\PHPWebApplicationFramework\element\list_\OrderedListElement;
+use JulianSeymour\PHPWebApplicationFramework\element\list_\UnorderedListElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\AudioElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\CanvasElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\TrackElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\VideoElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\embed\EmbedElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\embed\InlineFrameElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\embed\ObjectElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\embed\ParameterElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\embed\PictureElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\embed\PortalElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\embed\SourceElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\map\AreaElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\map\MapElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\math\MathElement;
+use JulianSeymour\PHPWebApplicationFramework\element\media\svg\ScalableVectorGraphicElement;
+use JulianSeymour\PHPWebApplicationFramework\element\quote\BlockQuotationElement;
+use JulianSeymour\PHPWebApplicationFramework\element\quote\InlineQuotationElement;
+use JulianSeymour\PHPWebApplicationFramework\element\table\ColumnElement;
+use JulianSeymour\PHPWebApplicationFramework\element\table\ColumnGroupElement;
+use JulianSeymour\PHPWebApplicationFramework\element\table\TableBodyElement;
+use JulianSeymour\PHPWebApplicationFramework\element\table\TableCaptionElement;
+use JulianSeymour\PHPWebApplicationFramework\element\table\TableDataElement;
+use JulianSeymour\PHPWebApplicationFramework\element\table\TableFooterElement;
+use JulianSeymour\PHPWebApplicationFramework\element\table\TableHeadElement;
+use JulianSeymour\PHPWebApplicationFramework\element\table\TableHeaderElement;
+use JulianSeymour\PHPWebApplicationFramework\element\table\TableRowElement;
+use JulianSeymour\PHPWebApplicationFramework\element\template\SlotElement;
+use JulianSeymour\PHPWebApplicationFramework\element\template\TemplateElement;
+use JulianSeymour\PHPWebApplicationFramework\form\LegendElement;
+use JulianSeymour\PHPWebApplicationFramework\image\ImageElement;
+use JulianSeymour\PHPWebApplicationFramework\input\ButtonInput;
+use JulianSeymour\PHPWebApplicationFramework\input\CheckboxInput;
+use JulianSeymour\PHPWebApplicationFramework\input\ColorInput;
+use JulianSeymour\PHPWebApplicationFramework\input\DateInput;
+use JulianSeymour\PHPWebApplicationFramework\input\DateTimeLocalInput;
+use JulianSeymour\PHPWebApplicationFramework\input\EmailInput;
+use JulianSeymour\PHPWebApplicationFramework\input\FileInput;
+use JulianSeymour\PHPWebApplicationFramework\input\HiddenInput;
+use JulianSeymour\PHPWebApplicationFramework\input\ImageInput;
+use JulianSeymour\PHPWebApplicationFramework\input\MonthInput;
+use JulianSeymour\PHPWebApplicationFramework\input\NumberInput;
+use JulianSeymour\PHPWebApplicationFramework\input\PasswordInput;
+use JulianSeymour\PHPWebApplicationFramework\input\PhoneNumberInput;
+use JulianSeymour\PHPWebApplicationFramework\input\RadioButtonInput;
+use JulianSeymour\PHPWebApplicationFramework\input\RangeInput;
+use JulianSeymour\PHPWebApplicationFramework\input\ResetInput;
+use JulianSeymour\PHPWebApplicationFramework\input\SubmitInput;
+use JulianSeymour\PHPWebApplicationFramework\input\TextInput;
+use JulianSeymour\PHPWebApplicationFramework\input\TextareaInput;
+use JulianSeymour\PHPWebApplicationFramework\input\TimeInput;
+use JulianSeymour\PHPWebApplicationFramework\input\URLInput;
+use JulianSeymour\PHPWebApplicationFramework\input\WeekInput;
+use JulianSeymour\PHPWebApplicationFramework\input\choice\DataListElement;
+use JulianSeymour\PHPWebApplicationFramework\input\choice\OptionElement;
+use JulianSeymour\PHPWebApplicationFramework\input\choice\OptionGroupElement;
+use JulianSeymour\PHPWebApplicationFramework\input\choice\SelectInput;
+use JulianSeymour\PHPWebApplicationFramework\search\SearchInput;
+
+class Document extends Basic
+{
+
+	public static function getElementClassFromTag($tag, $type = null)
+	{
+		$f = __METHOD__; //Document::getShortClass()."(".static::getShortClass().")::getElementClassFromTag()";
+		switch ($tag) {
+			case "!":
+				return HTMLCommentElement::class;
+			case "a":
+				return AnchorElement::class;
+			case "abbr":
+				return AbbreviationElement::class;
+			case "address":
+				return AddressElement::class;
+			case 'area':
+				return AreaElement::class;
+			case "article":
+				return ArticleElement::class;
+			case "aside":
+				return AsideElement::class;
+			case "audio":
+				return AudioElement::class;
+			case "b":
+				return BoldElement::class;
+			case "bdi":
+				return BidirectionalIsolateElement::class;
+			case "bdo":
+				return BidirectionalTextOverrideElement::class;
+			case "blockquote":
+				return BlockQuotationElement::class;
+			case "body":
+				return BodyElement::class;
+			case "br":
+				return LineBreakElement::class;
+			case "button":
+				return ButtonInput::class;
+			case 'canvas':
+				return CanvasElement::class;
+			case 'caption':
+				return TableCaptionElement::class;
+			case "cite":
+				return CitationElement::class;
+			case 'code':
+				return CodeElement::class;
+			case 'col':
+				return ColumnElement::class;
+			case 'colgroup':
+				return ColumnGroupElement::class;
+			case 'data':
+				return DataElement::class;
+			case 'datalist':
+				return DataListElement::class;
+			case "dd":
+				return DescriptionDetailsElement::class;
+			case 'del':
+				return DeletedTextElement::class;
+			case 'details':
+				return DetailsElement::class;
+			case "dfn":
+				return DefinitionElement::class;
+			case 'dialog':
+				return DialogElement::class;
+			case "div":
+				return DivElement::class;
+			case "dl":
+				return DescriptionListElement::class;
+			case "dt":
+				return DescriptionTermElement::class;
+			case "em":
+				return EmphasisElement::class;
+			case "embed":
+				return EmbedElement::class;
+			case "fieldset":
+				return FieldsetElement::class;
+			case "figcaption":
+				return FigureCaptionElement::class;
+			case "figure":
+				return FigureElement::class;
+			case "footer":
+				return FooterElement::class;
+			case "form":
+				return FormElement::class;
+			case 'h1':
+				return Heading1Element::class;
+			case 'h2':
+				return Heading2Element::class;
+			case 'h3':
+				return Heading3Element::class;
+			case 'h4':
+				return Heading4Element::class;
+			case 'h5':
+				return Heading5Element::class;
+			case 'h6':
+				return Heading6Element::class;
+			case "head":
+				return HeadElement::class;
+			case "header":
+				return HeaderElement::class;
+			case 'hgroup':
+				return HeadingGroupElement::class;
+			case "html":
+				return HTMLElement::class;
+			case 'i':
+				return ItalicElement::class;
+			case 'iframe':
+				return InlineFrameElement::class;
+			case 'img':
+				return ImageElement::class;
+			case "input":
+				switch ($type) {
+					case INPUT_TYPE_BUTTON:
+						return ButtonInput::class;
+					case INPUT_TYPE_CHECKBOX:
+						return CheckboxInput::class;
+					case INPUT_TYPE_COLOR:
+						return ColorInput::class;
+					case INPUT_TYPE_DATE:
+						return DateInput::class;
+					case INPUT_TYPE_DATETIME_LOCAL:
+						return DateTimeLocalInput::class;
+					case INPUT_TYPE_EMAIL:
+						return EmailInput::class;
+					case INPUT_TYPE_FILE:
+						return FileInput::class;
+					case INPUT_TYPE_HIDDEN:
+						return HiddenInput::class;
+					case INPUT_TYPE_IMAGE:
+						return ImageInput::class;
+					case INPUT_TYPE_MONTH:
+						return MonthInput::class;
+					case INPUT_TYPE_NUMBER:
+						return NumberInput::class;
+					case INPUT_TYPE_PASSWORD:
+						return PasswordInput::class;
+					case INPUT_TYPE_RADIO:
+						return RadioButtonInput::class;
+					case INPUT_TYPE_RANGE:
+						return RangeInput::class;
+					case INPUT_TYPE_RESET:
+						return ResetInput::class;
+					case INPUT_TYPE_SEARCH:
+						return SearchInput::class;
+					case INPUT_TYPE_SELECT:
+						return SelectInput::class;
+					case INPUT_TYPE_SUBMIT:
+						return SubmitInput::class;
+					case INPUT_TYPE_TEL:
+						return PhoneNumberInput::class;
+					case INPUT_TYPE_TEXT:
+						return TextInput::class;
+					case INPUT_TYPE_TEXTAREA:
+						return TextareaInput::class;
+					case INPUT_TYPE_TIME:
+						return TimeInput::class;
+					case INPUT_TYPE_URL:
+						return URLInput::class;
+					case INPUT_TYPE_WEEK:
+						return WeekInput::class;
+					default:
+						Debug::error("{$f} invalid input type \"{$type}\"");
+				}
+			case "ins":
+				return InsertionElement::class;
+			case 'kbd':
+				return KeyboardElement::class;
+			case "label":
+				return LabelElement::class;
+			case "legend":
+				return LegendElement::class;
+			case "li":
+				return ListItemElement::class;
+			case "link":
+				return LinkElement::class;
+			case "main":
+				return MainElement::class;
+			case 'map':
+				return MapElement::class;
+			case "mark":
+				return MarkElement::class;
+			case 'math':
+				return MathElement::class;
+			case "meta":
+				return MetaElement::class;
+			case "meter":
+				return MeterElement::class;
+			case "nav":
+				return NavigationElement::class;
+			case "noscript":
+				return NoScriptElement::class;
+			case "object":
+				return ObjectElement::class;
+			case "ol":
+				return OrderedListElement::class;
+			case "optgroup":
+				return OptionGroupElement::class;
+			case "option":
+				return OptionElement::class;
+			case "output":
+				return OutputElement::class;
+			case "p":
+				return ParagraphElement::class;
+			case "param":
+				return ParameterElement::class;
+			case "picture":
+				return PictureElement::class;
+			case "portal":
+				return PortalElement::class;
+			case "pre":
+				return PreformattedTextElement::class;
+			case 'progress':
+				return ProgressElement::class;
+			case 'q':
+				return InlineQuotationElement::class;
+			case "rp":
+				return RubyFallbackParenthesisElement::class;
+			case 'rt':
+				return RubyTextElement::class;
+			case 'rtc':
+				return RubyTextContainerElement::class;
+			case 'ruby':
+				return RubyElement::class;
+			case 's':
+				return StrikethroughElement::class;
+			case 'samp':
+				return SampleElement::class;
+			case "script":
+				return ScriptElement::class;
+			case "section":
+				return SectionElement::class;
+			case "select":
+				return SelectInput::class;
+			case 'slot':
+				return SlotElement::class;
+			case 'small':
+				return SmallElement::class;
+			case "source":
+				return SourceElement::class;
+			case "span":
+				return SpanElement::class;
+			case 'strong':
+				return StrongElement::class;
+			case "style":
+				return StyleElement::class;
+			case 'sub':
+				return SubscriptElement::class;
+			case 'summary':
+				return SummaryElement::class;
+			case 'sup':
+				return SuperscriptElement::class;
+			case 'svg':
+				return ScalableVectorGraphicElement::class;
+			case 'tbody':
+				return TableBodyElement::class;
+			case "td":
+				return TableDataElement::class;
+			case "template":
+				return TemplateElement::class;
+			case "textarea":
+				return TextareaInput::class;
+			case 'tfoot':
+				return TableFooterElement::class;
+			case "th":
+				return TableHeaderElement::class;
+			case 'thead':
+				return TableHeadElement::class;
+			case 'time':
+				return TimeElement::class;
+			case "title":
+				return TitleElement::class;
+			case "tr":
+				return TableRowElement::class;
+			case "track":
+				return TrackElement::class;
+			case 'u':
+				return UnderlineElement::class;
+			case "ul":
+				return UnorderedListElement::class;
+			case 'var':
+				return VariableElement::class;
+			case "video":
+				return VideoElement::class;
+			case 'wbr':
+				return WordBreakElement::class;
+			default:
+				return Element::class;
+				//Debug::error("{$f} invalid element tag \"{$tag}\"");
+		}
+	}
+
+	public static function createElement($tag, $type = null, $mode = ALLOCATION_MODE_UNDEFINED): Element
+	{
+		$class = static::getElementClassFromTag($tag, $type);
+		$e = new $class($mode);
+		if(get_class($e) === Element::class){
+			$e->setElementTag($tag);
+		}
+		return $e;
+	}
+
+	public static function visibilityState(): DocumentVisibilityStateCommand
+	{
+		return new DocumentVisibilityStateCommand();
+	}
+}

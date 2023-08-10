@@ -1,0 +1,40 @@
+.ajax_form{
+	/*overflow:hidden;*/ /*this was screwing up the messenger scroll to bottom button*/
+	position:relative;
+	transition:filter 0.5s;
+}
+
+.ajax_form label{
+	/*display:inline-block;*/
+	/*min-width:57px;*/
+	/*box-shadow:0 1px 6px rgba(32, 33, 36, 0.28);*/
+	/*border-radius:0.5rem;*/
+	/*margin:0.5rem;*/
+	/*padding:0.5rem;*/
+}
+
+.ajax_form input[type="text"],
+.ajax_form input[type="tel"],
+.ajax_form input[type="password"],
+.ajax_form input[type="email"],
+.ajax_form input[type="number"]{
+	height:50px;
+	/*display:block;*/
+	width:100%;
+	box-sizing:border-box;
+	/*margin-top:0.5rem;*/
+	padding:0 0.5rem;
+}
+
+.page_content .ajax_form{
+	/*margin: 1rem;*/
+	/*padding: 0.5rem;*/
+	/*background-color: #fff;*/
+	/*border-radius:0.5rem;*/
+	transition:all 0.5s;
+	box-sizing:border-box;
+}
+
+.ajax_form .multiselect_label{
+	display:none;
+}
