@@ -972,3 +972,13 @@ define("RECOURSE_RETRY", 1);
 define("RECOURSE_IGNORE", 2);
 define("RECOURSE_EXIT", 3);
 define("RECOURSE_CONTINUE", 4);
+
+define("ONLINE_STATUS_UNDEFINED", CONST_UNDEFINED);
+define("ONLINE_STATUS_NONE", CONST_NONE);
+define("ONLINE_STATUS_OFFLINE", "offline"); // user has not reauthenticated recently
+define("ONLINE_STATUS_ONLINE", "online"); // user was online recently
+define("ONLINE_STATUS_APPEAR_OFFLINE", "appear_offline"); // user is pretending to be offline
+define("ONLINE_STATUS_AWAY", "away"); // user is online but away from keyboard
+define("ONLINE_STATUS_BUSY", "busy"); // user is busy
+define("ONLINE_STATUS_CUSTOM", "custom"); // custom status message
+define("ONLINE_STATUS_DISABLED", "disabled"); //user cannot use the messenger
