@@ -30,10 +30,14 @@ class CssBundleUseCase extends BundleUseCase{
 	protected function getBundledFilenames(?string $filename = null):?array{
 		$f = __METHOD__;
 		try {
+			$print = false;
 			if ($this->hasBundledFilenames()) {
 				return $this->bundledFilenames;
 			}
 			$filenames = mods()->getCascadingStyleSheetFilepaths();
+			if($print){
+				Debug::printArray($filenames);
+			}
 			return $this->setBundledFilenames($filenames);
 		} catch (Exception $x) {
 			x($f, $x);

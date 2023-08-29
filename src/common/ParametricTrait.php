@@ -1,8 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
-use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
@@ -20,9 +20,11 @@ trait ParametricTrait{
 	}
 
 	public function setParameters($params){
-		$f = __METHOD__; //"ParametricTrait(".static::getShortClass().")->setParameters()";
+		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if (count($params) === 1 && is_array($params[0])) {
+		if(empty($params)){
+			Debug::error("{$f} don't call this function without actually passing parameters");
+		}elseif (count($params) === 1 && is_array($params[0])) {
 			$params = $params[0];
 		}
 		if ($print) {
@@ -38,7 +40,7 @@ trait ParametricTrait{
 	}
 
 	public function getParameterString(bool $js = false): ?string{
-		$f = __METHOD__; //"ParametricTrait(".static::getShortClass().")->getParameterString()";
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasParameters()) {
 			return null;

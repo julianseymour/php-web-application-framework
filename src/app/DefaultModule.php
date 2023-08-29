@@ -637,7 +637,6 @@ class DefaultModule extends EmptyModule{
 
 	public function getClientUseCaseDictionary(): ?array{
 		return [
-			"history_search" => "HistorySearchUseCase",
 			"login" => "LoginUseCase",
 			"logout" => "LogoutUseCase",
 			"mfa" => "MfaUseCase",

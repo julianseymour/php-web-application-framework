@@ -351,21 +351,7 @@ abstract class PlayableUser extends UserData{
 				$unreadNotificationCount->setPersistenceMode(PERSISTENCE_MODE_ALIAS);
 				$unreadNotificationCount->setSubqueryWhereCondition(new AndCommand(new WhereCondition("notifications_alias.uniqueKey", OPERATOR_IN, null, RetrospectiveNotificationData::generateLazyAliasExpression($ds->getClass())), new WhereCondition("notificationState", OPERATOR_EQUALS)) // 's')
 				);
-
-				$unreadMessageCount = new UnsignedIntegerDatum("unreadMessageCount", 64);
-				$unreadMessageCount->setDefaultValue(0);
-				$unreadMessageCount->setPersistenceMode(PERSISTENCE_MODE_ALIAS);
-				$unreadMessageCount->setSubqueryExpression(new SumCommand("notificationCount"));
-				$unreadMessageCount->setSubqueryClass(RetrospectiveNotificationData::class);
-				$unreadMessageCount->setSubqueryParameters([
-					"userKey",
-					NOTIFICATION_TYPE_MESSAGE,
-					NOTIFICATION_STATE_UNREAD
-				]);
-				$unreadMessageCount->setSubqueryWhereCondition(new AndCommand(new WhereCondition(new ColumnAliasExpression("notifications_alias", "uniqueKey"), OPERATOR_IN, null, RetrospectiveNotificationData::generateLazyAliasExpression($ds->getClass())), new WhereCondition("notificationType", OPERATOR_EQUALS), // 's'),
-				new WhereCondition("notificationState", OPERATOR_EQUALS)) // 's')
-				);
-				array_push($pushed, $unreadNotificationCount, $unreadMessageCount);
+				array_push($pushed, $unreadNotificationCount);
 			}
 			static::pushTemporaryColumnsStatic($columns, ...$pushed);
 		} catch (Exception $x) {
