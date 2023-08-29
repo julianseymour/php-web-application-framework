@@ -1,8 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\dismiss;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
@@ -14,13 +15,11 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\ClientUseCaseInterface;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 
-class DismissAllNotificationsUseCase extends UseCase implements ClientUseCaseInterface
-{
+class DismissAllNotificationsUseCase extends UseCase implements ClientUseCaseInterface{
 
 	use JavaScriptCounterpartTrait;
 
-	public function execute(): int
-	{
+	public function execute(): int{
 		$f = __METHOD__;
 		try {
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
@@ -76,28 +75,19 @@ class DismissAllNotificationsUseCase extends UseCase implements ClientUseCaseInt
 		}
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return SUCCESS;
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_DISMISS_ALL_NOTIFICATIONS;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/dismiss_all";
 	}
 
-	public function getClientUseCaseName(): ?string
-	{
+	public function getClientUseCaseName(): ?string{
 		return "dismiss_all";
 	}
 }

@@ -101,7 +101,7 @@ function array_remove_keys(array $array, ...$keys): ?array
 
 function associate(array $arr): array
 {
-	$f = __METHOD__; //"associate()";
+	$f = __FUNCTION__; //"associate()";
 	if (is_associative($arr)) {
 		Debug::error("{$f} array is already associative");
 		return $arr;
@@ -318,9 +318,8 @@ function base64url_decode(string $data)
  * @param string $string
  * @return mixed
  */
-function bbcode_parse_extended($bbcode_container = null, $to_parse)
-{
-	$f = __METHOD__; //"bbcode_parse_extended()";
+function bbcode_parse_extended($bbcode_container = null, $to_parse){
+	$f = "bbcode_parse_extended()";
 	$print = false;
 	$tags = 'b|center|color|i|left|right|size|url|img|quote|video';
 	$matches = [];
@@ -481,7 +480,7 @@ function close_enough(float $a, float $b)
  */
 function curl_get(string $url, array $get = null, array $options = array())
 {
-	$f = __METHOD__; //"curl_get()";
+	$f = __FUNCTION__; //"curl_get()";
 	try {
 		$q = strpos($url, '?') === false ? '?' : '';
 		$defaults = [
@@ -515,9 +514,8 @@ function curl_get(string $url, array $get = null, array $options = array())
  *        	for cURL
  * @return string|bool
  */
-function curl_post(string $url, array $post = null, array $options = array())
-{
-	$f = __METHOD__; //"curl_post()";
+function curl_post(string $url, array $post = null, array $options = array()){
+	$f = __FUNCTION__;
 	try {
 		$defaults = [
 			CURLOPT_POST => 1,
@@ -551,8 +549,7 @@ function curl_post(string $url, array $post = null, array $options = array())
  *        	: `, ' or "
  * @return string|mixed
  */
-function escape_quotes(string $string, string $quote_style)
-{
+function escape_quotes(string $string, string $quote_style){
 	$f = __FUNCTION__;
 	$print = false;
 	if (is_int($string) || is_float($string) || is_double($string)) {
@@ -578,30 +575,30 @@ function escape_quotes(string $string, string $quote_style)
  * @param string $string
  * @return string
  */
-function single_quote(string $string): string
-{
+function single_quote(string $string): string{
 	return "'" . escape_quotes($string, QUOTE_STYLE_SINGLE) . "'";
 }
 
-function double_quote(string $string): string
-{
+function double_quote(string $string): string{
 	return "\"" . escape_quotes($string, QUOTE_STYLE_DOUBLE) . "\"";
 }
 
-function back_quote(string $string): string
-{
+function back_quote(string $string): string{
 	return "`" . escape_quotes($string, QUOTE_STYLE_BACKTICK) . "`";
 }
 
-function get12MonthsAgoTimestamp(?int $from = null)
-{
+function get_12_months_before($from = null, bool $return_as_unix_timestamp=true){
 	$f = __FUNCTION__;
 	$print = false;
 	if ($from === null) {
 		$from = time();
+	}elseif($from instanceof DateTime){
+		$now = $from;
+	}//
+	if(is_int($from)){
+		$now = new DateTime();
+		$now->setTimestamp($from);
 	}
-	$now = new DateTime();
-	$now->setTimestamp($from);
 	$then = new DateTime();
 	$month = intval($now->format('n'));
 	$day = intval($now->format('d'));
@@ -618,12 +615,14 @@ function get12MonthsAgoTimestamp(?int $from = null)
 		$now_string = $now->format("D, Y M d H:i:s");
 		Debug::print("{$f} 12 months before {$now_string} is " . $then->format("D, Y M d H:i:s"));
 	}
-	return $then->getTimestamp();
+	if($return_as_unix_timestamp){
+		return $then->getTimestamp();
+	}
+	return $then;
 }
 
-function get_class_filename(string $class_name): ?string
-{
-	$f = __METHOD__; //"get_class_filename()";
+function get_class_filename(string $class_name): ?string{
+	$f = __FUNCTION__;
 	if (! class_exists($class_name)) {
 		Debug::error("{$f} class \"{$class_name}\" does not exist");
 	}
@@ -636,6 +635,45 @@ function get_class_filename(string $class_name): ?string
 	return $fn;
 }
 
+function default_lang_ip(string $ip):string{
+	return default_lang_region(geoip_country_code_by_name($ip));
+}
+
+function default_lang_region(string $region):string{
+	switch ($region) {
+		case "AR": // ,"Argentina"
+		case "BO": // ,"Bolivia"
+		case "CL": // ,"Chile"
+		case "CO": // ,"Colombia"
+		case "CR": // ,"Costa Rica"
+		case "CU": // ,"Cuba"
+		case "DO": // ,"Dominican Republic"
+		case "EC": // ,"Ecuador"
+		case "SV": // ,"El Salvador"
+		case "GQ": // ,"Equatorial Guinea"
+		case "GT": // ,"Guatemala"
+		case "HN": // ,"Honduras"
+		case "MX": // ,"Mexico"
+		case "NI": // ,"Nicaragua"
+		case "PA": // ,"Panama"
+		case "PY": // ,"Paraguay"
+		case "PE": // ,"Peru"
+		case "ES": // ,"Spain"
+		case "UY": // ,"Uruguay"
+		case "VE": // ,"Venezuela"
+		case "GI": // ,"Gibraltar"
+		case "PR": // ,"Puerto Rico"
+			return LANGUAGE_SPANISH;
+		case "AU": // ,"Australia"
+		case "NZ": // ,"New Zealand"
+		case "GB": // ,"United Kingdom"
+		case "US": // ,"United States"
+			return LANGUAGE_ENGLISH;
+		default:
+			return LANGUAGE_DEFAULT;
+	}
+}
+
 /**
  * walks back through a debug backtrace until it gets to a function that is not part of $func_names
  *
@@ -643,8 +681,7 @@ function get_class_filename(string $class_name): ?string
  *        	: names of functions to be skipped over
  * @return string
  */
-function get_file_line(?array $func_names = null, ?int $count = null): string
-{
+function get_file_line(?array $func_names = null, ?int $count = null): string{
 	$f = __FUNCTION__;
 	try {
 		Debug::checkMemoryUsage($f);
@@ -671,9 +708,8 @@ function get_file_line(?array $func_names = null, ?int $count = null): string
 	}
 }
 
-function backtrace_omit(int $limit = 4, ?array $func_names = null, bool $return_next = false): array
-{
-	$f = __METHOD__; //"backtrace_omit()";
+function backtrace_omit(int $limit = 4, ?array $func_names = null, bool $return_next = false): array{
+	$f = __FUNCTION__;
 	$print = false;
 	if ($func_names === null) {
 		$func_names = [];
@@ -714,30 +750,30 @@ function backtrace_omit(int $limit = 4, ?array $func_names = null, bool $return_
 	return $caller;
 }
 
-function getDateTimeStringFromTimestamp(int $ts, $zone = null, ?string $format = null)
-{
+function getDateTimeStringFromTimestamp(int $ts, $zone = null, ?string $format = null){
 	if ($format === null) {
 		$format = "Y-m-d H:i:s";
 	}
 	return timestamp_to_str($ts, $zone, $format);
 }
 
-function getDateStringFromTimestamp(int $ts, $zone = null, ?string $format = null)
-{
+function getDateStringFromTimestamp(int $ts, $zone = null, ?string $format = null){
 	if ($format === null) {
 		$format = "Y-m-d";
 	}
 	return timestamp_to_str($ts, $zone, $format);
 }
 
-function getExecutionTime(?bool $get_as_float = null)
-{
+function getExecutionTime(?bool $get_as_float = null){
 	return microtime($get_as_float) - $_SERVER['REQUEST_TIME_FLOAT'];
 }
 
-function get_short_class($object_or_string): string
-{
-	$f = __METHOD__; //"get_short_class()";
+function getlocale(int $category=LC_MESSAGES):string{
+	return setlocale($category, 0);
+}
+
+function get_short_class($object_or_string): string{
+	$f = __FUNCTION__; //"get_short_class()";
 	if (is_object($object_or_string)) {
 		$reflect = new ReflectionClass($object_or_string);
 		return $reflect->getShortName();
@@ -751,8 +787,7 @@ function get_short_class($object_or_string): string
 	Debug::error("{$f} received something that is not an object or string");
 }
 
-function getTimeStringFromTimestamp(int $ts, $zone = null, ?string $format = null)
-{
+function getTimeStringFromTimestamp(int $ts, $zone = null, ?string $format = null){
 	if ($format === null) {
 		$format = "H:i:s";
 	}
@@ -765,8 +800,7 @@ function getTimeStringFromTimestamp(int $ts, $zone = null, ?string $format = nul
  * @param string|int|double|array $val
  * @return string
  */
-function getTypeSpecifier($val)
-{
+function getTypeSpecifier($val){
 	$f = __FUNCTION__;
 	if (is_array($val)) {
 		$string = "";
@@ -788,8 +822,7 @@ function getTypeSpecifier($val)
 	Debug::error("{$f} none of the above -- value type is \"{$type}\"");
 }
 
-function getYear($timezone = null, int $offset = 0)
-{
+function getYear($timezone = null, int $offset = 0){
 	if ($timezone === null) {
 		$timezone = date_default_timezone_get();
 	}
@@ -802,8 +835,7 @@ function getYear($timezone = null, int $offset = 0)
 	return $year;
 }
 
-function getYearStartTimestamp(?int $year = null, $timezone = null)
-{
+function getYearStartTimestamp(?int $year = null, $timezone = null){
 	if ($timezone === null) {
 		$timezone = date_default_timezone_get();
 	} elseif (is_string($timezone)) {
@@ -819,8 +851,7 @@ function getYearStartTimestamp(?int $year = null, $timezone = null)
 	return $datetime->getTimestamp();
 }
 
-function getYearEndTimestamp(?int $year = null, $timezone = null)
-{
+function getYearEndTimestamp(?int $year = null, $timezone = null){
 	if ($timezone === null) {
 		$timezone = date_default_timezone_get();
 	} elseif (is_string($timezone)) {
@@ -836,8 +867,7 @@ function getYearEndTimestamp(?int $year = null, $timezone = null)
 	return $dec31->getTimestamp();
 }
 
-function hasMinimumMySQLVersion(string $vs)
-{
+function hasMinimumMySQLVersion(string $vs){
 	$f = __FUNCTION__;
 	try {
 		Debug::print("{$f} testing minimum MySQL version {$vs}");
@@ -856,8 +886,7 @@ function hasMinimumMySQLVersion(string $vs)
  * @param string $hex
  * @return string
  */
-function hex_negate(string $hex): string
-{
+function hex_negate(string $hex): string{
 	$f = __FUNCTION__;
 	if (! ctype_xdigit($hex)) {
 		Debug::error("{$f} invalid hex value \"{$hex}\"");
@@ -887,8 +916,7 @@ function hex_negate(string $hex): string
 	return $negated;
 }
 
-function implode_back_quotes($glue, $pieces): string
-{
+function implode_back_quotes($glue, $pieces): string{
 	$imploded = "";
 	foreach ($pieces as $s) {
 		if (! empty($imploded)) {
@@ -899,8 +927,7 @@ function implode_back_quotes($glue, $pieces): string
 	return $imploded;
 }
 
-function ip_mask(?string $ip_address): int
-{
+function ip_mask(?string $ip_address): int{
 	$f = __FUNCTION__;
 	if ($ip_address === null) {
 		$ip_address = $_SERVER['REMOTE_ADDR'];
@@ -923,8 +950,7 @@ function ip_mask(?string $ip_address): int
  * @param string $ip
  * @return int : -1 if an error occurs
  */
-function ip_version(string $ip): int
-{
+function ip_version(string $ip): int{
 	$f = __FUNCTION__;
 	// Debug::print(REGEX_IPv6_ADDRESS_OR_CIDR);
 	if (! is_string($ip)) {
@@ -949,8 +975,7 @@ function ip_version(string $ip): int
  * @param string $name
  * @return bool
  */
-function is_abstract(string $name): ?bool
-{
+function is_abstract(string $name): ?bool{
 	$f = __FUNCTION__;
 	if (! class_exists($name)) {
 		Debug::warning("{$f} class \"{$name}\" does not exist");
@@ -966,13 +991,11 @@ function is_abstract(string $name): ?bool
  * @param array $arr
  * @return bool
  */
-function is_associative(array $arr): bool
-{
+function is_associative(array $arr): bool{
 	return (array() === $arr) ? false : (array_keys($arr) !== range(0, count($arr) - 1));
 }
 
-function is_json(string $string): bool
-{
+function is_json(string $string): bool{
 	json_decode($string);
 	return json_last_error() === JSON_ERROR_NONE;
 }
@@ -983,8 +1006,7 @@ function is_json(string $string): bool
  * @param string $str
  * @return bool
  */
-function is_sha1(string $str): bool
-{
+function is_sha1(string $str): bool{
 	return boolval(preg_match('/^[0-9a-f]{40}$/i', $str));
 }
 
@@ -994,14 +1016,12 @@ function is_sha1(string $str): bool
  * @param mixed $data
  * @return bool
  */
-function is_base64($data): bool
-{
+function is_base64($data): bool{
 	return base64_encode(base64_decode($data, true)) === $data;
 }
 
-function luhn($imei)
-{
-	$f = __METHOD__; //"luhn({$imei})";
+function luhn($imei){
+	$f = __FUNCTION__;
 	$print = false;
 	$sum = 0;
 	$check = $imei % 10;
@@ -1045,8 +1065,7 @@ function luhn($imei)
  * @param string $filename
  * @return string|NULL
  */
-function php2string(string $filename): ?string
-{
+function php2string(string $filename): ?string{
 	$f = __FUNCTION__;
 	if (empty($filename)) {
 		Debug::error("{$f} filename is null or empty string");
@@ -1075,8 +1094,7 @@ function php2string(string $filename): ?string
  * @param object $obj
  * @return string|NULL
  */
-function php2string4object(string $filename, object $obj): ?string
-{
+function php2string4object(string $filename, object $obj): ?string{
 	$f = __FUNCTION__;
 	try {
 		ob_start();
@@ -1115,8 +1133,7 @@ function php2string4object(string $filename, object $obj): ?string
  * @param string $regex
  * @return string
  */
-function regex_js(string $regex): string
-{
+function regex_js(string $regex): string{
 	$f = __FUNCTION__;
 	$print = false;
 	if (starts_with($regex, '/')) {
@@ -1146,9 +1163,8 @@ function regex_js(string $regex): string
  *
  * @param string $class_name
  */
-function require_class(string $class_name)
-{
-	$f = __METHOD__; //"require_Class()";
+function require_class(string $class_name){
+	$f = __FUNCTION__;
 	if (! class_exists($class_name)) {
 		error_log("\033[31mError: {$f} class \"{$class_name}\" does not exist\033[0m");
 		$trace = (new Exception())->getTraceAsString();
@@ -1166,8 +1182,7 @@ function require_class(string $class_name)
  * @param string $color
  * @return string
  */
-function rgb_contrast(string $color): string
-{
+function rgb_contrast(string $color): string{
 	$f = __FUNCTION__;
 	if (! ctype_xdigit($color) || strlen($color) !== 6) {
 		Debug::error("{$f} invalid RGB value \"{$color}\"");
@@ -1190,8 +1205,7 @@ function rgb_contrast(string $color): string
  * @param string $value
  * @return string
  */
-function set_secure_cookie(string $name, $value, ?int $expires = null)
-{
+function set_secure_cookie(string $name, $value, ?int $expires = null){
 	$f = __FUNCTION__;
 	try {
 		$print = false;
@@ -1227,9 +1241,8 @@ function set_secure_cookie(string $name, $value, ?int $expires = null)
 	}
 }
 
-function unset_cookie(string $name): bool
-{
-	$f = __METHOD__; //"unset_cookie()";
+function unset_cookie(string $name): bool{
+	$f = __FUNCTION__;
 	$print = false;
 	if (isset($_COOKIE[$name])) {
 		if ($print) {

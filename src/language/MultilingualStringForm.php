@@ -5,6 +5,7 @@ use function JulianSeymour\PHPWebApplicationFramework\config;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
 use JulianSeymour\PHPWebApplicationFramework\input\TextareaInput;
+ErrorMessage::deprecated(__FILE__);
 
 class MultilingualStringForm extends AjaxForm{
 

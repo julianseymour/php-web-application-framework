@@ -6,7 +6,6 @@ class LoginUseCase extends UseCase{
 			console.log(f+": got login result \""+response.status+"\"");
 			switch(response.status){
 				case SUCCESS:
-				case RESULT_ACTIVATE_SUCCESS:
 					console.log(f+": login successful");
 					sessionStorage.clear();
 					updatePageAfterLogin(response);

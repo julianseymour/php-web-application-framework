@@ -1,9 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\login;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -26,9 +26,13 @@ use JulianSeymour\PHPWebApplicationFramework\security\captcha\LenienthCaptchaVal
 use JulianSeymour\PHPWebApplicationFramework\security\captcha\hCaptcha;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\security\SecurityNotificationData;
+use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
 
 class LoginAttempt extends AccessAttempt{
 
+	use JavaScriptCounterpartTrait;
+	
 	public static function skipUserAcquisitionOnLoad():bool{
 		return true;
 	}
@@ -82,7 +86,20 @@ class LoginAttempt extends AccessAttempt{
 				Debug::error("{$f} impermissably vague failure status");
 			}
 			// mark login failed
-			$this->fail($mysqli, $status);
+			//$this->fail($mysqli, $status);
+			if($status === RESULT_BFP_USERNAME_LOCKOUT_START){
+				$this->setLoginResult($status);
+			}else{
+				$count = $this->getFailedLoginCountForIpAddress($mysqli);
+				if ($print) {
+					Debug::print("{$f} failed login count for IP address: {$count}");
+				}
+				if ($count > MAX_FAILED_LOGINS_BY_IP) {
+					$this->setLoginResult(RESULT_BFP_IP_LOCKOUT_START);
+				}else{
+					$this->setLoginResult($status);
+				}
+			}
 			// insert into database
 			$status = $this->insert($mysqli);
 			if ($status !== SUCCESS) {
@@ -97,7 +114,8 @@ class LoginAttempt extends AccessAttempt{
 			// send failed login notification, unless user has them disabled
 			if ($this->hasUserData()) {
 				$user = $this->getUserData();
-				if ($user->getPushSecurityNotifications() || $user->getEmailSecurityNotifications()) {
+				$type = SecurityNotificationData::getNotificationTypeStatic();
+				if ($user->getPushNotificationStatus($type) || $user->getEmailNotificationStatus($type)) {
 					if ($print) {
 						Debug::print("{$f} user has security notifications enabled in some way");
 					}
@@ -132,7 +150,7 @@ class LoginAttempt extends AccessAttempt{
 					}
 					$response = app()->getResponse(app()->getUseCase());
 					$hcaptcha = new hCaptcha();
-					$hcaptcha->setIdAttribute("login_hcaptcha");
+					$hcaptcha->setIdAttribute('login_hcaptcha');
 					$hcaptcha->setCatchReportedSubcommandsFlag(true);
 					$command = new InsertBeforeCommand("load_login_form", $hcaptcha);
 					$command->setOnDuplicateIdCommand(new NoOpCommand());
@@ -198,7 +216,7 @@ class LoginAttempt extends AccessAttempt{
 					$name = $session->getUsername();
 				} else {
 					$result = $this->getLoginResult();
-					if ($result === RESULT_BFP_MFA_FAILED) {
+					if ($result === ERROR_INVALID_MFA_OTP) {
 						$name = $this->getUserData()->getNormalizedName();
 					} else {
 						$err = ErrorMessage::getResultMessage($result);
@@ -246,37 +264,11 @@ class LoginAttempt extends AccessAttempt{
 		}
 	}
 
-	public function checkUserMFAEnabled(mysqli $mysqli):int{
-		$f = __METHOD__;
-		$print = false;
-		$user = $this->getUserData();
-		if ($user == null) {
-			Debug::warning("{$f} user data returned null");
-			return $this->setLoginResult(ERROR_NULL_USER_OBJECT);
-		} elseif ($user instanceof AnonymousUser) {
-			Debug::warning("{$f} user is anonymous");
-			return $this->setObjectStatus(ERROR_INTERNAL);
-		} elseif ($user->getMFAStatus() == MFA_STATUS_ENABLED) {
-			if (! $user->hasMfaSeed()) {
-				Debug::warning("{$f} MFA is enabled, but seed is undefined");
-			}
-			return $this->setLoginResult(RESULT_BFP_MFA_CONFIRM);
-		} elseif ($print) {
-			Debug::print("{$f} login successful; user does not have multifactor authentication enabled");
-		}
-		return $this->setLoginResult(SUCCESS);
-	}
-
 	public function bruteforceProtection(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try {
 			$print = false;
-			$select = $this->select("insertTimestamp")
-				->where(new AndCommand(new WhereCondition('userName', OPERATOR_EQUALS), new WhereCondition('loginSuccessful', OPERATOR_EQUALS), new WhereCondition('insertTimestamp', OPERATOR_GREATERTHAN)))
-				->orderBy(new OrderByClause("insertTimestamp", DIRECTION_DESCENDING))
-				->limit(MAX_FAILED_LOGINS_BY_NAME + 2)
-				->withTypeSpecifier('sii')
-				->withParameters([
+			$select = $this->select("insertTimestamp")->where(new AndCommand(new WhereCondition('userName', OPERATOR_EQUALS), new WhereCondition('loginSuccessful', OPERATOR_EQUALS), new WhereCondition('insertTimestamp', OPERATOR_GREATERTHAN)))->orderBy(new OrderByClause("insertTimestamp", DIRECTION_DESCENDING))->limit(MAX_FAILED_LOGINS_BY_NAME + 2)->withTypeSpecifier('sii')->withParameters([
 				$this->getUserName(),
 				FAILURE,
 				time() - LOCKOUT_DURATION
@@ -302,29 +294,11 @@ class LoginAttempt extends AccessAttempt{
 		}
 	}
 
-	public function fail(mysqli $mysqli, int $result):int{
-		$f = __METHOD__;
-		$print = false;
-		$count = $this->getFailedLoginCountForIpAddress($mysqli);
-		if ($print) {
-			Debug::print("{$f} failed login count for IP address: {$count}");
-		}
-		if ($count > MAX_FAILED_LOGINS_BY_IP) {
-			return $this->setLoginResult(RESULT_BFP_IP_LOCKOUT_START);
-		}
-		$this->setLoginResult($result);
-		return RESULT_LOGIN_FAILURE_CONTINUE;
-	}
-
 	protected function getFailedLoginCountForIpAddress(mysqli $mysqli):int{
 		$f = __METHOD__;
 		try {
 			return $this->select("num", "insertTimestamp", "loginSuccessful", "loginResult", "insertIpAddress")
-				->where(new AndCommand(new WhereCondition("insertTimestamp", OPERATOR_GREATERTHAN), new WhereCondition("insertIpAddress", OPERATOR_EQUALS), new WhereCondition("loginSuccessful", OPERATOR_EQUALS)))
-				->orderBy(new OrderByClause("insertTimestamp", DIRECTION_DESCENDING))
-				->limit(7)
-				->withTypeSpecifier('isi')
-				->withParameters([
+				->where(new AndCommand(new WhereCondition("insertTimestamp", OPERATOR_GREATERTHAN), new WhereCondition("insertIpAddress", OPERATOR_EQUALS), new WhereCondition("loginSuccessful", OPERATOR_EQUALS)))->orderBy(new OrderByClause("insertTimestamp", DIRECTION_DESCENDING))->limit(7)->withTypeSpecifier('isi')->withParameters([
 				$this->generateExpiredTimestamp(),
 				$_SERVER['REMOTE_ADDR'],
 				static::getCautionResult()
@@ -366,11 +340,11 @@ class LoginAttempt extends AccessAttempt{
 		return true;
 	}
 
-	public static function getPrettyClassName(?string $lang = null):string{
+	public static function getPrettyClassName():string{
 		return _("Login attempt");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null):string{
+	public static function getPrettyClassNames():string{
 		return _("Login attempts");
 	}
 
@@ -379,7 +353,7 @@ class LoginAttempt extends AccessAttempt{
 		return "login_attempts";
 	}
 
-	public static function getIpLogReason(){
+	public static function getReasonLoggedStatic(){
 		return BECAUSE_LOGIN;
 	}
 

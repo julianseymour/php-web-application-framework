@@ -29,12 +29,12 @@ class GenericData extends DataStructure{
 		return DATATYPE_UNKNOWN;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Generic data");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
-		return static::getPrettyClassName($lang);
+	public static function getPrettyClassNames():string{
+		return static::getPrettyClassName();
 	}
 
 	public static function getTableNameStatic(): string{
@@ -49,5 +49,9 @@ class GenericData extends DataStructure{
 
 	public static function getPhylumName(): string{
 		return "data";
+	}
+	
+	public static function getDefaultPersistenceModeStatic():int{
+		return PERSISTENCE_MODE_UNDEFINED;
 	}
 }

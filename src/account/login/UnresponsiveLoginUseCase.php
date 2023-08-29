@@ -1,11 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\login;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
@@ -30,24 +31,21 @@ use JulianSeymour\PHPWebApplicationFramework\session\hijack\AntiHijackSessionDat
 use JulianSeymour\PHPWebApplicationFramework\validate\FormButtonValidator;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\DetectLocaleUseCase;
 
-abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase
-{
+abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 
 	protected $loginAttempt;
 
-	public function setLoginAttempt($attempt)
-	{
+	public function setLoginAttempt($attempt){
 		return $this->loginAttempt = $attempt;
 	}
 
-	public function hasLoginAttempt()
-	{
+	public function hasLoginAttempt(){
 		return isset($this->loginAttempt) && $this->loginAttempt instanceof LoginAttempt;
 	}
 
-	public function getLoginAttempt()
-	{
+	public function getLoginAttempt(){
 		$f = __METHOD__;
 		if (! $this->hasLoginAttempt()) {
 			Debug::error("{$f} login attempt is undefined");
@@ -55,9 +53,8 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase
 		return $this->loginAttempt;
 	}
 
-	public function login(mysqli $mysqli): ?LoginAttempt
-	{
-		$f = __METHOD__; //UnresponsiveLoginUseCase::getShortClass()."(".static::getShortClass().")->login()";
+	public function login(mysqli $mysqli): ?LoginAttempt{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			// initialize login attempt object
@@ -230,9 +227,8 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase
 		}
 	}
 
-	public function execute(): int
-	{
-		$f = __METHOD__; //UnresponsiveLoginUseCase::getShortClass()."(".static::getShortClass().")->execute()";
+	public function execute(): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			PreMultifactorAuthenticationData::unsetColumnValuesStatic();
@@ -266,7 +262,6 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase
 			} elseif ($print) {
 				Debug::print("{$f} login successful");
 			}
-			// $this->authenticate();
 			$auth = new AuthenticateUseCase($this);
 			$auth->validateTransition();
 			$auth->execute();
@@ -289,28 +284,19 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase
 		}
 	}
 
-	public function getLoginFormClass(): string
-	{
+	public function getLoginFormClass(): string{
 		return LoginForm::class;
 	}
 
-	public function getAuthenticatedUserClass(): string
-	{
+	public function getAuthenticatedUserClass(): ?string{
 		return config()->getNormalUserClass();
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/login";
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_LOGIN;
-	}
-
-	public function getClientUseCaseName(): ?string
-	{
+	public function getClientUseCaseName(): ?string{
 		return "login";
 	}
 
@@ -323,9 +309,8 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase
 		$f = __METHOD__;
 		try {
 			$print = false;
-			// $post = getInputParameters();
 			if (hasInputParameter("name")) {
-				$name = getInputParameter("name"); // urldecode($post['name']);
+				$name = getInputParameter("name");
 				if ($print) {
 					Debug::print("{$f} posted name is \"{$name}\"");
 				}
@@ -334,6 +319,7 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase
 			}
 			$normalized = NameDatum::normalize($name);
 			$user_class = $this->getAuthenticatedUserClass();
+			DetectLocaleUseCase::detectLocaleStatic();
 			$user = new $user_class(ALLOCATION_MODE_SUBJECTIVE);
 			$user->setNormalizedName($normalized);
 			$select = $user->getNormalizedNameSelectStatement($normalized);
@@ -377,7 +363,7 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase
 							Debug::print("{$f} there are no dirty cache flagged columns");
 						}
 					} elseif ($print) {
-						Debug::print("{$f} redis cache flag is not enabled; skipping cleanup of dirty cacheable foreign keys");
+						Debug::print("{$f} cache is not enabled; skipping cleanup of dirty cacheable foreign keys");
 					}
 					$user->setCacheValue($results);
 					$status = $user->loadForeignDataStructures($mysqli, false);

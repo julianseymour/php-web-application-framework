@@ -48,7 +48,7 @@ class LimitItemsPerPageForm extends AjaxForm{
 			$toc = $paginator->getTotalItemCount();
 			$lim = $paginator->getLimitPerPage();
 			$limit->setMaximumAttribute($toc);
-			$limit->setPlaceholderAttribute(_("Items"));
+			$limit->setLabelString(_("Items"));
 			$limit->setNameAttribute("limit");
 			if ($lim !== null) {
 				$limit->setValueAttribute($lim);

@@ -2,7 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\email;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\Element;

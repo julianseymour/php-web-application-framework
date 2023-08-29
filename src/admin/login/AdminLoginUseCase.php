@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\admin\login;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
@@ -19,7 +20,7 @@ use Exception;
 
 class AdminLoginUseCase extends StandaloneLoginUseCase{
 
-	public function getAuthenticatedUserClass():string{
+	public function getAuthenticatedUserClass():?string{
 		return config()->getAdministratorClass();
 	}
 
@@ -74,15 +75,10 @@ class AdminLoginUseCase extends StandaloneLoginUseCase{
 	protected function getExecutePermissionClass(){
 		return new AnonymousAccountTypePermission("admin_login");
 	}
-
-	public function getUseCaseId(){
-		return USE_CASE_ADMIN_LOGIN;
-	}
 	
-	public function getResponder():?Responder{
+	public function getResponder(int $status):?Responder{
 		$f = __METHOD__;
 		$print = false;
-		$status = $this->getObjectStatus();
 		switch ($status) {
 			case SUCCESS:
 				if (user() instanceof AnonymousUser) {

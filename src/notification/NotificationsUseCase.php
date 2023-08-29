@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -15,101 +16,78 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\ClientUseCaseInterface;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use mysqli;
 
-class NotificationsUseCase extends UseCase implements ClientUseCaseInterface
-{
+class NotificationsUseCase extends UseCase implements ClientUseCaseInterface{
 
 	use JavaScriptCounterpartTrait;
 
-	public function getLoadoutGeneratorClass(?PlayableUser $user = null): ?string
-	{
+	public function getLoadoutGeneratorClass(?PlayableUser $user = null): ?string{
 		return NotificationsWidgetLoadoutGenerator::class;
 	}
 
-	public function getPageContent(): ?array
-	{
+	public function getPageContent(): ?array{
 		return [
 			new NotificationsWidget(ALLOCATION_MODE_LAZY, user())
 		];
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return EnabledAccountTypePermission::class;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_LIST_NOTIFICATIONS;
-	}
-
-	/*
-	 * public function getRootNodeTreeSelectStatements():?array{
-	 * return NotificationsWidget::getNotificationListDependencies($this);
-	 * }
-	 */
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/notifications";
 	}
 
-	public function getProcessedDataListClasses(): ?array
-	{
+	public function getProcessedDataListClasses(): ?array{
 		return [
 			$this->getProcessedDataType()
 		];
 	}
 
-	public function getConditionalElementClasses(): ?array
-	{
+	public function getConditionalElementClasses(): ?array{
 		return [
 			NotificationElement::class
 		];
 	}
 
-	public function getConditionalDataOperandClasses(): ?array
-	{
+	public function getConditionalDataOperandClasses(): ?array{
 		return [
 			$this->getProcessedDataType() => $this->getDataOperandClass()
 		];
 	}
 
-	public function getConditionalProcessedFormClasses(): ?array
-	{
+	public function getConditionalProcessedFormClasses(): ?array{
 		return null;
 	}
 
-	public function getProcessedDataType(): ?string
-	{
+	public function getProcessedDataType(): ?string{
 		return DATATYPE_NOTIFICATION;
 	}
 
-	public function isCurrentUserDataOperand(): bool
-	{
+	public function isCurrentUserDataOperand(): bool{
 		return true;
 	}
 
-	public function getDataOperandClass(): ?string
-	{
+	public function getDataOperandClass(): ?string{
 		return RetrospectiveNotificationData::class;
 	}
 
-	public function getResponder(): ?Responder
-	{
+	public function getResponder(int $status):?Responder{
+		if($status !== SUCCESS){
+			return parent::getResponder($status);
+		}
 		return new NotificationsResponder();
 	}
 
-	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData
-	{
+	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData{
 		return user();
 	}
 
-	public function getClientUseCaseName(): ?string
-	{
+	public function getClientUseCaseName(): ?string{
 		return "notifications";
 	}
 }

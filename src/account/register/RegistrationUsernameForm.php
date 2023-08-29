@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\register;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -18,7 +19,6 @@ class RegistrationUsernameForm extends AjaxForm{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "name":
-					$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
 					$input->setLabelString(_("Username"));
 					$ret = parent::reconfigureInput($input);
 					$id = "reg_name";
@@ -30,9 +30,6 @@ class RegistrationUsernameForm extends AjaxForm{
 					$suffix->setAllowEmptyInnerHTML(true);
 					$input->pushSuccessor($suffix);
 					$input->setRequiredAttribute("required");
-					// $onpropertychange = "nameInputChangeHandler(event, this);";
-					// $input->setOnPropertyChangeAttribute($onpropertychange);
-					// $input->setOnInputAttribute($onpropertychange);
 					$input->getWrapperElement()->setStyleProperties([
 						"margin-bottom" => "0.5rem"
 					]);

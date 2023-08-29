@@ -1,20 +1,19 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file\compress;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\file\CleartextFileData;
 
-abstract class CompressedFileData extends CleartextFileData
-{
+abstract class CompressedFileData extends CleartextFileData{
 
 	public abstract static function extractAll(string $compressed_filename, ?string $directory = null): array;
 
 	public abstract static function getExtensionStatic(): string;
 
-	public static function extractTempFilenames(string $compressed_filename, ?string $directory = null): array
-	{
-		$f = __METHOD__; //CompressedFileData::getShortClass()."(".static::getShortClass().")::extractAll()";
+	public static function extractTempFilenames(string $compressed_filename, ?string $directory = null): array{
+		$f = __METHOD__;
 		$print = false;
 		$contents = static::extractAll($compressed_filename, $directory);
 		if ($directory === null) {
@@ -37,26 +36,19 @@ abstract class CompressedFileData extends CleartextFileData
 		return $tempfilenames;
 	}
 
-	public final function getSubtypeValue(): string
-	{
+	public final function getSubtypeValue(): string{
 		return $this->getExtensionStatic();
 	}
 
-	public function getWebFileDirectory()
-	{
-		$f = __METHOD__; //CompressedFileData::getShortClass()."(".static::getShortClass().")->getWebFileDirectory()";
-		ErrorMessage::unimplemented($f);
+	public function getWebFileDirectory():string{
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 
-	public function getFileToWrite()
-	{
-		$f = __METHOD__; //CompressedFileData::getShortClass()."(".static::getShortClass().")->getFileToWrite()";
-		ErrorMessage::unimplemented($f);
+	public function getFileToWrite(){
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 
-	public static function getTableNameStatic(): string
-	{
-		$f = __METHOD__; //CompressedFileData::getShortClass()."(".static::getShortClass().")::getTableNameStatic()";
-		ErrorMessage::unimplemented($f);
+	public static function getTableNameStatic(): string{
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 }

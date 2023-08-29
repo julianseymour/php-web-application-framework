@@ -22,7 +22,7 @@ class InvalidatedOtp extends UserFingerprint{
 		return false;
 	}
 
-	public function getName(){
+	public function getName():string{
 		return $this->getUserName();
 	}
 
@@ -99,11 +99,11 @@ class InvalidatedOtp extends UserFingerprint{
 		static::pushTemporaryColumnsStatic($columns, $otp);
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Used OTP");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Used OTPs");
 	}
 

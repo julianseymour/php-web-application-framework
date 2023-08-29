@@ -1,7 +1,7 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;

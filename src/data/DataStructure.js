@@ -118,7 +118,7 @@ class DataStructure extends ResponseProperty{
 	getForeignDataStructureListMember(column_name, key){
 		let f = "getForeignDataStructureListMember()";
 		try{
-			let print = true;
+			let print = false;
 			let list = this.getForeignDataStructureList(column_name);
 			if(print){
 				console.log(list);
@@ -132,7 +132,7 @@ class DataStructure extends ResponseProperty{
 	getForeignDataStructureListMemberAtOffset(column_name, offset){
 		let f = "getForeignDataStructureListMemberAtOffset()";
 		try{
-			let print = true;
+			let print = false;
 			let list = this.getForeignDataStructureList(column_name);
 			if(print){
 				console.log(list);

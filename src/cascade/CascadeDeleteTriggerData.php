@@ -1,52 +1,54 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\cascade;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\UniversalDataClassResolver;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
-class CascadeDeleteTriggerData extends DataStructure
-{
+/**
+ * This class is used to automatically delete data structures when another data structure that they are dependent on is deleted, but not directly referenced. 
+ * Instead, the cascade delete data gets deleted as part of the delete() function, and that deletion cascades to all listeners.
+ * @author j
+ *
+ */
+class CascadeDeleteTriggerData extends DataStructure{
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function getDatabaseNameStatic():string{
+		return "cascading";
+	}
+	
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$instigator = new ForeignMetadataBundle("instigator", $ds);
 		$instigator->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_ONE);
-		$instigator->setForeignDataStructureClassResolver(UniversalDataClassResolver::class);
+		$instigator->setForeignDataStructureClassResolver(CascadeDeletableClassResolver::class);
 		$instigator->constrain();
 		static::pushTemporaryColumnsStatic($columns, $instigator);
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		ErrorMessage::unimplemented(f());
 	}
 
-	public static function getTableNameStatic(): string
-	{
-		return "cascade_delete_triggers";
+	public static function getTableNameStatic(): string{
+		return "delete_triggers";
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_CASCADE_DELETE;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		ErrorMessage::unimplemented(f());
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "cascadeDeleteTriggers";
 	}
 
-	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::reconfigureColumns($columns, $ds);
 		$keep = [
 			$ds->getIdentifierName(),

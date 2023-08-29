@@ -40,7 +40,7 @@ trait PropertiesTrait{
 	}
 
 	public function validatePropertyType($key, $value): int{
-		$f = __METHOD__; //"PropertiesTrait(" . static::getShortClass() . ")->validatePropertyType()";
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasPropertyType($key)) {
 			if ($print) {

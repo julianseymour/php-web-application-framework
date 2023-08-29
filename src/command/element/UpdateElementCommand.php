@@ -1,7 +1,7 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\element;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\is_associative;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -10,36 +10,30 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\json\Json;
 use Exception;
 
-class UpdateElementCommand extends MultipleElementCommand
-{
+class UpdateElementCommand extends MultipleElementCommand{
 
 	use EffectTrait;
 
-	public static function declareFlags(): array
-	{
+	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
 			"innerH"
 		]);
 	}
 
-	public function getInnerFlag(): bool
-	{
+	public function getInnerFlag(): bool{
 		return $this->getFlag("inner");
 	}
 
-	public function setInnerFlag(bool $value = true): bool
-	{
+	public function setInnerFlag(bool $value = true): bool{
 		return $this->setFlag("inner", $value);
 	}
 
-	public function inner(bool $value = true): UpdateElementCommand
-	{
+	public function inner(bool $value = true): UpdateElementCommand{
 		$this->setInnerFlag($value);
 		return $this;
 	}
 
-	public function __construct(...$elements)
-	{
+	public function __construct(...$elements){
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -124,17 +118,9 @@ class UpdateElementCommand extends MultipleElementCommand
 		}
 	}
 
-	public function echoInnerJson(bool $destroy = false): void
-	{
+	public function echoInnerJson(bool $destroy = false): void{
 		$f = __METHOD__;
 		try {
-			// Json::echoKeyValuePair('old_id', $this->getOldElementId(), $destroy);
-			// Json::echoKeyValuePair('new_id', $this->getId(), $destroy);
-			/*
-			 * if($this->hasElementClass()){
-			 * Json::echoKeyValuePair('new_class', $this->getElementClass(), $destroy);
-			 * }
-			 */
 			$i = 0;
 			echo "\"elements\":";
 			$elements = $this->getElements();
@@ -181,19 +167,16 @@ class UpdateElementCommand extends MultipleElementCommand
 		}
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return 'update';
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->effect);
 	}

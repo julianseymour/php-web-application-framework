@@ -48,51 +48,48 @@ class EmbeddedImageData extends ImageData
 		return $this->src = $src;
 	}
 
-	public function hasSourceAttribute()
-	{
+	public function hasSourceAttribute():bool{
 		return isset($this->src);
 	}
 
-	public function getSourceAttribute()
-	{
-		$f = __METHOD__; //EmbeddedImageData::getShortClass()."(".static::getShortClass().")->getSourceAttribute()";
+	public function getSourceAttribute(){
+		$f = __METHOD__;
 		if (! $this->hasSourceAttribute()) {
 			Debug::error("{$f} src attribute is undefined");
 		}
 		return $this->src;
 	}
 
-	public function hasWebFileDirectory()
-	{
+	public function hasWebFileDirectory():bool{
 		return isset($this->webFileDirectory);
 	}
 
-	public function getWebFileDirectory()
-	{
-		$f = __METHOD__; //EmbeddedImageData::getShortClass()."(".static::getShortClass().")->getWebFileDirectory()";
+	public function getWebFileDirectory():string{
+		$f = __METHOD__;
 		if (! $this->hasWebFileDirectory()) {
 			Debug::error("{$f} web file directory is undefined");
 		}
 		return $this->webFileDirectory;
 	}
 
-	public function setWebFileDirectory($dir)
-	{
+	public function setWebFileDirectory(?string $dir):?string{
+		if($dir === null){
+			unset($this->webFileDirectory);
+			return null;
+		}
 		return $this->webFileDirectory = $dir;
 	}
 
-	public static function getImageTypeStatic()
-	{
+	public static function getImageTypeStatic(){
 		return IMAGE_TYPE_EMBEDDED;
 	}
 
 	/**
-	 * Returns a string
+	 * Returns a string that encodes this image into an email
 	 *
 	 * @return string
 	 */
-	public function embed()
-	{
+	public function embed():string{
 		$dir = $this->getFullFileDirectory();
 		$filename = $this->getFilename();
 		$mime_type = $this->getMimeType();

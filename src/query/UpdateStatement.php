@@ -6,7 +6,7 @@ use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnExpressionsTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\join\JoinExpression;
@@ -49,47 +49,20 @@ class UpdateStatement extends WhereConditionalStatement implements StaticPropert
 		]);
 	}
 
-	public function set(...$assignments): UpdateStatement
-	{
+	public function set(...$assignments): UpdateStatement{
 		$this->setColumnExpressions(...$assignments);
 		return $this;
 	}
 
-	public function getTableReferenceCount()
-	{
+	public function getTableReferenceCount():int{
 		if ($this->hasJoinExpressions()) {
 			return $this->getJoinExpressionCount();
 		}
 		return 1;
 	}
 
-	protected function trimConditionalTypeSpecifier($typedef)
-	{
-		return substr($typedef, 0, $this->getUnconditionalParameterCount());
-	}
-
-	protected function trimConditionalParameters($params)
-	{
-		return array_slice($params, 0, $this->getUnconditionalParameterCount());
-	}
-
-	protected function getUnconditionalParameterCount()
-	{
-		$i = 0;
-		foreach ($this->getColumnExpressions() as $expression) {
-			if ($expression instanceof ExpressionCommand) {
-				$i += $expression->getParameterCount();
-			} else {
-				$i ++;
-			}
-		}
-		return $i;
-		// return $this->getColumnExpressionCount();
-	}
-
-	public function getQueryStatementString(): string
-	{
-		$f = __METHOD__; //UpdateStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
+	public function getQueryStatementString(): string{
+		$f = __METHOD__;
 		try {
 			// UPDATE
 			$string = "update ";

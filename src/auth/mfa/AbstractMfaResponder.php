@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\auth\mfa;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use JulianSeymour\PHPWebApplicationFramework\app\Responder;
 use JulianSeymour\PHPWebApplicationFramework\app\XMLHttpResponse;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;

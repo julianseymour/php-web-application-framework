@@ -122,19 +122,16 @@ class Registry extends Basic
 		return isset($this->globalKeyMap) && is_array($this->globalKeyMap) && array_key_exists($key, $this->globalKeyMap) && $this->globalKeyMap[$key] !== null;
 	}
 
-	public function has($key): bool
-	{
+	public function has($key): bool{
 		return $this->hasObjectRegisteredToKey($key);
 	}
 
-	public function getGlobalKeyMap()
-	{
+	public function getGlobalKeyMap(){
 		return $this->globalKeyMap;
 	}
 
-	public function getRegisteredObjectFromKey($key): ?DataStructure
-	{
-		$f = __METHOD__; //Registry::getShortClass()."(".static::getShortClass().")->getRegisteredObjectFromKey()";
+	public function getRegisteredObjectFromKey($key): ?DataStructure{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($key === "N/A") {
@@ -151,13 +148,11 @@ class Registry extends Basic
 		}
 	}
 
-	public function get($key): ?DataStructure
-	{
+	public function get($key): ?DataStructure{
 		return $this->getRegisteredObjectFromKey($key);
 	}
 
-	public function hasGlobalKeyMap(): bool
-	{
+	public function hasGlobalKeyMap(): bool{
 		return isset($this->globalKeyMap) && is_array($this->globalKeyMap);
 	}
 }

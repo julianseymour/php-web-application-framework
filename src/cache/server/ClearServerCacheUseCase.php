@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\cache\server;
 
 use function JulianSeymour\PHPWebApplicationFramework\cache;
@@ -9,32 +10,22 @@ use JulianSeymour\PHPWebApplicationFramework\admin\AdminOnlyAccountTypePermissio
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 
-class ClearServerCacheUseCase extends UseCase
-{
+class ClearServerCacheUseCase extends UseCase{
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/server_cache";
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return AdminOnlyAccountTypePermission::class;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_CLEAR_SERVER_CACHE;
-	}
-
-	public function execute(): int
-	{
-		$f = __METHOD__; //ClearServerCacheUseCase::getShortClass()."(".static::getShortClass().")->execute()";
+	public function execute(): int{
+		$f = __METHOD__;
 		$print = false;
 		if (! hasInputParameter('clear')) {
 			if ($print) {

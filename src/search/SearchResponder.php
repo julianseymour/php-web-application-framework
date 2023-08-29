@@ -1,7 +1,7 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\app\Responder;
@@ -14,11 +14,9 @@ use JulianSeymour\PHPWebApplicationFramework\ui\infobox\InfoBoxCommand;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 
-class SearchResponder extends Responder
-{
+class SearchResponder extends Responder{
 
-	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case)
-	{
+	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case){
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -110,7 +108,8 @@ class SearchResponder extends Responder
 				if ($print) {
 					Debug::print("{$f} about to tell the predecessor to modify response");
 				}
-				$responder = $predecessor->getResponder();
+				$status = $predecessor->getObjectStatus();
+				$responder = $predecessor->getResponder($status);
 				if ($responder instanceof Responder) {
 					$responder->modifyResponse($response);
 				}

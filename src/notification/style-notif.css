@@ -21,52 +21,6 @@
 	/*padding-right:0;*/
 }
 
-.notifications_widget_container{
-	position:fixed; /*absolute;*/
-	bottom:0;
-	display:block;
-	height:calc(100% - 50px);
-	width:100%;
-	max-width:100vw;
-	transition:opacity 0.5s ease-in;
-	pointer-events:none;
-}
-
-.notification_list_container{
-	transition:transform 0.3s ease-in, opacity 0.3s ease-in;
-	overflow:hidden;
-	max-width:480px;
-	/*max-height:50px;*/
-	position:absolute;
-	transform:scale3d(0, 0, 0); /*translate(150px, calc(100% - 50px))*/
-	bottom:0;
-	height:100%;
-	z-index:12;
-	width:100%;
-	border-radius:0.5rem;
-	opacity:0;
-	transform-origin:calc(0% + 175px) bottom;
-}
-
-input[id="widget-notifications"]:checked ~ .notifications_widget_container .notification_list_container{
-	max-height:100%;
-	max-width:480px;
-	transform:scale3d(1, 1, 1);
-	border-radius:0;
-	pointer-events:auto;
-	opacity:1;
-}
-
-input[id="widget-notifications"]:checked ~ .notifications_widget_container .notifications_header{
-	opacity:1;
-}
-
-/*input[id="widget-notifications"]:not(:checked) ~ .notifications_widget_container .notification > div > span{
-	opacity:0;
-	transition-delay:none !important;
-	transition:opacity 0.25s;
-}*/
-
 .notification_label_container label[for="widget-none"],
 .notification_label_container label[for="widget-notifications"]{
 	transition:opacity ease-in 0.5s;

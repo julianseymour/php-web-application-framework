@@ -12,11 +12,11 @@ class DeletedObject extends Basic{
 		return SUCCESS;
 	}
 	
-	public static function isDeleted(){
+	public static function isDeleted():bool{
 		return true;
 	}
 	
-	public static function getMessagePreview(){
+	public static function getMessagePreview():string{
 		return _("New conversation");
 	}
 	
@@ -32,7 +32,7 @@ class DeletedObject extends Basic{
 		return STATUS_DELETED;
 	}
 	
-	public function getName(){
+	public function getName():string{
 		return _("Deleted");
 	}
 	

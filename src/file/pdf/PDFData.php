@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file\pdf;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -15,8 +16,7 @@ class PDFData extends CleartextFileData
 
 	protected $fileGenerationMode;
 
-	public function getWebFileDirectory()
-	{
+	public function getWebFileDirectory():string{
 		$dir = '/pdf/';
 		if ($this->getFileGenerationMode() === FILE_GENERATION_MODE_DOMPDF) {
 			$context = $this->getContext();
@@ -30,34 +30,27 @@ class PDFData extends CleartextFileData
 		return $dir;
 	}
 
-	public final function getMimeType()
-	{
+	public final function getMimeType():string{
 		return MIME_TYPE_PDF;
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("PDF");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("PDFs");
 	}
 
-	public function getFileToWrite()
-	{
-		$f = __METHOD__; //PDFData::getShortClass()."(".static::getShortClass().")->getFileToWrite()";
-		ErrorMessage::unimplemented($f);
+	public function getFileToWrite(){
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "files";
 	}
 
-	public function hasContext()
-	{
+	public function hasContext():bool{
 		return isset($this->context);
 	}
 
@@ -145,11 +138,12 @@ class PDFData extends CleartextFileData
 		return true;
 	}
 
-	public function outputFileToBrowser()
-	{
-		$f = __METHOD__; //PDFData::getShortClass()."(".static::getShortClass().")->outputFileToBrowser()";
+	public function outputFileToBrowser():void{
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
 		if ($this->getFileGenerationMode() !== FILE_GENERATION_MODE_DOMPDF) {
-			return parent::outputFileToBrowser();
+			parent::outputFileToBrowser();
+			return;
 		} elseif ($this->hasElement()) {
 			$element = $this->getElement();
 			if ($element->getAllocationMode() !== ALLOCATION_MODE_DOMPDF_COMPATIBLE) {
@@ -161,15 +155,12 @@ class PDFData extends CleartextFileData
 			$ec = $this->getElementClass();
 			$element = new $ec(ALLOCATION_MODE_DOMPDF_COMPATIBLE, $this->getContext());
 		}
-		/*
-		 * if(!static::validateDompdfCompatibility($element)){
-		 * Debug::error("{$f} element is incompatible with DOMPDF");
-		 * }
-		 */
 		$dompdf = new \Dompdf\Dompdf();
 		$html = $element->__toString();
-		Debug::print("{$f} about to load the following HTML:");
-		Debug::print($html);
+		if($print){
+			Debug::print("{$f} about to load the following HTML:");
+			Debug::print($html);
+		}
 		$dompdf->loadHtml($html);
 		$dompdf->setPaper('A4', 'portrait');
 		$dompdf->render();

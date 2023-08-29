@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password\reset;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -14,18 +15,17 @@ use JulianSeymour\PHPWebApplicationFramework\auth\PreauthenticationUseCase;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
+use JulianSeymour\PHPWebApplicationFramework\db\load\LoadTreeUseCase;
 use JulianSeymour\PHPWebApplicationFramework\email\EmailAddressDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 
-class ForgotCredentialsUseCase extends PreauthenticationUseCase
-{
+class ForgotCredentialsUseCase extends PreauthenticationUseCase{
 
-	public function processForgotCredentialsRequest()
-	{
-		$f = __METHOD__; //ForgotCredentialsUseCase::getShortClass()."(".static::getShortClass().")->processForgotCredentialsRequest()";
+	public function processForgotCredentialsRequest(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$mode = getInputParameter('select_login_forgot');
@@ -70,7 +70,7 @@ class ForgotCredentialsUseCase extends PreauthenticationUseCase
 				case 'forgot_name':
 					if (! hasInputParameter('email')) {
 						Debug::warning("{$f} email address is undefined");
-						return $this->setObjectStatus(ERROR_NULL_EMAIL);
+						return $this->setObjectStatus(ERROR_EMAIL_UNDEFINED);
 					}
 					$email = EmailAddressDatum::normalize(getInputParameter('email'));
 					$status = $correspondent->load($mysqli, new WhereCondition("normalizedEmailAddress", OPERATOR_EQUALS), [
@@ -122,36 +122,35 @@ class ForgotCredentialsUseCase extends PreauthenticationUseCase
 		}
 	}
 
-	public function execute(): int
-	{
-		$f = __METHOD__; //ForgotCredentialsUseCase::getShortClass()."(".static::getShortClass().")->execute()";
+	public function execute(): int{
+		$f = __METHOD__;
 		try {
+			$print = false;
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			$guest = AuthenticateUseCase::getAnonymousUser();
 			app()->setUserData($guest);
 			$status = $this->processForgotCredentialsRequest();
-			$this->authenticate();
-			$this->load($mysqli);
-			$err = ErrorMessage::getResultMessage($status);
-			Debug::print("{$f} returning with error status \"{$err}\"");
+			$auth = new AuthenticateUseCase($this);
+			$auth->validateTransition();
+			$auth->execute();
+			$load = new LoadTreeUseCase($this);
+			$load->validateTransition();
+			$load->execute();
+			if($print){
+				$err = ErrorMessage::getResultMessage($status);
+				Debug::print("{$f} returning with error status \"{$err}\"");
+			}
 			return $this->setObjectStatus($status);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/forgot";
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_FORGOT_CREDENTIALS;
-	}
-
-	public function getAuthenticatedUserClass()
-	{
+	public function getAuthenticatedUserClass():?string{
 		return config()->getNormalUserClass();
 	}
 }

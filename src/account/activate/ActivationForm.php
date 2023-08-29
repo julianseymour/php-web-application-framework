@@ -1,9 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\activate;
 
-use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
-use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
+use function JulianSeymour\PHPWebApplicationFramework\request;
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
+use function JulianSeymour\PHPWebApplicationFramework\use_case;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordDatum;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -14,6 +15,7 @@ use JulianSeymour\PHPWebApplicationFramework\input\HiddenInput;
 use JulianSeymour\PHPWebApplicationFramework\input\PasswordInput;
 use JulianSeymour\PHPWebApplicationFramework\input\TextInput;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\input\ButtonInput;
 
 class ActivationForm extends AjaxForm{
 
@@ -34,8 +36,9 @@ class ActivationForm extends AjaxForm{
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
 		try {
-
-			if (! hasInputParameter('blob_64')) {
+			$request = request();
+			$use_case = use_case();
+			if (! $request->hasInputParameter('blob_64', $use_case)) {
 				Debug::error("{$f} blob 64 is undefined dammit");
 			}
 
@@ -43,7 +46,7 @@ class ActivationForm extends AjaxForm{
 
 			$blob_input = new HiddenInput();
 			$blob_input->setNameAttribute("blob_64");
-			$blob_input->setValueAttribute(getInputParameter('blob_64'));
+			$blob_input->setValueAttribute($request->getInputParameter('blob_64', $use_case));
 
 			$context_input = new HiddenInput();
 			$context_input->setNameAttribute("context");
@@ -69,7 +72,7 @@ class ActivationForm extends AjaxForm{
 
 	public function getDirectives(): ?array{
 		return [
-			DIRECTIVE_VALIDATE
+			DIRECTIVE_LOGIN
 		];
 	}
 
@@ -79,19 +82,19 @@ class ActivationForm extends AjaxForm{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case NameDatum::getColumnNameStatic():
-					$input->setPlaceholderAttribute(_("Username"));
-					return SUCCESS;
+					$input->setLabelString(_("Username"));
+					break;
 				case PasswordDatum::getColumnNameStatic():
 					$password = _("Password");
 					$twelve = substitute(_("%1%+ characters"), 12);
 					$placeholder = "{$password} ({$twelve})";
 					$password = null;
 					$twelve = null;
-					$input->setPlaceholderAttribute($placeholder);
-					return SUCCESS;
+					$input->setLabelString($placeholder);
+					break;
 				default:
-					return parent::reconfigureInput($input);
 			}
+			return parent::reconfigureInput($input);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
@@ -112,18 +115,25 @@ class ActivationForm extends AjaxForm{
 		return '/activate';
 	}
 
-	public function generateButtons(string $name): ?array{
+	public function generateButtons(string $directive): ?array{
 		$f = __METHOD__;
-		switch ($name) {
-			case DIRECTIVE_VALIDATE:
-				$button = $this->generateGenericButton($name);
+		switch ($directive) {
+			case DIRECTIVE_LOGIN:
+				$button = new ButtonInput();
+				$button->setNameAttribute("directive");
+				$button->setValueAttribute(DIRECTIVE_LOGIN);
+				$form_id = $this->getIdAttribute();
+				$button->setIdAttribute("{$directive}-{$form_id}");
+				$button->setOnClickAttribute($button->getDefaultOnClickAttribute());
+				$button->setTypeAttribute("submit");
+				$button->setForm($this);
 				$innerHTML = _("Activate your account");
 				$button->setInnerHTML($innerHTML);
 				return [
 					$button
 				];
 			default:
-				Debug::error("{$f} invalid name attribute \"{$name}\"");
+				Debug::error("{$f} invalid directive \"{$directive}\"");
 				return null;
 		}
 	}

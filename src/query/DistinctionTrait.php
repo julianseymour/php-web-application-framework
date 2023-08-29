@@ -1,16 +1,15 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait DistinctionTrait
-{
+trait DistinctionTrait{
 
 	protected $distinction;
 
-	public function setDistinction($distinction)
-	{
-		$f = __METHOD__; //"DistinctionTrait(".static::getShortClass().")->setDistinction()";
+	public function setDistinction(?string $distinction):?string{
+		$f = __METHOD__;
 		if ($distinction == null) {
 			unset($this->distinction);
 			return null;
@@ -30,22 +29,19 @@ trait DistinctionTrait
 		return $this->distinction = $distinction;
 	}
 
-	public function hasDistinction()
-	{
+	public function hasDistinction():bool{
 		return isset($this->distinction) && is_string($this->distinction) && ! empty($this->distinction);
 	}
 
-	public function getDistinction()
-	{
-		$f = __METHOD__; //"DistinctionTrait(".static::getShortClass().")->getDistinction()";
+	public function getDistinction():string{
+		$f = __METHOD__;
 		if (! $this->hasDistinction()) {
 			Debug::error("{$f} distinction is undefined");
 		}
 		return $this->distinction;
 	}
 
-	public function withDistinction($distinction)
-	{
+	public function withDistinction(?string $distinction):object{
 		$this->setDistinction($distinction);
 		return $this;
 	}

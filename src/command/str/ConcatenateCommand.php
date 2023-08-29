@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\str;
 
 use function JulianSeymour\PHPWebApplicationFramework\ends_with;
@@ -13,18 +14,17 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\json\Json;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
+use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 
-class ConcatenateCommand extends Command implements JavaScriptInterface, StringifiableInterface, ValueReturningCommandInterface
-{
-
-	public static function getCommandId(): string
-	{
+class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInterface, StringifiableInterface, ValueReturningCommandInterface{
+	
+	public static function getCommandId(): string{
 		return "concat";
 	}
 
-	public function __construct($s1, ...$more)
-	{
-		$f = __METHOD__; //ConcatenateCommand::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($s1, ...$more){
+		$f = __METHOD__;
 		parent::__construct();
 		$strings = [
 			$s1
@@ -40,64 +40,47 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, Stringi
 		}
 	}
 
-	public static function declareFlags(): array
-	{
+	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
+			"allocated",
 			"reserved"
 		]);
 	}
 
-	public function getStringAtOffset(int $offset)
-	{
+	public function getStringAtOffset(int $offset){
 		return $this->getArrayPropertyValueAtOffset("strings", $offset);
 	}
 
-	public function starts_with($needle)
-	{
+	public function starts_with($needle){
 		return starts_with($this->evaluate(), $needle);
 	}
 
-	public function contains($needle)
-	{
+	public function contains($needle):bool{
 		return str_contains($this->evaluate(), $needle);
 	}
 
-	public function ends_with($needle){
+	public function ends_with($needle):bool{
 		return ends_with($this->evaluate(), $needle);
 	}
 
-	public function setStrings($strings)
-	{
+	public function setStrings($strings){
 		return $this->setArrayProperty("strings", $strings);
-		// return $this->s/trings = $strings;
 	}
 
-	public function getStrings()
-	{
-		$f = __METHOD__; //ConcatenateCommand::getShortClass()."(".static::getShortClass().")->getStrings()";
+	public function getStrings(){
 		return $this->getProperty("strings");
-		if (! $this->hasStrings()) {
-			if (! $this->getAllocatedFlag()) {
-				Debug::error("{$f} debug ID is undefined -- this command was already deallocated");
-			}
-			Debug::error("{$f} strings undefined for object with debug ID \"{$this->debugId}\"");
-		}
-		// return $this->s/trings;
 	}
 
-	public function getStringCount()
-	{
+	public function getStringCount():int{
 		return $this->getArrayPropertyCount("strings");
 	}
 
-	public function hasStrings()
-	{
-		return $this->hasArrayProperty("strings"); // !empty($this->s/trings) && count($this->s/trings) > 1;
+	public function hasStrings():bool{
+		return $this->hasArrayProperty("strings");
 	}
 
-	public function toJavaScript(): string
-	{
-		$f = __METHOD__; //ConcatenateCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
+	public function toJavaScript(): string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$q = $this->getQuoteStyle();
@@ -128,37 +111,63 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, Stringi
 		}
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		$strings = $this->getStrings();
-		$value = "";
-		foreach ($strings as $s) {
-			if ($s instanceof ValueReturningCommandInterface) {
-				while ($s instanceof ValueReturningCommandInterface) {
-					$s = $s->evaluate();
+	public function evaluate(?array $params = null){
+		$f = __METHOD__;
+		try{
+			$strings = $this->getStrings();
+			$value = "";
+			foreach ($strings as $s) {
+				if ($s instanceof ValueReturningCommandInterface) {
+					while ($s instanceof ValueReturningCommandInterface) {
+						$s = $s->evaluate();
+					}
 				}
+				$value .= $s;
 			}
-			$value .= $s;
+			return $value;
+		}catch(Exception $x){
+			x($f, $x);
 		}
-		return $value;
 	}
 
-	public function echoInnerJson(bool $destroy = false): void
-	{
-		$f = __METHOD__; //ConcatenateCommand::getShortClass()."(".static::getShortClass().")->echoInnerJson()";
+	public function echoInnerJson(bool $destroy = false): void{
 		Json::echoKeyValuePair('strings', $this->getStrings());
 		parent::echoInnerJson($destroy);
 	}
 
-	public function replicate()
-	{
+	public function replicate(){
 		$class = static::class;
 		$replica = new $class(...$this->getStrings());
 		return $replica;
 	}
 
-	public function __toString(): string
-	{
+	public function __toString(): string{
 		return $this->evaluate();
+	}
+	
+	public function toSQL(): string{
+		//CONCAT('My', 'S', 'QL')
+		$count = 0;
+		$string = "CONCAT(";
+		foreach($this->getStrings() as $s){
+			if($count++ > 0){
+				$string .= ',';
+			}
+			if($s instanceof SQLInterface){
+				$s = $s->toSQL();
+			}else{
+				while ($s instanceof ValueReturningCommandInterface){
+					$s = $s->evaluate();
+				}
+				$s = single_quote($s);
+			}
+			$string .= $s;
+		}
+		$string .= ")";
+		return $string;
+	}
+
+	public function getAllocatedFlag(): bool{
+		return $this->getFlag("allocated");
 	}
 }

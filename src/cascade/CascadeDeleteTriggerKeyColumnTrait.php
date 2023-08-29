@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\cascade;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
@@ -12,33 +13,25 @@ use JulianSeymour\PHPWebApplicationFramework\event\BeforeInsertForeignDataStruct
 use JulianSeymour\PHPWebApplicationFramework\query\QueryBuilder;
 use mysqli;
 
-trait CascadeDeleteTriggerKeyColumnTrait
-{
+/**
+ * A trait for DataStructure classes that initiate a cascade delete event when they themselves are deleted. this is useful for deleting automatically deleting related foreign data structures that do not have a directe reference to the instigator.
+ * @author j
+ *
+ */
+trait CascadeDeleteTriggerKeyColumnTrait{
 
-	public function setCascadeDeleteFlag(bool $value = true): bool
-	{
+	public function setCascadeDeleteFlag(bool $value = true): bool{
 		return $this->setFlag("cascadeDelete", $value);
 	}
 
-	public function getCascadeDeleteFlag(): bool
-	{
+	public function getCascadeDeleteFlag(): bool{
 		return $this->getFlag("cascadeDelete");
 	}
 
-	/*
-	 * public function cascadeDelete(bool $value=true):DataStructure{
-	 * $this->setFlag("cascadeDelete", $value);
-	 * return $this;
-	 * }
-	 */
-	public function cascadeDelete(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //"CascadeDeleteTriggerKeyColumnTrait(".static::getShortClass().")->cascadeDelete()";
+	public function cascadeDelete(mysqli $mysqli): int{
+		$f = __METHOD__;
 		$print = false;
-		$delete = QueryBuilder::delete()->from(CascadeDeleteTriggerData::getDatabaseNameStatic(), CascadeDeleteTriggerData::getTableNameStatic())
-			->where(CascadeDeleteTriggerData::whereIntersectionalHostKey(static::class, "instigatorKey"))
-			->withTypeSpecifier('ss')
-			->withParameters($this->getIdentifierValue(), "instigatorKey");
+		$delete = QueryBuilder::delete()->from(CascadeDeleteTriggerData::getDatabaseNameStatic(), CascadeDeleteTriggerData::getTableNameStatic())->where(CascadeDeleteTriggerData::whereIntersectionalHostKey(static::class, "instigatorKey"))->withTypeSpecifier('ss')->withParameters($this->getIdentifierValue(), "instigatorKey");
 		if ($print) {
 			Debug::print("{$f} cascade delete query is \"{$delete}\"");
 		}
@@ -88,23 +81,21 @@ trait CascadeDeleteTriggerKeyColumnTrait
 		return $this->ejectForeignDataStructure("cascadeDeleteTriggerKey");
 	}
 
-	public function getCascadeDeleteTriggerData(): CascadeDeleteTriggerData
-	{
+	public function getCascadeDeleteTriggerData(): CascadeDeleteTriggerData{
 		return $this->getForeignDataStructure("cascadeDeleteTriggerKey");
 	}
 
-	public static function generateCascadeDeleteTriggerKeyColumn(): ForeignKeyDatum
-	{
+	public static function generateCascadeDeleteTriggerKeyColumn(): ForeignKeyDatum{
 		$column = new ForeignKeyDatum("cascadeDeleteTriggerKey");
 		$column->setForeignDataStructureClass(CascadeDeleteTriggerData::class);
 		$column->autoload();
 		$column->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_ONE);
+		$column->setNullable(true);
 		return $column;
 	}
 
-	public function generateCascadeDeleteTriggerData(mysqli $mysqli): CascadeDeleteTriggerData
-	{
-		$f = __METHOD__; //"CascadeDeleteTriggerKeyColumnTrait(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function generateCascadeDeleteTriggerData(mysqli $mysqli): CascadeDeleteTriggerData{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->hasCascadeDeleteTriggerData()) {
 			Debug::error("{$f} do not call this if the data has already been generated");
@@ -135,8 +126,7 @@ trait CascadeDeleteTriggerKeyColumnTrait
 					Debug::print("{$f} there were no results");
 				}
 				$cdtd->generateKey();
-				$this->addEventListener(EVENT_BEFORE_INSERT_FOREIGN, function (BeforeInsertForeignDataStructuresEvent $event, DataStructure $target) {
-					$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+				$this->addEventListener(EVENT_BEFORE_INSERT_FOREIGN, function (BeforeInsertForeignDataStructuresEvent $event, DataStructure $target) use ($f){
 					$when = $event->getProperty('when');
 					if ($when !== CONST_AFTER) {
 						return SUCCESS;

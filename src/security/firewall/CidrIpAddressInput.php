@@ -7,6 +7,6 @@ class CidrIpAddressInput extends TextInput{
 
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		parent::__construct($mode, $context);
-		$this->setPlaceholderAttribute(_("IP address/range")." ("._("CIDR notation").")");
+		$this->setLabelString(_("IP address/range")." ("._("CIDR notation").")");
 	}
 }

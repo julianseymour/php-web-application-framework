@@ -20,6 +20,10 @@ class Paginator extends DataStructure{
 
 	protected $paginatedClass;
 	
+	public static function getDatabaseNameStatic():string{
+		return "error";
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$limit = new UnsignedIntegerDatum("limit", 16);
 		$limit->setHumanReadableName(_("Limit"));
@@ -43,6 +47,10 @@ class Paginator extends DataStructure{
 		}
 	}
 
+	public static function getDefaultPersistenceModeStatic():int{
+		return PERSISTENCE_MODE_UNDEFINED;
+	}
+	
 	public static function getKeyGenerationMode(): int{
 		return KEY_GENERATION_MODE_LITERAL;
 	}
@@ -707,7 +715,7 @@ class Paginator extends DataStructure{
 		return $this->getDisplayPage() + 1;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return static::class;
 	}
 
@@ -724,7 +732,7 @@ class Paginator extends DataStructure{
 		return "paginator";
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return static::getPrettyClassName() . "s";
 	}
 

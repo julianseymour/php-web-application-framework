@@ -1,13 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\event;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-abstract class ForeignDataStructuresEvent extends Event
-{
+abstract class ForeignDataStructuresEvent extends Event{
 
-	public function __construct(string $name, string $when, ?array $properties = null)
-	{
+	public function __construct(string $name, string $when, ?array $properties = null){
 		$f = __METHOD__; //ForeignDataStructuresEvent::getShortClass()."(".static::getShortClass().")->__construct()";
 		if (! isset($when)) {
 			Debug::error("{$f} when value is undefined");

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -17,8 +18,7 @@ use JulianSeymour\PHPWebApplicationFramework\image\ImageElement;
 use Exception;
 use mysqli;
 
-abstract class EncryptedFile extends FileData implements StaticElementClassInterface
-{
+abstract class EncryptedFile extends FileData implements StaticElementClassInterface{
 
 	protected $skipWrite = false;
 
@@ -28,32 +28,27 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	protected $width;
 
-	public function hasMessageObject()
-	{
+	public function hasMessageObject():bool{
 		return $this->hasForeignDataStructure("messageKey");
 	}
 
-	public function getCounterpartKey()
-	{
+	public function getCounterpartKey(){
 		return $this->counterpartKey;
 	}
 
-	public function hasCounterpartKey()
-	{
+	public function hasCounterpartKey():bool{
 		return isset($this->counterpartKey);
 	}
 
-	public function hasFileAesKey()
-	{
+	public function hasFileAesKey():bool{
 		return $this->hasColumnValue("fileAesKey");
 	}
 
-	public final function getSubtypeValue(): string
-	{
+	public final function getSubtypeValue(): string{
 		return "encrypted";
 	}
 
-	public function getWebFileDirectory(){
+	public function getWebFileDirectory():string{
 		$f = __METHOD__;
 		$type = $this->getMimeType();
 		switch ($type) {
@@ -80,19 +75,16 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		}
 	}
 
-	public function setCounterpartKey($key)
-	{
+	public function setCounterpartKey($key){
 		return $this->counterpartKey = $key;
 	}
 
-	public function getCorrespondentObject()
-	{
+	public function getCorrespondentObject(){
 		return $this->getUserData()->getCorrespondentObject();
 	}
 
-	protected function afterDeleteHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")->afterDeleteHook()";
+	protected function afterDeleteHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$status = parent::afterDeleteHook($mysqli);
 			if ($status !== SUCCESS) {
@@ -123,14 +115,12 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		}
 	}
 
-	public function getName()
-	{
+	public function getName():string{
 		return $this->getOriginalFilename();
 	}
 
-	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string
-	{
-		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")::getElementClassStatic()";
+	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string{
+		$f = __METHOD__;
 		$mime = $that->getMimeType();
 		switch ($mime) {
 			case MIME_TYPE_GIF:
@@ -142,9 +132,8 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		}
 	}
 
-	public function getImageHeight()
-	{
-		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")->getImageHeight()";
+	public function getImageHeight(){
+		$f = __METHOD__;
 		if (empty($this->height)) {
 			$key = $this->getIdentifierValue();
 			Debug::error("{$f} image height is null or empty string for file with key \"{$key}\"");
@@ -153,9 +142,8 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		return $this->height;
 	}
 
-	public function getImageWidth()
-	{
-		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")->getImageWidth()";
+	public function getImageWidth(){
+		$f = __METHOD__;
 		if (empty($this->width)) {
 			$key = $this->getIdentifierValue();
 			Debug::error("{$f} image width is null or empty string for file with key \"{$key}\" and debug ID \"{$this->debugId}\"");
@@ -164,9 +152,8 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		return $this->width;
 	}
 
-	public function setImageHeight($h)
-	{
-		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")->setImageHeight()";
+	public function setImageHeight($h){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (! is_int($h) && ! is_float($h)) {
@@ -187,9 +174,8 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		}
 	}
 
-	public function setImageWidth($w)
-	{
-		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")->setImageWidth()";
+	public function setImageWidth($w){
+		$f = __METHOD__;
 		try {
 			if (! is_numeric($w)) {
 				Debug::error("{$f} width \"{$w}\" is not an integer");
@@ -206,19 +192,16 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		}
 	}
 
-	public function getFullFileDirectory()
-	{
+	public function getFullFileDirectory():string{
 		return $this->getUploadDirectory();
 	}
 
-	public function getFileAesNonce()
-	{
+	public function getFileAesNonce():string{
 		return $this->getColumnValue('fileAesNonce');
 	}
 
-	public function setOriginalFilename($name)
-	{
-		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")->setOriginalFilename({$name})";
+	public function setOriginalFilename(string $name):string{
+		$f = __METHOD__;
 		if (empty($name)) {
 			Debug::error("{$f} parameter is undefined");
 			Debug::printStackTrace();
@@ -229,20 +212,16 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		return $this->setColumnValue('originalFilename', $name);
 	}
 
-	public function getFullFilePath()
-	{
+	public function getFullFilePath():string{
 		return $this->getFilename();
 	}
 
-	public function getFileToWrite()
-	{
-		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")->getFileToWrite()";
-		ErrorMessage::unimplemented($f);
+	public function getFileToWrite(){
+		ErrorMessage::unimplemented(__METHOD__);
 		return null;
 	}
 
-	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")::reconfigureColumns()";
 		try {
 			parent::reconfigureColumns($columns, $ds);
@@ -258,29 +237,24 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		}
 	}
 
-	public function getAesKeyCipherIndex($vn)
-	{
+	public function getAesKeyCipherIndex(string $vn):string{
 		return "{$vn}_aesKeyCipher";
 	}
 
-	public function getMimeType()
-	{
+	public function getMimeType():string{
 		return $this->getColumnValue('mimeType');
 	}
 
-	public function setFilename($name)
-	{
+	public function setFilename(string $name):string{
 		return $this->setColumnValue('filename', $name);
 	}
 
-	public function setMimeType($type)
-	{
+	public function setMimeType(string $type):string{
 		return $this->setColumnValue('mimeType', $type);
 	}
 
-	public function getArrayMembershipConfiguration($config_id): ?array
-	{
-		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")->getArrayMembershipConfiguration({$config_id})";
+	public function getArrayMembershipConfiguration($config_id): ?array{
+		$f = __METHOD__;
 		$config = parent::getArrayMembershipConfiguration($config_id);
 		$mime = $this->getMimeType();
 		switch ($mime) {
@@ -299,17 +273,15 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		}
 	}
 
-	public function getMessageBox()
-	{
+	public function getMessageBox(){
 		return $this->getMessageObject()->getMessageBox();
 	}
 
-	public function getOriginalFilename()
-	{
+	public function getOriginalFilename():string{
 		return $this->getColumnValue("originalFilename");
 	}
 
-	public function setFileAesNonce($nonce){
+	public function setFileAesNonce(string $nonce):string{
 		$f = __METHOD__;
 		$length = strlen($nonce);
 		if ($length !== SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES) {
@@ -319,7 +291,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		return $this->setColumnValue('fileAesNonce', $nonce);
 	}
 
-	public function getFileAesKey(){
+	public function getFileAesKey():string{
 		$f = __METHOD__;
 		$aes_key = $this->getColumnValue('fileAesKey');
 		$length = strlen($aes_key);
@@ -330,7 +302,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		return $aes_key;
 	}
 
-	public function setFileAesKey($aes_key){	
+	public function setFileAesKey(string $aes_key):string{	
 		$f = __METHOD__;
 		if (! isset($aes_key) || $aes_key == "") {
 			Debug::error("{$f} file AES key is null or empty string");
@@ -371,23 +343,23 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 	 *
 	 * @return NULL|string
 	 */
-	public function getFilename(){
+	public function getFilename():string{
 		return $this->getColumnValue("filename");
 	}
 
-	public function hasFileIndexNonce(){
+	public function hasFileIndexNonce():bool{
 		return $this->hasColumnValue("fileIndexNonce");
 	}
 
-	public function setFileIndexNonce($nonce){
+	public function setFileIndexNonce(string $nonce):string{
 		return $this->setColumnValue('fileIndexNonce', $nonce);
 	}
 
-	public function getFileIndexNonce(){
+	public function getFileIndexNonce():string{
 		return $this->getColumnValue('fileIndexNonce');
 	}
 
-	public function getVirtualColumnValue($index){
+	public function getVirtualColumnValue(string $index){
 		$f = __METHOD__;
 		try {
 			switch ($index) {
@@ -442,7 +414,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		return $this->setColumnValue("size", $size);
 	}
 
-	public function hasSize(){
+	public function hasSize():bool{
 		return $this->hasColumnValue("size");
 	}
 
@@ -455,27 +427,23 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		return $this->getColumnValue("size");
 	}
 
-	public function hasMimeType(){
+	public function hasMimeType():bool{
 		return $this->hasColumnValue("mimeType");
 	}
 
-	public function hasOriginalFilename(){
+	public function hasOriginalFilename():bool{
 		return $this->hasColumnValue("originalFilename");
 	}
 
-	public function hasFilename(){
+	public function hasFilename():bool{
 		return $this->hasColumnValue("filename");
 	}
 
-	public static function userIsParent(){
-		return true;
-	}
-
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Encrypted file");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Encrypted files");
 	}
 

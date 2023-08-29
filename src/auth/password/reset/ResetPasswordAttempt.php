@@ -45,7 +45,7 @@ class ResetPasswordAttempt extends CodeConfirmationAttempt{
 	}
 
 	public static function getSuccessfulResultCode(){
-		return RESULT_RESET_SUCCESS;
+		return SUCCESS;
 	}
 
 	public static function getPhylumName(): string{
@@ -64,15 +64,15 @@ class ResetPasswordAttempt extends CodeConfirmationAttempt{
 		return true;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Password reset attempt");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Password reset attempts");
 	}
 
-	public static function getIpLogReason(){
+	public static function getReasonLoggedStatic(){
 		return BECAUSE_RESET;
 	}
 }

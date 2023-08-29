@@ -6,8 +6,7 @@ class InfoBoxCommand extends MultipleElementCommand{
 			console.log(f+": about to display info box");
 			console.log(this);
 			console.trace();
-			//return error(f, "Not implemented");
-			let elements = this.getElements(); //this.hasElement() ? hydrateElement(this.getElement(), this.getResponseText()) : this.getId(); //command_data.element);
+			let elements = this.getElements();
 			if(!isset(elements)){
 				return error(f, "Info box contents are undefined");
 			}
@@ -18,7 +17,11 @@ class InfoBoxCommand extends MultipleElementCommand{
 			}
 			let fragment = new DocumentFragment();
 			for(let key in elements){
-				fragment.appendChild(elements[key]);
+				let element = elements[key];
+				if(typeof element === 'string'){
+					element = document.createTextNode(element);
+				}
+				fragment.appendChild(element);
 			}
 			InfoBoxElement.showInfoBox(
 				fragment, 

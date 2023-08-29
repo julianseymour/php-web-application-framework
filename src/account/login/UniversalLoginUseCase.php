@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\login;
 
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -7,21 +8,18 @@ use JulianSeymour\PHPWebApplicationFramework\app\Responder;
 use JulianSeymour\PHPWebApplicationFramework\auth\mfa\UniversalMfaResponder;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-class UniversalLoginUseCase extends UnresponsiveLoginUseCase
-{
+class UniversalLoginUseCase extends UnresponsiveLoginUseCase{
 
-	public function getResponder(): ?Responder
-	{
-		$f = __METHOD__; //UniversalLoginUseCase::getShortClass()."(".static::getShortClass().")->getResponder()";
+	public function getResponder(int $status): ?Responder{
+		$f = __METHOD__;
 		$print = false;
-		$status = $this->getObjectStatus();
 		switch ($status) {
 			case SUCCESS:
 				if (user() instanceof AnonymousUser) {
 					if ($print) {
 						Debug::print("{$f} user is unregistered; returning parent function");
 					}
-					return parent::getResponder();
+					return parent::getResponder($status);
 				} elseif ($print) {
 					Debug::print("{$f} user is registered");
 				}
@@ -32,7 +30,7 @@ class UniversalLoginUseCase extends UnresponsiveLoginUseCase
 				if ($print) {
 					Debug::print("{$f} default case");
 				}
-				return parent::getResponder();
+				return parent::getResponder($status);
 		}
 	}
 }

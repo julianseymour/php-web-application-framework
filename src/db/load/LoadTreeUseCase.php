@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\db\load;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -11,14 +12,13 @@ use JulianSeymour\PHPWebApplicationFramework\app\Request;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicReadCredentials;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
-use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsSessionData;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
 use JulianSeymour\PHPWebApplicationFramework\ui\RiggedLoadoutGenerator;
 use JulianSeymour\PHPWebApplicationFramework\use_case\SubsequentUseCase;
 use Exception;
 use mysqli;
 
-class LoadTreeUseCase extends SubsequentUseCase
-{
+class LoadTreeUseCase extends SubsequentUseCase{
 
 	/**
 	 * load all data necessary for the use case to function correctly
@@ -56,7 +56,7 @@ class LoadTreeUseCase extends SubsequentUseCase
 				return $this->setObjectStatus(ERROR_NULL_USER_OBJECT);
 			}
 			// set language //XXX TODO move this elsewhere
-			$language_settings = new LanguageSettingsSessionData();
+			$language_settings = new LanguageSettingsData();
 			$language = $user->getLanguagePreference();
 			if (! isset($language)) {
 				Debug::error("{$f} language is undefined");
@@ -84,6 +84,7 @@ class LoadTreeUseCase extends SubsequentUseCase
 					$loadout = new Loadout();
 				}
 				$rigged = new RiggedLoadoutGenerator();
+				$loadout->setDuplicateTreeSelectStatementRecourse(RECOURSE_CONTINUE);
 				$loadout->addDependencies($rigged->getRootNodeTreeSelectStatements($user, $predecessor));
 				if ($print) {
 					$pc = get_short_class($predecessor);
@@ -125,13 +126,7 @@ class LoadTreeUseCase extends SubsequentUseCase
 		}
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_LOAD_TREE;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return $this->getPredecessor()->getActionAttribute();
 	}
 }

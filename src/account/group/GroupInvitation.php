@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\group;
 
 use JulianSeymour\PHPWebApplicationFramework\account\owner\UserOwned;
@@ -9,14 +10,12 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\BlobDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 
-class GroupInvitation extends UserOwned
-{
+class GroupInvitation extends UserOwned{
 
 	use GroupKeyColumnTrait;
 	use KeypairColumnsTrait;
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$group = new ForeignMetadataBundle("group", $ds);
 		$group->setForeignDataStructureClass(GroupData::class);
@@ -32,33 +31,27 @@ class GroupInvitation extends UserOwned
 		static::pushTemporaryColumnsStatic($columns, $group, $groupPrivateKey);
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Invitation");
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "invitations";
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_GROUP_INVITE;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Invitations");
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "invitations";
 	}
 
-	public function setGroupPrivateKey($value)
-	{
+	public function setGroupPrivateKey(string $value):string{
 		return $this->setColumnValue("groupPrivateKey", $value);
 	}
 

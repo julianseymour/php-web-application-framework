@@ -21,6 +21,10 @@ use JulianSeymour\PHPWebApplicationFramework\account\UserData;
  */
 class AntiHijackSessionData extends DataStructure{
 
+	public static function getDatabaseNameStatic():string{
+		return "error";
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$boundIpAddress = new IpAddressDatum("boundIpAddress");
 		$boundIpAddress->setNullable(true);
@@ -69,7 +73,7 @@ class AntiHijackSessionData extends DataStructure{
 		return $this->getColumnValue("boundIpAddress");
 	}
 
-	public static function getPrettyClassName(?string $lang = null):string{
+	public static function getPrettyClassName():string{
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
@@ -83,7 +87,7 @@ class AntiHijackSessionData extends DataStructure{
 		return DATATYPE_UNKNOWN;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null):string{
+	public static function getPrettyClassNames():string{
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}

@@ -9,11 +9,11 @@ class GZipFileData extends CompressedFileData{
 		return "gz";
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("GZip file");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("GZip files");
 	}
 

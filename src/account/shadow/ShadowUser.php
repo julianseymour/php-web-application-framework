@@ -1,59 +1,45 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\shadow;
 
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
-use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\MessageEncryptionScheme;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\email\EmailAddressDatum;
 use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
-use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsSessionData;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
 use mysqli;
 
-class ShadowUser extends UserData
-{
+class ShadowUser extends UserData{
 
-	public function __construct()
-	{
+	public function __construct(){
 		parent::__construct();
 		$this->setAccountType($this->getAccountTypeStatic());
 	}
 
-	public function getHardResetCount(): int
-	{
+	public function getHardResetCount(): int{
 		return 0;
 	}
 
-	public function delete(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //ShadowUser::getShortClass()."(".static::getShortClass().")->delete()";
-		Debug::error("{$f} why are we attempting to delete shadow users?");
-	}
-
-	public function getHasEverAuthenticated(): bool
-	{
+	public function getHasEverAuthenticated(): bool{
 		return false;
 	}
 
-	public static function getAccountTypeStatic()
-	{
+	public static function getAccountTypeStatic(){
 		return ACCOUNT_TYPE_SHADOW;
 	}
 
-	public function getProfileImageData()
-	{
+	public function getProfileImageData(){
 		return null;
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Shadow profile");
 	}
 
-	public function filterIpAddress(mysqli $mysqli, ?string $ip_address = null, bool $skip_insert = false): int
-	{
+	public function filterIpAddress(mysqli $mysqli, ?string $ip_address = null, bool $skip_insert = false): int{
 		return SUCCESS;
 	}
 
@@ -65,7 +51,7 @@ class ShadowUser extends UserData
 		return "shadow_profiles";
 	}
 
-	public static function getPrettyClassNames(?string $lang = null):string{
+	public static function getPrettyClassNames():string{
 		return _("Shadow profiles");
 	}
 
@@ -123,7 +109,7 @@ class ShadowUser extends UserData
 		if (! $this->hasLastName()) {
 			return $first;
 		}
-		$session = new LanguageSettingsSessionData();
+		$session = new LanguageSettingsData();
 		$lang = $session->getLanguageCode();
 		$last = $this->getLastName();
 		return Internationalization::lastNameFirst($lang) ? "{$last} {$first}" : "{$first} {$last}";

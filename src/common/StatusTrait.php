@@ -1,20 +1,19 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait StatusTrait
-{
+trait StatusTrait{
 
 	protected $status;
 
-	public function getObjectStatus(): int
-	{
+	public function getObjectStatus(): int{
 		return $this->hasObjectStatus() ? $this->status : STATUS_UNINITIALIZED;
 	}
 
 	public function setObjectStatus(?int $status):?int{
-		$f = __METHOD__; //"StatusCodeTrait(" . static::getShortClass() . ")->setObjectStatus()";
+		$f = __METHOD__;
 		if($status === null){
 			unset($this->status);
 			return null;
@@ -25,18 +24,15 @@ trait StatusTrait
 		return $this->status = $status;
 	}
 
-	public function isUninitialized(): bool
-	{
+	public function isUninitialized(): bool{
 		return ! $this->hasObjectStatus();
 	}
 
-	public function isInitialized(): bool
-	{
+	public function isInitialized(): bool{
 		return ! $this->isUninitialized();
 	}
 
-	public function isNotFound(): bool
-	{
+	public function isNotFound(): bool{
 		return $this->getObjectStatus() === ERROR_NOT_FOUND;
 	}
 
@@ -46,9 +42,8 @@ trait StatusTrait
 		return $this;
 	}
 
-	public function hasObjectStatus(): bool
-	{
-		$f = __METHOD__; //"StatusTrait(".static::getShortClass().")->hasObjectStatus()";
+	public function hasObjectStatus(): bool{
+		$f = __METHOD__;
 		$print = false;
 		if ($print && isset($this->status) && is_int($this->status)) {
 			Debug::print("{$f} yes, this object has a status code");
@@ -56,8 +51,7 @@ trait StatusTrait
 		return isset($this->status) && is_int($this->status);
 	}
 
-	public function ejectObjectStatus(): ?int
-	{
+	public function ejectObjectStatus(): ?int{
 		if ($this->hasObjectStatus()) {
 			$status = $this->getObjectStatus();
 			unset($this->status);

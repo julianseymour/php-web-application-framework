@@ -1,9 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\getTypeSpecifier;
 use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
@@ -22,7 +23,7 @@ use JulianSeymour\PHPWebApplicationFramework\db\load\Loadout;
 use JulianSeymour\PHPWebApplicationFramework\db\load\LoadoutGenerator;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
-use JulianSeymour\PHPWebApplicationFramework\language\MultilingualNameData;
+use JulianSeymour\PHPWebApplicationFramework\language\MultilingualStringData;
 use JulianSeymour\PHPWebApplicationFramework\use_case\ClientUseCaseInterface;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
@@ -31,39 +32,28 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 
 	use MultipleSearchClassesTrait;
 	
-	public static function getJavaScriptClassPath(): ?string
-	{
+	public static function getJavaScriptClassPath(): ?string{
 		$fn = get_class_filename(SearchUseCase::class);
 		return substr($fn, 0, strlen($fn) - 3) . "js";
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/search";
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return SUCCESS;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_SEARCH;
-	}
-
-	public function hasDataOperandObject():bool
-	{
+	public function hasDataOperandObject():bool{
 		return isset($this->dataOperandObject) && is_object($this->dataOperandObject);
 	}
 
-	public function getSearchFormClass()
-	{
+	public function getSearchFormClass(){
 		if ($this->hasPredecessor()) {
 			return $this->getPredecessor()->getSearchFormClass();
 		}
@@ -90,18 +80,15 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		return $form;
 	}
 
-	public function getSuccessCallback(): string
-	{
+	public function getSuccessCallback(): string{
 		return "controller";
 	}
 
-	public function getSearchResultElementClass($obj)
-	{
+	public function getSearchResultElementClass($obj):string{
 		return SearchResultElement::class;
 	}
 
-	public function getResultContainer()
-	{
+	public function getResultContainer(){
 		$mode = ALLOCATION_MODE_LAZY;
 		$result_container = $this->getInsertHereElement();
 		if ($this->hasSearchResults()) {
@@ -118,9 +105,8 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		return $result_container;
 	}
 
-	public function getPageContent(): ?array
-	{
-		$f = __METHOD__; //SearchUseCase::getShortClass()."(".static::getShortClass().")->getPageContent()";
+	public function getPageContent(): ?array{
+		$f = __METHOD__;
 		if ($this->hasPredecessor()) {
 			return $this->getPredecessor()->getPageContent();
 		}
@@ -180,11 +166,6 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 				Debug::print("{$f} paginator has already processed its search form");
 			}
 			$queries = $generator->getSearchLoadoutGenerator()->getSelectStatements($use_case);
-			if ($print) {
-				if (! $paginator->getTranslateFlag()) {
-					Debug::print("{$f} translate flag is not set");
-				}
-			}
 			$count = count($queries);
 			if ($count === 0) {
 				Debug::error("{$f} generated 0 queries");
@@ -252,33 +233,9 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 				}
 				// create objects from results
 				foreach ($results as $r) {
-					if ($paginator->getTranslateFlag()) {
-						if ($print) {
-							Debug::print("{$f} this search should return translated object names only");
-						}
-						$temp = new MultilingualNameData();
-						$temp->processQueryResultArray($mysqli, $r);
-						$temp->loadIntersectionTableKeys($mysqli);
-						$object = $temp->acquireTranslatedObject($mysqli);
-						unset($temp);
-						$status = $object->getObjectStatus();
-						if ($status !== SUCCESS) {
-							$err = ErrorMessage::getResultMessage($status);
-							Debug::warning("{$f} acquireTranslatedObject returned something with error status \"{$err}\"");
-							continue;
-						}
-						$key = $object->getIdentifierValue();
-						if ($print) {
-							Debug::print("{$f} successfully acquired translated object with key \"{$key}\"");
-						}
-					} else {
-						if ($print) {
-							Debug::print("{$f} non-translated search results only");
-						}
-						$object = new $classname();
-						$object->processQueryResultArray($mysqli, $r);
-						$object->loadIntersectionTableKeys($mysqli);
-					}
+					$object = new $classname();
+					$object->processQueryResultArray($mysqli, $r);
+					$object->loadIntersectionTableKeys($mysqli);
 					$object->setAutoloadFlags(true);
 					$generator = $this->getLoadoutGenerator(user());
 					if($generator instanceof LoadoutGenerator){
@@ -291,7 +248,6 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 					}
 					$object->loadForeignDataStructures($mysqli, false, 3);
 					$object->setSearchResultFlag(true);
-					// $object->configureArrayMembership("search");
 					array_push($objects, $object);
 				}
 			}
@@ -311,14 +267,12 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		}
 	}
 
-	public function getTransitionFromPermission()
-	{
+	public function getTransitionFromPermission(){
 		return SUCCESS;
 	}
 
-	public function setSearchResults($results)
-	{
-		$f = __METHOD__; //SearchUseCase::getShortClass()."(".static::getShortClass().")->setSearchResults()";
+	public function setSearchResults($results){
+		$f = __METHOD__;
 		if ($results === null) {
 			Debug::print("{$f} search results are null");
 		} elseif (! is_array($results)) {
@@ -333,14 +287,12 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		return $this->setArrayProperty("searchResults", $results);
 	}
 
-	public function hasSearchResults()
-	{
+	public function hasSearchResults():bool{
 		return $this->hasArrayProperty("searchResults");
 	}
 
-	public function getSearchResults()
-	{
-		$f = __METHOD__; //SearchUseCase::getShortClass()."(".static::getShortClass().")->getSearchResults()";
+	public function getSearchResults(){
+		$f = __METHOD__;
 		if (! $this->hasSearchResults()) {
 			return null;
 			Debug::error("{$f} search results are undefined");
@@ -348,8 +300,7 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		return $this->getProperty("searchResults");
 	}
 
-	public function getInsertHereElement(?DataStructure $ds = null)
-	{
+	public function getInsertHereElement(?DataStructure $ds = null){
 		if ($this->hasPredecessor()) {
 			return $this->getPredecessor()->getInsertHereElement(null);
 		}
@@ -359,29 +310,25 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		return $e;
 	}
 
-	public function getPageContentGenerator(): UseCase
-	{
+	public function getPageContentGenerator(): UseCase{
 		if ($this->hasPredecessor()) {
 			return $this->getPredecessor();
 		}
 		return $this;
 	}
 
-	public function getResponder(): ?Responder
-	{
+	public function getResponder(int $status): ?Responder{
 		if (request()->getProgressiveHyperlinkFlag()) {
 			return new ProgressiveHyperlinkResponder();
 		}
 		return new SearchResponder();
 	}
 
-	public static function isSearchEvent()
-	{
+	public static function isSearchEvent():bool{
 		return directive() === DIRECTIVE_SEARCH;
 	}
 
-	public function getClientUseCaseName(): ?string
-	{
+	public function getClientUseCaseName(): ?string{
 		$f = __METHOD__;
 		if ($this->hasPredecessor()) {
 			$predecessor = $this->getPredecessor();

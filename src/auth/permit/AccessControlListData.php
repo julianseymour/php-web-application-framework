@@ -16,6 +16,10 @@ class AccessControlListData extends DataStructure{
 	use ParentKeyColumnTrait;
 	use PriorityColumnTrait;
 
+	public static function getDatabaseNameStatic():string{
+		return "security";
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$priority = new SignedIntegerDatum("priority", 16);
@@ -30,7 +34,7 @@ class AccessControlListData extends DataStructure{
 		static::pushTemporaryColumnsStatic($columns, $name, $parent, $priority, $permissions);
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Access control list");
 	}
 
@@ -42,7 +46,7 @@ class AccessControlListData extends DataStructure{
 		return DATATYPE_ACCESS_CONTROL_LIST;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Access control lists");
 	}
 

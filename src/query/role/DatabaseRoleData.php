@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\role;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
@@ -10,28 +11,23 @@ use JulianSeymour\PHPWebApplicationFramework\query\DatabaseVersionTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use Exception;
 
-class DatabaseRoleData extends DataStructure implements SQLInterface
-{
+class DatabaseRoleData extends DataStructure implements SQLInterface{
 
 	use DatabaseVersionTrait;
 
-	public static function create()
-	{
+	public static function create():DatabaseRoleData{
 		return new static();
 	}
 
-	public static function getDatabaseNameStatic(): string
-	{
+	public static function getDatabaseNameStatic(): string{
 		return "mysql";
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "user";
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		// Host
 		$Host = new CharDatum("Host", 255);
 		$Host->setPrimaryKeyFlag(true);
@@ -98,19 +94,16 @@ class DatabaseRoleData extends DataStructure implements SQLInterface
 		static::pushTemporaryColumnsStatic($columns, $Host, $User, $plugin);
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Role");
 	}
 
-	public function getUsernameHostString()
-	{
+	public function getUsernameHostString():string{
 		return single_quote($this->getUsername()) . "@" . single_quote($this->getHost());
 	}
 
-	public function toSQL(): string
-	{
-		$f = __METHOD__; //DatabaseRoleData::getShortClass()."(".static::getShortClass().")->__toString()";
+	public function toSQL(): string{
+		$f = __METHOD__;
 		try {
 			return $this->getUsernameHostString();
 		} catch (Exception $x) {
@@ -118,59 +111,49 @@ class DatabaseRoleData extends DataStructure implements SQLInterface
 		}
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_DATABASE_USER_ROLE;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Roles");
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "roles";
 	}
 
-	public function setUsername($value)
-	{
+	public function setUsername(string $value):string{
 		return $this->setColumnValue("User", $value);
 	}
 
-	public function hasUsername()
-	{
+	public function hasUsername():bool{
 		return $this->hasColumnValue("User");
 	}
 
-	public function getUsername()
-	{
+	public function getUsername():string{
 		return $this->getColumnValue("User");
 	}
 
-	public function user($name): DatabaseRoleData
-	{
+	public function user($name): DatabaseRoleData{
 		$this->setUsername($name);
 		return $this;
 	}
 
-	public function hasHost()
-	{
+	public function hasHost():bool{
 		return $this->hasColumnValue("Host");
 	}
 
-	public function getHost()
-	{
-		$f = __METHOD__; //DatabaseRoleData::getShortClass()."(".static::getShortClass().")->getHost()";
+	public function getHost(){
+		$f = __METHOD__;
 		if (! $this->hasHost()) {
 			Debug::error("{$f} host is undefined");
 		}
 		return $this->getColumnValue("Host");
 	}
 
-	public function setHost($host)
-	{ // XXX validate host
-		$f = __METHOD__; //DatabaseRoleData::getShortClass()."(".static::getShortClass().")->setHost()";
+	public function setHost($host){ // XXX validate host
+		$f = __METHOD__;
 		if ($host == null) {
 			$this->ejectColumnValue("Host");
 			return null;
@@ -180,29 +163,25 @@ class DatabaseRoleData extends DataStructure implements SQLInterface
 		return $this->setColumnValue("Host", $host);
 	}
 
-	public function at($host): DatabaseRoleData
-	{
+	public function at($host): DatabaseRoleData{
 		$this->setHost($host);
 		return $this;
 	}
 
-	public function hasAuthPlugin()
-	{
+	public function hasAuthPlugin():bool{
 		return $this->hasColumnValue("plugin");
 	}
 
-	public function getAuthPlugin()
-	{
-		$f = __METHOD__; //DatabaseRoleData::getShortClass()."(".static::getShortClass().")->getAuthPlugin()";
+	public function getAuthPlugin(){
+		$f = __METHOD__;
 		if (! $this->hasAuthPlugin()) {
 			Debug::error("{$f} auth plugin is undefined");
 		}
 		return $this->getColumnValue("plugin");
 	}
 
-	public function setAuthPlugin($authPlugin)
-	{
-		$f = __METHOD__; //DatabaseRoleData::getShortClass()."(".static::getShortClass().")->setAuthPlugin()";
+	public function setAuthPlugin($authPlugin){
+		$f = __METHOD__;
 		if ($authPlugin == null) {
 			$this->ejectColumnValue("plugin");
 			return null;
@@ -212,14 +191,12 @@ class DatabaseRoleData extends DataStructure implements SQLInterface
 		return $this->setColumnValue("plugin", $authPlugin);
 	}
 
-	public function identifiedWith($authPlugin): DatabaseRoleData
-	{
+	public function identifiedWith($authPlugin): DatabaseRoleData{
 		$this->setAuthPlugin($authPlugin);
 		return $this;
 	}
 
-	public static function getPermissionStatic(string $name, $data)
-	{
+	public static function getPermissionStatic(string $name, $data){
 		return FAILURE;
 	}
 }

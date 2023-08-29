@@ -1,7 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\variable;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\data\GetColumnValueCommand;
@@ -24,20 +25,17 @@ use JulianSeymour\PHPWebApplicationFramework\query\TypeSpecificInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\TypeSpecificTrait;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-class GetDeclaredVariableCommand extends Command implements JavaScriptInterface, ScopedCommandInterface, SQLInterface, StringifiableInterface, TypeSpecificInterface, ValueReturningCommandInterface
-{
+class GetDeclaredVariableCommand extends Command implements JavaScriptInterface, ScopedCommandInterface, SQLInterface, StringifiableInterface, TypeSpecificInterface, ValueReturningCommandInterface{
 
 	use IndirectParentScopeTrait;
 	use TypeSpecificTrait;
 	use VariableNameTrait;
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "local";
 	}
 
-	public function __construct($vn, ?Scope $scope = null, ?string $parseType = null)
-	{
+	public function __construct($vn, ?Scope $scope = null, ?string $parseType = null){
 		parent::__construct();
 		if ($vn instanceof Element) {
 			$vn = $vn->getIdOverride();
@@ -51,8 +49,7 @@ class GetDeclaredVariableCommand extends Command implements JavaScriptInterface,
 		}
 	}
 
-	public function evaluate(?array $params = null)
-	{
+	public function evaluate(?array $params = null){
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
 		if ($print) {
@@ -91,13 +88,11 @@ class GetDeclaredVariableCommand extends Command implements JavaScriptInterface,
 		return $value;
 	}
 
-	public function setValue($i)
-	{
+	public function setValue($i){
 		return $this->getScope()->setLocalValue($this->getVariableName(), $i);
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		$vn = $this->getVariableName();
 		if ($vn instanceof JavaScriptInterface) {
 			$vn = $vn->toJavaScript();
@@ -105,64 +100,53 @@ class GetDeclaredVariableCommand extends Command implements JavaScriptInterface,
 		return $vn;
 	}
 
-	public function __toString(): string
-	{
+	public function __toString(): string{
 		$vn = $this->getVariableName();
 		return "{$vn}";
 	}
 
-	public function hasForeignDataStructureCommand($column_name): HasForeignDataStructureCommand
-	{
+	public function hasForeignDataStructureCommand($column_name): HasForeignDataStructureCommand{
 		return new HasForeignDataStructureCommand($this, $column_name);
 	}
 
-	public function getForeignDataStructureCommand($column_name): GetForeignDataStructureCommand
-	{
+	public function getForeignDataStructureCommand($column_name): GetForeignDataStructureCommand{
+		Debug::printStackTrace(__METHOD__.": entered");
 		return new GetForeignDataStructureCommand($this, $column_name);
 	}
 
-	public function hasColumnValueCommand($column_name): HasColumnValueCommand
-	{
+	public function hasColumnValueCommand($column_name): HasColumnValueCommand{
 		return new HasColumnValueCommand($this, $column_name);
 	}
 
-	public function getColumnValueCommand($column_name): GetColumnValueCommand
-	{
+	public function getColumnValueCommand($column_name): GetColumnValueCommand{
 		return new GetColumnValueCommand($this, $column_name);
 	}
 
-	public function setColumnValueCommand($column_name, $value): SetColumnValueCommand
-	{
+	public function setColumnValueCommand($column_name, $value): SetColumnValueCommand{
 		return new SetColumnValueCommand($this, $column_name, $value);
 	}
 
-	public function setForeignDataStructureCommand($column_name, $fds): SetForeignDataStructureCommand
-	{
+	public function setForeignDataStructureCommand($column_name, $fds): SetForeignDataStructureCommand{
 		return new SetForeignDataStructureCommand($this, $column_name, $fds);
 	}
 
-	public function getChildCommand($phylum, $child_key): GetForeignDataStructureListMemberCommand
-	{
+	public function getChildCommand($phylum, $child_key): GetForeignDataStructureListMemberCommand{
 		return new GetForeignDataStructureListMemberCommand($this, $phylum, $child_key);
 	}
 
-	public function hasForeignDataStructureListMemberCommand($phylum, $child_key): HasForeignDataStructureCommand
-	{
+	public function hasForeignDataStructureListMemberCommand($phylum, $child_key): HasForeignDataStructureCommand{
 		return new HasForeignDataStructureCommand($this, $phylum, $child_key);
 	}
 
-	public function getForeignDataStructureListMemberAtOffset($phylum, $offset): GetForeignDataStructureListMemberAtOffsetCommand
-	{
+	public function getForeignDataStructureListMemberAtOffset($phylum, $offset): GetForeignDataStructureListMemberAtOffsetCommand{
 		return new GetForeignDataStructureListMemberAtOffsetCommand($this, $phylum, $offset);
 	}
 
-	public function hasChildrenCommand($column_name): HasChildrenCommand
-	{
+	public function hasChildrenCommand($column_name): HasChildrenCommand{
 		return new HasChildrenCommand($this, $column_name);
 	}
 
-	public function toSQL(): string
-	{
+	public function toSQL(): string{
 		$vn = $this->getVariableName();
 		if ($vn instanceof SQLInterface) {
 			$vn = $vn->toSQL();
@@ -170,18 +154,15 @@ class GetDeclaredVariableCommand extends Command implements JavaScriptInterface,
 		return $vn;
 	}
 
-	public function setSourceAttributeCommand($value): SetSourceAttributeCommand
-	{
+	public function setSourceAttributeCommand($value): SetSourceAttributeCommand{
 		return new SetSourceAttributeCommand($this, $value);
 	}
 
-	public function setInnerHTMLCommand($innerHTML): SetInnerHTMLCommand
-	{
+	public function setInnerHTMLCommand($innerHTML): SetInnerHTMLCommand{
 		return new SetInnerHTMLCommand($this, $innerHTML);
 	}
 
-	public function setStylePropertiesCommand($properties): SetStylePropertiesCommand
-	{
+	public function setStylePropertiesCommand($properties): SetStylePropertiesCommand{
 		return new SetStylePropertiesCommand($this, $properties);
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
 use function JulianSeymour\PHPWebApplicationFramework\directive;

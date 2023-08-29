@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\command\control;
 
 use function JulianSeymour\PHPWebApplicationFramework\is_associative;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 trait ElseBlockTrait

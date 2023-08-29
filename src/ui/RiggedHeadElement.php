@@ -2,8 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
-use function JulianSeymour\PHPWebApplicationFramework\getCurrentUserLanguagePreference;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
+use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\BaseElement;
@@ -25,18 +25,17 @@ class RiggedHeadElement extends HeadElement{
 		return true;
 	}
 
-	/*public static function getStringTableScriptElement()
-	{
-		$lang = getCurrentUserLanguagePreference();
+	public static function getScriptBundleElement():ScriptElement{
 		$script = new ScriptElement();
-		$path = "/script/strings-{$lang}.js";
+		$locale = user()->getLocaleString();
+		$path = "/script/{$locale}/bundle.js";
 		$script->setSourceAttribute($path);
 		$script->setTypeAttribute("text/javascript");
 		$script->setAllowEmptyInnerHTML(true);
-		$script->setIdAttribute("string_table_script");
+		$script->setIdAttribute("script_bundle");
 		return $script;
-	}*/
-
+	}
+	
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
 		try {
@@ -77,19 +76,8 @@ class RiggedHeadElement extends HeadElement{
 					$this->appendChild($link);
 				}
 			}
-			$this->appendChild(RiggedHeadElement::getStringTableScriptElement());
-			$scripts = [
-				"bundle"
-			];
-			foreach ($scripts as $s) {
-				$script = new ScriptElement();
-				$path = "/script/{$s}.js";
-				// Debug::print("{$f} path to script file: \"{$path}\"");
-				$script->setSourceAttribute($path);
-				$script->setTypeAttribute("text/javascript");
-				$script->setAllowEmptyInnerHTML(true);
-				$this->appendChild($script);
-			}
+			$script = static::getScriptBundleElement();
+			$this->appendChild($script);
 			if (defined("HCAPTCHA_SITE_KEY")) {
 				$hcaptcha = new ScriptElement();
 				$hcaptcha->setSourceAttribute("https://hcaptcha.com/1/api.js");

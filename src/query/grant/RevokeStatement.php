@@ -1,39 +1,39 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\grant;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 
-class RevokeStatement extends PrivilegeStatement
-{
+class RevokeStatement extends PrivilegeStatement{
 
-	public static function declareFlag()
-	{
+	public static function declareFlag(){
 		return array_merge(parent::declareFlags(), [
 			"all"
 		]);
 	}
 
-	public function setAllPrivilegesFlag($value = true)
-	{
+	public function setAllPrivilegesFlag(bool $value = true):bool{
 		return $this->setFlag("all", $value);
 	}
 
-	public function getAllPrivilegesFlag()
-	{
+	public function getAllPrivilegesFlag():bool{
 		return $this->getFlag("all");
 	}
 
-	public static function all()
-	{
-		$revoke = new RevokeStatement();
-		$revoke->setAllPrivilegesFlag(true);
-		return $revoke;
+	public function all(bool $value=true):RevokeStatement{
+		$this->setAllPrivilegesFlag($value);
+		return $this;
 	}
 
-	public function getQueryStatementString()
-	{
-		$f = __METHOD__; //RevokeStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
+	public function from(...$user):RevokeStatement{
+		$this->setUsers($user);
+		return $this;
+	}
+	
+	public function getQueryStatementString(){
+		$f = __METHOD__;
 		// REVOKE
 		$string = "revoke ";
 		if ($this->hasPrivileges()) {
@@ -45,9 +45,28 @@ class RevokeStatement extends PrivilegeStatement
 			}
 			// priv_level
 			if ($this->hasDatabaseName()) {
-				$string .= back_quote($this->getDatabaseName()) . ".";
+				$db = $this->getDatabaseName();
+				if($db instanceof SQLInterface){
+					$db = $db->toSQL();
+				}
+				if($db !== "*"){
+					$db = back_quote($db);
+				}
+			}else{
+				$db = "*";
 			}
-			$string .= back_quote($this->getTableName());
+			if($this->hasTableName()){
+				$table = $this->getTableName();
+				if($table instanceof SQLInterface){
+					$table = $table->toSQL();
+				}
+				if($table !== "*"){
+					$table = back_quote($table);
+				}
+			}else{
+				$table = "*";
+			}
+			$string .=  "{$db}.{$table}";
 		} elseif ($this->getAllPrivilegesFlag()) {
 			// REVOKE ALL [PRIVILEGES], GRANT OPTION
 			$string .= "all, grant option";
@@ -61,7 +80,14 @@ class RevokeStatement extends PrivilegeStatement
 			Debug::error("{$f} none of the above");
 		}
 		// FROM user_or_role [, user_or_role] ...
-		$string .= " from " . implode(',', $this->getUsers());
+		$string .= " from ";
+		$count = 0;
+		foreach($this->getUsers() as $user){
+			if($count++ > 0){
+				$string .= ",";
+			}
+			$string .= $user->toSQL();
+		}
 		return $string;
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\request;
@@ -9,20 +10,17 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Exception;
 use mysqli;
 
-class OpenEncryptedFileUseCase extends OpenFileUseCase
-{
+class OpenEncryptedFileUseCase extends OpenFileUseCase{
 
-	public function getUriSegmentParameterMap(): ?array
-	{
+	public function getUriSegmentParameterMap(): ?array{
 		return [
 			"action",
 			"fileKey"
 		];
 	}
 
-	public function acquireFileObject(mysqli $mysqli)
-	{
-		$f = __METHOD__; //OpenEncryptedFileUseCase::getShortClass()."(".static::getShortClass().")->acquireFileObject()";
+	public function acquireFileObject(mysqli $mysqli){
+		$f = __METHOD__;
 		try {
 			$file_key = request()->getInputParameter("fileKey");
 			$client = user();
@@ -44,18 +42,11 @@ class OpenEncryptedFileUseCase extends OpenFileUseCase
 		}
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_DECRYPT_ATTACHMENT;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/attach_file";
 	}
 }

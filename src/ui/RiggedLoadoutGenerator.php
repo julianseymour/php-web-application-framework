@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;

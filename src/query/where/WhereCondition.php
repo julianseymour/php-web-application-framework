@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\where;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -14,17 +15,16 @@ use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatementInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatementTrait;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
-class WhereCondition extends ExpressionCommand implements SelectStatementInterface, StringifiableInterface, TypeSpecificInterface, WhereConditionalInterface
-{
+class WhereCondition extends ExpressionCommand implements SelectStatementInterface, StringifiableInterface, TypeSpecificInterface, WhereConditionalInterface{
 
 	use ColumnNameTrait;
 	use ParameterCountingTrait;
 	use SelectStatementTrait;
 	use TypeSpecificTrait;
 
-	public function __construct($varname, string $operator = OPERATOR_EQUALS, ?string $typeSpecifier = null, ?SelectStatement $selectStatement = null)
-	{
+	public function __construct($varname, string $operator = OPERATOR_EQUALS, ?string $typeSpecifier = null, ?SelectStatement $selectStatement = null){
 		parent::__construct();
 		$this->setColumnName($varname);
 		$this->setOperator($operator);
@@ -36,17 +36,15 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		}
 	}
 
-	public function hasUnbindableOperator()
-	{
+	public function hasUnbindableOperator(){
 		return false !== array_search($this->getOperator(), [
 			OPERATOR_IS_NULL,
 			OPERATOR_IS_NOT_NULL
 		]);
 	}
 
-	public function getTypeSpecifier()
-	{
-		$f = __METHOD__; //WhereCondition::getShortClass()."(".static::getShortClass().")->getTypeSpecifier()";
+	public function getTypeSpecifier(){
+		$f = __METHOD__;
 		if (! $this->hasTypeSpecifier()) {
 			$cn = $this->getColumnName();
 			if ($cn instanceof TypeSpecificInterface) {
@@ -58,8 +56,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		return $this->typeSpecifier;
 	}
 
-	public static function in($varname, ?int $parameterCount = null)
-	{
+	public static function in($varname, ?int $parameterCount = null){
 		if ($parameterCount === 1) {
 			return new WhereCondition($varname, OPERATOR_EQUALS);
 		}
@@ -70,8 +67,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		return $where;
 	}
 
-	public function getFlatWhereConditionArray(): ?array
-	{
+	public function getFlatWhereConditionArray(): ?array{
 		if ($this->hasSelectStatement()) {
 			return $this->getSelectStatement()->getFlatWhereConditionArray();
 		}
@@ -80,8 +76,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		];
 	}
 
-	public function getSuperflatWhereConditionArray(): ?array
-	{
+	public function getSuperflatWhereConditionArray(): ?array{
 		if ($this->hasSelectStatement()) {
 			return $this->getSelectStatement()->getSuperflatWhereConditionArray();
 		}
@@ -90,8 +85,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		];
 	}
 
-	public function inferParameterCount(): int
-	{
+	public function inferParameterCount(): int{
 		if ($this->hasParameterCount()) {
 			return $this->getParameterCount();
 		}
@@ -108,22 +102,19 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		}
 	}
 
-	public function getParameterCount(): int
-	{
+	public function getParameterCount(): int{
 		if ($this->hasParameterCount()) {
 			return $this->parameterCount;
 		}
 		return $this->inferParameterCount();
 	}
 
-	public function getRequiredParameterCount(): int
-	{
+	public function getRequiredParameterCount(): int{
 		return $this->inferParameterCount();
 	}
 
-	public function toSQL(): string
-	{
-		$f = __METHOD__; //WhereCondition::getShortClass()."(".static::getShortClass().")->toSQL()";
+	public function toSQL(): string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$select = null;
@@ -210,37 +201,23 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		}
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		$f = __METHOD__; //WhereCondition::getShortClass()."(".static::getShortClass().")->evaluate()";
-		Debug::vestigal($f);
+	public function evaluate(?array $params = null){
+		$f = __METHOD__;
+		ErrorMessage::unimplemented($f);
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "where";
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->parameterCount);
 		unset($this->selectStatement);
 		unset($this->typeSpecifier);
 	}
 
-	public function audit(): int
-	{
-		return SUCCESS;
-	}
-
-	/*
-	 * public function mySQLFormat(){
-	 * return SUCCESS;
-	 * }
-	 */
-	public function getConditionalColumnNames(): array
-	{
+	public function getConditionalColumnNames(): array{
 		if ($this->inferParameterCount() === 0) {
 			return [];
 		}
@@ -249,8 +226,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		];
 	}
 
-	public function __toString(): string
-	{
+	public function __toString(): string{
 		return $this->toSQL();
 	}
 }

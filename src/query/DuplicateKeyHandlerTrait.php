@@ -1,30 +1,27 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait DuplicateKeyHandlerTrait
-{
+trait DuplicateKeyHandlerTrait{
 
 	protected $duplicateKeyHandler;
 
-	public function hasDuplicateKeyHandler()
-	{
+	public function hasDuplicateKeyHandler():bool{
 		return isset($this->duplicateKeyHandler);
 	}
 
-	public function getDuplicateKeyHandler()
-	{
-		$f = __METHOD__; //"DuplicateKeyHandlerTrait(".static::getShortClass().")->getDuplicateKeyHandler()";
+	public function getDuplicateKeyHandler():string{
+		$f = __METHOD__;
 		if (! $this->hasDuplicateKeyHandler()) {
 			Debug::error("{$f} duplicate key handler is undefined");
 		}
 		return $this->duplicateKeyHandler;
 	}
 
-	public function setDuplicateKeyHandler($s)
-	{
-		$f = __METHOD__; //"DuplicateKeyHandlerTrait(".static::getShortClass().")->setDuplicateKeyHandler()";
+	public function setDuplicateKeyHandler(?string $s):?string{
+		$f = __METHOD__;
 		if ($s == null) {
 			unset($this->duplicateKeyHandler);
 			return null;
@@ -41,14 +38,12 @@ trait DuplicateKeyHandlerTrait
 		}
 	}
 
-	public function ignore()
-	{
+	public function ignore(){
 		$this->setDuplicateKeyHandler(DIRECTIVE_IGNORE);
 		return $this;
 	}
 
-	public function replace()
-	{
+	public function replace(){
 		$this->setDuplicateKeyHandler(DIRECTIVE_REPLACE);
 		return $this;
 	}

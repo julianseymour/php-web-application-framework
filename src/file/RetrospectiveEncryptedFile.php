@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -8,12 +9,10 @@ use JulianSeymour\PHPWebApplicationFramework\template\TemplateContextInterface;
 use Exception;
 use mysqli;
 
-class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContextInterface
-{
+class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContextInterface{
 
-	public function getFileCleartextString()
-	{
-		$f = __METHOD__; //RetrospectiveEncryptedFile::getShortClass()."(".static::getShortClass().")->getFileCleartextString()";
+	public function getFileCleartextString(){
+		$f = __METHOD__;
 		try {
 			// Debug::print("{$f} entered");
 			// 1. get encrypted file
@@ -81,9 +80,8 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 		}
 	}
 
-	public function outputFileToBrowser()
-	{
-		$f = __METHOD__; //RetrospectiveEncryptedFile::getShortClass()."(".static::getShortClass().")->outputFileToBrowser()";
+	public function outputFileToBrowser():void{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -117,7 +115,8 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 						break;
 					default:
 						Debug::error("{$f} illegal mime type \"{$mime}\"");
-						return $this->echoResponse(ERROR_MIME_TYPE);
+						$this->echoResponse(ERROR_MIME_TYPE);
+						return;
 				}
 				if (! $worked) {
 					Debug::error("{$f} imagejpeg/png/gif failed");
@@ -134,14 +133,12 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 		}
 	}
 
-	public function getMetadataJson()
-	{
+	public function getMetadataJson(){
 		return $this->getColumnValue("metadataJson");
 	}
 
-	public function processMetadataJson($json)
-	{
-		$f = __METHOD__; //RetrospectiveEncryptedFile::getShortClass()."(".static::getShortClass().")->processMetadataJson()";
+	public function processMetadataJson($json){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($json == null) {
@@ -193,9 +190,8 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 		}
 	}
 
-	public function afterLoadHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //RetrospectiveEncryptedFile::getShortClass()."(".static::getShortClass().")->afterLoadHook()";
+	public function afterLoadHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$json = $this->getMetadataJson();
@@ -213,8 +209,7 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 		}
 	}
 
-	public function template()
-	{
+	public function template(){
 		return;
 	}
 }

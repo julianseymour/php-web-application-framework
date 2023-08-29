@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\cache;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -7,16 +8,14 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Exception;
 
-class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
-{
+class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 
 	protected $APCuCachePool;
 
 	protected $filesystemCachePool;
 
-	public function enabled()
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->enabled()";
+	public function enabled(){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -25,9 +24,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return defined('CACHE_ENABLED') && CACHE_ENABLED === true; // && $this->getFlag("enabled");
 	}
 
-	protected function hasFilesystemCachePool()
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->hasFilesystemCachePool()";
+	protected function hasFilesystemCachePool(){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -36,9 +34,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return isset($this->filesystemCachePool) && $this->filesystemCachePool instanceof \Cache\Adapter\Filesystem\FilesystemCachePool;
 	}
 
-	protected function getFilesystemCachePool()
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->getFilesystemCachePool()";
+	protected function getFilesystemCachePool(){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -47,12 +44,11 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		if ($this->hasFilesystemCachePool()) {
 			return $this->filesystemCachePool;
 		}
-		return $this->filesystemCachePool = new \Cache\Adapter\Filesystem\FilesystemCachePool(new \League\Flysystem\Filesystem(new \League\Flysystem\Adapter\Local("/var/" . DOMAIN_BASE . "/cache")));
+		return $this->filesystemCachePool = new \Cache\Adapter\Filesystem\FilesystemCachePool(new \League\Flysystem\Filesystem(new \League\Flysystem\Adapter\Local("/var/www")));
 	}
 
-	protected function hasAPCuCachePool()
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->hasAPCuCachePool()";
+	protected function hasAPCuCachePool(){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -61,9 +57,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return isset($this->APCuCachePool) && $this->APCuCachePool instanceof \Cache\Adapter\Apcu\ApcuCachePool;
 	}
 
-	public function getAPCuCachePool()
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->getPACuCachePool()";
+	public function getAPCuCachePool(){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -80,9 +75,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return $this->APCuCachePool = new \Cache\Adapter\Apcu\ApcuCachePool();
 	}
 
-	public function has($key): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->has()";
+	public function has($key): bool{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if($print){
@@ -101,9 +95,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		}
 	}
 
-	public function get($key, $default = null)
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->get()";
+	public function get($key, $default = null){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered with key \"{$key}\"");
@@ -124,9 +117,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return null;
 	}
 
-	public function set($key, $value, $ttl = null): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->set()";
+	public function set($key, $value, $ttl = null): bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -140,13 +132,6 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 			}
 			$key = $key->getCacheKey();
 		}
-		/*
-		 * if($value instanceof CacheableInterface){
-		 * $value = json_encode($value->toArray("cache"));
-		 * }elseif(is_array($value)){
-		 * $value = json_encode($value);
-		 * }
-		 */
 		global $__START;
 		if (isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
 			$ttl += $__START;
@@ -156,9 +141,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return true;
 	}
 
-	public function delete($key): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->delete()";
+	public function delete($key): bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -182,9 +166,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return true;
 	}
 
-	public function expire($key, int $ttl): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->expire()";
+	public function expire($key, int $ttl): bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -212,9 +195,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return true;
 	}
 
-	public function expireAPCu($key, int $ttl)
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->expireAPCu()";
+	public function expireAPCu($key, int $ttl){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -228,9 +210,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return $pool->set($key, $pool->get($key), $ttl);
 	}
 
-	public function expireFile($key, int $ttl)
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->expireFile()";
+	public function expireFile($key, int $ttl){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -244,9 +225,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return $pool->set($key, $pool->get($key), $ttl);
 	}
 
-	public function clearAPCu()
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->clearAPCu()";
+	public function clearAPCu():bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -256,9 +236,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return true;
 	}
 
-	public function clearFile()
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->clearFile()";
+	public function clearFile(){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -268,9 +247,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return true;
 	}
 
-	public function clear()
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->clear()";
+	public function clear(){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -281,9 +259,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return true;
 	}
 
-	public function getMultiple($keys, $default = null)
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->getMultiple()";
+	public function getMultiple($keys, $default = null){
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 		if ($this->hasAPCuCachePool()) {
 			return $this->APCuCachePool->getMultiple($keys, $default);
@@ -294,9 +271,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return [];
 	}
 
-	public function setMultiple($values, $ttl = null): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->setMultiple()";
+	public function setMultiple($values, $ttl = null): bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -307,9 +283,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return true;
 	}
 
-	public function deleteMultiple($keys): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->deleteMultiple()";
+	public function deleteMultiple($keys): bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -318,9 +293,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return $this->getAPCuCachePool()->deleteMultiple($keys) && $this->getFilesystemCachePool()->deleteMultiple($keys);
 	}
 
-	public function hasFile($key): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->hasFile()";
+	public function hasFile($key): bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -329,9 +303,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return $this->getFilesystemCachePool()->has($key);
 	}
 
-	public function getFile($key, $default = null)
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->getFile()";
+	public function getFile($key, $default = null){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -340,9 +313,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return $this->getFilesystemCachePool()->get($key, $default);
 	}
 
-	public function setFile($key, $value, $ttl = null): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->setFile()";
+	public function setFile($key, $value, $ttl = null): bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
@@ -355,9 +327,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return $this->getFilesystemCachePool()->set($key, $value, $ttl);
 	}
 
-	public function hasAPCu($key): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->hasAPCu()";
+	public function hasAPCu($key): bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered with key \"{$key}\"");
@@ -370,9 +341,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return $pool->has($key);
 	}
 
-	public function getAPCu($key, $default = null)
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->getAPCu()";
+	public function getAPCu($key, $default = null){
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered with key \"{$key}\"");
@@ -385,9 +355,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface
 		return $pool->get($key, $default);
 	}
 
-	public function setAPCu($key, $value, $ttl = null): bool
-	{
-		$f = __METHOD__; //MultiCache::getShortClass()."(".static::getShortClass().")->setAPCu()";
+	public function setAPCu($key, $value, $ttl = null): bool{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered with key \"{$key}\"");

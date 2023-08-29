@@ -1,8 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\login;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\request;
@@ -34,6 +36,11 @@ use Exception;
 
 class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueFormInterface{
 
+	public static function getJavaScriptClassPath(): ?string{
+		$fn = get_class_filename(static::class);
+		return substr($fn, 0, strlen($fn) - 3) . "js";
+	}
+	
 	public static function getMethodAttributeStatic(): ?string{
 		return HTTP_REQUEST_METHOD_POST;
 	}
@@ -68,9 +75,13 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 			$mode = $this->getAllocationMode();
 			$back = _("Back to login");
 			$forgot_password_hint = new LabelElement($mode);
-			$forgot_password_hint->addClassAttribute("forgot_password_hint");
+			$forgot_password_hint->addClassAttribute("forgot_password_hint", "button-like");
 			$forgot_password_hint->setForAttribute("radio_submit_login");
 			$forgot_password_hint->setInnerHTML($back);
+			$forgot_password_hint->setStyleProperties([
+				'display' => 'none',
+				'position' => 'relative'
+			]);
 			$this->appendChild($forgot_password_hint);
 		} catch (Exception $x) {
 			x($f, $x);
@@ -80,6 +91,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
 		try {
+			$print = false;
 			$mode = $this->getAllocationMode();
 			$splat = explode("/", request()->getRequestURI());
 			$uri = $splat[count($splat) - 1];
@@ -115,12 +127,15 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 
 			$validator = new LenienthCaptchaValidator(LoginAttempt::class, 1);
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
-			if ($mysqli == null || 
-			// || !LoginAttempt::tableExistsStatic($mysqli)
-			! $validator->validateFailedRequestCount($mysqli)) {
+			if (!$validator->validateFailedRequestCount($mysqli)){
+				if($print){
+					Debug::print("{$f} failed request count exceeds the number necessary to display hcaptcha");
+				}
 				$hcaptcha = new hCaptcha($mode, $this->getContext());
-				$hcaptcha->setIdAttribute("login_hcaptcha");
+				$hcaptcha->setIdAttribute('login_hcaptcha');
 				$inputs["hCaptcha"] = $hcaptcha;
+			}elseif($print){
+				Debug::print("{$f} insufficient number of failed requests to display captcha");
 			}
 			return $inputs;
 		} catch (Exception $x) {
@@ -128,8 +143,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 		}
 	}
 
-	public function generateFormHeader(): void
-	{
+	public function generateFormHeader(): void{
 		$mode = $this->getAllocationMode();
 		$radio_submit_login = new RadioButtonInput($mode);
 		$radio_submit_login->setIdAttribute("radio_submit_login");
@@ -156,8 +170,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 		$this->appendChild($radio_submit_login, $radio_forgot_name, $radio_forgot_password);
 	}
 
-	public static function getHoneypotCountArray(): ?array
-	{
+	public static function getHoneypotCountArray(): ?array{
 		return null;
 		return [
 			EmailAddressDatum::getColumnNameStatic() => 3
@@ -171,8 +184,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 	 * @param InputElement $input
 	 * @return int
 	 */
-	public function reconfigureInput($input): int
-	{
+	public function reconfigureInput($input): int{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -201,40 +213,42 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "emailAddress":
-					$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
-					break;
-				case "name":
-					$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
 					$ret = parent::reconfigureInput($input);
-					$id = "login_username_field";
-					$input->setIdAttribute($id);
-					$input->setPlaceholderAttribute(_("Username"));
+					$input->getWrapperElement()->setIdAttribute("login_email_container");
+					$input->getWrapperElement()->setStyleProperties([
+						"margin-bottom" => "2.5rem"
+					]);
+					return $ret;
+				case "name":
+					$input->setIdAttribute("login_username_field");
+					$input->setLabelString(_("Username"));
+					$input->setOnInputAttribute("loginUsernameInputHandler(event, this);");
+					$ret = parent::reconfigureInput($input);
+					$input->getWrapperElement()->setStyleProperties([
+						"margin-bottom" => "2.5rem"
+					]);
+					$input->getWrapperElement()->setIdAttribute("login_username_container");
 					$label = new LabelElement();
 					$label->addClassAttribute("forgot_name_label");
 					$label->setForAttribute("radio_forgot_name");
 					$label->setInnerHTML(_("Forgot username"));
 					$input->pushSuccessor($label);
-					$input->setOnInputAttribute("loginUsernameInputHandler(event, this);");
+					return $ret;
+				case "password":
+					$input->setIdAttribute("login_password_field");
+					$placeholder = _("Password") . " (" . substitute(_("%1%+ characters"), 12) . ")";
+					$input->setLabelString($placeholder);
+					$input->setOnInputAttribute("loginPasswordInputHandler(event, this);");
+					$ret = parent::reconfigureInput($input);
 					$input->getWrapperElement()->setStyleProperties([
 						"margin-bottom" => "2.5rem"
 					]);
-					return $ret;
-				case "password":
-					$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
-					$ret = parent::reconfigureInput($input);
-					$id = "login_password_field";
-					$input->setIdAttribute($id);
-					$placeholder = _("Password") . " (" . substitute(_("%1%+ characters"), 12) . ")";
-					$input->setPlaceholderAttribute($placeholder);
+					$input->getWrapperElement()->setIdAttribute('login_password_container');
 					$label = new LabelElement();
 					$label->addClassAttribute("forgot_password_label");
 					$label->setForAttribute("radio_forgot_password");
 					$label->setInnerHTML(_("Forgot password"));
 					$input->pushSuccessor($label);
-					$input->setOnInputAttribute("loginPasswordInputHandler(event, this);");
-					$input->getWrapperElement()->setStyleProperties([
-						"margin-bottom" => "2.5rem"
-					]);
 					return $ret;
 				default:
 			}
@@ -306,6 +320,11 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 					if (! $button->hasIdAttribute()) {
 						// Debug::error("{$f} button lacks an ID attribute");
 					}
+					$button->setStyleProperties([
+						'float' => 'none',
+						'display' => 'inline-block',
+						'position' => 'relative'
+					]);
 					break;
 				default:
 					Debug::error("{$f} invalid name attribute \"{$name}\"");

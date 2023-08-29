@@ -14,6 +14,10 @@ class GrantData extends DataStructure{
 	use CorrespondentKeyColumnTrait;
 	use SubjectiveTrait;
 
+	public static function getDatabaseNameStatic():string{
+		return "security";
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		// example scenario: alice (subject) has edit+delete (acl) privileges on bob's (correspondent) posts in channel X (scope) until tomorrow (expiration)
@@ -71,7 +75,7 @@ class GrantData extends DataStructure{
 		return false;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Grant");
 	}
 
@@ -83,7 +87,7 @@ class GrantData extends DataStructure{
 		return DATATYPE_GRANT;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Grants");
 	}
 

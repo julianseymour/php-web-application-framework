@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\app;
 
 use function JulianSeymour\PHPWebApplicationFramework\cache;
@@ -10,9 +11,9 @@ use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
+use function JulianSeymour\PHPWebApplicationFramework\app;
 
-class ModuleBundler extends Basic
-{
+class ModuleBundler extends Basic{
 
 	/**
 	 * array of modules on which this application depends
@@ -21,19 +22,16 @@ class ModuleBundler extends Basic
 	 */
 	protected $modules;
 
-	public function getValidMimeTypes(): ?array
-	{
+	public function getValidMimeTypes(): ?array{
 		return $this->bundle("getValidMimeTypes");
 	}
 
-	public function getValidDirectives(): ?array
-	{
+	public function getValidDirectives(): ?array{
 		return $this->bundle("getValidDirectives");
 	}
 
-	public function getWidgetClasses(): ?array
-	{
-		$f = __METHOD__; //ModuleBundler::getShortClass() . "(" . static::getShortClass() . ")->getWidgetClasses()";
+	public function getWidgetClasses(): ?array{
+		$f = __METHOD__;
 		$print = false;
 		$ret = $this->bundle("getWidgetClasses");
 		if ($print) {
@@ -43,23 +41,19 @@ class ModuleBundler extends Basic
 		return $ret;
 	}
 
-	public function getMiscellaneousClasses(): array
-	{
+	public function getMiscellaneousClasses(): array{
 		return $this->bundle("getMiscellaneousClasses");
 	}
 
-	public function getInvokeableJavaScriptFunctions(): ?array
-	{
+	public function getInvokeableJavaScriptFunctions(): ?array{
 		return $this->bundle("getInvokeableJavaScriptFunctions");
 	}
 
-	public function getTemplateElementClasses(): ?array
-	{
+	public function getTemplateElementClasses(): ?array{
 		return $this->bundle("getTemplateElementClasses");
 	}
 
-	public function getFormDataSubmissionClasses(): ?array
-	{
+	public function getFormDataSubmissionClasses(): ?array{
 		return $this->bundle("getFormDataSubmissionClasses");
 	}
 
@@ -79,18 +73,15 @@ class ModuleBundler extends Basic
 		return $define_us;
 	}
 
-	public function getClientDataStructureClasses(): array
-	{
+	public function getClientDataStructureClasses(): array{
 		return $this->bundle("getClientDataStructureClasses");
 	}
 
-	public function getServiceWorkerDependencyFilePaths(): ?array
-	{
+	public function getServiceWorkerDependencyFilePaths(): ?array{
 		return $this->bundle("getServiceWorkerDependencyFilePaths");
 	}
 
-	public function getDebugJavaScriptFilePaths(): ?array
-	{
+	public function getDebugJavaScriptFilePaths(): ?array{
 		return $this->bundle("getDebugJavaScriptFilePaths");
 	}
 
@@ -112,7 +103,7 @@ class ModuleBundler extends Basic
 
 	public function getUserClasses():?array{
 		$f = __METHOD__;
-		$ds_classes = $this->getDataStructureClasses();
+		$ds_classes = $this->getTypeSortedDataStructureClasses();
 		if(!is_array($ds_classes)){
 			Debug::error("{$f} getDataStructureClasses returned something other than an array");
 		}
@@ -153,14 +144,12 @@ class ModuleBundler extends Basic
 		return $this->getServiceWorkerDependencyFilePaths();
 	}
 
-	public final function getModuleCount(): int
-	{
+	public final function getModuleCount(): int{
 		return $this->hasModules() ? count($this->modules) : 0;
 	}
 
-	public final function getUseCaseFromAction($action): string
-	{
-		$f = __METHOD__; //ModuleBundler::getShortClass() . "(" . static::getShortClass() . ")->getUseCaseFromAction()";
+	public final function getUseCaseFromAction($action): string{
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			Debug::print("{$f} action is \"{$action}\"");
@@ -172,18 +161,28 @@ class ModuleBundler extends Basic
 		return \JulianSeymour\PHPWebApplicationFramework\error\FileNotFoundUseCase::class;
 	}
 
-	public final function getDataStructureClasses(): ?array
-	{
-		$f = __METHOD__; //ModuleBundler::getShortClass() . "(" . static::getShortClass() . ")->getDataStructureClasses()";
+	public function getDataStructureClasses():?array{
+		return $this->bundle("getDataStructureClasses");
+	}
+	
+	public final function getTypeSortedDataStructureClasses(): ?array{
+		$f = __METHOD__;
 		try{
 			$print = false;
 			$cache = false;
-			$key = "getDataStructureClasses";
-			if (cache()->enabled()) {
+			$key = "getTypeSortedDataStructureClasses";
+			if (cache()->enabled() && !app()->getFlag("install")) {
 				if (cache()->hasAPCu($key)) {
+					if($print){
+						Debug::print("{$f} cache hit");
+					}
 					return cache()->getAPCu($key);
+				}elseif($print){
+					Debug::print("{$f} cache miss");
 				}
 				$cache = true;
+			}elseif($print){
+				Debug::print("{$f} cache is disabled");
 			}
 			$dsc = [];
 			$mods = $this->getModules();
@@ -202,25 +201,27 @@ class ModuleBundler extends Basic
 					continue;
 				}
 				foreach ($dscdm as $value) {
-					if ($print) {
-						Debug::print($value);
+					if(!class_exists($value)){
+						Debug::error("{$f} class \"{$value}\" does not exist");
+					}elseif($print){
+						//Debug::print("{$f} class \"{$value}\"");
 					}
-					if (is_array($value)) {
-						$sub_arr = [];
-						foreach ($value as $subclass) {
-							$sub_arr[$subclass::getSubtypeStatic()] = $subclass;
+					if ($value::hasSubtypeStatic()) {
+						$type = $value::getDataType();
+						if(!array_key_exists($type, $dsc)){
+							$dsc[$type] = [];
 						}
-						$dsc[$subclass::getDataType()] = $sub_arr;
+						$dsc[$type][$value::getSubtypeStatic()] = $value;
 					} else {
-						if($value::getDataType() === DATATYPE_USER){
-							Debug::error("{$f} gothca, module name is ".get_short_class($mod));
-						}
 						$dsc[$value::getDataType()] = $value;
 					}
 				}
 			}
 			if ($cache) {
 				cache()->setAPCu($key, $dsc, time() + 30 * 60);
+				if(!cache()->hasAPCu($key)){
+					Debug::warning("{$f} cache is busted");
+				}
 			}
 			return $dsc;
 		}catch(Exception $x){
@@ -228,14 +229,12 @@ class ModuleBundler extends Basic
 		}
 	}
 	
-	public function getClientCommandClasses(): ?array
-	{
+	public function getClientCommandClasses(): ?array{
 		return $this->bundle("getClientCommandClasses");
 	}
 
-	public function getValidatorClass(string $className): string
-	{
-		$f = __METHOD__; //ModuleBundler::getShortClass() . "(" . static::getShortClass() . ")->" . __METHOD__ . "()";
+	public function getValidatorClass(string $className): string{
+		$f = __METHOD__;
 		$validatorClasses = $this->getValidatorClasses();
 		if (false === array_key_exists($className, $validatorClasses)) {
 			Debug::error("{$f} validator class is undefined");
@@ -245,7 +244,7 @@ class ModuleBundler extends Basic
 	}
 
 	public function getValidatorClasses():?array{
-		$f = __METHOD__; //ModuleBundler::getShortClass() . "(" . static::getShortClass() . ")->getValidatorClasses()";
+		$f = __METHOD__;
 		$print = false;
 		$cache = false;
 		$key = "getValidatorClasses";
@@ -275,13 +274,11 @@ class ModuleBundler extends Basic
 		return $ret;
 	}
 
-	public function getClientRenderedFormClasses(): ?array
-	{
+	public function getClientRenderedFormClasses(): ?array{
 		return $this->bundle("getClientRenderedFormClasses");
 	}
 
-	public function hasModules()
-	{
+	public function hasModules(){
 		return isset($this->modules) && is_array($this->modules) && ! empty($this->modules);
 	}
 
@@ -350,7 +347,7 @@ class ModuleBundler extends Basic
 
 	public final function getDataStructureClass($type, $subtype = null): ?string{
 		$f = __METHOD__;
-		$classes = $this->getDataStructureClasses();
+		$classes = $this->getTypeSortedDataStructureClasses();
 		if (! array_key_exists($type, $classes)) {
 			Debug::error("{$f} this application doesn't know about a datatype \"{$type}\"");
 		}
@@ -363,9 +360,8 @@ class ModuleBundler extends Basic
 		return $class[$subtype];
 	}
 
-	public final function getTypedNotificationClass($type): ?string
-	{
-		$f = __METHOD__; //ModuleBundler::getShortClass() . "(" . static::getShortClass() . ")->getTypedNotificationClass()";
+	public final function getTypedNotificationClass($type): ?string{
+		$f = __METHOD__;
 		$classes = $this->getTypedNotificationClasses();
 		if (! array_key_exists($type, $classes)) {
 			Debug::error("{$f} invalid notification type \"{$type}\"");
@@ -410,7 +406,7 @@ class ModuleBundler extends Basic
 		$print = false;
 		//Debug::limitExecutionDepth();
 		//Debug::checkMemoryUsage("bundle", 96000000);
-		if (! config()->isLegalBundleName($bundle_name)) {
+		if (! $this->isLegalBundleName($bundle_name)) {
 			Debug::error("{$f} \"{$bundle_name}\" is not legal");
 		} elseif ($print) {
 			Debug::print("{$f} bundling \"{$bundle_name}\"");
@@ -439,13 +435,18 @@ class ModuleBundler extends Basic
 			}
 			return [];
 		}
-		foreach ($mods as $mod) {
-			if ($print) {
+		foreach($mods as $mod){
+			if(!method_exists($mod, $bundle_name)){
+				if($print){
+					Debug::print("{$f} module ".$mod->getShortClass()." does not have a bundling function {$bundle_name}");
+				}
+				continue;
+			}elseif($print){
 				$bundle2 = $mod->$bundle_name();
 				Debug::print("{$f} bundle from module " . get_class($mod));
 				Debug::printArray($bundle2);
 				$bundle = array_merge_recursive($bundle, $bundle2);
-			} else {
+			}else{
 				$bundle = array_merge_recursive($bundle, $mod->$bundle_name());
 			}
 		}
@@ -463,13 +464,11 @@ class ModuleBundler extends Basic
 		return $bundle;
 	}
 
-	public function getUniversalFormClasses(): ?array
-	{
+	public function getUniversalFormClasses(): ?array{
 		return $this->bundle("getUniversalFormClasses");
 	}
 
-	public function getGrantArray(): ?array
-	{
+	public function getGrantArray(): ?array{
 		$grants = [];
 		foreach ($this->getModules() as $mod) {
 			$arr = $mod->getGrantArray();
@@ -492,8 +491,48 @@ class ModuleBundler extends Basic
 		return $grants;
 	}
 
-	public final function getPollingUseCaseClasses(): ?array
-	{
+	public final function getPollingUseCaseClasses(): ?array{
 		return $this->bundle("getPollingUseCaseClasses");
+	}
+	
+	public final function isLegalBundleName(string $name): bool{
+		$names = $this->getLegalBundleNames();
+		if (! is_array($names) || empty($names)) {
+			return false;
+		}
+		return false !== array_search($name, $names, true);
+	}
+	
+	public function getLegalBundleNames(): ?array{
+		return [
+			"getCascadingStyleSheetFilePaths",
+			"getClientCommandClasses",
+			"getClientDataStructureClasses",
+			"getClientRenderedFormClasses",
+			"getClientUseCaseDictionary",
+			"getDataStructureClasses",
+			"getDebugJavaScriptFilePaths",
+			"getDependentClassespingFunctions",
+			"getFormDataSubmissionClasses",
+			"getInvokeableJavaScriptFunctions",
+			"getJavaScriptFilePaths",
+			"getJavaScriptFunctionGeneratorClasses",
+			"getLegalIntersectionObservers",
+			"getMessageEventHandlerCases",
+			"getPhpFileInclusionPaths",
+			"getPollingUseCaseClasses",
+			"getServiceWorkerDependencyFilePaths",
+			"getSpecialTemplateClasses",
+			"getStoredRoutines",
+			"getTemplateElementClasses",
+			"getTypedNotificationClasses",
+			"getTypeSortedDataStructureClasses",
+			"getUseCaseDictionary",
+			"getValidDirectives",
+			"getValidMimeTypes",
+			"getValidatorClasses",
+			"getWidgetClasses",
+			"getWidgetClasses"
+		];
 	}
 }

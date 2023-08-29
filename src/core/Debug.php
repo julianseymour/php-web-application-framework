@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\core;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -11,12 +12,10 @@ use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
 use Exception;
 use ReflectionClass;
 
-abstract class Debug extends Basic
-{
+abstract class Debug extends Basic{
 
-	public static function error($what)
-	{
-		$f = __METHOD__; //Debug::getShortClass() . "::error()";
+	public static function error($what){
+		$f = __METHOD__;
 		try {
 			error_log("\033[31mError: {$what}\033[0m", 0);
 			Debug::limitExecutionDepth(512);
@@ -36,9 +35,31 @@ abstract class Debug extends Basic
 		}
 	}
 
-	public static function printSession()
-	{
-		$f = __METHOD__; //Debug::getShortClass() . "::printSession()";
+	public static function getPersistenceModeString(int $mode):string{
+		switch($mode){
+			case PERSISTENCE_MODE_ALIAS:
+				return "Alias";
+			case PERSISTENCE_MODE_COOKIE:
+				return "Cookie";
+			case PERSISTENCE_MODE_DATABASE:
+				return "Database";
+			case PERSISTENCE_MODE_EMBEDDED:
+				return "Embedded";
+			case PERSISTENCE_MODE_ENCRYPTED:
+				return "Encrypted";
+			case PERSISTENCE_MODE_INTERSECTION:
+				return "Intersection table";
+			case PERSISTENCE_MODE_SESSION:
+				return "Session";
+			case PERSISTENCE_MODE_VOLATILE:
+				return "Volatile";
+			default:
+				return "Undefined";
+		}
+	}
+	
+	public static function printSession(){
+		$f = __METHOD__;
 		if (isset($_SESSION) && is_array($_SESSION) && ! empty($_SESSION)) {
 			Debug::print("{$f}: about to print session");
 			static::printArray($_SESSION);
@@ -47,13 +68,11 @@ abstract class Debug extends Basic
 		}
 	}
 
-	public static function printSessionHash()
-	{
+	public static function printSessionHash(){
 		static::printArrayHash($_SESSION);
 	}
 
-	public static function printStackTrace($msg = null)
-	{
+	public static function printStackTrace($msg = null){
 		Debug::printStackTraceNoExit($msg);
 		$a = app();
 		if ($a instanceof ApplicationRuntime && $a->hasDebugger()) {
@@ -334,7 +353,7 @@ abstract class Debug extends Basic
 		$_SESSION['debug_counter'] = 0;
 	}
 
-	public static function checkMemoryUsage($when = "", ?int $limit = null, $print = false){
+	public static function checkMemoryUsage(string $when = "", ?int $limit = null, $print = false){
 		$f = __METHOD__;
 		if ($limit === null) {
 			$limit = function_exists("memprof_dump_callgrind") ? 124000000 : 96000000;

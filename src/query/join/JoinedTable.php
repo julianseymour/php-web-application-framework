@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\join;
 
 use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
@@ -11,8 +12,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnNamesTrait;
 use Exception;
 
-class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface
-{
+class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	use MultipleColumnNamesTrait;
 	use StaticPropertyTypeTrait;
@@ -23,9 +23,8 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface
 
 	protected $searchCondition;
 
-	public function __construct($joinType, $joinExpression, $spec = null)
-	{
-		$f = __METHOD__; //JoinedTable::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($joinType, $joinExpression, $spec = null){
+		$f = __METHOD__;
 		parent::__construct();
 		// $this->requirePropertyType("columnNames", 's');
 		$this->setJoinType($joinType);
@@ -42,8 +41,7 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface
 		}
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->properties);
 		unset($this->propertyTypes);
@@ -52,9 +50,8 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface
 		unset($this->searchCondition);
 	}
 
-	public function setJoinType($type)
-	{
-		$f = __METHOD__; //JoinedTable::getShortClass()."(".static::getShortClass().")->setJoinType()";
+	public function setJoinType($type){
+		$f = __METHOD__;
 		if ($type == null) {
 			unset($this->joinType);
 			unset($this->searchCondition);
@@ -82,23 +79,20 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface
 		return $this->joinType = $type;
 	}
 
-	public function hasJoinType()
-	{
+	public function hasJoinType():bool{
 		return isset($this->joinType) && is_string($this->joinType) && ! empty($this->joinType);
 	}
 
-	public function getJoinType()
-	{
-		$f = __METHOD__; //JoinedTable::getShortClass()."(".static::getShortClass().")->getJoinType()";
+	public function getJoinType(){
+		$f = __METHOD__;
 		if (! $this->hasJoinType()) {
 			Debug::error("{$f} join type is undefined");
 		}
 		return $this->joinType;
 	}
 
-	public function getJoinTypeString()
-	{
-		$f = __METHOD__; //JoinedTable::getShortClass()."(".static::getShortClass().")->getJoinTypeString()";
+	public function getJoinTypeString(){
+		$f = __METHOD__;
 		$type = $this->getJoinType();
 		switch ($type) {
 			case JOIN_TYPE_JOIN:
@@ -126,23 +120,20 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface
 		}
 	}
 
-	public function hasJoinExpression()
-	{
+	public function hasJoinExpression(){
 		return isset($this->joinExpression);
 	}
 
-	public function getJoinExpression()
-	{
-		$f = __METHOD__; //JoinedTable::getShortClass()."(".static::getShortClass().")->joinExpression()";
+	public function getJoinExpression(){
+		$f = __METHOD__;
 		if (! $this->hasJoinExpression()) {
 			Debug::error("{$f} join expression is undefined");
 		}
 		return $this->joinExpression;
 	}
 
-	public function setJoinExpression($tr)
-	{
-		$f = __METHOD__; //JoinedTable::getShortClass()."(".static::getShortClass().")->setJoinExpression()";
+	public function setJoinExpression($tr){
+		$f = __METHOD__;
 		if ($tr instanceof JoinedTable) {
 			if ($this->hasJoinType()) {
 				$type = $this->getJoinType();
@@ -160,9 +151,8 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface
 		return $this->joinExpression = $tr;
 	}
 
-	public function setSearchCondition($sc)
-	{
-		$f = __METHOD__; //JoinedTable::getShortClass()."(".static::getShortClass().")->setSearchCondition()";
+	public function setSearchCondition($sc){
+		$f = __METHOD__;
 		if ($sc == null) {
 			unset($this->searchCondition);
 			return null;
@@ -171,23 +161,20 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface
 		return $this->searchCondition = $sc;
 	}
 
-	public function hasSearchCondition()
-	{
+	public function hasSearchCondition(){
 		return isset($this->searchCondition);
 	}
 
-	public function getSearchCondition()
-	{
-		$f = __METHOD__; //JoinedTable::getShortClass()."(".static::getShortClass().")->getSearchCondition()";
+	public function getSearchCondition(){
+		$f = __METHOD__;
 		if (! $this->hasSearchCondition()) {
 			Debug::error("{$f} search condition is undefined");
 		}
 		return $this->searchCondition;
 	}
 
-	public function getTableReferenceString()
-	{
-		$f = __METHOD__; //JoinedTable::getShortClass()."(".static::getShortClass().")->getTableReferenceString()";
+	public function getTableReferenceString(){
+		$f = __METHOD__;
 		try {
 			$join = $this->getJoinExpression();
 			if ($join instanceof SQLInterface) {

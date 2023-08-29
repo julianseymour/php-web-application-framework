@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\select;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
@@ -39,8 +40,7 @@ use mysqli;
 use mysqli_stmt;
 
 class SelectStatement extends WhereConditionalStatement 
-implements /*CacheableInterface,*/ StaticPropertyTypeInterface
-{
+implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	// use CacheableTrait;
 	use CharacterSetTrait;
@@ -70,8 +70,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 
 	protected $loadEntryPoint;
 
-	public function __construct(...$expressions)
-	{
+	public function __construct(...$expressions){
 		parent::__construct();
 		// $this->requirePropertyType("expressions", "s");
 		// $this->requirePropertyType("exportVariableNames", "s");
@@ -85,8 +84,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		}
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"unassigned",
 			"bigResult",
@@ -105,9 +103,20 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		]);
 	}
 
-	public function setLoadEntryPoint($point)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setLoadEntryPoint()";
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
+		return [
+			"expressions" => new OrCommand("s", Command::class, ColumnAlias::class, SQLInterface::class),
+			"exportVariableNames" => "s",
+			"joinExpressions" => JoinExpression::class,
+			"tableNames" => "table",
+			"partitionNames" => "s",
+			"unionClauses" => UnionClause::class,
+			"windowList" => WindowSpecification::class
+		];
+	}
+	
+	public function setLoadEntryPoint($point){
+		$f = __METHOD__;
 		if ($point == null) {
 			unset($this->loadEntryPoint);
 			return null;
@@ -125,13 +134,11 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this->loadEntryPoint = $point;
 	}
 
-	public function hasLoadEntryPoint()
-	{
+	public function hasLoadEntryPoint():bool{
 		return isset($this->loadEntryPoint) && is_int($this->loadEntryPoint);
 	}
 
-	public function hasMatchFunction()
-	{
+	public function hasMatchFunction():bool{
 		if (! $this->hasWhereCondition()) {
 			return false;
 		}
@@ -142,23 +149,20 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $wc->hasMatchFunction();
 	}
 
-	public function getLoadEntryPoint()
-	{
+	public function getLoadEntryPoint(){
 		if (! $this->hasLoadEntryPoint()) {
 			return LOAD_ENTRY_POINT_DEFAULT;
 		}
 		return $this->loadEntryPoint;
 	}
 
-	public function withLoadEntryPoint($point): SelectStatement
-	{
+	public function withLoadEntryPoint($point): SelectStatement{
 		$this->setLoadEntryPoint($point);
 		return $this;
 	}
 
-	public function setDumpfilename($name)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setDumpfilename()";
+	public function setDumpfilename($name){
+		$f = __METHOD__;
 		if ($name == null) {
 			unset($this->dumpfilename);
 			return null;
@@ -170,63 +174,53 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this->dumpfilename = $name;
 	}
 
-	public function hasDumpfilename()
-	{
+	public function hasDumpfilename():bool{
 		return isset($this->dumpfilename) && is_string($this->dumpfilename) && ! empty($this->dumpfilename) && ! $this->getSubqueryFlag();
 	}
 
-	public function getDumpfilename()
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->getDumpfilename()";
+	public function getDumpfilename(){
+		$f = __METHOD__;
 		if (! $this->hasDumpfilename()) {
 			Debug::error("{$f} dumpfilename is undefined");
 		}
 		return $this->dumpfilename;
 	}
 
-	public function intoDumpfile($name): SelectStatement
-	{
+	public function intoDumpfile($name): SelectStatement{
 		$this->setDumpfilename($name);
 		return $this;
 	}
 
-	public function setExportVariableNames($exportVariableNames)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setExportVariableNames()";
+	public function setExportVariableNames($exportVariableNames){
+		$f = __METHOD__;
 		if ($exportVariableNames != null && $this->getSubqueryFlag()) {
 			Debug::error("{$f} export variable names for subqueries is not allowed");
 		}
 		return $this->setArrayProperty("exportVariableNames", $exportVariableNames);
 	}
 
-	public function hasExportVariableNames()
-	{
+	public function hasExportVariableNames():bool{
 		return $this->hasArrayProperty("exportVariableNames") && ! $this->getSubqueryFlag();
 	}
 
-	public function getExportVariableNames()
-	{
+	public function getExportVariableNames(){
 		return $this->getProperty("exportVariableNames");
 	}
 
-	public function into(...$exportVariableNames): SelectStatement
-	{
+	public function into(...$exportVariableNames): SelectStatement{
 		$this->setExportVariableNames($exportVariableNames);
 		return $this;
 	}
 
-	public function setGroupWithRollupFlag($value = true)
-	{
+	public function setGroupWithRollupFlag(bool $value = true):bool{
 		return $this->setFlag("groupWithRollup", $value);
 	}
 
-	public function getGroupWithRollupFlag()
-	{
+	public function getGroupWithRollupFlag():bool{
 		return $this->getFlag("groupWithRollup");
 	}
 
-	public function setGroupByClause($columnNames)
-	{
+	public function setGroupByClause($columnNames){
 		if ($columnNames == null) {
 			unset($this->groupByClause);
 			return null;
@@ -234,22 +228,18 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this->groupByClause = $columnNames;
 	}
 
-	public function hasGroupBy()
-	{
+	public function hasGroupBy():bool{
 		return isset($this->groupByClause);
 	}
 
-	public function getGroupBy()
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->getGroupBy()";
-		if (! $this->hasGroupBy()) {
+	public function getGroupBy(){
+		$f = __METHOD__;if (! $this->hasGroupBy()) {
 			Debug::error("{$f} group by is undefined");
 		}
 		return $this->groupByClause;
 	}
 
-	public function groupBy($groupBy, $withRollup = null): SelectStatement
-	{
+	public function groupBy($groupBy, $withRollup = null): SelectStatement{
 		// [GROUP BY {col_name | expr | position}, ... [WITH ROLLUP]]
 		$this->setGroupByClause($groupBy);
 		if ($withRollup !== null) {
@@ -258,43 +248,34 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this;
 	}
 
-	public function setHavingCondition($having)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setHavingCondition()";
+	public function setHavingCondition($having){
+		$f = __METHOD__;
 		if ($having == null) {
 			unset($this->havingCondition);
 			return null;
-		} /*
-		   * elseif(!$having instanceof WhereConditionalInterface){
-		   * Debug::error("{$f} having condition must implement WhereConditionalInterface");
-		   * }
-		   */
+		}
 		return $this->havingCondition = $having;
 	}
 
-	public function hasHavingCondition()
-	{
+	public function hasHavingCondition():bool{
 		return isset($this->havingCondition);
 	}
 
-	public function getHavingCondition()
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->getHavingCondition()";
+	public function getHavingCondition(){
+		$f = __METHOD__;
 		if (! $this->hasHavingCondition()) {
 			Debug::error("{$f} having condition is undefined");
 		}
 		return $this->havingCondition;
 	}
 
-	public function having($having): SelectStatement
-	{
+	public function having($having): SelectStatement{
 		$this->setHavingCondition($having);
 		return $this;
 	}
 
-	public function setLockOption($option)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setLockOption()";
+	public function setLockOption(?string $option):?string{
+		$f = __METHOD__;
 		if ($option == null) {
 			unset($this->lockOption);
 			return null;
@@ -312,9 +293,8 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this->lockOption = $option;
 	}
 
-	public function setOutfilename($name)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setOutfilename()";
+	public function setOutfilename($name){
+		$f = __METHOD__;
 		if ($name == null) {
 			unset($this->characterSet);
 			unset($this->exportOptions);
@@ -326,22 +306,19 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this->outfilename = $name;
 	}
 
-	public function hasOutfilename()
-	{
+	public function hasOutfilename():bool{
 		return isset($this->outfilename) && is_string($this->outfilename) && ! empty($this->outfilename) && ! $this->getSubqueryFlag();
 	}
 
-	public function getOutfilename()
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->getOutfilename()";
+	public function getOutfilename():string{
+		$f = __METHOD__;
 		if (! $this->hasOutfilename()) {
 			Debug::error("{$f} outfilename is undefined");
 		}
 		return $this->outfilename;
 	}
 
-	public function intoOutfile($name, $charset = null, $exportOptions = null): SelectStatement
-	{
+	public function intoOutfile($name, $charset = null, $exportOptions = null): SelectStatement{
 		$this->setOutfilename($name);
 		if ($charset !== null) {
 			$this->setCharacterSet($charset);
@@ -352,9 +329,8 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this;
 	}
 
-	public function setWindowList($windowList)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setWindowList()";
+	public function setWindowList($windowList){
+		$f = __METHOD__;
 		if ($windowList == null) {
 			return $this->setArrayProperty("windowList", $windowList);
 		}
@@ -368,46 +344,34 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this->setArrayProperty("windowList", $windowList);
 	}
 
-	public function hasWindowList()
-	{
+	public function hasWindowList():bool{
 		return $this->hasArrayProperty("windowList");
 	}
 
-	public function getWindowList()
-	{
+	public function getWindowList(){
 		return $this->getProperty("windowList");
 	}
 
-	public function getWindowCount()
-	{
+	public function getWindowCount():int{
 		return $this->getArrayPropertyCount("windowList");
 	}
 
-	public static function getStatementTypeString(): string
-	{
+	public static function getStatementTypeString(): string{
 		return "select";
 	}
 
-	public function select(...$select): SelectStatement
-	{
-		/*
-		 * $arr = [];
-		 * foreach($select as $s){
-		 * array_push($arr, $s);
-		 * }
-		 */
+	public function select(...$select): SelectStatement{
 		$this->setExpressions($select);
 		return $this;
 	}
 
-	public function from(...$dbtable): SelectStatement
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->from()";
+	public function from(...$dbtable): SelectStatement{
+		$f = __METHOD__;
 		$count = count($dbtable);
 		switch ($count) {
 			case 1:
 				if (! is_string($dbtable[0])) {
-					return $this->withJoinExpressions($dbtable);
+					return $this->withJoinExpressions($dbtable[0]);
 				}
 				$this->setTableName($dbtable[0]);
 				break;
@@ -417,23 +381,10 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 				break;
 			default:
 				Debug::error("{$f} temporarily disabled");
-				return $this->withJoinExpressions($dbtable);
+				return $this->withJoinExpressions(...$dbtable);
 		}
 		return $this;
 	}
-
-	/*
-	 * public function getTableName():string{
-	 * if($this->hasJoinExpressions()){
-	 * return $this->getJoinExpressionString();
-	 * }
-	 * return parent::getTableName();
-	 * }
-	 *
-	 * public function hasTableName():bool{
-	 * return parent::hasTableName() || $this->hasJoinExpressions();
-	 * }
-	 */
 
 	/**
 	 * Builds a SelectStatement with recursive CTE that retrieves all descendants of a node in a table.
@@ -448,8 +399,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 	 *        	| optional and/or expression for additional arguments
 	 * @return SelectStatement
 	 */
-	public static function withRecursive($dbtable, $foreignKeyName, $parentKeyName = 'uniqueKey', $expression = null)
-	{
+	public static function withRecursive($dbtable, $foreignKeyName, $parentKeyName = 'uniqueKey', $expression = null){
 		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")::withRecursive()";
 		// $dbtable = "data.comments"; //name of table containing infinitely recursive hierarchical nodes
 		// $foreignKeyName = "parentKey"; //name of parent key linking those nodes together
@@ -479,149 +429,118 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 			->as("parent"), $expression)))));
 	}
 
-	public function setSubqueryFlag($value = true)
-	{
+	public function setSubqueryFlag(bool $value = true):bool{
 		return $this->setFlag("subquery", $value);
 	}
 
-	public function getSubqueryFlag()
-	{
+	public function getSubqueryFlag():bool{
 		return $this->getFlag("subquery");
 	}
 
-	public function setBigResultFlag($value = true)
-	{
+	public function setBigResultFlag(bool $value = true):bool{
 		return $this->setFlag("bigResult", $value);
 	}
 
-	public function getBigResultFlag()
-	{
+	public function getBigResultFlag():bool{
 		return $this->getFlag("bigResult");
 	}
 
-	public function bigResult($value = true): SelectStatement
-	{
+	public function bigResult(bool $value = true): SelectStatement{
 		$this->setBigResultFlag($value);
 		return $this;
 	}
 
-	public function setBufferResultFlag($value = true)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setBufferResultFlag()";
+	public function setBufferResultFlag(bool $value = true):bool{
+		$f = __METHOD__;
 		if ($value && $this->getSubqueryFlag()) {
 			Debug::error("{$f} buffer results flag cannot be set on subqueries");
 		}
 		return $this->setFlag("bufferResult", $value);
 	}
 
-	public function getBufferResultFlag()
-	{
+	public function getBufferResultFlag():bool{
 		return $this->getFlag("bufferResult");
 	}
 
-	public function bufferResult($value = true): SelectStatement
-	{
+	public function bufferResult(bool $value = true): SelectStatement{
 		$this->setBufferResultFlag($value);
 		return $this;
 	}
 
-	public function setCalculateFoundRowsFlag($value = true)
-	{
+	public function setCalculateFoundRowsFlag(bool $value = true):bool{
 		return $this->setFlag("calculateFoundRows", $value);
 	}
 
-	public function getCalculateFoundRowsFlag()
-	{
+	public function getCalculateFoundRowsFlag():bool{
 		return $this->getFlag("calculateFoundRows");
 	}
 
-	public function calculateFoundRows($value = true): SelectStatement
-	{
+	public function calculateFoundRows(bool $value = true): SelectStatement{
 		$this->setCalculateFoundRowsFlag($value);
 		return $this;
 	}
 
-	public function setHighPriorityFlag($value = true)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setHighPriorityFlag()";
+	public function setHighPriorityFlag(bool $value = true):bool{
+		$f = __METHOD__;
 		if ($value && ($this->getSubqueryFlag() || $this->hasUnionClauses())) {
 			Debug::error("{$f} high priority cannot be used in selet statements that are part of unions");
 		}
 		return $this->setFlag(PRIORITY_HIGH, $value);
 	}
 
-	public function getHighPriorityFlag()
-	{
+	public function getHighPriorityFlag():bool{
 		return $this->getFlag(PRIORITY_HIGH);
 	}
 
-	public function highPriority($value = true): SelectStatement
-	{
+	public function highPriority(bool $value = true): SelectStatement{
 		$this->setHighPriorityFlag($value);
 		return $this;
 	}
 
-	public function setNoCacheFlag($value = true)
-	{
+	public function setNoCacheFlag($value = true):bool{
 		return $this->setFlag("noCache", $value);
 	}
 
-	public function getNoCacheFlag()
-	{
+	public function getNoCacheFlag():bool{
 		return $this->getFlag("noCache");
 	}
 
-	public function noCache($value = true): SelectStatement
-	{
+	public function noCache(bool $value = true): SelectStatement{
 		$this->setNoCacheFlag($value);
 		return $this;
 	}
 
-	public function setOrderWithRollupFlag($value = true)
-	{
+	public function setOrderWithRollupFlag(bool $value = true):bool{
 		return $this->setFlag("orderWithRollup", $value);
 	}
 
-	public function getOrderWithRollupFlag()
-	{
+	public function getOrderWithRollupFlag():bool{
 		return $this->getFlag("orderWithRollup");
 	}
 
-	public function setStraightJoinFlag($value = true)
-	{
+	public function setStraightJoinFlag(bool $value = true):bool{
 		return $this->setFlag("straightJoin", $value);
 	}
 
-	public function getStraightJoinFlag()
-	{
+	public function getStraightJoinFlag():bool{
 		return $this->getFlag("straightJoin");
 	}
 
-	/*
-	 * public function straightJoin($value=true):SelectStatement{
-	 * $this->setStraightJoinFlag($value);
-	 * return $this;
-	 * }
-	 */
-	public function setSmallResultFlag($value = true)
-	{
+	public function setSmallResultFlag(bool $value = true):bool{
 		return $this->setFlag("smallResult", $value);
 	}
 
-	public function getSmallResultFlag()
-	{
+	public function getSmallResultFlag():bool{
 		return $this->getFlag("smallResult");
 	}
 
-	public function smallResult($value = true): SelectStatement
-	{
+	public function smallResult(bool $value = true): SelectStatement{
 		$this->setSmallResultFlag($value);
 		return $this;
 	}
 
-	public function setLockMode($mode)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setLockMode()";
+	public function setLockMode(?string $mode):?string{
+		$f = __METHOD__;
 		if ($mode == null) {
 			unset($this->lockMode);
 			unset($this->lockOption);
@@ -644,42 +563,35 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this->lockMode = $mode;
 	}
 
-	public function hasLockMode()
-	{
+	public function hasLockMode():bool{
 		return isset($this->lockMode);
 	}
 
-	public function getLockMode()
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->getLockMode()";
+	public function getLockMode():string{
+		$f = __METHOD__;
 		if (! $this->hasLockMode()) {
 			Debug::error("{$f} lock mode is undefined");
 		}
 		return $this->lockMode;
 	}
 
-	public function setUnionClauses($unionClauses)
-	{
+	public function setUnionClauses($unionClauses){
 		return $this->setArrayProperty("unionClauses", $unionClauses);
 	}
 
-	public function hasUnionClauses()
-	{
+	public function hasUnionClauses():bool{
 		return $this->hasArrayProperty("unionClauses");
 	}
 
-	public function pushUnionClause(...$unionClauses)
-	{
+	public function pushUnionClause(...$unionClauses):int{
 		return $this->pushArrayProperty("unionClauses", ...$unionClauses);
 	}
 
-	public function mergeUnionClauses($unionClauses)
-	{
+	public function mergeUnionClauses($unionClauses){
 		return $this->mergeArrayProperty("unionClauses", $unionClauses);
 	}
 
-	public function getUnionClauses()
-	{
+	public function getUnionClauses(){
 		return $this->getProperty("unionClauses");
 	}
 
@@ -747,9 +659,8 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		return $this;
 	}
 
-	public function getQueryStatementString()
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
+	public function getQueryStatementString(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($this->hasWithClause()) {
@@ -960,39 +871,8 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		}
 	}
 
-	protected function trimConditionalTypeSpecifier($typedef)
-	{
-		$count = $this->getUnconditionalParameterCount();
-		if ($count > 0) {
-			return substr($typedef, 0, $count);
-		}
-		return parent::trimConditionalTypeSpecifier($typedef);
-	}
-
-	protected function trimConditionalParameters($params)
-	{
-		return array_slice($params, 0, $this->getUnconditionalParameterCount());
-	}
-
-	protected function getUnconditionalParameterCount()
-	{
-		$count = 0;
-		if ($this->hasExpressions()) {
-			foreach ($this->getExpressions() as $expr) {
-				if ($expr instanceof ColumnAlias) {
-					$cn = $expr->getExpression();
-					if ($cn instanceof SelectStatement && $cn->hasParameters()) {
-						$count += $cn->getParameterCount();
-					}
-				}
-			}
-		}
-		return $count;
-	}
-
-	public function prepareBindExecuteGetStatement(mysqli $mysqli, string $typedef, ...$params): ?mysqli_stmt
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->prepareBindExdcuteGetStatement()";
+	public function prepareBindExecuteGetStatement(mysqli $mysqli, string $typedef, ...$params): ?mysqli_stmt{
+		$f = __METHOD__;
 		try {
 			$print = $this->getDebugFlag();
 			if (isset($params) && ! empty($params)) {
@@ -1046,8 +926,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		}
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		unset($this->properties);
 		unset($this->propertyTypes);
 		unset($this->characterSet);
@@ -1061,8 +940,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		parent::dispose();
 	}
 
-	public function replicate(): SelectStatement
-	{
+	public function replicate(): SelectStatement{
 		$replica = new static();
 		if ($this->hasCharacterSet()) {
 			$replica->setCharacterSet($this->getCharacterSet());
@@ -1142,58 +1020,4 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface
 		}
 		return $replica;
 	}
-
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
-		return [
-			"expressions" => new OrCommand("s", Command::class, ColumnAlias::class),
-			"exportVariableNames" => "s",
-			"joinExpressions" => JoinExpression::class,
-			"tableNames" => "table",
-			"partitionNames" => "s",
-			"unionClauses" => UnionClause::class,
-			"windowList" => WindowSpecification::class
-		];
-	}
-
-	/*
-	 * public function setTypeSpecifier(?string $typedef):?string{
-	 * $f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->setTypeSpecifier()";
-	 * if($this->getDebugFlag()){
-	 * Debug::printStackTraceNoExit("{$f} entered");
-	 * }
-	 * return parent::setTypeSpecifier($typedef);
-	 * }
-	 */
-
-	/*
-	 * public function getSuperflatWhereConditionArray():?array{
-	 * $wheres = [];
-	 * if($this->hasExpressions()){
-	 * foreach($this->getExpressions() as $expr){
-	 * if($expr instanceof GetDeclaredVariableCommand){
-	 * continue;
-	 * }elseif($expr instanceof CountCommand){
-	 * continue;
-	 * }elseif(is_string($expr)){
-	 * continue;
-	 * }elseif($expr instanceof SumCommand){
-	 * continue;
-	 * }
-	 * $subquery_conditions = $expr->getSuperflatWhereConditionArray();
-	 * if(!empty($subquery_conditions)){
-	 * array_push($wheres, ...$subquery_conditions);
-	 * }
-	 * }
-	 * }
-	 * if(!$this->hasWhereCondition()){
-	 * return $wheres;
-	 * }
-	 * $flat = $this->getWhereCondition()->getSuperflatWhereConditionArray();
-	 * if(!empty($flat)){
-	 * array_push($wheres, ...$flat);
-	 * }
-	 * return $wheres;
-	 * }
-	 */
 }

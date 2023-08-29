@@ -1,14 +1,14 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\firewall;
 
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\ConfirmationCodeForm;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
-use JulianSeymour\PHPWebApplicationFramework\input\ButtonInput;
+use JulianSeymour\PHPWebApplicationFramework\input\GhostButton;
 
-class ConfirmIpAddressListForm extends ConfirmationCodeForm
-{
+class ConfirmIpAddressListForm extends ConfirmationCodeForm{
 
 	public function getDirectives(): ?array{
 		return [
@@ -31,7 +31,7 @@ class ConfirmIpAddressListForm extends ConfirmationCodeForm
 
 	public function getFormDataIndices(): ?array{
 		return [
-			'list' => ButtonInput::class
+			'list' => GhostButton::class
 		];
 	}
 
@@ -49,10 +49,12 @@ class ConfirmIpAddressListForm extends ConfirmationCodeForm
 			case DIRECTIVE_VALIDATE:
 				$authorize = $this->generateGenericButton($name);
 				$authorize->setInnerHTML(_("Authorize"));
-				$authorize->setValueAttribute('authorize');
+				$authorize->setValueAttribute(POLICY_ALLOW);
+				$authorize->setNameAttribute("directive[{$name}][list]");
 				$ban = $this->generateGenericButton($name);
 				$ban->setInnerHTML(_("Ban"));
-				$ban->setValueAttribute('ban');
+				$ban->setValueAttribute(POLICY_BLOCK);
+				$ban->setNameAttribute("directive[{$name}][list]");
 				return [
 					$authorize,
 					$ban

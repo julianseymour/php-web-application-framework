@@ -1,7 +1,7 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\command\control;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\IteratorTrait;

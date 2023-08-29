@@ -91,7 +91,6 @@ abstract class CompoundElement extends Element
 			}
 			return;
 		}
-		// $lang = getCurrentUserLanguagePreference();
 		if ($this->getHTMLCacheableFlag() && $this->isCacheable() && HTML_CACHE_ENABLED) {
 			if (cache()->hasFile($this->getCacheKey() . ".html")) {
 				if ($print) {

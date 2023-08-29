@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\query\column;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\data\GetColumnValueCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\data\HasColumnValueCommand;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\AbstractNumericDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\BooleanDatum;
@@ -21,8 +21,7 @@ use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
  *
  * @author j
  */
-trait MultipleColumnDefiningTrait
-{
+trait MultipleColumnDefiningTrait{
 
 	use ArrayPropertyTrait;
 
@@ -124,7 +123,7 @@ trait MultipleColumnDefiningTrait
 	 * @param int|double $value
 	 */
 	public function addColumnValue(string $field, $value){
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->addColumnValue()";
+		$f = __METHOD__;
 		try {
 			if (! $this->hasColumn($field)) {
 				$did = $this->getDebugId();
@@ -142,24 +141,20 @@ trait MultipleColumnDefiningTrait
 		}
 	}
 
-	public function incrementColumnValue(string $column_name)
-	{
+	public function incrementColumnValue(string $column_name){
 		return $this->addColumnValue($column_name, 1);
 	}
 
-	public function subtractColumnValue(string $field, $value)
-	{
+	public function subtractColumnValue(string $field, $value){
 		return $this->addColumnValue($field, $value * - 1);
 	}
 
-	public function decrementColumnValue(string $column_name)
-	{
+	public function decrementColumnValue(string $column_name){
 		return $this->subtractColumnValue($column_name, 1);
 	}
 
-	public function setColumnValue(string $field, $value)
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->setColumnValue()";
+	public function setColumnValue(string $field, $value){
+		$f = __METHOD__;
 		try {
 			// Debug::print("{$f} entered; about to call getColumn({$field})");
 			$datum = $this->getColumn($field);
@@ -168,12 +163,7 @@ trait MultipleColumnDefiningTrait
 				Debug::warning("{$f} datum \"{$field}\" is undefined");
 				$this->debugPrintColumns();
 				Debug::error("{$f} exit");
-			} /*
-			   * elseif($datum->getReceptivity() === DATA_MODE_SEALED){
-			   * //Debug::print("{$f} data structure is sealed");
-			   * return null;
-			   * }
-			   */
+			}
 			$value = $datum->setValue($value);
 			if (! isset($value) && ! $datum->isNullable()) {
 				// Debug::warning("{$f} setValue for datum \"{$field}\" returned null");
@@ -185,32 +175,27 @@ trait MultipleColumnDefiningTrait
 		}
 	}
 
-	public function hasOriginalColumnValue(string $column_name): bool
-	{
+	public function hasOriginalColumnValue(string $column_name): bool{
 		return $this->getColumn($column_name)->hasValue();
 	}
 
-	public function getOrignalColumnValue(string $column_name)
-	{
+	public function getOrignalColumnValue(string $column_name){
 		return $this->getColumn($column_name)->getOriginalValue();
 	}
 
-	public function getColumnValueCommand($column_name): GetColumnValueCommand
-	{
+	public function getColumnValueCommand($column_name): GetColumnValueCommand{
 		return new GetColumnValueCommand($this, $column_name);
 	}
 
-	public function columnToString(string $column_name): string
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->columnToString()";
+	public function columnToString(string $column_name): string{
+		$f = __METHOD__;
 		if (! $this->hasColumn($column_name)) {
 			Debug::error("{$f} datum \"{$column_name}\" does not exist");
 		}
 		return $this->getColumn($column_name)->__toString();
 	}
 
-	public function hasConcreteColumn(string $column_name): bool
-	{
+	public function hasConcreteColumn(string $column_name): bool{
 		if (! $this->hasColumn($column_name)) {
 			return false;
 		}
@@ -218,8 +203,7 @@ trait MultipleColumnDefiningTrait
 		return ! $datum instanceof VirtualDatum && $datum->getPersistenceMode() === PERSISTENCE_MODE_DATABASE;
 	}
 
-	public function debugPrintColumns(?string $msg = null): void
-	{
+	public function debugPrintColumns(?string $msg = null, bool $exit = true): void{
 		if (isset($msg)) {
 			Debug::warning($msg);
 		}
@@ -231,12 +215,13 @@ trait MultipleColumnDefiningTrait
 			$value = $c->getHumanReadableValue();
 			Debug::print("{$column_name}: \"{$value}\"");
 		}
-		Debug::printStackTrace();
+		if($exit){
+			Debug::printStackTrace();
+		}
 	}
 
-	public function getColumnValue(string $column_name)
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->getColumnValue()";
+	public function getColumnValue(string $column_name){
+		$f = __METHOD__;
 		$print = false;
 		$datum = $this->getColumn($column_name);
 		if ($datum == null) {
@@ -248,9 +233,8 @@ trait MultipleColumnDefiningTrait
 		return $datum->getValue();
 	}
 
-	public function hasColumnValue(string $column_name): bool
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->hasColumnValue()";
+	public function hasColumnValue(string $column_name): bool{
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasColumn($column_name)) {
 			if ($print) {
@@ -269,9 +253,8 @@ trait MultipleColumnDefiningTrait
 		return $datum->hasValue();
 	}
 
-	public function sumColumnValues(...$column_names)
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->sumColumnValue()";
+	public function sumColumnValues(...$column_names){
+		$f = __METHOD__;
 		if (empty($column_names)) {
 			Debug::error("{$f} column names array is empty");
 		}
@@ -288,18 +271,15 @@ trait MultipleColumnDefiningTrait
 		return $sum;
 	}
 
-	public function hasColumnValueCommand($column_name): HasColumnValueCommand
-	{
+	public function hasColumnValueCommand($column_name): HasColumnValueCommand{
 		return new HasColumnValueCommand($this, $column_name);
 	}
 
-	public function getFilteredColumnNames(...$filters): array
-	{
+	public function getFilteredColumnNames(...$filters): array{
 		return array_keys($this->getFilteredColumns(...$filters));
 	}
 
-	public function unsetFilteredColumns(...$filters): int
-	{
+	public function unsetFilteredColumns(...$filters): int{
 		foreach ($this->getFilteredColumns(...$filters) as $column) {
 			$column->unsetValue();
 		}
@@ -313,9 +293,8 @@ trait MultipleColumnDefiningTrait
 	 * @param string[] $column_names
 	 * @return int
 	 */
-	public function unsetColumnValues(...$column_names): int
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->unsetColumnValues()";
+	public function unsetColumnValues(...$column_names): int{
+		$f = __METHOD__;
 		$print = false;
 		$force = false;
 		if (! empty($column_names)) {
@@ -358,14 +337,12 @@ trait MultipleColumnDefiningTrait
 		return SUCCESS;
 	}
 
-	public function getFilteredColumnCount(...$filters): int
-	{
+	public function getFilteredColumnCount(...$filters): int{
 		return count($this->getFilteredColumns(...$filters));
 	}
 
-	public function regenerateColumns($column_names): int
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(" . static::getShortClass() . ")->regenerateColumns()";
+	public function regenerateColumns($column_names): int{
+		$f = __METHOD__;
 		$print = false;
 		if (empty($column_names)) {
 			Debug::error("{$f} indices array is empty");
@@ -391,9 +368,8 @@ trait MultipleColumnDefiningTrait
 	 * @param array $arr
 	 * @return int
 	 */
-	public function processArray(array $arr): int
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->processArray()";
+	public function processArray(array $arr): int{
+		$f = __METHOD__;
 		$print = false;
 		foreach ($arr as $key => $value) {
 			if (! $this->hasColumn($key)) {
@@ -406,14 +382,12 @@ trait MultipleColumnDefiningTrait
 		return SUCCESS;
 	}
 
-	public function hasDatabaseColumn(string $cn): bool
-	{
+	public function hasDatabaseColumn(string $cn): bool{
 		return $this->hasColumn($cn) && $this->getColumn($cn)->getPersistenceMode() === PERSISTENCE_MODE_DATABASE;
 	}
 
-	public function ejectColumnValue(string $field)
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->ejectColumnValue()";
+	public function ejectColumnValue(string $field){
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			Debug::print("{$f} ejecting value from column \"{$field}\"");
@@ -421,13 +395,11 @@ trait MultipleColumnDefiningTrait
 		return $this->getColumn($field)->ejectValue();
 	}
 
-	public function getOriginalColumnValue(string $column_name)
-	{
+	public function getOriginalColumnValue(string $column_name){
 		return $this->getColumn($column_name)->getOriginalValue();
 	}
 
-	public function getFilteredColumns(...$filters): array
-	{
+	public function getFilteredColumns(...$filters): array{
 		$columns = $this->getColumns();
 		$ret = [];
 		foreach ($columns as $column_name => $column) {
@@ -438,9 +410,8 @@ trait MultipleColumnDefiningTrait
 		return $ret;
 	}
 
-	public function hasKeyListDatum($phylum)
-	{
-		$f = __METHOD__; //"MultipleColumnDefiningTrait(".static::getShortClass().")->hasKeyListDatum()";
+	public function hasKeyListDatum($phylum){
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			if (! $this->hasColumn($phylum)) {

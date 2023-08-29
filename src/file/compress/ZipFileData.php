@@ -8,11 +8,11 @@ use ZipArchive;
 
 class ZipFileData extends CompressedFileData{
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Zip file");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Zip files");
 	}
 

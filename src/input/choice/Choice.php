@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\input\choice;
 
 use JulianSeymour\PHPWebApplicationFramework\common\ValuedTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\ui\LabelGeneratorTrait;

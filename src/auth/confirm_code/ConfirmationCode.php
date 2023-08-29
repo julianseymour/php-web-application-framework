@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\confirm_code;
 
 use function JulianSeymour\PHPWebApplicationFramework\argon_hash;
@@ -6,8 +7,8 @@ use function JulianSeymour\PHPWebApplicationFramework\base64url_encode;
 use function JulianSeymour\PHPWebApplicationFramework\ip_mask;
 use function JulianSeymour\PHPWebApplicationFramework\is_base64;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousUser;
-use JulianSeymour\PHPWebApplicationFramework\auth\AuthenticatedUser;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\CipherDatum;
 use JulianSeymour\PHPWebApplicationFramework\crypt\NonceDatum;
@@ -23,8 +24,7 @@ use JulianSeymour\PHPWebApplicationFramework\security\access\RequestEvent;
 use Exception;
 use mysqli;
 
-abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyInterface
-{
+abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyInterface{
 
 	use EmailNoteworthyTrait;
 
@@ -42,9 +42,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 
 	public abstract function getKeypair();
 
-	public function __construct()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			parent::__construct();
@@ -59,13 +58,15 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public static function getSubtypeStatic(): string
-	{
+	public static function hasSubtypeStatic():bool{
+		return true;
+	}
+	
+	public static function getSubtypeStatic(): string{
 		return static::getConfirmationCodeTypeStatic();
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 
 		$secretCode = new SecretKeyDatum("secretCode"); // secret that is hashed to get the confirmation code
@@ -93,33 +94,28 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		static::pushTemporaryColumnsStatic($columns, $nonce, $data, $confirmationCodeType, $secretCode, $xoredSecretCode, $secretCodeXorKey, $hashedSecretCode);
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"disableNotification",
 			"dismissNotification"
 		]);
 	}
 
-	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::reconfigureColumns($columns, $ds);
 		$columns['userNameKey']->setOnDelete(REFERENCE_OPTION_CASCADE);
 	}
 
-	public function getSubtypeValue()
-	{
+	public function getSubtypeValue(){
 		return $this->getConfirmationCodeType();
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "confirmation_codes";
 	}
 
-	protected function getConfirmationUriGetParameters(): array
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->getConfirmationUriGetParameters()";
+	protected function getConfirmationUriGetParameters(): array{
+		$f = __METHOD__;
 		$x1 = $this->getSecretCodeXorKey();
 		if (empty($x1)) {
 			Debug::error("{$f} secret code XOR key is null or empty string");
@@ -130,9 +126,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		];
 	}
 
-	public function getConfirmationUri()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->getConfirmationUri()";
+	public function getConfirmationUri(){
+		$f = __METHOD__;
 		$print = false;
 		$this->getHashedSecretCode();
 		$params = $this->getConfirmationUriGetParameters();
@@ -146,14 +141,12 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		return $uri;
 	}
 
-	public function hasAdditionalData(): bool
-	{
+	public function hasAdditionalData(): bool{
 		return $this->hasColumnValue("data");
 	}
 
-	public function processDecryptedAdditionalDataArray($data_arr)
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->processDecryptedAdditionalDataArray()";
+	public function processDecryptedAdditionalDataArray($data_arr){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -175,9 +168,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public function getSecretCode()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->getSecretCode()";
+	public function getSecretCode(){
+		$f = __METHOD__;
 		try {
 			if ($this->hasSecretCode()) {
 				return $this->getColumnValue("secretCode");
@@ -188,14 +180,12 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public function setHashedSecretCode($code)
-	{
+	public function setHashedSecretCode($code){
 		return $this->setColumnValue("hashedSecretCode", $code);
 	}
 
-	public function setSecretCodeXorKey($key)
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->setSecretCodeXorKey()";
+	public function setSecretCodeXorKey($key){
+		$f = __METHOD__;
 		$print = false;
 		if (empty($key)) {
 			Debug::error("{$f} key is null or empty string");
@@ -205,24 +195,20 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		return $this->setColumnValue("secretCodeXorKey", $key);
 	}
 
-	public function getSecretCodeXorKey()
-	{
+	public function getSecretCodeXorKey(){
 		return $this->getColumnValue("secretCodeXorKey");
 	}
 
-	public function setXoredSecretCode($code)
-	{
+	public function setXoredSecretCode($code){
 		return $this->setColumnValue("xoredSecretCode", $code);
 	}
 
-	public function hasHashedSecretCode(): bool
-	{
+	public function hasHashedSecretCode(): bool{
 		return $this->hasColumnValue("hashedSecretCode");
 	}
 
-	public function getHashedSecretCode()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->getHashedSecretCode()";
+	public function getHashedSecretCode(){
+		$f = __METHOD__;
 		try {
 			if ($this->hasHashedSecretCode()) {
 				return $this->getColumnValue("hashedSecretCode");
@@ -233,21 +219,18 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public function generateFraudReportUriSuffix()
-	{
+	public function generateFraudReportUriSuffix(){
 		return null;
 	}
 
-	public function reload($mysqli, $foreign = true): int
-	{
+	public function reload(mysqli $mysqli, $foreign = true): int{
 		$reloaded = parent::reload($mysqli, $foreign);
 		$this->setSecretCodeXorKey($this->getSecretCodeXorKey());
 		return $reloaded;
 	}
 
-	protected function generateSecretCode()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->generateSecretCode()";
+	protected function generateSecretCode(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			iF ($print) {
@@ -274,9 +257,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	protected function generateSecretCodeXorKey()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->generateSecretCodeXorKey()";
+	protected function generateSecretCodeXorKey(){
+		$f = __METHOD__;
 		try {
 			$this->generateSecretCode();
 			$x1 = $this->getSecretCodeXorKey();
@@ -286,14 +268,12 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public function hasSecretCodeXorKey(): bool
-	{
+	public function hasSecretCodeXorKey(): bool{
 		return $this->hasColumnValue("secretCodeXorKey");
 	}
 
-	protected function afterGenerateInitialValuesHook(): int
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->afterGenerateInitialValuesHook()";
+	protected function afterGenerateInitialValuesHook(): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -313,9 +293,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	protected function parseAdditionalData()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->parseAdditionalData()";
+	protected function parseAdditionalData(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -345,9 +324,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public function getXoredSecretCode()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->getXoredSecretCode()";
+	public function getXoredSecretCode(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (! $this->hasXoredSecretCode()) { // for records being loaded
@@ -365,9 +343,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	protected function generateXoredSecretCode()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->generateXoredSecretCode()";
+	protected function generateXoredSecretCode(){
+		$f = __METHOD__;
 		try {
 			if (! $this->hasXoredSecretCode()) {
 				$this->generateSecretCode();
@@ -378,9 +355,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public function generateHashedSecretCode()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->generateHashedSecretCode()";
+	public function generateHashedSecretCode(){
+		$f = __METHOD__;
 		try {
 			if (! $this->hasHashedSecretCode()) {
 				$this->generateSecretCode();
@@ -391,8 +367,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	protected function getAdditionalDataArray(): array
-	{
+	protected function getAdditionalDataArray(): array{
 		$xored_secret = $this->generateXoredSecretCode();
 		$confirm = $this->generateHashedSecretCode();
 		return [
@@ -401,9 +376,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		];
 	}
 
-	public function generateAdditionalData()
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->generateAdditionalData()";
+	public function generateAdditionalData(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($this->hasAdditionalData()) {
@@ -424,8 +398,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public function setAdditionalData($data)
-	{
+	public function setAdditionalData($data){
 		return $this->setColumnValue('data', $data);
 	}
 
@@ -452,7 +425,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	 * @param AuthenticatedUser $user
 	 * @return int
 	 */
-	public static function submitStatic($mysqli, $user){
+	public static function submitStatic(mysqli $mysqli, PlayableUser $user){
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -509,7 +482,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	 * @param AuthenticatedUser $user
 	 * @return int
 	 */
-	protected function extractAdditionalDataFromUser($user){
+	protected function extractAdditionalDataFromUser(PlayableUser $user){
 		return SUCCESS;
 	}
 
@@ -638,18 +611,18 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	}
 
 	public function loadFailureHook(): int{
-		return $this->setObjectStatus(ERROR_TIMESTAMP_EXPIRED);
+		return $this->setObjectStatus(ERROR_LINK_EXPIRED);
 	}
 
 	public function getCommentRoot(){
 		return $this;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Confirmation code");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Confirmation codes");
 	}
 
@@ -697,9 +670,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public final function encodeAdditionalData($data)
-	{
-		$f = __METHOD__; //ConfirmationCode::getShortClass()."(".static::getShortClass().")->encodeAdditionalData()";
+	public final function encodeAdditionalData($data){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (is_array($data)) {

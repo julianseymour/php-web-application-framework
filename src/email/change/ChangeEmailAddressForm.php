@@ -109,12 +109,11 @@ class ChangeEmailAddressForm extends ExpandingMenuNestedForm implements Confirma
 		switch ($cn) {
 			case "emailAddress":
 				$input->setIdAttribute("change_email_address_input");
-				$input->setPlaceholderAttribute(_("Enter email address"));
+				$input->setLabelString(_("Enter email address"));
 				$input->setWrapperElement(Document::createElement("div")->withStyleProperties([
 					"position" => "relative"
 				]));
 				$input->setRequiredAttribute("required");
-				$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
 				break;
 			default:
 				break;

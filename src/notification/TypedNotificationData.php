@@ -26,7 +26,7 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 
 	public abstract static function noCorrespondent();
 
-	public abstract static function getNotificationTypeString($language = null);
+	public abstract static function getNotificationTypeString();
 
 	public abstract static function getNotificationUpdateMode();
 
@@ -94,7 +94,7 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 	}
 
 	public function getNotificationType(){
-		$f = __METHOD__; //TypedNotificationData::getShortClass()."(".static::getShortClass().")->getNotificationType()";
+		$f = __METHOD__;
 		$type = $this->getColumnValue('notificationType');
 		if (isset($type)) {
 			return $type;
@@ -103,11 +103,12 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 	}
 
 	public static function getPushStatusVariableName(){
-		$f = __METHOD__; //TypedNotificationData::getShortClass()."(".static::getShortClass().")::getPushStatusVariableName()";
-		$t = static::getNotificationTypeString(LANGUAGE_ENGLISH);
-		while ($t instanceof ValueReturningCommandInterface) {
+		$f = __METHOD__;
+		$t = static::getNotificationTypeStatic();
+		/*while ($t instanceof ValueReturningCommandInterface) {
 			$t = $t->evaluate();
-		}
+		}*/
+		$t[0] = strtoupper($t[0]);
 		if (starts_with($t, "translate")) {
 			Debug::error("{$f} translate command ");
 		}
@@ -117,11 +118,12 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 	}
 
 	public static function getEmailStatusVariableName(){
-		$f = __METHOD__; //TypedNotificationData::getShortClass()."(".static::getShortClass().")::getEmailStatusVariableName()";
-		$t = static::getNotificationTypeString(LANGUAGE_ENGLISH);
-		while ($t instanceof ValueReturningCommandInterface) {
+		$f = __METHOD__;
+		$t = static::getNotificationTypeStatic();
+		/*while ($t instanceof ValueReturningCommandInterface) {
 			$t = $t->evaluate();
-		}
+		}*/
+		$t[0] = strtoupper($t[0]);
 		if (starts_with($t, "translate")) {
 			Debug::error("{$f} translate command ");
 		}
@@ -141,7 +143,7 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 	 * @return int
 	 */
 	public function send(mysqli $mysqli): int{
-		$f = __METHOD__; //TypedNotificationData::getShortClass()."(".static::getShortClass().")->send()";
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if($print){

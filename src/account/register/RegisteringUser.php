@@ -13,7 +13,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\BlobDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
-use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsSessionData;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
 use Exception;
 use mysqli;
 
@@ -41,7 +41,7 @@ class RegisteringUser extends NormalUser{
 		$f = __METHOD__;
 		try {
 			$ret = parent::beforeGenerateInitialValuesHook();
-			$session = new LanguageSettingsSessionData();
+			$session = new LanguageSettingsData();
 			$language = $session->getLanguageCode();
 			$this->setLanguagePreference($language);
 			$this->setFilterPolicy(POLICY_NONE);
@@ -122,7 +122,7 @@ class RegisteringUser extends NormalUser{
 				Debug::print("{$f} parent function executed successfully");
 			}
 			$status = PreActivationConfirmationCode::submitStatic($mysqli, $this);
-			if ($status !== SUCCESS && $status !== RESULT_REGISTER_SUCCESS) {
+			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} error finishing registration: \"{$err}\"");
 			}elseif($print){

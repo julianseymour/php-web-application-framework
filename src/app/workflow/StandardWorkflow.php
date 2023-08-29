@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\app\workflow;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -123,11 +124,12 @@ class StandardWorkflow extends Workflow{
 				$use_case->setObjectStatus($status);
 				if ((Request::isXHREvent() || Request::isFetchEvent()) && ! $use_case->getDisabledFlag()) {
 					// Debug::checkMemoryUsage("Before Responder->modifyResponse()");
-					$responder = $use_case->getResponder();
+					$responder = $use_case->getResponder($status);
 					if ($responder instanceof Responder) {
 						if ($print) {
 							$rc = get_class($responder);
-							Debug::print("{$f} use case \"{$ucc}\" returned responder of class \"{$rc}\"");
+							$decl = $responder->getDeclarationLine();
+							Debug::print("{$f} use case \"{$ucc}\" returned responder of class \"{$rc}\", instantiated on {$decl}");
 						}
 						$responder->modifyResponse(app()->getResponse(), $use_case);
 					} elseif ($print) {
@@ -173,7 +175,7 @@ class StandardWorkflow extends Workflow{
 				// $status = $switch->getObjectStatus();
 				if ($print) {
 					// $err = ErrorMessage::getResultMessage($status);
-					Debug::print("{$f} handing control over to another use case for error code {$status} (\"{$err}\")");
+					Debug::print("{$f} handing control over from ".$use_case->getShortClass()." to ".$switch->getShortClass()." for error code {$status} (\"{$err}\")");
 				}
 				$status = $use_case->beforeTransitionHook($switch);
 				if ($status !== SUCCESS) {

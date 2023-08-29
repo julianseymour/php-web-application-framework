@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
@@ -17,14 +18,12 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
  * @author j
  *        
  */
-class EventSourceData extends UserOwned
-{
+class EventSourceData extends UserOwned{
 
 	protected $stateColumn;
 
-	public function __construct(?Datum $column = null, ?int $mode = ALLOCATION_MODE_EAGER)
-	{
-		$f = __METHOD__; //EventSourceData::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct(?Datum $column = null, ?int $mode = ALLOCATION_MODE_EAGER){
+		$f = __METHOD__;
 		if ($column !== null) {
 			$this->stateColumn = $column;
 		} else {
@@ -33,9 +32,8 @@ class EventSourceData extends UserOwned
 		parent::__construct($mode);
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
-		$f = __METHOD__; //EventSourceData::getShortClass()."(".static::getShortClass().")::declareColumns()";
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		$f = __METHOD__;
 		$print = false;
 		parent::declareColumns($columns, $ds);
 		$sc = $ds->getStateColumn();
@@ -85,8 +83,7 @@ class EventSourceData extends UserOwned
 		static::pushTemporaryColumnsStatic($columns, $current_state, $previous_state, $token, $target_key, $comment, $signature);
 	}
 
-	public static function getPermissionStatic(string $name, $data)
-	{
+	public static function getPermissionStatic(string $name, $data){
 		if ($name === DIRECTIVE_INSERT) {
 			return SUCCESS;
 		} // XXX TODO delete this
@@ -97,99 +94,81 @@ class EventSourceData extends UserOwned
 		return FAILURE;
 	}
 
-	public function hasStateColumn()
-	{
+	public function hasStateColumn():bool{
 		return isset($this->stateColumn);
 	}
 
-	public function getStateColumn()
-	{
-		$f = __METHOD__; //EventSourceData::getShortClass()."(".static::getShortClass().")->getStateColumn()";
+	public function getStateColumn(){
+		$f = __METHOD__;
 		if (! $this->hasStateColumn()) {
 			Debug::error("{$f} state column is undefined");
 		}
 		return $this->stateColumn;
 	}
 
-	public function setPreviousState($value)
-	{
+	public function setPreviousState($value){
 		return $this->setColumnValue("previousState", $value);
 	}
 
-	public function setCurrentState($value)
-	{
+	public function setCurrentState($value){
 		return $this->setColumnValue("currentState", $value);
 	}
 
-	public function setToken($value)
-	{
+	public function setToken($value){
 		return $this->setColumnValue("token", $value);
 	}
 
-	public static function getDatabaseNameStatic(): string
-	{
+	public static function getDatabaseNameStatic(): string{
 		return "events";
 	}
 
-	public static function getTableNameStatic(): string
-	{
-		$f = __METHOD__; //EventSourceData::getShortClass()."(".static::getShortClass().")->getTableNameStatic()";
+	public static function getTableNameStatic(): string{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function getTableName(): string
-	{
+	public function getTableName(): string{
 		$sc = $this->getStateColumn();
 		return $sc->getDataStructure()->getTableName() . "_" . $sc->getColumnName();
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Event source");
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_EVENT_SOURCE;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Event sources");
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "events";
 	}
 
-	public function hasTargetKey(): bool
-	{
+	public function hasTargetKey(): bool{
 		return $this->hasColumnValue("targetKey");
 	}
 
-	public function getTargetKey(): ?string
-	{
+	public function getTargetKey(): ?string{
 		return $this->getColumnValue("targetKey");
 	}
 
-	public function setTargetKey(?string $value): ?string
-	{
+	public function setTargetKey(?string $value): ?string{
 		return $this->setColumnValue("targetKey", $value);
 	}
 
-	public function ejectTargetKey(): ?string
-	{
+	public function ejectTargetKey(): ?string{
 		return $this->ejectColumnValue("targetKey");
 	}
 
-	public function setTargetData(?DataStructure $struct): ?DataStructure
-	{
+	public function setTargetData(?DataStructure $struct): ?DataStructure{
 		return $this->setForeignDataStructure("targetKey", $struct);
 	}
 
-	public function hasTargetData(): bool
-	{
+	public function hasTargetData(): bool{
 		return $this->hasForeignDataStructure("targetKey");
 	}
 

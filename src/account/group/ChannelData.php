@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\group;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
@@ -11,16 +12,18 @@ use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 
-class ChannelData extends DataStructure
-{
+class ChannelData extends DataStructure{
 
 	use DescriptionColumnTrait;
 	use EnabledTrait;
 	use GroupKeyColumnTrait;
 	use NameColumnTrait;
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function getDatabaseNameStatic():string{
+		return "user_content";
+	}
+	
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$name = new NameDatum("name");
 		$category = new TextDatum("category");
@@ -37,28 +40,23 @@ class ChannelData extends DataStructure
 		static::pushTemporaryColumnsStatic($columns, $name, $category, $language, $group_key, $enabled, $type);
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Channel");
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "channels";
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_CHANNEL;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Channels");
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "channels";
 	}
 }

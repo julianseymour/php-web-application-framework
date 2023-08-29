@@ -1,7 +1,7 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;

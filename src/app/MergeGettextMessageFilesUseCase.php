@@ -11,8 +11,12 @@ use ReflectionClass;
 class MergeGettextMessageFilesUseCase extends UseCase{
 	
 	public function execute():int{
+		return $this->mergeGettextMessageFilesStatic();
+	}
+	
+	public static function mergeGettextMessageFilesStatic():int{
 		$f = __METHOD__;
-		$print = true;
+		$print = false;
 		$locales = [];
 		$modules = mods()->getModules();
 		foreach($modules as $mod){
@@ -57,7 +61,7 @@ class MergeGettextMessageFilesUseCase extends UseCase{
 			}
 		}
 		if(!empty($locales)){
-			if($print){
+			if(false && $print){
 				Debug::print("{$f} found the following .po files in all module directories:");
 				Debug::printArray($locales);
 			}
@@ -65,6 +69,9 @@ class MergeGettextMessageFilesUseCase extends UseCase{
 				mkdir('/var/www/locale', 0777, true);
 			}
 			foreach($locales as $locale => $filenames){
+				if($print){
+					Debug::print("{$f} merging .po files for locale \"{$locale}\"");
+				}
 				if(!is_dir("/var/www/locale/{$locale}/LC_MESSAGES")){
 					if(!is_dir("/var/www/locale/{$locale}")){
 						mkdir("/var/www/locale/{$locale}", 0777, true);

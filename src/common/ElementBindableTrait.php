@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -10,8 +11,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
  *
  * @author j
  */
-trait ElementBindableTrait
-{
+trait ElementBindableTrait{
 
 	protected $elementClass;
 
@@ -20,7 +20,7 @@ trait ElementBindableTrait
 	}
 
 	public function setElementClass($class){
-		$f = __METHOD__; //"ElementBindableTrait(".static::getShortClass().")->setElementClass()";
+		$f = __METHOD__;
 		if (! is_string($class)) {
 			Debug::error("{$f} class is not a string");
 		} elseif (! class_exists($class)) {
@@ -30,12 +30,13 @@ trait ElementBindableTrait
 	}
 
 	public function getElementClass(){
-		$f = __METHOD__; //"ElementBindableTrait(".static::getShortClass().")->getElementClass()";
-		if (! isset($this->elementClass)) { // $this->hasElementClass()){
+		$f = __METHOD__;
+		if (! isset($this->elementClass)) {
 			if ($this instanceof StaticElementClassInterface) {
 				return $this->getElementClassStatic($this);
 			}
-			Debug::error("{$f} element class is undefined");
+			$decl = $this->getDeclarationLine();
+			Debug::error("{$f} element class is undefined. Declared {$decl}");
 		}
 		return $this->elementClass;
 	}

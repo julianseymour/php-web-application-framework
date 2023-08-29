@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;

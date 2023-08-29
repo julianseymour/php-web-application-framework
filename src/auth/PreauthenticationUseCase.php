@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -10,50 +11,42 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\SubsequentUseCase;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use mysqli;
 
-abstract class PreauthenticationUseCase extends SubsequentUseCase
-{
+abstract class PreauthenticationUseCase extends SubsequentUseCase{
 
 	public abstract function getAuthenticatedUserClass();
 
-	public function getExecutePermission()
-	{
+	public function getExecutePermission(){
 		return SUCCESS;
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function beforeLoadHook(mysqli $mysqli): int
-	{
+	public function beforeLoadHook(mysqli $mysqli): int{
 		return $this->hasPredecessor() ? $this->getPredecessor()->beforeLoadHook($mysqli) : parent::beforeLoadHook($mysqli);
 	}
 
-	public function afterLoadHook(mysqli $mysqli): int
-	{
+	public function afterLoadHook(mysqli $mysqli): int{
 		return $this->hasPredecessor() ? $this->getPredecessor()->afterLoadHook($mysqli) : parent::afterLoadHook($mysqli);
 	}
 
-	public function getDataOperandObject(): ?DataStructure
-	{
+	public function getDataOperandObject(): ?DataStructure{
 		if ($this->hasPredecessor()) {
 			return $this->getPredecessor()->getDataOperandObject();
 		}
 		return parent::getDataOperandObject();
 	}
 
-	public function getPageContentGenerator(): UseCase
-	{
+	public function getPageContentGenerator(): UseCase{
 		if ($this->hasPredecessor()) {
 			return $this->getPredecessor();
 		}
 		return $this;
 	}
 
-	public function getPageContent(): ?array
-	{
-		$f = __METHOD__; //PreauthenticationUseCase::getShortClass()."(".static::getShortClass().")->getPageContent()";
+	public function getPageContent(): ?array{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->hasPredecessor()) {
 			$pcg = $this->getPageContentGenerator();
@@ -90,13 +83,11 @@ abstract class PreauthenticationUseCase extends SubsequentUseCase
 		return parent::getPaginator();
 	}*/
 
-	protected function getTransitionFromPermission()
-	{
+	protected function getTransitionFromPermission(){
 		return SUCCESS;
 	}
 
-	public function safeExecute(): int
-	{
+	public function safeExecute(): int{
 		return $this->execute();
 	}
 	

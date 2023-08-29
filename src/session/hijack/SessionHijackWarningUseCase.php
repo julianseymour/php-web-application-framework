@@ -19,10 +19,6 @@ class SessionHijackWarningUseCase extends SubsequentUseCase{
 		return request()->getRequestURISegment(0);
 	}
 
-	public function getUseCaseId(){
-		return USE_CASE_SESSION_HIJACK;
-	}
-
 	private static function getSessionHijackWarningElement(){
 		$f = __METHOD__;
 		$ahsd = new AntiHijackSessionData();
@@ -39,7 +35,7 @@ class SessionHijackWarningUseCase extends SubsequentUseCase{
 		return Document::createElement("div")->withInnerHTML($innerHTML);
 	}
 
-	public function getResponder(): ?Responder{
+	public function getResponder(int $status): ?Responder{
 		return new SessionHijackWarningResponder();
 	}
 

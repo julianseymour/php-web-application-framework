@@ -8,14 +8,12 @@ use JulianSeymour\PHPWebApplicationFramework\account\login\FullAuthenticationDat
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
-use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsSessionData;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
 use Exception;
 
-abstract class ErrorMessage
-{
+abstract class ErrorMessage{
 
-	public static function getVisualNotice($t)
-	{
+	public static function getVisualNotice($t){
 		$div = new DivElement();
 		$div->addClassAttribute("visual_result_container", "background_color_2");
 		// $div->addClassAttribute("shadow");
@@ -23,13 +21,11 @@ abstract class ErrorMessage
 		return $div;
 	}
 
-	public static function getVisualError($status)
-	{
+	public static function getVisualError($status){
 		return static::getVisualNotice(ErrorMessage::getResultMessage($status));
 	}
 
-	public static function getInfoBoxStatus($status)
-	{
+	public static function getInfoBoxStatus($status){
 		return static::getInfoBoxElement(static::getVisualError($status));
 	}
 
@@ -38,466 +34,391 @@ abstract class ErrorMessage
 	 *
 	 * @param string $f
 	 */
-	public static function unimplemented($f)
-	{
+	public static function unimplemented($f){
 		Debug::error("{$f}: " . ErrorMessage::getResultMessage(ERROR_NOT_IMPLEMENTED));
 	}
 
-	public static function deprecated($f)
-	{
+	public static function deprecated($f){
 		Debug::error("{$f}: " . ErrorMessage::getResultMessage(ERROR_DEPRECATED));
 	}
 
-	public static function getResultMessage($status, $language_id = null)
-	{
-		$f = __METHOD__; //ErrorMessage::class . "::getResultMessage()";
+	public static function getResultMessage($status){
+		$f = __METHOD__;
 		try {
 			switch ($status) {
-				/*case (ERROR_MISSING_VARIABLE):
-					return Internationalization::chainTranslate($language_id, STRING_X_FAILED, STRING_OPERATION);
 				case (ERROR_MYSQL_QUERY):
-					return Internationalization::translate(STRING_FAILED_DATABASE_QUERY, $language_id);
+					return _("MySQL query error.");
 				case (ERROR_MYSQL_RESULT):
-					return Internationalization::translate(STRING_FAILED_DATABASE_RESULT, $language_id);
+					return _("MySQL fetch result error.");
 				case (ERROR_XSRF):
 				case ERROR_SESSION_EXPIRED:
-					return Internationalization::translate(STRING_SESSION_EXPIRED, $language_id);
+					return _("Session expired.");
 				case (ERROR_MYSQL_EXECUTE):
-					return Internationalization::translate(STRING_FAILED_DATABASE_EXECUTE, $language_id);
+					return _("MySQL execution error.");
 				case (ERROR_MYSQL_BIND):
-					return Internationalization::translate(STRING_FAILED_DATABASE_BIND, $language_id);
+					return _("MySQL bind parameters error.");
 				case (ERROR_MYSQL_PREPARE):
-					return Internationalization::translate(STRING_FAILED_DATABASE_PREPARE, $language_id);
+					return _("MySQL prepared query statement error.");
 				case ERROR_MYSQL_CONNECT:
-				case (ERROR_MYSQL_CONNECT):
-					return Internationalization::translate(STRING_FAILED_DATABASE_CONNECT, $language_id);
+					return _("MySQL connection error.");
 				case (ERROR_INTERNAL):
 				case ERROR_HONEYPOT:
-					return Internationalization::translate(STRING_CANNOT_PROCESS_REQUEST, $language_id);
-				case (ERROR_INPUT_BLANK):
-					return Internationalization::translate(STRING_INPUT_BLANK, $language_id);
-				case ERROR_USER_NOT_FOUND:
-				case ERROR_USER_NOT_FOUND_GET_EMAIL:
+					return _("Internal server error.");
 				case ERROR_LOGIN_CREDENTIALS:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_CREDENTIALS);
-				case (ERROR_ALREADY_ACTIVE):
-					return Internationalization::translate(STRING_ALREADY_ACTIVE, $language_id);
-				case (ERROR_ACCOUNT_INACTIVE):
-					return Internationalization::translate(STRING_ACCOUNT_INACTIVE, $language_id);
+					return _("Invalid credentials.");
 				case (ERROR_ALREADY_LOGGED):
-					return Internationalization::translate(STRING_ALREADY_LOGGED, $language_id);
+					return _("You are already logged in.");
 				case (RESULT_LOGGED_OUT):
-					return Internationalization::translate(STRING_LOGGED_OUT, $language_id);
+					return _("You have been logged out.");
 				case (SUCCESS):
-					Debug::printStackTraceNoExit("{$f} success");
-					return Internationalization::translate(STRING_REQUEST_PROCESSED, $language_id);
-				case (ERROR_YOUR_FAULT):
-					return Internationalization::translate(STRING_ERROR_PROCESSING_REQUEST, $language_id);
+					return _("Your request was processed successfully.");
 				case (RESULT_RESET_SUBMIT):
-					return Internationalization::translate(STRING_RESET_SUBMIT, $language_id);
-				case RESULT_RESET_SUCCESS:
-					return Internationalization::translate(STRING_PASSWORD_RESET, $language_id);
+					return _("An email has been sent to the address we have on file containing instructions on how to reset your password. If you do not receive an email check your spam folder. If the problem persists please contact us directly.");
 				case RESULT_CHANGEPASS_SUCCESS:
-					return Internationalization::translate(STRING_PASSWORD_UPDATED_PLEASE_REFRESH, $language_id);
-				case ERROR_CHANGEPASS_MISSING:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_PASSWORD);
+					return _("Your password has been updated.");
 				case ERROR_IP_ADDRESS_BLOCKED_BY_USER:
-					return Internationalization::translate(STRING_X_BY_Y, $language_id, Internationalization::translate(STRING_SINGULAR_NOUN_X_PAST_TENSE_VERB_Y, $language_id, Internationalization::translate(STRING_IP_ADDRESS, $language_id), Internationalization::translate(STRING_BLOCKED, $language_id)), Internationalization::translate(STRING_USER, $language_id));
+					return _("IP address blocked by user.");
 				case ERROR_NOT_IMPLEMENTED:
-					$session = new LanguageSettingsSessionData();
-					$language = $session->getLanguageCode();
-					if ($language === null || $language === LANGUAGE_UNDEFINED) {
-						$language = LANGUAGE_DEFAULT;
-					}
-					return Internationalization::translate(STRING_SERVER_MAINTENANCE, $language);
-				case RESULT_CHANGEMAIL_SUCCESS:
-					return Internationalization::translate(STRING_EMAIL_UPDATED, $language_id);
+					return _("This feature has not been implemented.");
 				case (ERROR_LINK_EXPIRED):
-				case ERROR_RESET_DELETION:
-				case (ERROR_BADCODE):
-					return Internationalization::translate(STRING_LINK_EXPIRED, $language_id);
+					return _("The link you followed has expired.");
 				case ERROR_CHECKOUT_IMEI_TAMPER:
-					return Internationalization::translate(STRING_IMEI_MODE_UNDEFINED, $language_id);
-				case ERROR_CHECKOUT_AUTO_REJECT_ACCESS:
-					return Internationalization::chainTranslate($language_id, STRING_X_UNAUTHORIZED, STRING_TRANSACTION);
-				case RESULT_CHECKOUT_CONFIRM:
-					return Internationalization::chainTranslate($language_id, STRING_CONFIRM_X, STRING_TRANSACTION);
-				case ERROR_BASE_SVCKEY:
-					return Internationalization::chainTranslate($language_id, STRING_X_IS_UNDEFINED, STRING_X_KEY, STRING_BASE_X, STRING_SERVICE);
-				case ERROR_DISPATCH_NOTHING:
-					return Internationalization::translate(STRING_NOTHING_TO_REPORT, $language_id);
-				case ERROR_KEY_UNDEFINED:
-					return Internationalization::chainTranslate($language_id, STRING_X_IS_UNDEFINED, STRING_KEY);
-				case ERROR_MUST_LOGIN:
-					return Internationalization::translate(STRING_MUST_LOGIN, $language_id);
-				case ERROR_PROCESS_DATATYPE:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_DATATYPE);
-				case ERROR_IDENTICAL_NAME:
-					return Internationalization::translate(STRING_IDENTICAL_NAME, $language_id);
-				case ERROR_NULL_PARENTKEY:
-					return Internationalization::chainTranslate($language_id, STRING_NULL_X, STRING_X_KEY, STRING_PARENT);
-				case ERROR_NULL_DESCRIPTION:
-					return Internationalization::translate(STRING_NULL_DESCRIPTION, $language_id);
-				case ERROR_NOT_FOUND:
-					return Internationalization::chainTranslate($language_id, STRING_X_NOT_FOUND, STRING_OBJECT);
-				case ERROR_NOT_MAPPED:
-					return Internationalization::translate(STRING_KEY_UNMAPPED, $language_id);
-				case ERROR_NAME_LENGTH:
-					return Internationalization::translate(STRING_USERNAME_LENGTH, $language_id);
-				case ERROR_REGISTER_PASSWORD_WEAK:
-					return Internationalization::translate(STRING_PASSWORD_WEAK, $language_id);
-				case ERROR_REGISTER_NULL_CONFIRM:
-					return Internationalization::translate(STRING_PASSWORD_CONFIRMATION_REQURED, $language_id);
-				case ERROR_PASSWORD_UNDEFINED:
-					return Internationalization::translate(STRING_PASSWORD_SUBMITTED_EMPTY, $language_id);
-				case ERROR_CHANGEMAIL_BADCODE:
-					return Internationalization::translate(STRING_CONFIRMATION_CODE_MISMATCH, $language_id);
-				case ERROR_PASSWORD_MISMATCH:
-					return Internationalization::translate(STRING_PASSWORDS_MISMATCH, $language_id);
-				case ERROR_NAME_UNDEFINED:
-					return Internationalization::chainTranslate($language_id, STRING_X_UNDEFINED, STRING_NAME);
-				case ERROR_CHECKOUT_REPEAT:
-					return Internationalization::translate(STRING_TRANSACTION_REJECTED_REPEAT, $language_id);
-				case ERROR_CHECKOUT_IDK_QTY:
-					return Internationalization::translate(STRING_MUST_PROVIDE_QUANTITY, $language_id);
-				case ERROR_CHECKOUT_IMEI_SINGLE:
-					return Internationalization::translate(STRING_MUST_PROVIDE_IMEI, $language_id);
 				case ERROR_CHECKOUT_MODE:
-					return Internationalization::translate(STRING_IMEI_MODE_UNDEFINED, $language_id);
+					return _("IMEI mode undefined.");
+				case ERROR_CHECKOUT_AUTO_REJECT_ACCESS:
+					return _("Unauthorized transaction.");
+				case RESULT_CHECKOUT_CONFIRM:
+					return _("Confirm transaction:");
+				case ERROR_BASE_SVCKEY:
+					return _("Undefined base service key.");
+				case ERROR_DISPATCH_NOTHING:
+					return _("Nothing to report.");
+				case ERROR_KEY_UNDEFINED:
+					return _("Unidefined unique identifier.");
+				case ERROR_MUST_LOGIN:
+					return _("You must login to access this feature.");
+				case ERROR_IDENTICAL_NAME:
+					return _("Identical name.");
+				case ERROR_NULL_PARENT_KEY:
+					return _("Undefined parent key.");
+				case ERROR_NOT_FOUND:
+				case ERROR_FILE_NOT_FOUND:
+					return _("File not found.");
+				case ERROR_NOT_MAPPED:
+					return _("Unregistered unique key.");
+				case ERROR_NAME_LENGTH:
+					return _("Invalid username length.");
+				case ERROR_PASSWORD_WEAK:
+					return _("Invalid password.");
+				case ERROR_REGISTER_NULL_CONFIRM:
+					return _("Password confirmation required.");
+				case ERROR_PASSWORD_UNDEFINED:
+					return _("Undefined password.");
+				case ERROR_CHANGEMAIL_BADCODE:
+					return _("Confirmation code validation failed.");
+				case ERROR_PASSWORD_MISMATCH:
+					return _("Passwords do not match.");
+				case ERROR_NAME_UNDEFINED:
+					return _("Undefined name.");
+				case ERROR_CHECKOUT_REPEAT:
+					return _("Transaction rejected because it is a repeat purchase.");
+				case ERROR_CHECKOUT_IDK_QTY:
+					return _("You must specify a quantity to place this order.");
 				case ERROR_CHECKOUT_EMPTY:
-					return Internationalization::translate(STRING_CHECKOUT_EMPTY, $language_id);
-				case ERROR_CHECKOUT_TAMPER:
-					return Internationalization::translate(STRING_TRANSACTION_BLOCKED_TAMPER_POST, $language_id);
+					return _("You must select at least one item to place an order.");
+				case ERROR_TAMPER_POST:
+					return _("Transaction blocked because the user tampered with POST.");
 				case ERROR_PRICE_0CREDITS:
-					return Internationalization::translate(STRING_PRICE_0CREDITS, $language_id);
+					return _("Invalid item price.");
 				case ERROR_NULL_ITERATOR:
-					return Internationalization::translate(STRING_CHECKOUT_NULL_ITERATOR, $language_id);
+					return _("Iterator is undefined.");
 				case ERROR_NULL_TEMPLATE:
-					return Internationalization::translate(STRING_ACCOUNT_PENDING_REVIEW, $language_id);
-				case ERROR_CHECKOUT_IMEI_REQUIRED:
-					return Internationalization::chainTranslate($language_id, STRING_X_REQUIRED, STRING_IMEI);
-				case RESULT_DELETION_SUCCESSFUL:
-					return Internationalization::translate(STRING_DELETION_SUCCESSFUL, $language_id);
-				case ERROR_NULL_SERVICE:
-					return Internationalization::translate(STRING_NULL_SERVICE, $language_id);
-				case ERROR_NULL_IMPLICIT_SVC:
-					return Internationalization::translate(STRING_IMPLICIT_SERVICE_UNDEFINED, $language_id);
-				case ERROR_CHANGEMAIL_ROWCOUNT:
-				case ERROR_DUPLICATE_ENTRY:
-					return Internationalization::translate(STRING_DUPLICATE_ENTRY, $language_id);
-				case ERROR_KEY_INHERITED:
-					return Internationalization::translate(STRING_PARENT_CHILD_SAME_KEY, $language_id);
-				case ERROR_TRANSACTION_STATE:
-					return Internationalization::translate(STRING_ERROR_UPDATING_TRANSACTION_STATE, $language_id);
-				case RESULT_TRANSACTION_UPDATED:
-					return Internationalization::translate(STRING_TRANSACTION_UPDATE_SUCCESSFUL, $language_id);
-				case ERROR_DEADBEAT:
-					return Internationalization::translate(STRING_INSUFFICIENT_BALANCE, $language_id);
-				case RESULT_CHANGESETTINGS_SUCCESS:
-					return Internationalization::translate(STRING_SETTINGS_UPDATED, $language_id);
-				case RESULT_ACTIVATE_SUCCESS:
-					return Internationalization::translate(STRING_ACCOUNT_ACTIVATED, $language_id);
-				case ERROR_LOGIN_GENERIC:
-					return Internationalization::translate(STRING_LOGIN_ERROR, $language_id);
-				case RESULT_MFA_ENABLED:
-					return Internationalization::translate(STRING_MFA_ENABLED, $language_id);
-				case RESULT_BFP_MFA_CONFIRM:
-					return Internationalization::translate(STRING_ENTER_MFA, $language_id);
-				case ERROR_NULL_CONTEXT:
-					return Internationalization::chainTranslate($language_id . STRING_NULL_X, STRING_CONTEXT);
-				case RESULT_MFA_DISABLED:
-					return Internationalization::chainTranslate($language_id, STRING_X_DISABLED, STRING_MFA);
-				case ERROR_MFA_CONFIRM:
-					return Internationalization::translate(STRING_INVALID_VERIFICATION_CODE, $language_id);
-				case RESULT_MFA_GENERATED:
-					return Internationalization::translate(STRING_MFA_SEED_GENERATED, $language_id);
-				case RESULT_MFA_DISPLAY:
-					return Internationalization::translate(STRING_DISPLAYING_MFA_QR, $language_id);
-				case ERROR_CHANGEMAIL_EMPTY:
-					return Internationalization::translate(STRING_EMAIL_CONFIRMATION_EMPTY, $language_id);
-				case ERROR_PASSWORD_LOGGED:
-					return Internationalization::translate(STRING_INCORRECT_PASSWORD, $language_id);
+					return _("Your account is not allowed to access this feature pending review by an administrator.");
+				case ERROR_CHECKOUT_IMEI_SINGLE:
+				case ERROR_IMEI_REQUIRED:
+					return _("IMEI is required for this purchase.");
 				case STATUS_DELETED:
-					return Internationalization::translate(STRING_PAGE_UNAVAILABLE, $language_id);
-				case ERROR_TEMPLATE_TABLE:
-					return Internationalization::translate(STRING_TEMPLATE_TABLE_NO_EXISTE, $language_id);
-				case ERROR_CIRCULAR_INHERITANCE:
-					return Internationalization::translate(STRING_CIRCULAR_INHERITANCE, $language_id);
+					return _("Deletion successful.");
+				case ERROR_NULL_SERVICE:
+					return _("Undefined service.");
+				case ERROR_NULL_IMPLICIT_SVC:
+					return _("Undefined implicit service.");
+				case ERROR_DUPLICATE_ENTRY:
+					return _("Duplicate entry.");
+				case ERROR_KEY_INHERITED:
+					return _("Cycle detected.");
+				case ERROR_TRANSACTION_STATE:
+					return _("Error updating transaction state.");
+				case RESULT_TRANSACTION_UPDATED:
+					return _("Transaction update successful.");
+				case ERROR_DEADBEAT:
+					return _("Insufficient credit balance.");
+				case RESULT_SETTINGS_UPDATED:
+					return _("Your settings have been updated.");
+				case RESULT_MFA_ENABLED:
+					return _("Multifactor authentication is now enabled.");
+				case RESULT_BFP_MFA_CONFIRM:
+					return _("Enter the code from your authenticator app.");
+				case RESULT_MFA_DISABLED:
+					return _("Multifactor authentication is now disabled.");
+				case ERROR_MFA_CONFIRM:
+					return _("Invalid verification code.");
+				case RESULT_MFA_GENERATED:
+					return _("Generated a new MFA seed.");
+				case RESULT_MFA_DISPLAY:
+					return _("Displaying MFA QR code.");
 				case RESULT_BFP_IP_LOCKOUT_CONTINUED:
-					return Internationalization::translate(STRING_IP_BLOCKED_FAILED_LOGINS);
+					return _("Your IP address has been blocked due to excessive failed login attempts.");
 				case WARNING_REFILL_SUCCESS_EXPIRED:
-					return Internationalization::translate(STRING_PURCHASE_SUCCESSFUL_SESSION_TIMEOUT, $language_id);
+					return _("Your purchase was successful but your session timed out while you were authorizing payment. Please login again.");
 				case RESULT_BFP_REGISTRATION_LOCKOUT:
-					return Internationalization::translate(STRING_REGISTRATION_IP_FILTERED, $language_id);
+					return _("Your IP address has already registered an account recently; your registration attempt has been filtered to protect the server from spam.");
 				case ERROR_NULL_TOKEN:
-					return Internationalization::translate(STRING_NULL_TOKEN, $language_id);
+					return _("The hidden input for preventing repeat submissions was not submitted; tampering with POST won't accomplish anything.");
 				case RESULT_RESENT_ACTIVATION:
-					return Internationalization::translate(STRING_RESENT_ACTIVATION, $language_id);
+					return _("An email has been sent to your email address containing instructions on how to activate your account.");
 				case RESULT_ORDER_SUCCESS:
-					return Internationalization::chainTranslate($language_id, STRING_X_SUCCESSFUL, STRING_ORDER);
+					return _("Order placement successful.");
 				case INFO_LOGIN_TO_ACTIVATE:
-					return Internationalization::translate(STRING_LOGIN_TO_ACTIVATE, $language_id);
+					return _("Login to activate your account.");
 				case ERROR_NULL_MSGCLEARTEXT:
-					return Internationalization::translate(STRING_MESSAGE_DECRYPTION_FAILED, $language_id);
+					return _("Decryption failed.");
 				case STATUS_NO_NEWMSG:
-					return Internationalization::translate(STRING_NO_NEW_MESSAGES, $language_id);
+					return _("No new messages.");
 				case ERROR_NULL_MESSAGE_ID:
-					return Internationalization::translate(STRING_LAST_MESSAGE_UNDEFINED, $language_id);
+					return _("Undefined message ID.");
 				case ERROR_NULL_QUERY:
-					return Internationalization::translate(STRING_NULL_DATABASE_QUERY, $language_id);
+					return _("Undefined query statement.");
 				case ERROR_NULL_PARENT_TYPE:
-					return Internationalization::translate(STRING_PARENT_DATATYPE_UNDEFINED, $language_id);
+					return _("Undefined parent type.");
 				case ERROR_NULL_TIMESTAMP:
-					return Internationalization::chainTranslate($language_id, STRING_X_IS_UNDEFINED, STRING_TIMESTAMP);
+					return _("Timestamp is undefined.");
 				case STATUS_NEWMSG:
-					return Internationalization::chainTranslate($language_id, STRING_NEW_X, STRING_MESSAGE);
+					return _("New message");
 				case ERROR_SODIUM_KEYSIZE:
-					return Internationalization::chainTranslate($language_id, STRING_X_ERROR, STRING_SODIUM_KEYSIZE);
+					return _("Sodium keysize error.");
 				case ERROR_NULL_PRODUCT_KEY:
-					return Internationalization::chainTranslate($language_id, STRING_UNDEFINED_X, STRING_X_ID, STRING_PRODUCT);
+					return _("Undefined product key.");
 				case ERROR_NULL_PRODUCT:
-					return Internationalization::translate(STRING_NULL_PRODUCT_OBJECT, $language_id);
+					return _("Undefined product.");
 				case ERROR_NULL_USER_OBJECT:
-					return Internationalization::translate(STRING_ERROR_RETRIEVING_USER, $language_id);
+					return _("Error retrieving user data.");
 				case ERROR_ADMIN_CREDENTIALS:
-					return Internationalization::translate(STRING_NICE_TRY, $language_id);
+					return _("Nice try.");
 				case ERROR_CHILD_STATE:
-					return Internationalization::translate(STRING_ILLEGAL_CHILD_LOAD_STATE, $language_id);
-				case ERROR_NULL_PARENTCLASS:
-					return Internationalization::chainTranslate($language_id, STRING_X_IS_UNDEFINED, STRING_PARENT_X, STRING_CLASS);
-				case ERROR_IDENTICAL_KEY:
-					return Internationalization::chainTranslate($language_id, STRING_X_FAILED, STRING_X_UPDATE, STRING_UNIQUE_X, STRING_KEY);
+					return _("Illegal child load state.");
+				case ERROR_KEY_IDENTICAL:
+					return _("Error updating unique key.");
 				case STATUS_UNINITIALIZED:
 					Debug::error("{$f} unintialized data");
 					ErrorMessage::deprecated($f);
-					return Internationalization::chainTranslate($language_id, STRING_UNINITIALIZED_X, STRING_DATA);
+					return _("Unitialized data.");
 				case ERROR_NULL_CORRESPONDENT_OBJECT:
-					return Internationalization::chainTranslate($language_id, STRING_X_IS_UNDEFINED, STRING_X_OBJECT, STRING_CORRESPONDENT);
+					return _("Undefined correspondent.");
 				case ERROR_IMEI_INVALID:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_IMEI);
+					return _("Invalid IMEI.");
 				case ERROR_IMEI_NOCHANGE:
-					return Internationalization::chainTranslate($language_id, STRING_X_HAS_NOT_CHANGED, STRING_IMEI);
+					return _("IMEI has not changed.");
 				case ERROR_NOTE_UNCHANGED:
-					return Internationalization::translate(STRING_NOTHING_HERE, $language_id);
+					return _("Note unchanged.");
 				case ERROR_NULL_STRING:
-					return Internationalization::translate(STRING_EMPTY, $language_id);
+					return _("Empty string.");
 				case RESULT_NOTE_UPDATED:
-					return Internationalization::chainTranslate($language_id, STRING_X_UPDATED, STRING_NOTE);
+					return _("Note updated.");
 				case ERROR_NULL_PUBLIC_SIGNATURE_KEY:
-					return Internationalization::translate(STRING_SIGNATURE_PUBLIC_KEY_UNDEFINED, $language_id);
+					return _("Public key is undefined.");
 				case ERROR_ALREADY_DELETED:
-					return Internationalization::translate(STRING_OBJECT_ALREADY_DELETED, $language_id);
+					return _("This object has already been deleted.");
 				case ERROR_NULL_IDENTIFIER:
-					return Internationalization::translate(STRING_NULL_IDENTIFIER, $language_id);
+					return _("Null identifier.");
 				case ERROR_NOT_EXPANDED:
-					return Internationalization::chainTranslate($language_id, STRING_X_FAILED, STRING_X_EXPANSION, STRING_NODE);
+					return _("Node expansion failed.");
 				case ERROR_NULL_ORDER_KEY:
-					return Internationalization::translate(STRING_ORDER_KEY_UNDEFINED, $language_id);
-				case ERROR_ADMIN_ONLY:
-					return Internationalization::translate(STRING_EMPLOYEES_ONLY, $language_id);
+					return _("Order key undefined.");
+				case ERROR_EMPLOYEES_ONLY:
+					return _("Employees only.");
 				case RESULT_NEWS_DELETED:
-					return Internationalization::chainTranslate($language_id, STRING_X_DELETED, STRING_ARTICLE);
+					return _("Article deleted.");
 				case ERROR_PAYPAL_UNDEFINED:
-					return Internationalization::chainTranslate($language_id, STRING_X_ERROR, STRING_X_API, STRING_PAYPAL);
+					return _("PayPal API error.");
 				case ERROR_PAYPAL_PENDING_UNILATERAL:
 					return "ERROR_PAYPAL_PENDING_UNILATERAL";
 				case RESULT_BFP_WAIVER_SUCCESS:
-					return Internationalization::translate(STRING_YOU_MAY_LOGIN, $language_id);
+					return _("You may now sign in.");
 				case RESULT_BFP_IP_LOCKOUT_START:
-					return Internationalization::translate(STRING_IP_BANNED_FAILED_LOGINS, $language_id);
+					return _("Your IP address has been temporarily banned due to an excess of failed login attempts. Please try again in 10 minutes.");
 				case ERROR_NULL_SIGNATURE:
-					return Internationalization::chainTranslate($language_id, STRING_X_FAILED, STRING_X_VERIFICATION, STRING_DIGITAL_X, STRING_SIGNATURE);
+					return _("Digital signature verification failed.");
 				case ERROR_CANNOT_DISMISS:
-					return Internationalization::translate(STRING_CANNOT_DISMISS_NOTIFICATION, $language_id);
+					return _("You cannot dismiss this notification.");
 				case ERROR_NOTIFICATION_TYPE:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_X_TYPE, STRING_NOTIFICATION);
+					return _("Invalid notification type.");
 				case ERROR_ACCOUNT_DISABLED:
-					return Internationalization::translate(STRING_ACCOUNT_DISABLED, $language_id);
+					return _("Your account is disabled.");
 				case STATUS_READY_WRITE:
 					return "THIS IS NOT AN ERROR, DATA STRUCTURE IS READY TO WRITE";
 				case ERROR_FILE_SIZE:
-					return Internationalization::translate(STRING_FILE_TOO_BIG, $language_id);
+					return _("File size is too big.");
 				case ERROR_IMPOSSIBLE_VALUE:
-					return Internationalization::translate(STRING_IMPOSSIBLE_VALUE, $language_id);
+					return _("Impossible value.");
 				case ERROR_UPLOAD_NO_FILE:
-					return Internationalization::chainTranslate($language_id, STRING_X_FAILED, STRING_X_UPLOAD, STRING_FILE);
+					return _("File upload failed.");
 				case ERROR_MIME_TYPE:
-					return Internationalization::translate(STRING_ILLEGAL_MIME_TYPE, $language_id);
+					return _("Illegal MIME type.");
 				case ERROR_FILE_PARAMETERS:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_FILE_PARAMETERS);
+					return _("Invalid file parameters.");
 				case ERROR_NULL_CORRESPONDENT_KEY:
-					return Internationalization::translate(STRING_NULL_CORRESPONDENT_KEY, $language_id);
+					return _("Undefined correspondent key.");
 				case ERROR_REGISTER_EMAIL_USED:
-					return Internationalization::translate(STRING_EMAIL_UNAVAILABLE, $language_id);
+					return _("The email address you provided is unavailable for registration.");
 				case ERROR_REQUIRED_ONLOAD:
-					return Internationalization::translate(STRING_CRITICAL_DATA_UNLOADED, $language_id);
+					return _("Critical data was not loaded.");
 				case ERROR_NULL_PARENT:
-					return Internationalization::chainTranslate($language_id, STRING_UNDEFINED_X, STRING_PARENT_X, STRING_OBJECT);
+					return _("Undefined parent object.");
 				case ERROR_SENDMAIL:
-					return Internationalization::chainTranslate($language_id, STRING_X_ERROR, STRING_SENDMAIL);
+					return _("sendmail error.");
 				case ERROR_CONFIRMATION_CODE_UNDEFINED:
-					return Internationalization::chainTranslate($language_id, STRING_UNDEFINED_X, STRING_X_CODE, STRING_CONFIRMATION);
+					return _("Undefined confirmation code.");
 				case ERROR_SIGNATURE_FAILED:
-					return Internationalization::chainTranslate($language_id, STRING_X_FAILED, STRING_X_VERIFICATION, STRING_SIGNATURE);
+					return _("Signature verification failed.");
 				case ERROR_ALREADY_WAIVED:
-					return Internationalization::translate(STRING_ALREADY_WAIVED, $language_id);
+					return _("You already have a lockout waiver in effect for this IP address.");
 				case ERROR_CONFIRMATION_CODE_USED:
-					return Internationalization::translate(STRING_CONFIRMATION_CODE_USED, $language_id);
+					return _("The confirmation code you submitted has already been used.");
 				case ERROR_IPv6_UNSUPPORTED:
-					return Internationalization::translate(STRING_IPV6_UNSUPPORTED, $language_id);
+					return _("IPv6 is unsupported.");
 				case ERROR_NULL_XSRF_TOKEN:
-					return Internationalization::translate(STRING_NULL_XSRF_TOKEN, $language_id);
+					return _("Undefined anti-XSRF token.");
 				case ERROR_BLOCKED_IP_ADDRESS:
-					return Internationalization::translate(STRING_YOUR_IP_BANNED, $language_id);
+					return _("Your IP address is blocked.");
 				case ERROR_FILTER_LOCKED_OUT:
-					return Internationalization::translate(STRING_CANNOT_LOCKOUT_SELF, $language_id);
+					return _("Failed to update firewall settings. You cannot lock yourself out of your account.");
 				case RESULT_CIDR_UNMATCHED:
-					return Internationalization::chainTranslate($language_id, STRING_UNAUTHORIZED_X, STRING_IP_ADDRESS);
+					return _("Your IP address is unauthorized.");
 				case RESULT_IP_AUTHORIZED:
-					return Internationalization::chainTranslate($language_id, STRING_X_AUTHORIZED, STRING_IP_ADDRESS);
+					return _("Your IP address is authorized.");
 				case ERROR_NULL_REQUEST_ATTEMPT:
-					return Internationalization::translate(STRING_LOG_UNDEFINED, $language_id);
-				// case RESULT_BFP_WHITELIST_UNAUTHORIZED:
-				// return Internationalization::translate(STRING_UNAUTHORIZED_IP, $language_id);
+					return _("Access attempt is undefined.");
 				case ERROR_ARRAY_ENCODING:
-					return Internationalization::translate(STRING_INVALID_ARRAY_ENCODING, $language_id);
+					return _("Invalid array encoding.");
 				case ERROR_SERVER_ALREADY_INITIALIZED:
-					return Internationalization::translate(STRING_SERVER_ALREADY_INITIALIZED, $language_id);
+					return _("Server has already been initialized.");
 				case ERROR_PLZLOGIN_MESSENGER:
-					return Internationalization::translate(STRING_PLZLOGIN_MESSENGER, $language_id);
+					return _("Please log in to use the messenger.");
 				case ERROR_NULL_USECASE:
-					return Internationalization::chainTranslate($language_id, STRING_X_UNDEFINED, STRING_USE_CASE);
+					return _("Use case is undefined.");
 				case ERROR_ADMIN_FORBIDDEN:
-					return Internationalization::translate(STRING_ADMIN_FORBIDDEN, $language_id);
+					return _("This feature is of no concern to administrators.");
 				case ERROR_DEPRECATED:
-					return Internationalization::translate(STRING_FEATURE_DEPRECATED, $language_id);
+					return _("This feature is deprecated.");
 				case ERROR_PASSWORDS_UNDEFINED:
-					return Internationalization::translate(STRING_BOTH_PASSWORDS_UNDEFINED, $language_id);
+					return _("Both password fields were left empty.");
 				case ERROR_NULL_PASSWORD_HASH:
-					return Internationalization::chainTranslate($language_id, STRING_NULL_X, STRING_PASSWORD_HASH);
-				case STATUS_NOTHING_SUBMAT:
-					return Internationalization::translate(STRING_NOTHING_HERE_YET, $language_id);
+					return _("Null password hash.");
+				case STATUS_NOTHING_HERE_YET:
+					return _("Nothing to see here.");
 				case ERROR_NULL_USER_KEY:
-					return Internationalization::chainTranslate($language_id, STRING_X_UNDEFINED, STRING_X_KEY, STRING_CLIENT);
+					return _("Undefined user key.");
 				case ERROR_INVOICE_FORM_EMPTY:
-					return Internationalization::translate(STRING_ENTER_BILLING_INFO, $language_id);
+					return _("Enter billing information.");
 				case RESULT_BFP_RETRY_LOGIN:
-					return Internationalization::translate(STRING_TRY_AGAIN, $language_id);
+					return _("Try again.");
 				case ERROR_NULL_SIGNATORY:
-					return Internationalization::chainTranslate($language_id, STRING_UNDEFINED_X, STRING_SIGNATORY);
+					return _("Undefined signatory.");
 				case ERROR_NULL_TARGET_OBJECT:
-					return Internationalization::chainTranslate($language_id, STRING_NULL_X, STRING_X_OBJECT, STRING_TARGET);
+					return _("Null target object.");
 				case ERROR_ACCOUNT_DISABLED:
-					return Internationalization::translate(STRING_ACCOUNT_DISABLED, $language_id);
+					return _("Your account is disabled.");
 				case ERROR_MESSAGE_FLOOD:
-					return Internationalization::translate(STRING_SUBMISSION_REJECTED_FLOOD, $language_id);
+					return _("Your submission has been rejected because you have been flooding the server with requests.");
 				case ERROR_MESSAGE_ACCESS:
-					return Internationalization::translate(STRING_MESSENGER_PRIVILEGES_REVOKED, $language_id);
+					return _("Your messenger privileges have been provoked.");
 				case ERROR_INTEGER_OOB:
-					return Internationalization::translate(STRING_INTEGER_OOB, $language_id);
-				case STATUS_INSERT_SUCCESSFUL:
-					return Internationalization::chainTranslate($language_id, STRING_X_ACCEPTED, STRING_SUBMISSION);
+					return _("Integer out of bounds.");
+				case RESULT_SUBMISSION_ACCEPTED:
+					return _("Submission accepted.");
 				case RESULT_EDIT_COMMENT_SUCCESS:
-					return Internationalization::chainTranslate($language_id, STRING_X_SUCCESSFULLY, STRING_X_UPDATED, STRING_COMMENT);
+					return _("Successfully edited comment.");
 				case ERROR_NULL_OBJECTNUM:
-					return static::chainTranslate($language_id, STRING_X_UNDEFINED, STRING_X_NUMBER, STRING_OBJECT);
+					return _("Undefined object number.");
 				case ERROR_EXPIRED_PUSH_SUBSCRIPTION:
-					return Internationalization::chainTranslate($language_id, STRING_EXPIRED_X, STRING_PUSH_SUBSCRIPTION);
+					return _("Push subscription is expired.");
 				case ERROR_NULL_PICKUP_LOCATION_KEY:
-					return Internationalization::translate(STRING_PICKUP_LOCATION_UNDEFINED, $language_id);
 				case ERROR_NULL_DELIVERY_LOCATION_KEY:
-					return Internationalization::translate(STRING_DELIVERY_LOCATION_UNDEFINED, $language_id);
+					return _("Undefined location key.");
 				case ERROR_NO_ADDRESSES:
-					return Internationalization::translate(STRING_NO_ADDRESSES, $language_id);
+					return _("No addresses.");
 				case ERROR_ATTACHMENTS_DISABLED:
-					return Internationalization::translate(STRING_ATTACHMENTS_DISABLED, $language_id);
+					return _("Attachments disabled.");
 				case RESULT_LANGUAGE_SETTINGS_UPDATED:
-					return Internationalization::chainTranslate($language_id, STRING_X_UPDATED, STRING_X_SETTINGS, STRING_LANGUAGE);
+					return _("Language settings updated.");
 				case RESULT_CHANGEMAIL_SUBMIT:
 					$post = getInputParameters();
-					return Internationalization::translate(STRING_CHANGEMAIL_SUBMIT, $language_id, $post['emailAddress']);
+					return substitute(_("You must confirm must your new email address in order to finalize the changes to your account. Instructions on completing the process have been sent to %1%. If you cannot find the message in your inbox or spam folder please contact us directly."), $post['emailAddress']);
 				case ERROR_ACTIVATE_ALREADY_LOGGED_IN:
 					$full = new FullAuthenticationData();
 					$name = $full->getName();
-					return Internationalization::translate(STRING_ACTIVATION_PROHIBITED_ALREADY_LOGGED_IN, $language_id, $name);
+					return substitute(_("Activation prohibited: You are already logged in as %1%."), $name);
 				case RESULT_ALREADY_CREDITED:
-					return Internationalization::translate(STRING_ALREADY_CREDITED, $language_id);
-				case ERROR_USER_NOT_FOUND_POST_KEY:
 					$post = getInputParameters();
-					return Internationalization::translate(STRING_USER_NOT_FOUND_POST_KEY, $language_id, $post['uniqueKey']);
+					return substitute(_("Your account has already been credited %1% credits."), $post['quantity']);
 				case RESULT_EDITUSER_SUCCESS_POSTKEY:
 					$post = getInputParameters();
-					$settings = Internationalization::translate(STRING_X_FOR_Y, $language_id, Internationalization::translate(STRING_SETTINGS), $post['name']);
-					return Internationalization::chainTranslate($language_id, STRING_SUCCESSFULLY_X, STRING_UPDATED_X, $settings);
-				case RESULT_REFILL_SUCCESS_SESSION_QUANTITY:
-					return Internationalization::translate(STRING_REFILL_SUCCESS_SESSION_QUANTITY, $language_id);
-				case RESULT_TEMPLATE_UPDATE:
-					$post = getInputParameters();
-					return Internationalization::translate(STRING_TEMPLATE_UPDATED, $language_id, htmlspecialchars($post['name']));
-				case RESULT_TEMPLATE_INSERT:
-					$post = getInputParameters();
-					return Internationalization::translate(STRING_TEMPLATE_INSERTED, $language_id, htmlspecialchars($post['name']));
-				case ERROR_TEMPLATE_NOT_FOUND:
-					return Internationalization::chainTranslate($language_id, STRING_X_NOT_FOUND, STRING_TEMPLATE);
+					return substitute(_("Successfully updated settings for user %1%."), $post['name']);
 				case ERROR_INVALID_CURRENCY:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_CURRENCY);
+					return _("Invalid currency.");
 				case ERROR_USER_ROLE:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_USER_X, STRING_ROLE);
+					return _("Invalid user role.");
 				case ERROR_LOCATION_KEY:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_X_KEY, STRING_LOCATION);
+					return _("Invalid location key.");
 				case ERROR_APPOINTMENT_TYPE:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_X_TYPE, STRING_APPOINTMENT);
-				case RESULT_CHECKOUT_SUCCESS:
-					return Internationalization::chainTranslate($language_id, STRING_X_SUCCESSFUL, STRING_PURCHASE);
+					return _("Invalid appointment type.");
 				case ERROR_IDENTICAL_PARENTKEY:
-					return Internationalization::chainTranslate($language_id, STRING_X_IDENTICAL_TO_OLD_ONE, STRING_NEW_X, STRING_X_KEY, STRING_PARENT);
+					return _("New parent key is identical to the old one.");
 				case ERROR_HCAPTCHA:
-					return Internationalization::chainTranslate($language_id, STRING_X_FAILED, STRING_X_VERIFICATION, STRING_HCAPTCHA);
+					return _("hCaptcha verification failed.");
 				case RESULT_MANUAL_PAYMENT_SUBMITTED:
-					return Internationalization::translate(STRING_MANUAL_PAYMENT_SUBMITTED, $language_id);
+					return _("Submission accepted. You will be notified as soon as the administrator verifies payment.");
 				case ERROR_INVALID_USERNAME:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_USERNAME);
+					return _("Invalid username.");
 				case ERROR_REJECTION_REASON_REQUIRED:
-					$reason = Internationalization::chainTranslate($language_id, STRING_REASON_FOR_X, STRING_REJECTION);
-					$required = Internationalization::translate(STRING_REQUIRED, $language_id);
-					return Internationalization::translate(STRING_X_IS_Y, $language_id, $reason, $required);
+					return _("Rejection reason required.");
 				case STATUS_UNCHANGED:
-					return Internationalization::translate(STRING_NOTHING_TO_REPORT);
+					return _("Nothing to report.");
 				case ERROR_INVALID_IP_ADDRESS:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_IP_ADDRESS);
+					return _("Invalid IP address.");
 				case STATUS_DISPLAY_PROMPT:
 					return "You should be seeing a prompt instead of this error message";
 				case RESULT_IP_BANNED:
-					return Internationalization::chainTranslate($language_id, STRING_X_BANNED, STRING_IP_ADDRESS);
+					return _("IP address banned.");
 				case RESULT_DELETE_SESSIONS_SUCCESS:
-					return Internationalization::chainTranslate($language_id, STRING_SUCCESSFULLY_X, STRING_DELETED_X, STRING_SAVED_X, STRING_SESSIONS);
+					return _("Successfully deleted saved sessions.");
 				case ERROR_INVALID_MFA_OTP:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_MFA_OTP);
+					return _("Invalid MFA OTP.");
 				case ERROR_NULL_MFA_SEED:
-					return Internationalization::chainTranslate($language_id, STRING_NULL_X, STRING_MFA_SEED);
+					return _("Undefined MFA seed.");
 				case ERROR_INVALID_PASSWORD:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_PASSWORD);
+					return _("Invalid password.");
 				case ERROR_INVALID_EMAIL_ADDRESS:
-					return Internationalization::chainTranslate($language_id, STRING_INVALID_X, STRING_EMAIL_ADDRESS);
+					return _("Invalid email address.");
 				case STATUS_PRELAZYLOAD:
 					return "Lazy loading failed";
 				case ERROR_ANONYMOUS_REQUIRED:
-					return Internationalization::chainTranslate($language_id, STRING_X_ONLY, STRING_X_USERS, STRING_GUEST);
+					return _("Guest users only.");
 				case ERROR_0_SEARCH_RESULTS:
-					return Internationalization::chainTranslate(null, STRING_NO_X, STRING_RESULTS);
+					return _("No results.");
 				case RESULT_BFP_WHITELIST_UNAUTHORIZED:
 				case ERROR_IP_ADDRESS_NOT_AUTHORIZED:
-					return Internationalization::translate(STRING_X_IS_Y, null, Internationalization::translate(STRING_YOUR_X, null, Internationalization::translate(STRING_IP_ADDRESS)), Internationalization::translate(STRING_UNAUTHORIZED));
+					return _("Your IP address is unauthorized.");
 				case ERROR_KEY_COLLISION:
-					return Internationalization::chainTranslate($language_id, STRING_X_ERROR, STRING_X_COLLISION, STRING_KEY);
+					return _("Key collision error.");
 				case ERROR_FORBIDDEN:
-					return Internationalization::translate(STRING_FORBIDDEN);
+					return _("Forbidden");
 				case RESULT_BFP_USERNAME_LOCKOUT_START:
-					return "Your account has been locked";
-				case ERROR_FILE_NOT_FOUND:
-					return "File not found";*/
+					return _("Your account has been locked.");
 				default:
-					return substitute(_("Error code %1%"), $status);
+					Debug::warning("{$f} this function is being deprecated");
+					return substitute(_("Error code %1%."), $status);
 			}
 		} catch (Exception $x) {
 			x($f, $x);

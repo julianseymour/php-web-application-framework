@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\load;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
@@ -14,8 +15,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\QueryStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnNamesTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\table\FullTableNameTrait;
 
-abstract class LoadStatement extends QueryStatement
-{
+abstract class LoadStatement extends QueryStatement{
 
 	use CharacterSetTrait;
 	use DuplicateKeyHandlerTrait;
@@ -29,20 +29,20 @@ abstract class LoadStatement extends QueryStatement
 
 	protected $infilename;
 
-	public function __construct(?string $infilename = null, ...$dbtable)
-	{
-		$f = __METHOD__; //LoadStatement::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct(?string $infilename = null, ...$dbtable){
+		$f = __METHOD__;
 		parent::__construct();
 		$this->requirePropertyType('columnNames', 's');
 		$this->requirePropertyType('expressions', ExpressionCommand::class);
 		if ($infilename !== null) {
 			$this->setInfile($infilename);
 		}
-		$this->unpackTableName($dbtable);
+		if(isset($dbtable) && count($dbtable) > 0){
+			$this->unpackTableName($dbtable);
+		}
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->properties);
 		unset($this->propertyTypes);
@@ -54,16 +54,14 @@ abstract class LoadStatement extends QueryStatement
 		unset($this->tableName);
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"local"
 		]);
 	}
 
-	public function setPriority($p)
-	{
-		$f = __METHOD__; //LoadStatement::getShortClass()."(".static::getShortClass().")->setPriority()";
+	public function setPriority(?string $p):?string{
+		$f = __METHOD__;
 		if ($p == null) {
 			unset($this->priorityLevel);
 			return null;
@@ -80,9 +78,8 @@ abstract class LoadStatement extends QueryStatement
 		}
 	}
 
-	public function setInfilename($name)
-	{
-		$f = __METHOD__; //LoadStatement::getShortClass()."(".static::getShortClass().")->setInfile()";
+	public function setInfilename(?string $name):?string{
+		$f = __METHOD__;
 		if ($name == null) {
 			unset($this->infilename);
 			return null;
@@ -92,34 +89,28 @@ abstract class LoadStatement extends QueryStatement
 		return $this->infilename = $name;
 	}
 
-	public function hasInfilename()
-	{
+	public function hasInfilename():bool{
 		return isset($this->infilename);
 	}
 
-	public function getInfilename()
-	{
-		$f = __METHOD__; //LoadStatement::getShortClass()."(".static::getShortClass().")->getInfile()";
-		if (! $this->infilename) {
+	public function getInfilename():string{
+		$f = __METHOD__;if (! $this->infilename) {
 			Debug::error("{$f} infilename is undefined");
 		}
 		return $this->infilename;
 	}
 
-	public function infile($name)
-	{
+	public function infile(?string $name):LoadDataStatement{
 		$this->setInfilename($name);
 		return $this;
 	}
 
-	public function hasDuplicateKeyHandler()
-	{
+	public function hasDuplicateKeyHandler():bool{
 		return isset($this->duplicateKeyHandler) || $this->getLocalFlag();
 	}
 
-	public function getDuplicateKeyHandler()
-	{
-		$f = __METHOD__; //LoadStatement::getShortClass()."(".static::getShortClass().")->getDuplicateKeyHandler()";
+	public function getDuplicateKeyHandler():string{
+		$f = __METHOD__;
 		if (! $this->hasDuplicateKeyHandler()) {
 			Debug::error("{$f} duplicate key handler is undefined");
 		} elseif ($this->getLocalFlag()) {
@@ -127,10 +118,9 @@ abstract class LoadStatement extends QueryStatement
 		}
 		return $this->duplicateKeyHandler;
 	}
-
-	public function setIgnoreRows($count)
-	{
-		$f = __METHOD__; //LoadStatement::getShortClass()."(".static::getShortClass().")->setIgnoreRows()";
+	
+	public function setIgnoreRows(?int $count):int{
+		$f = __METHOD__;
 		if ($count == null) {
 			unset($this->ignoreRowCount);
 			return null;
@@ -142,34 +132,35 @@ abstract class LoadStatement extends QueryStatement
 		return $this->ignoreRowCount = $count;
 	}
 
-	public function hasIgnoreRows()
-	{
+	public function hasIgnoreRows():bool{
 		return isset($this->ignoreRowCount);
 	}
 
-	public function getIgnoreRows()
-	{
+	public function getIgnoreRows():int{
 		if (! $this->hasIgnoreRows()) {
 			return 0;
 		}
 		return $this->ignoreRowCount;
 	}
 
-	public function ignoreRows($count)
-	{
+	public function ignoreRows(?int $count):LoadStatement{
 		$this->setIgnoreRows($count);
 		return $this;
 	}
 
-	public function intoTable(...$dbtable): LoadStatement
-	{
-		$f = __METHOD__; //LoadStatement::getShortClass()."(".static::getShortClass().")->intoTable()";
+	public function intoTable(...$dbtable): LoadStatement{
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
+		if(!isset($dbtable)){
+			Debug::error("{$f} null input parameter");
+		}elseif($print){
+			Debug::print("{$f} input parameter : ".json_encode($dbtable));
+		}
 		$this->unpackTableName($dbtable);
 		return $this;
 	}
 
-	public function getQueryStatementString()
-	{
+	public function getQueryStatementString():string{
 		$string = "";
 		// [LOW_PRIORITY | CONCURRENT]
 		if ($this->hasPriority()) {

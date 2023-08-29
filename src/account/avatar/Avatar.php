@@ -1,10 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\avatar;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\online\OnlineStatusIndicator;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use JulianSeymour\PHPWebApplicationFramework\command\control\NodeBearingIfCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\data\GetForeignDataStructureCommand;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateElementInterface;
@@ -55,7 +57,7 @@ class Avatar extends SpanElement implements TemplateElementInterface{
 			$avatar_torso->addClassAttribute("avatar_torso");
 			$avatar_torso->setAllowEmptyInnerHTML(true);
 			$avatar_bg->appendChild($avatar_torso);
-			$pid = $context->getForeignDataStructureCommand("profileImageKey");
+			$pid = new GetForeignDataStructureCommand($context, "profileImageKey");
 			$thumb = new ProfileImageThumbnail($mode);
 			$thumb->setIdOverride("thumb");
 			$avatar_bg->resolveTemplateCommand(NodeBearingIfCommand::if(CommandBuilder::and($context->hasForeignDataStructureCommand("profileImageKey"), $pid->hasColumnValueCommand("status")))->then($avatar_bg->appendChildCommand($thumb->bindElementCommand($pid))));

@@ -111,11 +111,6 @@ function getCurrentUserKey()
 	return user()->getIdentifierValue();
 }
 
-function getCurrentUserLanguagePreference()
-{
-	return app()->getCurrentUserLanguagePreference();
-}
-
 function getInputParameter(string $name, UseCase $use_case = null)
 {
 	return request()->getInputParameter($name, $use_case);

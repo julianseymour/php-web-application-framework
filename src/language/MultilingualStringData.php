@@ -1,54 +1,133 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\language;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+use function JulianSeymour\PHPWebApplicationFramework\config;
+use function JulianSeymour\PHPWebApplicationFramework\mods;
+use JulianSeymour\PHPWebApplicationFramework\common\ElementBindableTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
-use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
-use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsSessionData;
+use JulianSeymour\PHPWebApplicationFramework\data\Datastructure;
+use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
+use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 use mysqli;
 
-abstract class MultilingualStringData extends DataStructure
-{
+class MultilingualStringData extends DataStructure implements StaticElementClassInterface{
 
-	public abstract function getStringIdentifier();
+	use ElementBindableTrait;
+	
+	public static function getDatabaseNameStatic():string{
+		return "strings";
+	}
+	
+	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string{
+		return MultilingualTextForm::class;
+	}
+	
+	public static function throttleOnInsert(): bool{
+		return false;
+	}
 
-	public abstract static function getStringTypeStatic(): string;
+	public function hasTranslatedObject():bool{
+		return $this->hasForeignDataStructure("translatedObjectKey");
+	}
 
-	public static function getDataType(): string
-	{
+	public function getTranslatedObject():string{
+		return $this->getForeignDataStructure("translatedObjectKey");
+	}
+
+	public function ejectTranslatedObjectDataType():string{
+		return $this->ejectColumnValue("translatedObjectDataType");
+	}
+
+	public function hasTranslatedObjectDataType():bool{
+		return $this->hasColumnValue("translatedObjectDataType");
+	}
+
+	public function getTranslatedObjectDataType():string{
+		return $this->getColumnValue("translatedObjectDataType");
+	}
+
+	public function setTranslatedObjectDataType(string $type):string{
+		return $this->setColumnValue("translatedObjectDataType", $type);
+	}
+
+	public function ejectTranslatedObjectKey():?string{
+		return $this->ejectColumnValue('translatedObjectKey');
+	}
+
+	public function hasTranslatedObjectKey():bool{
+		return $this->hasColumnValue('translatedObjectKey');
+	}
+
+	public function getTranslatedObjectKey():string{
+		return $this->getColumnValue('translatedObjectKey');
+	}
+
+	public function setTranslatedObjectKey(string $key):string{
+		return $this->setColumnValue('translatedObjectKey', $key);
+	}
+
+	public function setTranslatedObjectSubtype(string $subtype):string{
+		return $this->setColumnValue("translatedObjectSubtype", $subtype);
+	}
+	
+	public function hasTranslatedObjectSubtype():bool{
+		return $this->hasColumnValue("translatedObjectSubtype");
+	}
+	
+	public function getTranslatedObjectSubtype():string{
+		return $this->getColumnValue("translatedObjectSubtype");
+	}
+	
+	public function getTranslatedObjectClass():string{
+		if(!$this->hasTranslatedObjectSubtype()){
+			return mods()->getDataStructureClass(
+				$this->getTranslatedObjectDataType(), 
+				$this->getTranslatedObjectSubtype()
+			);
+		}
+		return mods()->getDataStructureClass($this->getTranslatedObjectDataType());
+	}
+
+	public function setTranslatedObject(DataStructure $obj):DataStructure{
+		$this->setTranslatedObjectKey($obj->getIdentifierValue());
+		$this->setTranslatedObjectDataType($obj->getDataType());
+		return $this->setForeignDataStructure('translatedObjectKey', $obj);
+	}
+
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		parent::declareColumns($columns, $ds);
+		$components = [];
+		$supported = config()->getSupportedLanguages();
+		foreach ($supported as $language) {
+			$content = new TextDatum($language, $language);
+			//$content->setBBCodeFlag(true);
+			$content->setFulltextFlag(true);
+			$hrvn = Internationalization::getLanguageNameFromCode($language);
+			$content->setHumanReadableName($hrvn);
+			$content->setAdminInterfaceFlag(true);
+			$content->setNullable(true);
+			array_push($components, $content);
+		}
+		$foreign_bundle = new ForeignMetadataBundle("translatedObject", $ds);
+		$foreign_bundle->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_ONE);
+		$foreign_bundle->setForeignDataStructureClassResolver(TranslatableObjectResolver::class);
+		$foreign_bundle->setOnUpdate($foreign_bundle->setOnDelete(REFERENCE_OPTION_CASCADE));
+		$foreign_bundle->constrain();
+		$foreign_bundle->setNullable(true);
+		static::pushTemporaryColumnsStatic($columns, $foreign_bundle, ...$components);
+	}
+	
+	public static function getDataType(): string{
 		return DATATYPE_STRING;
 	}
-
-	public final function hasSubtypeValue(): bool
-	{
-		return true;
-	}
-
-	public static function getSubtypeStatic(): string
-	{
-		return static::getStringTypeStatic();
-	}
-
-	public function getLocalizedStringDatum()
-	{
-		// $f = __METHOD__;
-		$session = new LanguageSettingsSessionData();
-		$language = $session->getLanguageCode();
-		return $this->getColumn($language);
-	}
-
-	public function getLocalizedString()
-	{
-		return $this->getLocalizedStringDatum()->getHumanReadableValue();
-	}
-
-	public static function getDeledObjectClass()
-	{
+	
+	public static function getDeledObjectClass(){
 		return DeletedStringData::class;
 	}
-
-	protected function beforeInsertHook(mysqli $mysqli): int
-	{
+	
+	protected function beforeInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
 		$english = $this->getColumnValue(LANGUAGE_DEFAULT);
 		if (empty($english)) {
@@ -57,65 +136,12 @@ abstract class MultilingualStringData extends DataStructure
 		}
 		return parent::beforeInsertHook($mysqli);
 	}
-
-	public static function normalize()
-	{
-		return false;
-	}
-
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
-		// $f = __METHOD__;
-		$bundle = new MultilingualStringBundle("localized");
-		if (static::normalize()) {
-			$bundle->setNormalizeFlag(true);
-		}
-		parent::declareColumns($columns, $ds);
-		static::pushTemporaryColumnsStatic($columns, $bundle);
-	}
-
-	public function getSpanishString()
-	{
-		return $this->getColumnValue(LANGUAGE_SPANISH);
-	}
-
-	public function hasSpanishString()
-	{
-		return $this->hasColumnValue(LANGUAGE_SPANISH);
-	}
-
-	public function setSpanishString($spanish)
-	{
-		return $this->setColumnValue(LANGUAGE_SPANISH, $spanish);
-	}
-
-	public function getEnglishString()
-	{
-		return $this->getColumnValue(LANGUAGE_ENGLISH);
-	}
-
-	public function hasEnglishString()
-	{
-		return $this->hasColumnValue(LANGUAGE_ENGLISH);
-	}
-
-	public function setEnglishString($english)
-	{
-		return $this->setColumnValue(LANGUAGE_ENGLISH, $english);
-	}
-
-	public function getName()
-	{
-		return _("Multilingual string");
-	}
-
-	public static function getPhylumName(): string
-	{
+	
+	public static function getPhylumName(): string{
 		return "strings";
 	}
-
-	public static function getTableNameStatic(): string
-	{
-		return "multilingual_strings";
+	
+	public static function getTableNameStatic(): string{
+		return "strings";
 	}
 }

@@ -1,5 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\where;
+
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+
+ErrorMessage::deprecated(__FILE__);
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
@@ -14,43 +19,28 @@ use Exception;
  * @author j
  *        
  */
-class LazyWhereCondition extends WhereCondition
-{
-
-	// use SelectStatementTrait;
-
-	/*
-	 * public function __construct($varname, $operator, $typedef, $selectStatement){
-	 * parent::__construct($varname, $operator, $typedef);
-	 * $this->setSelectStatement($selectStatement);
-	 * }
-	 */
-	public static function declareFlags(): array
-	{
+class LazyWhereCondition extends WhereCondition{
+	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
 			"disabled"
 		]);
 	}
 
-	public function setDisabledFlag($value = true)
-	{
+	public function setDisabledFlag($value = true){
 		return $this->setFlag("disabled", $value);
 	}
 
-	public function getDisabledFlag()
-	{
+	public function getDisabledFlag(){
 		return $this->getFlag("disabled");
 	}
 
-	public function disable()
-	{
+	public function disable(){
 		$this->setDisabledFlag(true);
 		return $this;
 	}
 
-	public function getPreliminaryQueryResults($mysqli)
-	{
-		$f = __METHOD__; //LazyWhereCondition::getShortClass()."(".static::getShortClass().")->getPreliminaryQueryResults()";
+	public function getPreliminaryQueryResults($mysqli){
+		$f = __METHOD__;
 		$query = $this->getSelectStatement();
 		$result = $query->executeGetResult($mysqli);
 		$count = $result->num_rows;
@@ -61,30 +51,8 @@ class LazyWhereCondition extends WhereCondition
 		return $result->fetch_all(MYSQLI_ASSOC);
 	}
 
-	/*
-	 * public function inferParameterCount():int{
-	 * $f = __METHOD__; //LazyWhereCondition::getShortClass()."(".static::getShortClass().")->inferParameterCount()";
-	 * if(!$this->hasParameterCount()){
-	 * $operator = $this->getOperator();
-	 * switch($operator){
-	 * case OPERATOR_IN:
-	 * case OPERATOR_NOT_IN:
-	 * return $this->getSelectStatement()->inferParameterCount();
-	 * default:
-	 * }
-	 * }
-	 * return $this->getParameterCount();
-	 * }
-	 */
-
-	/*
-	 * public function getSuperflatWhereConditionArray():?array{
-	 * return $this->getSelectStatement()->getSuperflatWhereConditionArray();
-	 * }
-	 */
-	public function toSQL(): string
-	{
-		$f = __METHOD__; //LazyWhereCondition::getShortClass()."(".static::getShortClass().")->toSQL()";
+	public function toSQL(): string{
+		$f = __METHOD__;
 		try {
 			if ($this->getDisabledFlag()) {
 				$cn = $this->getColumnName();
@@ -97,18 +65,4 @@ class LazyWhereCondition extends WhereCondition
 			x($f, $x);
 		}
 	}
-
-	public function audit(): int
-	{
-		return $this->getDisabledFlag() ? FAILURE : SUCCESS;
-	}
-
-	/*
-	 * public function mySQLFormat(){
-	 * if(!$this->hasSelectStatement()){
-	 * return SUCCESS;
-	 * }
-	 * return $this->getSelectStatement()->mySQLFormat();
-	 * }
-	 */
 }

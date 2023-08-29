@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\array_key_last;
@@ -21,85 +22,80 @@ use Exception;
 use finfo;
 use mysqli;
 
-abstract class FileData extends UserOwned implements CacheableInterface
-{
+abstract class FileData extends UserOwned implements CacheableInterface{
 
 	use CacheableTrait;
 
 	protected $fileContents;
 
-	public abstract function setOriginalFilename($name);
+	public abstract function setOriginalFilename(string $name):string;
 
-	public abstract function hasOriginalFilename();
+	public abstract function hasOriginalFilename():bool;
 
-	public abstract function getOriginalFilename();
+	public abstract function getOriginalFilename():string;
 
-	public abstract function setMimeType($mime);
+	public abstract function setMimeType(string $mime):string;
 
-	public abstract function hasMimeType();
+	public abstract function hasMimeType():bool;
 
-	public abstract function getMimeType();
+	public abstract function getMimeType():string;
 
-	public abstract function setFilename($name);
+	public abstract function setFilename(string $name):string;
 
-	public abstract function hasFilename();
+	public abstract function hasFilename():bool;
 
-	public abstract function getFilename();
+	public abstract function getFilename():string;
 
 	public abstract function setSize($size);
 
-	public abstract function hasSize();
+	public abstract function hasSize():bool;
 
 	public abstract function getSize();
 
 	public abstract function getFileToWrite();
 
-	public abstract function getFullFileDirectory();
+	public abstract function getFullFileDirectory():string;
 
-	public abstract function getWebFileDirectory();
+	public abstract function getWebFileDirectory():string;
 
-	public function getFullFilePath()
-	{
+	public function getFullFilePath():string{
 		return $this->getFullFileDirectory() . "/" . $this->getFilename();
 	}
 
-	public static final function getDataType(): string
-	{
+	public static final function getDataType(): string{
 		return DATATYPE_FILE;
 	}
 
-	public final function hasSubtypeValue(): bool
-	{
+	public final function hasSubtypeValue(): bool{
 		return true;
 	}
 
-	public function hasUploadDirectory()
-	{
+	public static function getDatabaseNameStatic():string{
+		return "files";
+	}
+	
+	public function hasUploadDirectory():bool{
 		return $this->hasColumnValue("uploadDirectory");
 	}
 
-	public function setUploadDirectory($ud)
-	{
+	public function setUploadDirectory(string $ud):string{
 		return $this->setColumnValue("uploadDirectory", $ud);
 	}
 
-	public function getUploadDirectory()
-	{
-		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getUploadDirectory():string{
+		$f = __METHOD__;
 		if (! $this->hasUploadDirectory()) {
 			Debug::error("{$f} upload directory is undefined");
 		}
 		return $this->getColumnValue("uploadDirectory");
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "files";
 	}
 
-	protected function beforeInsertHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	protected function beforeInsertHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		if (! $this->hasSize()) {
 			Debug::error("{$f} size is undefined");
 		}
@@ -113,9 +109,8 @@ abstract class FileData extends UserOwned implements CacheableInterface
 	 *        	: X-Attachment-Id
 	 * @return string
 	 */
-	public function attach($id = null)
-	{
-		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function attach($id = null):string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$cache = false;
@@ -360,9 +355,8 @@ abstract class FileData extends UserOwned implements CacheableInterface
 		return $this->getColumnValue("uploadedTempFilename");
 	}
 
-	protected function writeFile()
-	{
-		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	protected function writeFile(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -376,7 +370,6 @@ abstract class FileData extends UserOwned implements CacheableInterface
 			if ($print) {
 				Debug::print("{$f} file size is {$size} bytes");
 			}
-			$full_path = $this->getFullFilePath();
 			$directory = $this->getFullFileDirectory();
 			if (! is_dir($directory)) {
 				if ($print) {
@@ -384,6 +377,7 @@ abstract class FileData extends UserOwned implements CacheableInterface
 				}
 				mkdir($directory, 0755, true);
 			}
+			$full_path = $this->getFullFilePath();
 			if ($print) {
 				Debug::print("{$f} about to write to file path \"{$full_path}\"");
 			}
@@ -401,13 +395,11 @@ abstract class FileData extends UserOwned implements CacheableInterface
 		}
 	}
 
-	public function getUploadedTempFileSize()
-	{
+	public function getUploadedTempFileSize(){
 		return $this->getColumnValue("uploadedTempFileSize");
 	}
 
-	public function setUploadedTempFileSize($size)
-	{
+	public function setUploadedTempFileSize($size){
 		return $this->setColumnValue("uploadedTempFileSize", $size);
 	}
 

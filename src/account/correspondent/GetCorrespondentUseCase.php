@@ -1,8 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\correspondent;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
@@ -16,16 +17,13 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 use mysqli;
 
-class GetCorrespondentUseCase extends UseCase
-{
+class GetCorrespondentUseCase extends UseCase{
 
-	public function hasImplicitParameter(string $name): bool
-	{
+	public function hasImplicitParameter(string $name): bool{
 		return $this->getPredecessor()->hasImplicitParameter($name);
 	}
 
-	public function getImplicitParameter(string $name)
-	{
+	public function getImplicitParameter(string $name){
 		return $this->getPredecessor()->getImplicitParameter($name);
 	}
 
@@ -35,9 +33,8 @@ class GetCorrespondentUseCase extends UseCase
 	 * @param UseCase $that
 	 * @return UserData
 	 */
-	public function execute(): int
-	{
-		$f = __METHOD__; //GetCorrespondentUseCase::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function execute(): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (user()->hasCorrespondentObject()) {
@@ -97,23 +94,15 @@ class GetCorrespondentUseCase extends UseCase
 		}
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		ErrorMessage::unimplemented(f(static::class));
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return SUCCESS;
-	}
-
-	public function getUseCaseId()
-	{
-		return USE_CASE_GET_CORRESPONDENT;
 	}
 }

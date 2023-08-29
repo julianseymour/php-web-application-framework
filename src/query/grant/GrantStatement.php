@@ -12,8 +12,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\role\MultipleRolesTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\role\RoleStatementTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\table\FullTableName;
 
-class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInterface
-{
+class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInterface{
 
 	use MultipleRolesTrait;
 	use RoleStatementTrait;
@@ -21,16 +20,14 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 
 	protected $asUsername;
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"admin",
 			"grant"
 		]);
 	}
 
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
 		return [
 			"roles" => 's',
 			"privileges" => DatabasePrivilege::class,
@@ -38,25 +35,21 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 		];
 	}
 
-	public function setGrantOptionFlag($value = true)
-	{
+	public function setGrantOptionFlag($value = true){
 		return $this->setFlag("grant");
 	}
 
-	public function getGrantOptionFlag()
-	{
+	public function getGrantOptionFlag(){
 		return $this->getFlag("grant");
 	}
 
-	public function withGrantOption()
-	{
+	public function withGrantOption(){
 		$this->setGrantOptionFlag(true);
 		return $this;
 	}
 
-	public function setAsUsername($name)
-	{
-		$f = __METHOD__; //GrantStatement::getShortClass()."(".static::getShortClass().")->setAsUsername()";
+	public function setAsUsername($name){
+		$f = __METHOD__;
 		if ($name == null) {
 			unset($this->asUsername);
 			return null;
@@ -70,47 +63,40 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 		return $this->asUsername = $name;
 	}
 
-	public function hasAsUsername()
-	{
+	public function hasAsUsername(){
 		return isset($this->asUsername);
 	}
 
-	public function getAsUsername()
-	{
-		$f = __METHOD__; //GrantStatement::getShortClass()."(".static::getShortClass().")->getAsUsername()";
+	public function getAsUsername(){
+		$f = __METHOD__;
 		if (! $this->hasAsUsername()) {
 			Debug::error("{$f} as username is undefined");
 		}
 		return $this->asUsername;
 	}
 
-	public function setAdminOptionFlag($value = true)
-	{
+	public function setAdminOptionFlag($value = true){
 		return $this->setFlag("admin", $value);
 	}
 
-	public function getAdminOptionFlag()
-	{
+	public function getAdminOptionFlag(){
 		return $this->getFlag("admin");
 	}
 
-	public function withAdminOption()
-	{
+	public function withAdminOption(){
 		$this->setAdminOptionFlag(true);
 		return $this;
 	}
 
-	public function to(...$users): GrantStatement
-	{
+	public function to(...$users): GrantStatement{
 		$this->setUsers([
 			...$users
 		]);
 		return $this;
 	}
 
-	public function getQueryStatementString()
-	{
-		$f = __METHOD__; //GrantStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
+	public function getQueryStatementString(){
+		$f = __METHOD__;
 		// GRANT
 		$string = "grant ";
 		if ($this->hasPrivileges()) {

@@ -1,10 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\guest;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+use function JulianSeymour\PHPWebApplicationFramework\default_lang_ip;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
@@ -20,8 +21,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\event\AfterRespondEvent;
-use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
-use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsSessionData;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
 use JulianSeymour\PHPWebApplicationFramework\security\throttle\GenericThrottleMeter;
 use JulianSeymour\PHPWebApplicationFramework\session\resume\SessionRecoveryData;
 use Exception;
@@ -208,14 +208,14 @@ class AnonymousUser extends PlayableUser{
 			// Debug::print("{$f} entered; about to call parent function");
 			parent::__construct($mode);
 			$this->setAccountType($this->getAccountTypeStatic());
-			$session = new LanguageSettingsSessionData();
+			$session = new LanguageSettingsData();
 			if ($session->hasLanguageCode()) {
 				// Debug::print("{$f} language code is already defined");
 				$this->setLanguagePreference($session->getLanguageCode());
 				return;
 			}
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : SERVER_PUBLIC_IP_ADDRESS;
-			$language = Internationalization::getLanguageFromIpAddress($ip);
+			$language = default_lang_ip($ip);
 			$session->setLanguageCode($this->setLanguagePreference($language));
 			// Debug::print("{$f} returned from parent function");
 		} catch (Exception $x) {
@@ -257,6 +257,8 @@ class AnonymousUser extends PlayableUser{
 			if ($session->hasDeterministicSecretKey()) {
 				$session->ejectDeterministicSecretKey();
 			}
+			$lsd = new LanguageSettingsData();
+			$this->setRegionCode($lsd->getRegionCode());
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			if (! isset($mysqli)) {
 				Debug::warning("{$f} mysqli object returned null");
@@ -298,7 +300,7 @@ class AnonymousUser extends PlayableUser{
 				$user = $this;
 				if(app()->hasWorkflow()){
 					app()->getWorkflow()->addEventListener(EVENT_AFTER_RESPOND, function (AfterRespondEvent $event, Workflow $target) use ($f, $print, $user) {
-						$mysqli = db()->getConnection(PublicWriteCredentials::class);
+						$mysqli = db()->reconnect(PublicWriteCredentials::class);
 						$status = $user->throttledInsert($mysqli);
 						if ($status !== SUCCESS) {
 							$err = ErrorMessage::getResultMessage($status);
@@ -411,7 +413,7 @@ class AnonymousUser extends PlayableUser{
 		}
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Anonymous user");
 	}
 
@@ -419,7 +421,7 @@ class AnonymousUser extends PlayableUser{
 		return null;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Anonymous users");
 	}
 }

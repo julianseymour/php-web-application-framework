@@ -9,7 +9,11 @@ abstract class AuthenticationCookie extends DataStructure{
 
 	protected abstract static function getReauthenticationKeyColumnName();
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getDatabaseNameStatic():string{
+		return "error";
+	}
+	
+	public static function getPrettyClassName():string{
 		return _("Reauthentication cookie");
 	}
 
@@ -21,7 +25,7 @@ abstract class AuthenticationCookie extends DataStructure{
 		return DATATYPE_UNKNOWN;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Reauthentication cookies");
 	}
 

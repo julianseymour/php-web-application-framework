@@ -67,11 +67,11 @@ abstract class DatabaseCredentials extends UserOwned{
 		static::pushTemporaryColumnsStatic($columns, $name, $host);
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Database credentials");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
-		return static::getPrettyClassName($lang);
+	public static function getPrettyClassNames():string{
+		return static::getPrettyClassName();
 	}
 }

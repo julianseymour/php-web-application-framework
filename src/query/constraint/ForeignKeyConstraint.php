@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\query\constraint;
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
 use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayKeyProviderInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnNamesTrait;

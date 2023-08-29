@@ -1,18 +1,20 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
+use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\attributes\AutocompleteAttributeTrait;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
 use Exception;
 
-abstract class KeypadInput extends InputElement
-{
+abstract class KeypadInput extends InputElement{
 
 	use AutocompleteAttributeTrait;
 
@@ -22,20 +24,47 @@ abstract class KeypadInput extends InputElement
 
 	public function configure(AjaxForm $form): int{
 		$f = __METHOD__;
-		$ret = parent::configure($form);
 		$print = false;
+		if($print){
+			$did = $this->getDebugId();
+			$decl = $this->getDeclarationLine();
+			if($this->getFlag("configured")){
+				Debug::error("{$f} gotcha. Debug ID is {$did}. Instantiated {$decl}");
+			}else{
+				Debug::printStackTraceNoExit("{$f} entered. Debug ID is {$did}. Instantiated {$decl}");
+				$this->setFlag("configured", true);
+			}
+		}
+		$ret = parent::configure($form);
+		$print = $this->getDebugFlag();
 		if ($this->hasContext()) {
 			$datum = $this->getContext();
 			$cn = $datum->getColumnName();
 		} else {
 			$cn = "[undefined]";
 		}
-		if ($this->hasLabelString()) {
+		if(!$this->hasLabelString() && $this->hasContext()){
+			$context = $this->getContext();
+			if($context instanceof Datum && $context->hasHumanReadableName()){
+				if($print){
+					Debug::print("{$f} setting label string from context's human readable name");
+				}
+				$hrvn = $context->getHumanReadableName();
+				$this->setLabelString(substitute(_("Enter %1%"), $hrvn));
+			}
+		}elseif($print){
+			Debug::print("{$f} context is undefined, or label string is already set");
+		}
+		if($this->hasLabelString()){
 			if ($print) {
 				Debug::print("{$f} label string is defined");
 			}
-			$hrvn = $this->getLabelString(); // datum->getHumanReadableName();
-			if ($this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK) {
+			$hrvn = $this->getLabelString();
+			if (
+				$this->hasPlaceholderMode() && 
+				$this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK || 
+				config()->getDefaultPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK
+			){
 				if ($print) {
 					Debug::print("{$f} placeholder mode is \"shrink\"");
 				}
@@ -54,32 +83,23 @@ abstract class KeypadInput extends InputElement
 					} elseif ($print) {
 						Debug::print("{$f} input already has a wrapper");
 					}
-					//if (! $this->hasSuccessors()) {
-						if ($print) {
-							Debug::print("{$f} input does not already have successors");
-						}
-						$span = new SpanElement($this->getAllocationMode());
-						$span->addClassAttribute("placeholder_label");
-						// $span->setForAttribute($this->getIdAttribute());
-						$span->setInnerHTML($hrvn);
-						$this->unshiftSuccessors($span);
-					/*} elseif ($print) {
-						Debug::print("{$f} input already has successors");
-					}*/
+					$span = new SpanElement($this->getAllocationMode());
+					$span->addClassAttribute("placeholder_label");
+					$span->setInnerHTML($hrvn);
+					$this->unshiftSuccessors($span);
 				} elseif ($print) {
 					Debug::print("{$f} this is a range input");
 				}
-			} else {
+			} elseif($this->hasPlaceholderMode() && $this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL || config()->getDefaultPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL){
 				if ($print) {
-					Debug::print("{$f} placeholder mode is something besides shrink");
+					Debug::print("{$f} normal placeholders");
 				}
 				if (! $this->hasPlaceholderAttribute()) {
-					$this->setPlaceholderAttribute(substitute(_("Enter %1%"), $hrvn));
+					$this->setPlaceholderAttribute($hrvn);
 				} elseif ($print) {
 					Debug::print("{$f} placeholder attribute is already defined");
 				}
 			}
-			// $this->setPlaceholderAttribute("");
 		} elseif ($print) {
 			Debug::print("{$f} input for column \"{$cn}\" does not have a label string");
 		}

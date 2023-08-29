@@ -1,21 +1,19 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\user;
 
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\role\DatabaseRoleData;
 
-trait MultipleDatabaseUserDefinitionsTrait
-{
+trait MultipleDatabaseUserDefinitionsTrait{
 
 	use ArrayPropertyTrait;
 
-	public function setUsers($values)
-	{
+	public function setUsers($values){
 		return $this->setArrayProperty("users", $values);
 	}
 
-	public function hasUsers()
-	{
+	public function hasUsers(){
 		return $this->hasArrayProperty("users");
 	}
 
@@ -23,33 +21,27 @@ trait MultipleDatabaseUserDefinitionsTrait
 	 *
 	 * @return DatabaseRoleData[]
 	 */
-	public function getUsers()
-	{
+	public function getUsers(){
 		return $this->getProperty("users");
 	}
 
-	public function getUser($i): DatabaseRoleData
-	{
+	public function getUser($i): DatabaseRoleData{
 		return $this->getArrayPropertyValue("users", $i);
 	}
 
-	public function pushUsers(...$values)
-	{
+	public function pushUsers(...$values){
 		return $this->pushArrayProperty("users", ...$values);
 	}
 
-	public function mergeUsers($values)
-	{
+	public function mergeUsers($values){
 		return $this->mergeArrayProperty("users", $values);
 	}
 
-	public function getUserCount()
-	{
+	public function getUserCount(){
 		return $this->getArrayPropertyCount("users");
 	}
 
-	public function user(...$values)
-	{
+	public function user(...$values){
 		$this->setUsers($values);
 		return $this;
 	}

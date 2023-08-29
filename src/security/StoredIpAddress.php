@@ -10,6 +10,10 @@ use JulianSeymour\PHPWebApplicationFramework\security\firewall\CidrIpAddressDatu
 
 class StoredIpAddress extends UserFingerprint{
 
+	public static function hasSubtypeStatic():bool{
+		return true;
+	}
+	
 	public static function getIPAddressTypeStatic(): string{
 		return CONST_UNDEFINED;
 	}
@@ -67,11 +71,11 @@ class StoredIpAddress extends UserFingerprint{
 		return $this->getIPAddress();
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("IP address");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("IP addresses");
 	}
 

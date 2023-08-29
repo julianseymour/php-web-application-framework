@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\db\load;
 
 use function JulianSeymour\PHPWebApplicationFramework\cache;
@@ -13,29 +14,25 @@ use Exception;
 use mysqli;
 use JulianSeymour\PHPWebApplicationFramework\app\InstallFrameworkUseCase;
 
-class LazyLoadingQueue extends Basic
-{
+class LazyLoadingQueue extends Basic{
 
 	use LoadedFlagTrait;
 
 	protected $deferredObjectMap;
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"loaded"
 		]);
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->deferredObjectMap);
 	}
 
-	public function defer($object): int
-	{
-		$f = __METHOD__; //LazyLoadingQueue::getShortClass()."(".static::getShortClass().")->defer()";
+	public function defer($object): int{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->getLoadedFlag()) {
 			Debug::error("{$f} this lazy loader has already been used");
@@ -63,9 +60,8 @@ class LazyLoadingQueue extends Basic
 		return SUCCESS;
 	}
 
-	public function load(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //LazyLoadingQueue::getShortClass()."(".static::getShortClass().")->load()";
+	public function load(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($this->getLoadedFlag()) {
@@ -81,8 +77,6 @@ class LazyLoadingQueue extends Basic
 					$loadMap[$dbtable] = [
 						$key => $object
 					];
-					// $ftn = new FullTableName($db, $table);
-					// $full_table_names[$dbtable] = $ftn;
 				} else {
 					$loadMap[$dbtable][$key] = $object;
 				}
@@ -104,18 +98,9 @@ class LazyLoadingQueue extends Basic
 					Debug::print("{$f} about to query \"{$select}\"");
 				}
 				$select->pushParameters(...$keys);
-				$typedef = Loadout::assignTypeSpecifier(get_class($first_object), $select); //.str_pad('', count($keys), 's');
+				$typedef = Loadout::assignTypeSpecifier(get_class($first_object), $select);
 				$select->setTypeSpecifier($typedef);
-				
-				if($print){
-					$typedef = $select->getTypeSpecifier();
-					Debug::print("{$f} type specifier is {$typedef}, parameters are as follows");
-					Debug::printArray($select->getParameters());
-					$install = new InstallFrameworkUseCase();
-					$install->insertSpecialTemplatePlaceholders($mysqli);
-				}
-				
-				$result = $select->executeGetResult($mysqli); //prepareBindExecuteGetResult($mysqli, $typedef, ...$keys);
+				$result = $select->executeGetResult($mysqli);
 				if (! isset($result)) {
 					Debug::error("{$f} retuls of query {$select} returned null");
 					return $this->setObjectStatus(ERROR_MYSQL_RESULT);
@@ -151,7 +136,7 @@ class LazyLoadingQueue extends Basic
 					if (CACHE_ENABLED && $load_me->hasTimeToLive()) {
 						cache()->setAPCu($key, $r, $load_me->getTimeToLive());
 					} elseif ($print) {
-						Debug::print("{$f} redis cache is disabled, or object with key \"{$key}\" does not have a time to live");
+						Debug::print("{$f} cache is disabled, or object with key \"{$key}\" does not have a time to live");
 					}
 				}
 			}
@@ -178,9 +163,6 @@ class LazyLoadingQueue extends Basic
 					}
 					continue;
 				}
-
-				// $object->createAssociatedTables($mysqli); //XXX temp
-
 				$status = $object->loadForeignDataStructures($mysqli, true, 3);
 				$object->setObjectStatus($status);
 				if ($status !== SUCCESS) {
@@ -196,7 +178,7 @@ class LazyLoadingQueue extends Basic
 						$oc = $object->getClass();
 						Debug::print("{$f} {$oc} with key \"{$key}\" not found");
 					}
-					$object->loadFailureHook(); // setObjectStatus(STATUS_DELETED);
+					$object->loadFailureHook();
 				}
 				$idn = $object->getIdentifierName();
 				if ($object->hasColumn($idn) && ! ($object->getKeyGenerationMode() === KEY_GENERATION_MODE_NATURAL && $object->getColumn($idn) instanceof ForeignKeyDatum) && $object->hasIdentifierValue()) {

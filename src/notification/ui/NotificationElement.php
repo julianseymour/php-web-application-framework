@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\ui;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -22,9 +23,8 @@ abstract class NotificationElement extends DivElement
 
 	public abstract function getNotificationTitle();
 
-	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
-	{
-		$f = __METHOD__; //NotificationElement::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
+		$f = __METHOD__;
 		try {
 			$this->setIdOverride("note");
 			parent::__construct($mode, $context);
@@ -77,24 +77,20 @@ abstract class NotificationElement extends DivElement
 		return $notification_datetime;
 	}
 
-	public function getNotificationDateTimeDismissalContainer()
-	{
+	public function getNotificationDateTimeDismissalContainer(){
 		return $this->getNotificationDateTime();
 	}
 
-	public static function getIdSuffixName()
-	{
+	public static function getIdSuffixName(){
 		return NotificationData::getIdentifierNameStatic();
 	}
 
-	public static function getIdAttributeStatic($context)
-	{
+	public static function getIdAttributeStatic($context){
 		return new ConcatenateCommand("notification-", $context->getIdAttributeSuffixCommand());
 	}
 
-	public function bindContext($context)
-	{
-		$f = __METHOD__; //NotificationElement::getShortClass()."(".static::getShortClass().")->bindContext()";
+	public function bindContext($context){
+		$f = __METHOD__;
 		$context = parent::bindContext($context);
 		$this->setAttribute("count", $context->getColumnValueCommand("notificationCount"));
 		$this->setIdAttribute($this->getIdAttributeStatic($context));
@@ -103,9 +99,8 @@ abstract class NotificationElement extends DivElement
 		return $context;
 	}
 
-	public function generateChildNodes(): ?array
-	{
-		$f = __METHOD__; //NotificationElement::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
+	public function generateChildNodes(): ?array{
+		$f = __METHOD__;
 		try {
 			$notification_content = $this->getNotificationContent();
 			$this->appendChild($notification_content);
@@ -117,9 +112,8 @@ abstract class NotificationElement extends DivElement
 		}
 	}
 
-	public function getNotificationOptions()
-	{
-		$f = __METHOD__; //NotificationElement::getShortClass()."(".static::getShortClass().")->getNotificationOptions()";
+	public function getNotificationOptions(){
+		$f = __METHOD__;
 		$options = [
 			'body' => $this->getNotificationPreview(),
 			'icon' => '/images/smiley.png',
@@ -129,8 +123,7 @@ abstract class NotificationElement extends DivElement
 		return $options;
 	}
 
-	public static function isTemplateworthy(): bool
-	{
+	public static function isTemplateworthy(): bool{
 		return true;
 	}
 }

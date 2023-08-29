@@ -1,16 +1,16 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\cache;
 
-interface CacheableInterface
-{
+interface CacheableInterface{
 
-	function getCacheKey();
+	function getCacheKey():string;
 
-	function hasCacheKey();
+	function hasCacheKey():bool;
 
-	function setCacheKey($key);
+	function setCacheKey(?string $key):?string;
 
-	function withCacheKey($key);
+	function withCacheKey(?string $key):CacheableInterface;
 
 	function setAPCuCacheFlag(bool $value = true): bool;
 
@@ -20,12 +20,12 @@ interface CacheableInterface
 
 	function getFileCacheFlag(): bool;
 
-	function isCacheable();
+	function isCacheable():bool;
 
 	function getTimeToLive(): int;
 
 	function hasTimeToLive(): bool;
 
 	function setTimeToLive(?int $duration): ?int;
-	// function toArray($config=null);
+
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -6,8 +7,9 @@ use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\mods;
+use function JulianSeymour\PHPWebApplicationFramework\registry;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\NormalUser;
@@ -23,13 +25,13 @@ use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicReadCredential
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\event\AfterRespondEvent;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\DetectLocaleUseCase;
 use JulianSeymour\PHPWebApplicationFramework\query\QueryBuilder;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use JulianSeymour\PHPWebApplicationFramework\session\resume\GuestSessionRecoveryCookie;
 use JulianSeymour\PHPWebApplicationFramework\session\resume\SessionRecoveryCookie;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
-use function JulianSeymour\PHPWebApplicationFramework\registry;
 
 /**
  * This is a helper class to move authentication-related functionality into its own UseCase and make it easier to substitute the authentication mechanism.
@@ -46,9 +48,8 @@ class AuthenticateUseCase extends UseCase
 	 *
 	 * @return AuthenticatedUser|NULL
 	 */
-	public static function getAllegedCurrentUser($mysqli, $mode = LOGIN_TYPE_UNDEFINED): ?PlayableUser
-	{
-		$f = __METHOD__; //AuthenticateUseCase::getShortClass()."(".static::getShortClass().")::getAllegedCurrentUser()";
+	public static function getAllegedCurrentUser($mysqli, $mode = LOGIN_TYPE_UNDEFINED): ?PlayableUser{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (! isset($mysqli)) {
@@ -105,6 +106,7 @@ class AuthenticateUseCase extends UseCase
 				if($print){
 					Debug::print("{$f} loading user from the database or cache");
 				}
+				DetectLocaleUseCase::detectLocaleStatic();
 				$user = new $class(ALLOCATION_MODE_SUBJECTIVE);
 				$cached = false;
 				if (cache()->enabled() && USER_CACHE_ENABLED) {
@@ -117,7 +119,7 @@ class AuthenticateUseCase extends UseCase
 						}
 						$results = cache()->getAPCu($user_key);
 						if (is_string($results)) {
-							Debug::print("{$f} redis cache results for user key \"{$user_key}\" are \"{$results}\"");
+							Debug::print("{$f} cache results for user key \"{$user_key}\" are \"{$results}\"");
 							if ($results[0] !== "{") {
 								Debug::error("{$f} cached results have corrupt JSON");
 							}
@@ -225,13 +227,11 @@ class AuthenticateUseCase extends UseCase
 		}
 	}
 
-	public function getTransitionFromPermission()
-	{
+	public function getTransitionFromPermission(){
 		return SUCCESS;
 	}
 
-	public function getExecutePermission()
-	{
+	public function getExecutePermission(){
 		return SUCCESS;
 	}
 
@@ -240,8 +240,7 @@ class AuthenticateUseCase extends UseCase
 	 * @param UseCase $use_case
 	 * @return AnonymousUser|NULL
 	 */
-	public static function getAnonymousUser(): ?AnonymousUser
-	{
+	public static function getAnonymousUser(): ?AnonymousUser{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -257,6 +256,7 @@ class AuthenticateUseCase extends UseCase
 				if ($print) {
 					Debug::print("{$f} guest user key \"{$key}\" is set in session memory");
 				}
+				DetectLocaleUseCase::detectLocaleStatic();
 				$user = new $guest_class(ALLOCATION_MODE_SUBJECTIVE);
 				$user->setReceptivity(DATA_MODE_PASSIVE);
 				$mysqli = db()->getConnection(PublicReadCredentials::class);
@@ -286,11 +286,7 @@ class AuthenticateUseCase extends UseCase
 						if ($print) {
 							Debug::print("{$f} about to load user with key \"{$key}\"");
 						}
-						$result = $user->select()
-							->where(new WhereCondition($user->getIdentifierName(), OPERATOR_EQUALS))
-							->withTypeSpecifier('s')
-							->withParameters($key)
-							->executeGetResult($mysqli);
+						$result = $user->select()->where(new WhereCondition($user->getIdentifierName(), OPERATOR_EQUALS))->withTypeSpecifier('s')->withParameters($key)->executeGetResult($mysqli);
 						$count = $result->num_rows;
 						if ($count > 1) {
 							Debug::error("{$f} multiple entries for user with key \"{$key}\"");
@@ -345,7 +341,7 @@ class AuthenticateUseCase extends UseCase
 								$ttl = $user->setTimeToLive(SESSION_TIMEOUT_SECONDS);
 								cache()->setAPCu($key, $results, $ttl);
 							} elseif ($print) {
-								Debug::print("{$f} redis cache is disabled, skipping loaded user cache");
+								Debug::print("{$f} cache is disabled, skipping loaded user cache");
 							}
 						} elseif ($print) {
 							Debug::print("{$f} successfully loaded anonymous user data with key \"{$key}\"");
@@ -415,6 +411,7 @@ class AuthenticateUseCase extends UseCase
 					if ($print) {
 						Debug::print("{$f} about to initialize anonymous session");
 					}
+					DetectLocaleUseCase::detectLocaleStatic();
 					$user = new $guest_class(ALLOCATION_MODE_SUBJECTIVE);
 					$status = $user->initializeAnonymousSession();
 					if ($status !== SUCCESS) {
@@ -423,7 +420,6 @@ class AuthenticateUseCase extends UseCase
 						return Debug::error($err2);
 					}
 					$mysqli = db()->getConnection(PublicReadCredentials::class);
-					// $status = $user->getObjectStatus(); //reload($mysqli, true);
 					switch ($status) {
 						case ERROR_NOT_FOUND:
 							$user->setObjectStatus(SUCCESS);
@@ -483,9 +479,8 @@ class AuthenticateUseCase extends UseCase
 	 *
 	 * @return int
 	 */
-	public function execute(): int
-	{
-		$f = __METHOD__; //AuthenticateUseCase::getShortClass()."(".static::getShortClass().")->execute()";
+	public function execute(): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$session = new FullAuthenticationData();
@@ -637,23 +632,15 @@ class AuthenticateUseCase extends UseCase
 		}
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return ErrorMessage::unimplemented(f(static::class));
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return ErrorMessage::unimplemented(f(static::class));
-	}
-
-	public function getUseCaseId()
-	{
-		return USE_CASE_AUTHENTICATE;
 	}
 }

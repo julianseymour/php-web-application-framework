@@ -1,7 +1,7 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;

@@ -1,18 +1,16 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data\columns;
 
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 
-trait NameColumnTrait
-{
+trait NameColumnTrait{
 
-	public function getName()
-	{
+	public function getName():string{
 		return $this->getColumnValue('name');
 	}
 
-	public function setName(string $name): string
-	{
+	public function setName(string $name): string{
 		$f = __METHOD__; //"NameColumnTrait(".static::getShortClass().")->setName({$name})";
 		if ($this->hasColumn("normalizedName")) {
 			$this->setNormalizedName(NameDatum::normalize($name));
@@ -20,8 +18,7 @@ trait NameColumnTrait
 		return $this->setColumnValue("name", $name);
 	}
 
-	public function hasName(): bool
-	{
+	public function hasName(): bool{
 		return $this->hasColumnValue("name") && $this->getColumnValue("name") !== "";
 	}
 }

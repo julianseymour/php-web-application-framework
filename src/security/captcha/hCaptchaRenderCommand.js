@@ -3,7 +3,7 @@ class hCaptchaRenderCommand extends ElementCommand{
 	execute(){
 		let f = this.constructor.name.concat(".execute()");
 		try{
-			let print = true;
+			let print = false;
 			if(print){
 				console.log(f.concat(": entered"));
 			}
@@ -23,5 +23,14 @@ class hCaptchaRenderCommand extends ElementCommand{
 		}catch(x){
 			return error(f, x);
 		}
+	}
+	
+	static transferhCaptcha(event, target){
+		let hcaptcha = document.getElementById("hcaptcha");
+		target.parentNode.insertBefore(
+			hcaptcha, 
+			target
+		);
+		hcaptcha.render("hcaptcha", {sitekey:HCAPTCHA_SITE_KEY});
 	}
 }

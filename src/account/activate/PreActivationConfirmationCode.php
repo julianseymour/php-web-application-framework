@@ -8,7 +8,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 class PreActivationConfirmationCode extends AuthenticatedConfirmationCode{
 
 	public static function getSentEmailStatus(){
-		return RESULT_REGISTER_SUCCESS;
+		return SUCCESS;
 	}
 
 	public function setEmailAddress($email){
@@ -35,19 +35,19 @@ class PreActivationConfirmationCode extends AuthenticatedConfirmationCode{
 		return ACCESS_TYPE_ACTIVATION;
 	}
 
-	public static function getIpLogReason(){
+	public static function getReasonLoggedStatic(){
 		return BECAUSE_REGISTER;
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		$f = __METHOD__; //PreActivationConfirmationCode::getShortClass()."(".static::getShortClass().")::getPermissionStatic()";
+		$f = __METHOD__;
 		$print = false;
 		switch ($name) {
 			case DIRECTIVE_INSERT:
 				if ($print) {
 					Debug::print("{$f} returning new owner permission");
 				}
-				return new AnonymousAccountTypePermission($name);
+				return SUCCESS;
 			default:
 				return parent::getPermissionStatic($name, $data);
 		}

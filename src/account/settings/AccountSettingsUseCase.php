@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\account\settings;
 
 use function JulianSeymour\PHPWebApplicationFramework\directive;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -139,43 +139,31 @@ class AccountSettingsUseCase extends InteractiveUseCase
 		];
 	}
 
-	public function getProcessedDataListClasses(): ?array
-	{
+	public function getProcessedDataListClasses(): ?array{
 		return null;
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return AuthenticatedAccountTypePermission::class;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_SETTINGS;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return '/settings';
 	}
 
-	public function isCurrentUserDataOperand(): bool
-	{
+	public function isCurrentUserDataOperand(): bool{
 		return true;
 	}
 
-	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData
-	{
+	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData{
 		return user();
 	}
 
-	public function getResponder(): ?Responder
-	{
-		$f = __METHOD__; //AccountSettingsUseCase::getShortClass()."(".static::getShortClass().")->getResponder()";
+	public function getResponder(int $status): ?Responder{
+		$f = __METHOD__;
 		$print = false;
-		$status = $this->getObjectStatus();
 		if ($status !== SUCCESS) {
-			return parent::getResponder();
+			return parent::getResponder($status);
 		}
 		$directive = directive();
 		switch ($directive) {
@@ -212,7 +200,7 @@ class AccountSettingsUseCase extends InteractiveUseCase
 				}
 			default:
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 }
 

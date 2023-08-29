@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file\pdf;
 
 use function JulianSeymour\PHPWebApplicationFramework\request;
@@ -27,9 +28,15 @@ abstract class PDFUseCase extends OpenFileUseCase{
 	public function sendHeaders(Request $request): bool{
 		$f = __METHOD__;
 		try {
+			$print = $this->getDebugFlag();
 			$this->setRequiredMimeType(MIME_TYPE_PDF);
-			if(!$request->hasInputParameter("uniqueKey")){
+			if(!$request->hasInputParameter("uniqueKey", $this)){
+				if($print){
+					Debug::warning("{$f} uniqueKey is undefined");
+				}
 				$this->setObjectStatus(ERROR_KEY_UNDEFINED);
+			}elseif($print){
+				Debug::print("{$f} returning parent function");
 			}
 			return parent::sendHeaders($request);
 		} catch (Exception $x) {
@@ -54,26 +61,18 @@ abstract class PDFUseCase extends OpenFileUseCase{
 		return $pdf;
 	}
 
-	public function getUriSegmentParameterMap(): ?array
-	{
+	public function getUriSegmentParameterMap(): ?array{
 		return [
 			"action",
 			'uniqueKey'
 		];
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_GENERATE_PDF;
-	}
-
-	public function reconfigureDataStructure(DataStructure $ds): int
-	{
+	public function reconfigureDataStructure(DataStructure $ds): int{
 		$ds->setAutoloadFlags(true);
 		return SUCCESS;
 	}

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -64,6 +65,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatumInterface;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\KeyListDatum;
+use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicReadCredentials;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\db\load\LazyLoadHelper;
 use JulianSeymour\PHPWebApplicationFramework\db\load\LoadedFlagTrait;
@@ -135,10 +137,13 @@ use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartInterfa
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
 use JulianSeymour\PHPWebApplicationFramework\security\throttle\GenericThrottleMeter;
 use JulianSeymour\PHPWebApplicationFramework\security\throttle\ThrottleMeterData;
-use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
+use JulianSeymour\PHPWebApplicationFramework\template\TemplateUser;
 use JulianSeymour\PHPWebApplicationFramework\validate\ValidationClosureTrait;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\paginate\Paginator;
+use JulianSeymour\PHPWebApplicationFramework\search\SearchFieldsData;
+use JulianSeymour\PHPWebApplicationFramework\db\credentials\DatabaseCredentials;
 
 /**
  * Data stored in and queried from the database (usually), session or cookie superglobals, or RAM.
@@ -211,13 +216,10 @@ StaticPermissionGatewayInterface{
 
 	public abstract static function getTableNameStatic(): string;
 
-	public function __construct(?int $mode = ALLOCATION_MODE_EAGER)
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function __construct(?int $mode = ALLOCATION_MODE_EAGER){
+		$f = __METHOD__;
 		try {
 			$print = false;
-			// static::getPrettyClassName();
-			// static::getPrettyClassNames();
 			parent::__construct();
 			if ($mode === null) {
 				$mode = ALLOCATION_MODE_EAGER;
@@ -231,15 +233,28 @@ StaticPermissionGatewayInterface{
 				$this->setAllocationMode($mode);
 			}
 			$this->setReceptivity(DATA_MODE_DEFAULT);
+			
+			if(
+				!app()->getFlag("install") && 
+				!$this instanceof EmbeddedData && 
+				!$this instanceof IntersectionData &&
+				!$this instanceof EventSourceData &&
+				!$this instanceof DatabaseCredentials &&
+				$this->getDefaultPersistenceMode() === PERSISTENCE_MODE_DATABASE
+			){
+				if(!$this->tableExists(db()->getConnection(PublicReadCredentials::class))){
+					Debug::error("{$f} table \"".$this->getTableName()."\" does not exist");
+				}
+			}
+			
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function allocateColumns(): void
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->allocateColumns()";
-		$print = false;
+	public function allocateColumns(): void{
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
 		// generate columns. The first two are void functions with reference parameters for performance reasons
 		$columns = [];
 		// populates the array with this data structure's columns
@@ -259,6 +274,10 @@ StaticPermissionGatewayInterface{
 					Debug::error("{$f} foreign key column \"{$name}\" does not define its relationship type");
 				}
 			}
+			if($print){
+				Debug::print("{$f} assigning the following columns:");
+				Debug::printArray($repacked);
+			}
 			$this->setColumns($repacked);
 			if (app()->hasUseCase()) {
 				app()->getUseCase()->reconfigureDataStructure($this);
@@ -266,14 +285,13 @@ StaticPermissionGatewayInterface{
 		} else {
 			if (isset($columns) && is_array($columns) && ! empty($columns)) {
 				Debug::error("{$f} non-empty columns went in, but repackColumns returned nothing");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} repackColumns returned nothing");
 			}
 		}
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"arrayMembershipConfigured",
 			"blockInsertion",
@@ -295,12 +313,10 @@ StaticPermissionGatewayInterface{
 			"loaded", // true -> this object was successfully loaded from the database
 			"onDuplicateKeyUpdate", // if true, then this object will automatically generate "on duplicate key update" clauses as part of its update query statements
 			"operand", // if true, this object is the operand of a database operation
-			            // "print", //debug
 			"processedForm", // if true, this object has processed a form
 			"reloaded", // if true, this object has been reloaded from the database; this prevents infinitely recurvise reloading of mutually referenced foreign data structures and is unset at the end of reload()
 			"replica", // if true, this object is a replica
 			"searchResult", // if true, this object is flagged as a search result
-			"skipLoadout",
 			"temporary", // if true, this object marks its create table statements as temporary
 			"trimmed", // if true, this object has trimmed columns without values or default values in trimUnusedColumns
 			DIRECTIVE_UPDATE, // if true, this object has been marked for update
@@ -309,8 +325,7 @@ StaticPermissionGatewayInterface{
 		]);
 	}
 
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $object = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $object = null): array{
 		return [
 			"constraints" => Constraint::class,
 			"columns" => Datum::class, // nonstatic declaration was commented out in constructor -- maybe for a reason
@@ -322,11 +337,11 @@ StaticPermissionGatewayInterface{
 		return static::getTableNameStatic();
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return static::getShortClass();
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		$sc = static::getShortClass();
 		if (ends_with($sc, "s")) {
 			return "{$sc}es";
@@ -345,18 +360,15 @@ StaticPermissionGatewayInterface{
 		return $this->foreignDataStructures;
 	}
 
-	public function setOperandFlag(bool $value = true): bool
-	{
+	public function setOperandFlag(bool $value = true): bool{
 		return $this->setFlag("operand", $value);
 	}
 
-	public function getOperandFlag()
-	{
+	public function getOperandFlag(){
 		return $this->getFlag("operand");
 	}
 
-	public function setColumns(?array $columns): ?array
-	{
+	public function setColumns(?array $columns): ?array{
 		$f = __METHOD__;
 		foreach ($columns as $column_name => $column) {
 			if (is_string($column)) {
@@ -367,28 +379,19 @@ StaticPermissionGatewayInterface{
 		return $this->setArrayProperty("columns", $columns);
 	}
 
-	public static function getDatabaseNameStatic(): string
-	{
-		return "data";
-	}
-
-	public static function throttleOnInsert(): bool
-	{
+	public static function throttleOnInsert(): bool{
 		return true;
 	}
 
-	public static function getReorderedColumnIndices(): ?array
-	{
+	public static function getReorderedColumnIndices(): ?array{
 		return null;
 	}
 
-	public function setSearchResultFlag($value)
-	{
+	public function setSearchResultFlag($value){
 		return $this->setFlag("searchResult", $value);
 	}
 
-	public function getSearchResultFlag()
-	{
+	public function getSearchResultFlag(){
 		return $this->getFlag("searchResult");
 	}
 
@@ -400,8 +403,7 @@ StaticPermissionGatewayInterface{
 	 * @param array $columns
 	 * @return Datum[]
 	 */
-	public static final function reorderColumns($columns)
-	{
+	public static final function reorderColumns($columns){
 		$f = __METHOD__;
 		$order = static::getReorderedColumnIndices();
 		if (empty($order)) {
@@ -530,13 +532,11 @@ StaticPermissionGatewayInterface{
 		return $this->setObjectStatus(ERROR_NOT_FOUND);
 	}
 
-	public function getPostInsertForeignDataStructuresFlag()
-	{
+	public function getPostInsertForeignDataStructuresFlag(){
 		return $this->getFlag(DIRECTIVE_POSTINSERT_FOREIGN);
 	}
 
-	public function setPostInsertForeignDataStructuresFlag(bool $value = true): bool
-	{
+	public function setPostInsertForeignDataStructuresFlag(bool $value = true): bool{
 		$f = __METHOD__;
 		$print = false;
 		if ($print) {
@@ -545,29 +545,24 @@ StaticPermissionGatewayInterface{
 		return $this->setFlag(DIRECTIVE_POSTINSERT_FOREIGN, $value);
 	}
 
-	public function getHumanReadableColumnValue(string $column_name)
-	{
+	public function getHumanReadableColumnValue(string $column_name){
 		return $this->getColumn($column_name)->getHumanReadableValue();
 	}
 
-	public static function getThrottleMeterClass(): string
-	{
+	public static function getThrottleMeterClass(): string{
 		return GenericThrottleMeter::class;
 	}
 
-	public static function getDefaultPersistenceModeStatic(): int
-	{
+	public static function getDefaultPersistenceModeStatic(): int{
 		return PERSISTENCE_MODE_DATABASE;
 	}
 
-	public static function createThrottleMeterObject()
-	{
+	public static function createThrottleMeterObject(){
 		$tmc = static::getThrottleMeterClass();
 		return new $tmc();
 	}
 
-	public function hasSerialNumber()
-	{
+	public function hasSerialNumber(){
 		return $this->hasColumnValue('num');
 	}
 
@@ -577,13 +572,11 @@ StaticPermissionGatewayInterface{
 	 * @param int $r
 	 * @return int
 	 */
-	public function setReceptivity(?int $r): ?int
-	{
+	public function setReceptivity(?int $r): ?int{
 		return $this->receptivity = $r;
 	}
 
-	public function getReceptivity(): ?int
-	{
+	public function getReceptivity(): ?int{
 		return $this->receptivity;
 	}
 
@@ -647,13 +640,12 @@ StaticPermissionGatewayInterface{
 	 * @param mixed $key
 	 * @return DataStructure|NULL
 	 */
-	public function ejectForeignDataStructureListMember(string $column_name, $key): ?DataStructure
-	{
+	public function ejectForeignDataStructureListMember(string $column_name, $key): ?DataStructure{
 		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasForeignDataStructureListMember($column_name, $key)) {
 			Debug::error("{$f} no foreign data structure list member at column \"{$column_name}\" with key \"{$key}\"");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} ejecting foreign data structure list \"{$column_name}\" member with key \"{$key}\"");
 		}
 		$column = null;
@@ -675,8 +667,14 @@ StaticPermissionGatewayInterface{
 				unset($this->foreignDataStructures);
 			}
 		}
-		if ($column !== null) {
-			$column->setValue(array_keys($this->foreignDataStructures[$column_name]));
+		if ($column !== null){
+			if($this->hasForeignDataStructureList($column_name)) {
+				$structs = $this->foreignDataStructures[$column_name];
+				$keys = array_keys($structs);
+				$column->setValue($keys);
+			}else{
+				$column->ejectValue();
+			}
 		}
 		if ($print) {
 			$count2 = $this->getForeignDataStructureCount($column_name);
@@ -759,13 +757,11 @@ StaticPermissionGatewayInterface{
 		return new SetForeignDataStructureCommand($this, $column_name, $struct);
 	}
 
-	public function hasOldDataStructure($column_name)
-	{
+	public function hasOldDataStructure($column_name){
 		return is_array($this->oldDataStructures) && array_key_exists($column_name, $this->oldDataStructures) && isset($this->oldDataStructures[$column_name]) && is_object($this->oldDataStructures[$column_name]);
 	}
 
-	public function hasProcessedForm()
-	{
+	public function hasProcessedForm(){
 		return $this->getFlag("processedForm");
 	}
 
@@ -776,8 +772,7 @@ StaticPermissionGatewayInterface{
 	 * @param string $column_name
 	 * @return boolean
 	 */
-	public function hasForeignDataStructure(string $column_name): bool
-	{
+	public function hasForeignDataStructure(string $column_name): bool{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -787,36 +782,40 @@ StaticPermissionGatewayInterface{
 			$column = null;
 			if ($this->hasColumn($column_name)) {
 				$column = $this->getColumn($column_name);
-			}
-			if ($column instanceof VirtualDatum) {
-				return $this->hasVirtualColumnValue($column_name);
-			} elseif (! is_array($this->foreignDataStructures)) {
+				if ($column instanceof VirtualDatum) {
+					return $this->hasVirtualColumnValue($column_name);
+				}elseif($column instanceof KeyListDatum) {
+					return $this->hasForeignDataStructureList($column_name);
+				}
+			}elseif($print){
+				Debug::print("{$f} no column \"{$column_name}\"");
+			}//
+			if(! is_array($this->foreignDataStructures)) {
 				if ($print) {
 					Debug::print("{$f} foreign data structures array has not been allocated");
 				}
 				return false;
-			} elseif (! array_key_exists($column_name, $this->foreignDataStructures)) {
+			}elseif(! array_key_exists($column_name, $this->foreignDataStructures)) {
 				if ($print) {
 					Debug::print("{$f} data structures array has no defined foreign data structure \"{$column_name}\"");
 				}
 				return false;
-			} elseif (empty($this->foreignDataStructures[$column_name])) {
+			}elseif(empty($this->foreignDataStructures[$column_name])) {
 				if ($print) {
 					Debug::print("{$f} data structure at column \"{$column_name}\" is null");
 				}
 				return false;
-			} elseif ($this->hasColumn($column_name) && $column instanceof KeyListDatum) {
-				return $this->hasForeignDataStructureList($column_name);
-			}
-			if (! is_object($this->foreignDataStructures[$column_name])) {
-				if ($print) {
-					Debug::print("{$f} data structure at column \"{$column_name}\" is not an object");
+			}elseif(!is_object($this->foreignDataStructures[$column_name])){
+				if(is_array($this->foreignDataStructures[$column_name])){
+					return $this->hasForeignDataStructureList($column_name);
+				}elseif($print) {
+					Debug::print("{$f} data structure at column \"{$column_name}\" is not an object or array");
 				}
 				return false;
-			} else {
+			}else{
 				$status = $this->foreignDataStructures[$column_name]->getObjectStatus();
-				if ($status === ERROR_NOT_FOUND) {
-					if ($print) {
+				if($status === ERROR_NOT_FOUND){
+					if(true || $print){
 						Debug::error("{$f} it's defined, but object status is not found");
 					}
 					return false;
@@ -828,13 +827,11 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function hasForeignDataStructures(): bool
-	{
+	public function hasForeignDataStructures(): bool{
 		return is_array($this->foreignDataStructures) && ! empty($this->foreignDataStructures);
 	}
 
-	public function getReplacementKeyRequested()
-	{
+	public function getReplacementKeyRequested(){
 		$f = __METHOD__;
 		try {
 			if ($this->hasColumn("replacementKeyRequested")) {
@@ -857,8 +854,7 @@ StaticPermissionGatewayInterface{
 	 *
 	 * @return int
 	 */
-	public function requestReplacementDecryptionKey()
-	{
+	public function requestReplacementDecryptionKey():int{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -868,7 +864,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} replacement key was already requested");
 				}
 				return $this->getObjectStatus();
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} replacement key was not already requested");
 			}
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
@@ -880,7 +876,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} update() returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully wrote key replacement request");
 			}
 			return $this->getObjectStatus();
@@ -889,8 +885,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function fulfillReplacementKeyRequest()
-	{
+	public function fulfillReplacementKeyRequest():int{
 		$f = __METHOD__;
 		try {
 			$this->setColumnValue("replacementKeyRequested", 0);
@@ -931,8 +926,7 @@ StaticPermissionGatewayInterface{
 	 * @param DataStructure $struct
 	 *        	: data structure that stores the reference to this object needing reciprocation
 	 */
-	private function reciprocateRelationship(string $column_name, DataStructure $struct)
-	{
+	private function reciprocateRelationship(string $column_name, DataStructure $struct):void{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -953,7 +947,7 @@ StaticPermissionGatewayInterface{
 				if ($print) {
 					Debug::print("{$f} datum \"{$converse_key}\" maps to {$mapping}");
 				}
-			} elseif ($column->hasRelationshipType()) {
+			}elseif($column->hasRelationshipType()) {
 				$mapping = $column->getConverseRelationshipType();
 				if ($print) {
 					Debug::print("{$f} datum \"{$column_name}\" is mapped by {$mapping}\"");
@@ -989,7 +983,7 @@ StaticPermissionGatewayInterface{
 							}
 						}
 						$struct->setForeignDataStructure($converse_key, $this);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} foreign data structure has already mapped this object to converse relationship key \"{$converse_key}\"");
 					}
 					break;
@@ -1004,7 +998,7 @@ StaticPermissionGatewayInterface{
 								Debug::print("{$f} mapping this object as a member of foreign data structure's key list at converse relationship column \"{$converse_key}\"");
 							}
 							$struct->setForeignDataStructureListMember($converse_key, $target);
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} foreign data structure at column \"{$column_name}\" already has this object as a member of its key list at converse relationship column \"{$converse_key}\"");
 						}
 					};
@@ -1028,39 +1022,32 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function setBlockInsertionFlag(bool $value = true): bool
-	{
+	public function setBlockInsertionFlag(bool $value = true): bool{
 		return $this->setFlag("blockInsertion", true);
 	}
 
-	public function getBlockInsertionFlag(): bool
-	{
+	public function getBlockInsertionFlag(): bool{
 		return $this->getFlag("blockInsertion");
 	}
 
-	public function blockInsertion(bool $value = true): DataStructure
-	{
+	public function blockInsertion(bool $value = true): DataStructure{
 		$this->setFlag("blockInsertion", $value);
 		return $this;
 	}
 
-	public function hasForeignDataStructureListMember(string $column_name, $key): bool
-	{
+	public function hasForeignDataStructureListMember(string $column_name, $key): bool{
 		return $this->hasForeignDataStructureList($column_name) && array_key_exists($key, $this->foreignDataStructures[$column_name]);
 	}
 
-	public function hasOldDataStructureListMember($column_name, $key)
-	{
+	public function hasOldDataStructureListMember($column_name, $key){
 		return $this->hasOldDataStructureList($column_name) && array_key_exists($key, $this->oldDataStructures[$column_name]);
 	}
 
-	public function setTrimmedFlag(bool $value = true): bool
-	{
+	public function setTrimmedFlag(bool $value = true): bool{
 		return $this->setFlag("trimmed", $value);
 	}
 
-	public function getTrimmedFlag(): bool
-	{
+	public function getTrimmedFlag(): bool{
 		return $this->getFlag("trimmed");
 	}
 
@@ -1071,56 +1058,56 @@ StaticPermissionGatewayInterface{
 	 * @return int : the number of dropped columns
 	 */
 	public function trimUnusedColumns(bool $foreign=false, int $recursion_depth=0):int{
-	$f = __METHOD__;
-	try{
-	$print = false;
-	$trim = app()->getUseCase()->getTrimmableColumnNames($this);
-	if($trim === null){
-	$trimmed = 0;
-	}else{
-	$trimmed = count($trim);
-	}
-	if($trimmed > 0){
-	if($print){
-	Debug::print("{$f} about to drop the following columns:");
-	Debug::printArray($trim);
-	}
-	foreach($trim as $column_name){
-	$this->getColumn($column_name)->dispose();
-	$this->unsetArrayPropertyValue("columns", $column_name);
-	}
-	//$this->setColumns(array_remove_keys($this->getColumns(), $trim));
-	}elseif($print){
-	Debug::print("{$f} there are no columns to trim");
-	}
-	$this->setTrimmedFlag(true);
-	if($foreign && $recursion_depth > 0){
-	if(
-	isset($this->foreignDataStructures)
-	&& is_array($this->foreignDataStructures)
-	&& !empty($this->foreignDataStructures)
-	){
-	foreach($this->foreignDataStructures as $key => $value){
-	if(is_array($value)){
-	foreach($value as $fds){
-	if($fds->getTrimmedFlag()){
-	continue;
-	}
-	$fds->trimUnusedColumns($foreign, $recursion_depth-1);
-	}
-	}else{
-	if($value->getTrimmedFlag()){
-	continue;
-	}
-	$value->trimUnusedColumns($foreign, $recursion_depth-1);
-	}
-	}
-	}
-	}
-	return $trimmed;
-	}catch(Exception $x){
-	x($f, $x);
-	}
+		$f = __METHOD__;
+		try{
+			$print = false;
+			$trim = app()->getUseCase()->getTrimmableColumnNames($this);
+			if($trim === null){
+				$trimmed = 0;
+			}else{
+				$trimmed = count($trim);
+			}
+			if($trimmed > 0){
+				if($print){
+					Debug::print("{$f} about to drop the following columns:");
+					Debug::printArray($trim);
+				}
+				foreach($trim as $column_name){
+					$this->getColumn($column_name)->dispose();
+					$this->unsetArrayPropertyValue("columns", $column_name);
+				}
+				//$this->setColumns(array_remove_keys($this->getColumns(), $trim));
+			}elseif($print){
+				Debug::print("{$f} there are no columns to trim");
+			}
+			$this->setTrimmedFlag(true);
+			if($foreign && $recursion_depth > 0){
+				if(
+					isset($this->foreignDataStructures)
+					&& is_array($this->foreignDataStructures)
+					&& !empty($this->foreignDataStructures)
+				){
+					foreach($this->foreignDataStructures as $key => $value){
+						if(is_array($value)){
+							foreach($value as $fds){
+								if($fds->getTrimmedFlag()){
+									continue;
+								}
+								$fds->trimUnusedColumns($foreign, $recursion_depth-1);
+							}
+						}else{
+							if($value->getTrimmedFlag()){
+								continue;
+							}
+							$value->trimUnusedColumns($foreign, $recursion_depth-1);
+						}
+					}
+				}
+			}
+			return $trimmed;
+		}catch(Exception $x){
+			x($f, $x);
+		}
 	}
 
 	/**
@@ -1130,8 +1117,7 @@ StaticPermissionGatewayInterface{
 	 * @param DataStructure $obj2
 	 * @return boolean
 	 */
-	public static function equals(DataStructure $obj1, DataStructure $obj2): bool
-	{
+	public static function equals(DataStructure $obj1, DataStructure $obj2): bool{
 		$f = __METHOD__;
 		$print = false;
 		if ($obj1->getClass() !== $obj2->getClass()) {
@@ -1151,9 +1137,9 @@ StaticPermissionGatewayInterface{
 		foreach ($columns1 as $column_name => $column) {
 			if ($column instanceof VirtualDatum) {
 				continue;
-			} elseif ($column->getIgnoreInequivalenceFlag()) {
+			}elseif($column->getIgnoreInequivalenceFlag()) {
 				continue;
-			} elseif (! $obj2->hasColumn($column_name)) {
+			}elseif(! $obj2->hasColumn($column_name)) {
 				if ($print) {
 					Debug::print("{$f} second object lacks a datum at column \"{$column_name}\"");
 				}
@@ -1174,20 +1160,17 @@ StaticPermissionGatewayInterface{
 		return true;
 	}
 
-	protected function beforeSetForeignDataStructureHook(string $column_name, DataStructure $struct): int
-	{
+	protected function beforeSetForeignDataStructureHook(string $column_name, DataStructure $struct): int{
 		$this->dispatchEvent(new BeforeSetForeignDataStructureEvent($column_name, $struct));
 		return SUCCESS;
 	}
 
-	protected function afterSetForeignDataStructureHook(string $column_name, DataStructure $struct): int
-	{
+	protected function afterSetForeignDataStructureHook(string $column_name, DataStructure $struct): int{
 		$this->dispatchEvent(new AfterSetForeignDataStructureEvent($column_name, $struct));
 		return SUCCESS;
 	}
 
-	public function withForeignDataStructure($column_name, $struct): DataStructure
-	{
+	public function withForeignDataStructure($column_name, $struct): DataStructure{
 		$this->setForeignDataStructure($column_name, $struct);
 		return $this;
 	}
@@ -1210,16 +1193,16 @@ StaticPermissionGatewayInterface{
 			}
 			if (! isset($struct)) {
 				Debug::error("{$f} received a null data structure");
-			} elseif (is_array($struct)) {
+			}elseif(is_array($struct)) {
 				Debug::error("{$f} don't call this on arrays");
 				return $this->setForeignDataStructureList($column_name, $struct);
-			} elseif (! is_object($struct)) {
+			}elseif(! is_object($struct)) {
 				$gottype = gettype($struct);
 				Debug::error("{$f} struct is a {$gottype}, not an object");
-			} elseif (! $struct instanceof DataStructure) {
+			}elseif(! $struct instanceof DataStructure) {
 				$class = $struct->getClass();
 				Debug::error("{$f} struct is a \"{$class}\"");
-			} elseif ($struct->isDeleted()) {
+			}elseif($struct->isDeleted()) {
 				if ($print) {
 					Debug::print("{$f} data structure passed for foreign relationship \"{$column_name}\" is deleted or not found");
 				}
@@ -1231,11 +1214,11 @@ StaticPermissionGatewayInterface{
 					$this->ejectForeignDataStructure($column_name);
 				}
 				return null;
-			} elseif ($struct->hasObjectStatus() && $struct->getObjectStatus() === ERROR_NOT_FOUND) {
+			}elseif($struct->hasObjectStatus() && $struct->getObjectStatus() === ERROR_NOT_FOUND) {
 				if ($print) {
 					Debug::print("{$f} data structure passed for foreign relationship \"{$column_name}\" was not found");
 				}
-				$key = $struct->getIdentifierValue(); // Key();
+				$key = $struct->getIdentifierValue();
 				if ($print) {
 					$sc = get_short_class($struct);
 					Debug::error("{$f} data structure of class {$sc} with key \"{$key}\" not found");
@@ -1244,7 +1227,7 @@ StaticPermissionGatewayInterface{
 					$this->ejectForeignDataStructure($column_name);
 				}
 				return null;
-			} elseif ($this->hasColumn($column_name)) {
+			}elseif($this->hasColumn($column_name)) {
 				if ($print) {
 					Debug::print("{$f} this object has a column \"{$column_name}\"");
 				}
@@ -1252,10 +1235,10 @@ StaticPermissionGatewayInterface{
 				if ($column instanceof KeyListDatum) {
 					Debug::error("{$f} don't call this function on KeyListDatum \"{$column_name}\"");
 					// return $this->setForeignDataStructureListMember($column_name, $struct);
-				} elseif (! $column instanceof ForeignKeyDatum) {
+				}elseif(! $column instanceof ForeignKeyDatum) {
 					Debug::error("{$f} don't call this on something other than foreign key datums. Column name was \"{$column_name}\"");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this object does not have a column \"{$column_name}\"");
 			}
 			if (! is_array($this->foreignDataStructures)) {
@@ -1270,13 +1253,13 @@ StaticPermissionGatewayInterface{
 			$this->foreignDataStructures[$column_name] = $struct;
 			if (! $this->hasForeignDataStructure($column_name)) {
 				Debug::error("{$f} immediately after setting foreign data structure \"{$column_name}\" it is undefined");
-			} elseif ($this->hasColumn($column_name)) {
+			}elseif($this->hasColumn($column_name)) {
 				$column = $this->getColumn($column_name);
 				if (! $struct->hasIdentifierValue()) {
 					if ($print) {
 						Debug::print("{$f} foreign data structure at column \"{$column_name}\" does not have a key");
 					}
-				} elseif ($this->getReceptivity() !== DATA_MODE_SEALED) {
+				}elseif($this->getReceptivity() !== DATA_MODE_SEALED) {
 					$key = $struct->getIdentifierValue(); // Key();
 					if ($print) {
 						Debug::print("{$f} assigning key \"{$key}\" to column \"{$column_name}\"");
@@ -1288,10 +1271,10 @@ StaticPermissionGatewayInterface{
 						}
 						$subtype = $struct->hasSubtypeValue() ? $struct->getSubtypeValue() : null;
 						$this->setColumnValue($column->getForeignDataSubtypeName(), $subtype);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} datum \"{$column_name}\" is not a foreign key datum interface, or is not polymorphic");
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} this object has been sealed");
 				}
 				if ($column->hasConverseRelationshipKeyName()) {
@@ -1302,10 +1285,10 @@ StaticPermissionGatewayInterface{
 					if ($print) {
 						Debug::print("{$f} returned from reciprocating relationship \"{$column_name}\"; debug ID is \"{$did}\"");
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} datum at column \"{$column_name}\" does not have an converse relationship key name");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this object does not have a datum at column \"{$column_name}\"");
 			}
 			$status = $this->afterSetForeignDataStructureHook($column_name, $struct);
@@ -1313,7 +1296,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} after set foreign data structure hook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully set foreign data structure \"{$column_name}\" for object with debug ID \"{$did}\"");
 				
 				if($this->getDataType() === DATATYPE_PRICE_MODIFIER_APPLIED && $column_name === "templateKey"){
@@ -1332,22 +1315,23 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public static function getSubtypeNameStatic(): ?string
-	{
+	public static function getSubtypeNameStatic(): ?string{
 		return null;
 	}
 
-	public function getSubtypeName(): ?string
-	{
+	public function getSubtypeName(): ?string{
 		return static::getSubtypeNameStatic();
 	}
 
-	public function hasSubtypeValue(): bool
-	{
+	public function hasSubtypeValue(): bool{
 		$stn = $this->getSubtypeName();
 		return $stn !== null && $this->hasColumnValue($stn);
 	}
 
+	public static function hasSubtypeStatic():bool{
+		return false;
+	}
+	
 	/**
 	 * Select all objects of this class from the database that satisfy $select for parameters $params
 	 *
@@ -1357,8 +1341,7 @@ StaticPermissionGatewayInterface{
 	 * @param array $params
 	 * @return DataStructure[]
 	 */
-	public static function loadMultiple(mysqli $mysqli, SelectStatement $select, string $typedef = null, ...$params): ?array
-	{
+	public static function loadMultiple(mysqli $mysqli, SelectStatement $select, string $typedef = null, ...$params): ?array{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -1374,10 +1357,10 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} executeGetResult returned null -- there are no objects to load");
 				}
 				return null;
-			} elseif (! is_object($result)) {
+			}elseif(! is_object($result)) {
 				$gottype = gettype($result);
 				Debug::error("{$f} executeQueryGetResult returned {$gottype}");
-			} elseif ($result->num_rows === 0) {
+			}elseif($result->num_rows === 0) {
 				return [];
 			}
 			$results = $result->fetch_all(MYSQLI_ASSOC);
@@ -1409,14 +1392,12 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function beforeLoadHook(mysqli $mysqli): int
-	{
+	public function beforeLoadHook(mysqli $mysqli): int{
 		$this->dispatchEvent(new BeforeLoadEvent());
 		return SUCCESS;
 	}
 
-	public function afterLoadHook(mysqli $mysqli): int
-	{
+	public function afterLoadHook(mysqli $mysqli): int{
 		$this->dispatchEvent(new AfterLoadEvent());
 		return SUCCESS;
 	}
@@ -1427,8 +1408,7 @@ StaticPermissionGatewayInterface{
 	 * @param array $arr
 	 * @return int
 	 */
-	public function processIntersectionTableQueryResultArray(array $arr): int
-	{
+	public function processIntersectionTableQueryResultArray(array $arr): int{
 		$f = __METHOD__;
 		$print = false;
 		if($this->getReceptivity() === DATA_MODE_RECEPTIVE){
@@ -1442,7 +1422,7 @@ StaticPermissionGatewayInterface{
 			Debug::warning("{$f} array does not have a foreign key name");
 			Debug::printArray($arr);
 			Debug::printStackTrace();
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} entered with the following array");
 			Debug::printArray($arr);
 		}
@@ -1453,7 +1433,7 @@ StaticPermissionGatewayInterface{
 		$column = $this->getColumn($fkn);
 		if ($column instanceof ForeignKeyDatum) {
 			$column->setValueFromQueryResult($arr["foreignKey"]);
-		} elseif ($column instanceof KeyListDatum) {
+		}elseif($column instanceof KeyListDatum) {
 			if ($print) {
 				Debug::print("{$f} column is a key list");
 			}
@@ -1466,10 +1446,10 @@ StaticPermissionGatewayInterface{
 				$fds = registry()->get($fk);
 				if ($fds->getLoadedFlag()) {
 					$this->setForeignDataStructureListMember($fkn, $fds);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} ... but it wasn't loaded yet");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} the registry does not know anything about an object with key \"{$fk}\"");
 			}
 		} else {
@@ -1505,7 +1485,7 @@ StaticPermissionGatewayInterface{
 			foreach ($columns as $column_name => $column) {
 				if ($column->hasForeignDataStructureClass()) {
 					$table2 = $column->getForeignDataStructureClass()::getTableNameStatic();
-				} elseif ($column->hasForeignDataStructureClassResolver()) {
+				}elseif($column->hasForeignDataStructureClassResolver()) {
 					$resolver = $column->getForeignDataStructureClassResolver();
 					if ($column instanceof ForeignKeyDatumInterface && ($column->hasForeignDataType() || ($column->hasForeignDataSubtypeName() && $column->hasForeignDataSubtype()))) {
 						if ($print) {
@@ -1543,10 +1523,14 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	/* private */
-	public function getCreateTableStatement(): CreateTableStatement
-	{
-		return CreateTableStatement::fromTableDefinition($this);
+	public function getCreateTableStatement(): CreateTableStatement{
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
+		$create = CreateTableStatement::fromTableDefinition($this);
+		if($print){
+			Debug::print("{$f} returning the following: ".$create->toSQL());
+		}
+		return $create;
 	}
 
 	protected function beforeCreateTableHook(mysqli $mysqli): int
@@ -1561,8 +1545,7 @@ StaticPermissionGatewayInterface{
 		return SUCCESS;
 	}
 
-	public static function getCreateTableStatementStatic(): CreateTableStatement
-	{
+	public static function getCreateTableStatementStatic(): CreateTableStatement{
 		$dummy = new static();
 		$columns1 = $dummy->getFilteredColumns(DIRECTIVE_CREATE_TABLE);
 		$columns2 = [];
@@ -1632,45 +1615,52 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return string
 	 */
-	public function createAssociatedTables(mysqli $mysqli): int
-	{
+	public function createAssociatedTables(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			if ($mysqli->connect_errno) {
 				Debug::error("{$f} Failed to connect to MySQL: ({$mysqli->connect_errno}) {$mysqli->connect_error}");
-			} elseif (! $mysqli->ping()) {
+			}elseif(! $mysqli->ping()) {
 				Debug::error("{$f} mysqli connection failed ping test: \"" . $mysqli->error . "\"");
 			}
 			if ($this instanceof IntersectionData) {
 				Debug::error("{$f} don't call this on intersection data");
-			} elseif (! $this->tableExists($mysqli)) {
+			}elseif(! $this->tableExists($mysqli)) {
 				Debug::warning("{$f} table doesn't exist, what's the point");
 				return SUCCESS;
 			}
 			// tables for embedded columns
 			$embedded = $this->getEmbeddedDataStructures();
 			if (! empty($embedded)) {
+				if($print){
+					$count = count($embedded);
+					Debug::print("{$f} {$count} embedded data structures");
+				}
 				foreach ($embedded as $e) {
+					if($print){
+						$e->debug();
+					}
 					$db = $e->getDatabaseName();
 					$tableName = $e->getTableName();
 					if (! QueryBuilder::tableExists($mysqli, $db, $tableName)) {
 						if ($print) {
-							Debug::print("{$f} table {$db}.{$tableName} does not yet exist");
+							Debug::print("{$f} table {$db}.{$tableName} does not yet exist. It has the following columns:");
+							$e->debugPrintColumns(null, false);
 						}
 						$status = $e->createTable($mysqli);
 						if ($status !== SUCCESS) {
 							$err = ErrorMessage::getResultMessage($status);
 							Debug::error("{$f} creating embedded table \"{$db}.{$tableName}\" returned error status \"{$err}\"");
 							return $status;
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} successfully created new embedded table \"{$db}.{$tableName}\"");
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} embedded table \"{$db}.{$tableName}\" already exists");
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no embedded data structures");
 			}
 			// intersection tables for polymorphic foreign key columns
@@ -1689,11 +1679,11 @@ StaticPermissionGatewayInterface{
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} creating intersection table for datum \"{$name}\" returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} successfully created intersection table for column \"{$name}\"");
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no foreign keys stored in intersection tables");
 			}
 			// event source tables
@@ -1710,7 +1700,7 @@ StaticPermissionGatewayInterface{
 							$err = ErrorMessage::getResultMessage($status);
 							Debug::error("{$f} creating event source table \"{$db}.{$tableName}\" for column \"{$name}\" returned error status \"{$err}\"");
 							return $status;
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} successfully created new event source table \"{$db}.{$tableName}\" for column \"{$name}\"");
 						}
 						$status = $event_src->createAssociatedTables($mysqli);
@@ -1718,10 +1708,10 @@ StaticPermissionGatewayInterface{
 							$err = ErrorMessage::getResultMessage($status);
 							Debug::error("{$f} creating associated tables for event source table \"{$db}.{$tableName}\" for column \"{$name}\" returned error status \"{$err}\"");
 							return $status;
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} successfully created associated tables for event source table \"{$db}.{$tableName}\" for column \"{$name}\"");
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} event source table \"{$db}.{$tableName}\" for column \"{$name}\" already exists");
 					}
 				}
@@ -1738,8 +1728,7 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	public function loadIntersectionTableKeys(mysqli $mysqli): int
-	{
+	public function loadIntersectionTableKeys(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -1780,7 +1769,7 @@ StaticPermissionGatewayInterface{
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} processIntersectionTableQueryResultArray on object with key \"{$key}\" returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} successfully processed intersection table query results for object with key \"{$key}\"");
 					}
 				}
@@ -1795,15 +1784,15 @@ StaticPermissionGatewayInterface{
 							$cached[$column_name] = $column->getDatabaseEncodedValue();
 							$column->setDirtyCacheFlag(false);
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} there are no dirty cache flagged columns");
 					}
 					cache()->setAPCu($key, $cached, $this->getTimeToLive());
-				} elseif ($print) {
-					Debug::print("{$f} there is no redis cached value with key \"{$key}\"");
+				}elseif($print) {
+					Debug::print("{$f} there is no cached value with key \"{$key}\"");
 				}
-			} elseif ($print) {
-				Debug::print("{$f} redis cache is not enabled");
+			}elseif($print) {
+				Debug::print("{$f} cache is not enabled");
 			}
 			return SUCCESS;
 		} catch (Exception $x) {
@@ -1817,11 +1806,10 @@ StaticPermissionGatewayInterface{
 	 * @param array $arr
 	 * @return int
 	 */
-	public function processQueryResultArray(mysqli $mysqli, array $arr): int
-	{
+	public function processQueryResultArray(mysqli $mysqli, array $arr): int{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			if ($print) {
 				Debug::print("{$f} entered; about to process the following values:");
 				Debug::printArray($arr);
@@ -1845,16 +1833,16 @@ StaticPermissionGatewayInterface{
 						case PERSISTENCE_MODE_COOKIE:
 						case PERSISTENCE_MODE_SESSION:
 							// case PERSISTENCE_MODE_VOLATILE:
-							Debug::error("{$f} column \"{$vn}\" has invalid persistence mode {$pm}");
+							Debug::error("{$f} column \"{$vn}\" has invalid persistence mode ".Debug::getPersistenceModeString($pm));
 							cache()->clearAPCu(); // XXX TODO delete this
 						default:
-							Debug::warning("{$f} column \"{$vn}\" has unusual persistence mode {$pm}");
+							Debug::warning("{$f} column \"{$vn}\" has unusual persistence mode ".Debug::getPersistenceModeString($pm));
 					}
 					if ($print) {
 						Debug::print("{$f} about to call setValueFromQueryResult for column \"{$vn}\"");
 					}
 					$t->setValueFromQueryResult($arr[$vn]);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} column \"{$vn}\" was not loaded from the database, and is not mandatory");
 				}
 			}
@@ -1921,11 +1909,13 @@ StaticPermissionGatewayInterface{
 	 * @param OrderByClause $order_by
 	 * @param int $limit : optional limit parameter
 	 */
-	public final function load(mysqli $mysqli, $where, $params, $order_by = null, $limit = null): int
-	{
+	public final function load(mysqli $mysqli, $where, $params, $order_by = null, $limit = null): int{
 		$f = __METHOD__;
 		try {
 			$print = false;
+			if($print){
+				Debug::print("{$f} data structure class is ".$this->getShortClass());
+			}
 			$typedef = "";
 			if (! is_array($params)) {
 				$params = [
@@ -1940,15 +1930,17 @@ StaticPermissionGatewayInterface{
 					// $select = $this->getAliasedColumnSelectStatement($where, $params[0]);
 				} else {
 					if ($print) {
-						Debug::print("{$f} where condition is a non-aliased column name, hopefully");
+						Debug::print("{$f} where condition is the string \"{$where}\"");
 					}
 					$select = $this->select()->where(new WhereCondition($where));
 				}
-			} else {
+			} else if($where instanceof WhereCondition){
 				if ($print) {
 					Debug::print("{$f} where condition is not a string");
 				}
 				$select = $this->select()->where($where);
+			}else{
+				Debug::error("{$f} where condition is neither a string nor a WhereCondition");
 			}
 			// generate parameter list
 			if (! empty($params)) {
@@ -1967,7 +1959,7 @@ StaticPermissionGatewayInterface{
 						}
 						if ($this->hasColumn($column_name)) {
 							$typedef .= $this->getColumn($column_name)->getTypeSpecifier();
-						} else { // condition is accomplice to a LazyWhereCondition
+						} else { // condition is accomplice to an aliased column
 							$ts = $condition->getTypeSpecifier();
 							if (empty($ts)) {
 								Debug::error("{$f} type specifier is empty string");
@@ -1980,7 +1972,7 @@ StaticPermissionGatewayInterface{
 						$count = isset($params) ? count($params) : 0;
 						if ($length !== $count) {
 							$where = $select->getWhereCondition();
-							if ($where->hasSelectStatement()) { // instanceof Lazy/WhereCondition){
+							if($where->hasSelectStatement()){
 								$where->setParameterCount($count);
 							}
 							Debug::error("{$f} type specifier \"{$typedef}\" length {$length} does not match parameter count {$count} in query statement \"{$select}\"");
@@ -1988,14 +1980,14 @@ StaticPermissionGatewayInterface{
 						$select->setParameters($params);
 						$select->setTypeSpecifier($typedef);
 					}
-				} elseif (! $select->hasParameters()) {
+				}elseif(! $select->hasParameters()) {
 					$select->setParameters($params);
 				}
 			}
 			// order by expression
 			if (isset($order_by)) {
 				$select->setOrderBy($order_by);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} order by expressions is undefined");
 			}
 			// limit
@@ -2015,7 +2007,7 @@ StaticPermissionGatewayInterface{
 					Debug::error("{$f} result is null");
 				}
 				return $this->loadFailureHook();
-			} elseif (! is_object($result)) {
+			}elseif(! is_object($result)) {
 				$gottype = gettype($result);
 				Debug::error("{$f} executeGetResult returned a {$gottype}");
 			}
@@ -2025,11 +2017,11 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} object not found");
 				}
 				return $this->loadFailureHook();
-			} elseif ($count > 1) {
+			}elseif($count > 1) {
 				$decl = $select->getDeclarationLine();
 				$did = $select->getDebugId();
 				Debug::error("{$f} multiple results for query \"{$select}\"! This function is for loading a single uniquely identifiable object. The select statement was declared {$decl} and has a debug ID {$did}.");
-				return $this->setObjectStatus(ERROR_MULTIPLE_ROWS);
+				return $this->setObjectStatus(ERROR_DUPLICATE_ENTRY);
 			}
 			$results = $result->fetch_all(MYSQLI_ASSOC);
 			// processed fetched results
@@ -2038,8 +2030,8 @@ StaticPermissionGatewayInterface{
 			if (CACHE_ENABLED && $this->hasTimeToLive()) {
 				$key = $this->getIdentifierValue();
 				cache()->setAPCu($key, $results[0], $this->getTimeToLive());
-			} elseif ($print) {
-				Debug::print("{$f} redis cache is disabled");
+			}elseif($print) {
+				Debug::print("{$f} cache is disabled");
 			}
 			// load foreign keys stored in intersection tables
 			if ($status === SUCCESS) {
@@ -2053,7 +2045,7 @@ StaticPermissionGatewayInterface{
 						Debug::warning("{$f} loadIntersectionTableKeys returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} skipping intersection table key load for intersection data");
 				}
 			} else {
@@ -2065,10 +2057,10 @@ StaticPermissionGatewayInterface{
 				$key = $this->getIdentifierValue();
 				if (! registry()->hasObjectRegisteredToKey($key)) {
 					registry()->registerObjectToKey($key, $this);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} an object is already mapped to key \"{$key}\"");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} use case is undefined, or this object does not have a key");
 				Debug::printStackTraceNoExit();
 			}
@@ -2079,8 +2071,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function setAutoloadFlags(bool $value = true, ?array $column_names = null): bool
-	{
+	public function setAutoloadFlags(bool $value = true, ?array $column_names = null): bool{
 		$f = __METHOD__;
 		$print = false;
 		if ($column_names === null) {
@@ -2101,7 +2092,7 @@ StaticPermissionGatewayInterface{
 					}
 				}
 				$c->setAutoloadFlag($value);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} datum \"{$name}\" does not have a foreign data structure class and thus cannot be autoloaded");
 			}
 		}
@@ -2115,8 +2106,7 @@ StaticPermissionGatewayInterface{
 	 * @param string[] ...$column_names
 	 * @return number
 	 */
-	public static function unsetColumnValuesStatic(...$column_names): int
-	{
+	public static function unsetColumnValuesStatic(...$column_names): int{
 		$f = __METHOD__;
 		$storage = static::getDefaultPersistenceModeStatic();
 		switch ($storage) {
@@ -2130,14 +2120,12 @@ StaticPermissionGatewayInterface{
 		return $obj->unsetColumnValues(...$column_names);
 	}
 
-	public function isRegistrable(): bool
-	{
+	public function isRegistrable(): bool{
 		$idn = $this->getIdentifierName();
 		return $idn !== null && $this->hasColumn($idn) && $this->getKeyGenerationMode() !== KEY_GENERATION_MODE_UNIDENTIFIABLE && ! ($this->getKeyGenerationMode() === KEY_GENERATION_MODE_NATURAL && $this->getColumn($idn) instanceof ForeignKeyDatum) && $this->hasIdentifierValue();
 	}
 
-	public static function isRegistrableStatic(): bool
-	{
+	public static function isRegistrableStatic(): bool{
 		$idn = static::getIdentifierNameStatic();
 		return $idn !== null && static::hasColumnStatic($idn) && ! (static::getKeyGenerationMode() === KEY_GENERATION_MODE_NATURAL && static::getColumnStatic($idn) instanceof ForeignKeyDatum);
 	}
@@ -2151,8 +2139,7 @@ StaticPermissionGatewayInterface{
 	 *        	: e.g. 0 returns the first item
 	 * @return mixed
 	 */
-	public function getForeignDataStructureListMemberAtOffset(string $column_name, int $offset): DataStructure
-	{
+	public function getForeignDataStructureListMemberAtOffset(string $column_name, int $offset): DataStructure{
 		$f = __METHOD__;
 		if (! $this->hasForeignDataStructureList($column_name)) {
 			Debug::error("{$f} no foreign data structure list for column \"{$column_name}\"");
@@ -2177,8 +2164,7 @@ StaticPermissionGatewayInterface{
 	 *        	: if > 0, call recursively on foreign data structures with $recursion_depth-1
 	 * @return NULL|DataStructure
 	 */
-	public function loadForeignDataStructure(mysqli $mysqli, string $column_name, bool $lazy = false, int $recursion_depth = 0): ?DataStructure
-	{
+	public function loadForeignDataStructure(mysqli $mysqli, string $column_name, bool $lazy = false, int $recursion_depth = 0): ?DataStructure{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -2191,7 +2177,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} key at column \"{$column_name}\" is undefined");
 				}
 				return null;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} key \"{$key}\" is stored in column \"{$column_name}\"");
 			}
 			// return if it was already registered
@@ -2217,7 +2203,7 @@ StaticPermissionGatewayInterface{
 					Debug::error("{$f} immediately after setting foreign data structure at column \"{$column_name}\" it is undefined");
 				}
 				return $struct;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} nothing maps to object \"{$key}\"");
 			}
 			$column = $this->getColumn($column_name);
@@ -2228,13 +2214,13 @@ StaticPermissionGatewayInterface{
 			$struct_class = $column->getForeignDataStructureClass($this);
 			if (empty($struct_class)) {
 				Debug::error("{$f} struct class is undefined");
-			} elseif (! class_exists($struct_class)) {
+			}elseif(! class_exists($struct_class)) {
 				Debug::error("{$f} struct class \"{$struct_class}\" does not exist");
-			} elseif (is_abstract($struct_class)) {
+			}elseif(is_abstract($struct_class)) {
 				Debug::error("{$f} class \"{$struct_class}\" cannot be instantiated");
-			} elseif (is_a($struct_class, ClassResolver::class, true)) {
+			}elseif(is_a($struct_class, ClassResolver::class, true)) {
 				Debug::error("{$f} foreign data structure class is a ClassResolver");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} column \"{$column_name}\" maps to a {$struct_class}");
 			}
 			$struct = new $struct_class();
@@ -2250,18 +2236,18 @@ StaticPermissionGatewayInterface{
 						Debug::warning("{$f} processing cached query results returned error status \"{$err}\"");
 						$this->setObjectStatus($status);
 						return null;
-					} elseif ($print) {
-						Debug::print("{$f} successfully loaded cached foreign data structure \"{$column_name}\" with key \"{$key}\" from redis");
+					}elseif($print) {
+						Debug::print("{$f} successfully loaded cached foreign data structure \"{$column_name}\" with key \"{$key}\"");
 					}
 					// return $this->setForeignDataStructure($column_name, $struct);
 					$struct->setLoadedFlag(true);
 					$struct->setObjectStatus(SUCCESS);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} cache miss for foreign data structure with key \"{$key}\"");
 				}
 				$struct->setTimeToLive($column->getTimeToLive());
-			} elseif ($print) {
-				Debug::print("{$f} foreign column does not have a redis cache duration");
+			}elseif($print) {
+				Debug::print("{$f} foreign column does not have a cache duration");
 			}
 			if ($lazy && ! $column->getEagerLoadFlag()) {
 				if ($print) {
@@ -2287,7 +2273,7 @@ StaticPermissionGatewayInterface{
 							$target->setObjectStatus($status);
 						}
 					});
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} recursion depth is 0");
 				}
 				lazy()->deferLoad($struct);
@@ -2306,7 +2292,7 @@ StaticPermissionGatewayInterface{
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} loading foreign data structure at column \"{$column_name}\" from table \"{$db}.{$table}\" returned error status \"{$err}\"");
 					$struct->setObjectStatus($status);
-				} elseif ($recursion_depth > 0) {
+				}elseif($recursion_depth > 0) {
 					if ($print) {
 						Debug::print("{$f} about to load data structures recursively");
 					}
@@ -2316,7 +2302,7 @@ StaticPermissionGatewayInterface{
 						Debug::warning("{$f} recursively calling this function on foreign data structure with column \"{$column_name}\" returned error status \"{$err}\"");
 						$struct->setObjectStatus($status);
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} recursion depth is 0");
 				}
 			}
@@ -2336,8 +2322,7 @@ StaticPermissionGatewayInterface{
 	 * @param string[] ...$names
 	 * @return string
 	 */
-	public function getColumnTypeSpecifier(...$names): string
-	{
+	public function getColumnTypeSpecifier(...$names): string{
 		$string = "";
 		if (! isset($names) || empty($names)) {
 			$names = $this->getColumnNames();
@@ -2360,8 +2345,7 @@ StaticPermissionGatewayInterface{
 	 * @param number $recursion_depth
 	 * @return int
 	 */
-	protected final function loadForeignDataStructureList(mysqli $mysqli, string $column_name, bool $lazy = false, int $recursion_depth = 0)
-	{
+	protected final function loadForeignDataStructureList(mysqli $mysqli, string $column_name, bool $lazy = false, int $recursion_depth = 0){
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -2381,7 +2365,7 @@ StaticPermissionGatewayInterface{
 							}
 						}
 						return SUCCESS;
-					} elseif (! $this->hasIdentifierValue()) {
+					}elseif(! $this->hasIdentifierValue()) {
 						if ($print) {
 							Debug::print("{$f} this piece of shit doesn't have a key yet");
 						}
@@ -2438,21 +2422,9 @@ StaticPermissionGatewayInterface{
 							$column->retainOriginalValue();
 						}
 						$column->setOriginalValue(array_keys($keys));
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} failed to load any keys for column \"{$column_name}\"");
 					}
-					/*
-					 * if($column->hasValue()){
-					 * $values = $column->getValue();
-					 * foreach($values as $key){
-					 * if(registry()->has($key) && !array_key_exists($key, $keys)){
-					 * $keys[$key] = registry()->get($key)->getClass();
-					 * }elseif($print){
-					 * Debug::print("{$f} registry knows nothing about an object with key \"{$key}\", or it's already part of the array");
-					 * }
-					 * }
-					 * }else
-					 */
 					if ($column->hasOriginalValue()) {
 						$column->setValue($column->getOriginalValue());
 					}
@@ -2482,10 +2454,10 @@ StaticPermissionGatewayInterface{
 							$this->setForeignDataStructureListMember($column_name, $struct);
 							continue;
 							// }
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} nothing registered for key \"{$key}\"");
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} data structure is not registrable");
 					}
 					$struct = new $struct_class();
@@ -2504,7 +2476,7 @@ StaticPermissionGatewayInterface{
 							$err = ErrorMessage::getResultMessage($status);
 							Debug::warning("{$f} loading foreign data structure returned error status \"{$err}\"");
 							$struct->setObjectStatus($status);
-						} elseif ($recursion_depth > 0) {
+						}elseif($recursion_depth > 0) {
 							if ($print) {
 								Debug::print("{$f} about to load data structures recursively");
 							}
@@ -2514,7 +2486,7 @@ StaticPermissionGatewayInterface{
 								Debug::warning("{$f} recursively calling this function on foreign data structure with column \"{$column_name}\" returned error status \"{$err}\"");
 								$struct->setObjectStatus($status);
 							}
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} recursion depth is 0");
 						}
 					}
@@ -2523,7 +2495,7 @@ StaticPermissionGatewayInterface{
 					}
 					$this->setForeignDataStructureListMember($column_name, $struct);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} key list is empty");
 			}
 			$column->setLoadedFlag(true);
@@ -2553,7 +2525,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} no foreign data structures to load");
 				}
 				return SUCCESS;
-			} elseif ($print) {
+			}elseif($print) {
 				$count = count($columns);
 				Debug::print("{$f} about to load {$count} foreign data structures from the following columns:");
 				Debug::printArray(array_keys($columns));
@@ -2582,7 +2554,7 @@ StaticPermissionGatewayInterface{
 						continue;
 					}
 					$this->loadForeignDataStructure($mysqli, $column_name, $lazy, $recursion_depth);
-				} elseif ($column instanceof KeyListDatum) {
+				}elseif($column instanceof KeyListDatum) {
 					if ($print) {
 						Debug::print("{$f} datum \"{$column_name}\" is a KeyListDatum");
 					}
@@ -2594,7 +2566,7 @@ StaticPermissionGatewayInterface{
 							}
 						}
 						$this->loadForeignDataStructureList($mysqli, $column_name, $lazy, $recursion_depth);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} no keys at column \"{$column_name}\"");
 					}
 				} else {
@@ -2611,23 +2583,21 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function hasForeignDataStructureList(string $column_name): bool
-	{
+	public function hasForeignDataStructureList(string $column_name): bool{
 		return isset($this->foreignDataStructures) && is_array($this->foreignDataStructures) && array_key_exists($column_name, $this->foreignDataStructures) && is_array($this->foreignDataStructures[$column_name]) && ! empty($this->foreignDataStructures[$column_name]);
 	}
 
-	public function getForeignDataStructureCount(string $column_name): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getForeignDataStructureCount(string $column_name): int{
+		$f = __METHOD__;
 		if (! isset($this->foreignDataStructures)) {
 			return 0;
-		} elseif (! is_array($this->foreignDataStructures)) {
+		}elseif(! is_array($this->foreignDataStructures)) {
 			Debug::error("{$f} foreignDataStructures is set, but not an array");
-		} elseif (! array_key_exists($column_name, $this->foreignDataStructures)) {
+		}elseif(! array_key_exists($column_name, $this->foreignDataStructures)) {
 			return 0;
-		} elseif (is_array($this->foreignDataStructures[$column_name])) {
+		}elseif(is_array($this->foreignDataStructures[$column_name])) {
 			return count($this->foreignDataStructures[$column_name]);
-		} elseif ($this->foreignDataStructures[$column_name] instanceof DataStructure) {
+		}elseif($this->foreignDataStructures[$column_name] instanceof DataStructure) {
 			return 1;
 		}
 		Debug::error("{$f} none of the above");
@@ -2640,15 +2610,14 @@ StaticPermissionGatewayInterface{
 	 * @param DataStructure[] $list
 	 * @return DataStructure[]
 	 */
-	public function setForeignDataStructureList(string $column_name, array $list): array
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setForeignDataStructureList(string $column_name, array $list): array{
+		$f = __METHOD__;
 		$print = false;
 		if (! is_array($list)) {
 			Debug::error("{$f} list is not an array");
-		} elseif (empty($list)) {
+		}elseif(empty($list)) {
 			Debug::error("{$f} don't call this function on an empty array");
-		} elseif (! isset($this->foreignDataStructures) || ! is_array($this->foreignDataStructures)) {
+		}elseif(! isset($this->foreignDataStructures) || ! is_array($this->foreignDataStructures)) {
 			$this->foreignDataStructures = [
 				$column_name => []
 			];
@@ -2671,21 +2640,20 @@ StaticPermissionGatewayInterface{
 	 * @param DataStructure $struct
 	 * @return DataStructure
 	 */
-	public final function setForeignDataStructureListMember(string $column_name, ...$structs): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public final function setForeignDataStructureListMember(string $column_name, ...$structs): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$pushed = 0;
 			foreach ($structs as $struct) {
 				if (is_array($struct)) {
 					Debug::error("{$f} data structure is an array. This function only accepts objects as its second parameter");
-				} elseif (! is_object($struct)) {
+				}elseif(! is_object($struct)) {
 					$gottype = gettype($struct);
 					Debug::error("{$f} structure's type is \"{$gottype}\"");
-				} elseif ($struct->getObjectStatus() === ERROR_DELETED) {
+				}elseif($struct->getObjectStatus() === ERROR_DELETED) {
 					Debug::print("{$f} structure is deleted");
-					return - 1;
+					return -1;
 				}
 				$status = $this->beforeSetForeignDataStructureHook($column_name, $struct);
 				if ($status !== SUCCESS) {
@@ -2708,7 +2676,7 @@ StaticPermissionGatewayInterface{
 						}
 						$key = $struct->getIdentifierValue();
 						$struct = registry()->getRegisteredObjectFromKey($key);
-					} elseif ($status !== SUCCESS) {
+					}elseif($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} generateKey returned error status \"{$err}\"");
 						$struct->setObjectStatus($status);
@@ -2719,9 +2687,9 @@ StaticPermissionGatewayInterface{
 				if (! is_string($key) && ! is_int($key)) {
 					$gottype = gettype($key);
 					Debug::error("{$f} data structure returned a {$gottype}");
-				} elseif (! array_key_exists($column_name, $this->foreignDataStructures)) {
+				}elseif(! array_key_exists($column_name, $this->foreignDataStructures)) {
 					$this->foreignDataStructures[$column_name] = [];
-				} elseif (! is_array($this->foreignDataStructures[$column_name])) {
+				}elseif(! is_array($this->foreignDataStructures[$column_name])) {
 					Debug::error("{$f} column {$column_name} does not map to an array");
 				}
 				//
@@ -2738,20 +2706,20 @@ StaticPermissionGatewayInterface{
 							$column->pushValue($key);
 							if (! $this->hasColumnValue($column_name)) {
 								Debug::error("{$f} immediatelty after pushing value, column \"{$column_name}\" has no value");
-							} elseif (! $column->applyFilter(COLUMN_FILTER_VALUED)) {
+							}elseif(! $column->applyFilter(COLUMN_FILTER_VALUED)) {
 								Debug::error("{$f} immediately after pushing value, failed filter " . COLUMN_FILTER_VALUED);
-							} elseif ($print) {
+							}elseif($print) {
 								Debug::print("{$f} pushed value successfully");
 							}
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} column \"{$column_name}\" already has a value \"{$key}\"");
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						if ($print) {
 							Debug::print("{$f} this object does not have a column \"{$column_name}\"");
 						}
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} key \"{$key}\" was already mapped");
 				}
 				if ($print) {
@@ -2770,11 +2738,11 @@ StaticPermissionGatewayInterface{
 								Debug::print("{$f} datum \"{$column_name}\" has an converse relationship column; about to assign this object to foreign data structure");
 							}
 							$this->reciprocateRelationship($column_name, $struct);
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} datum \"{$column_name}\" does not have an converse relationship key name");
 						}
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} this object does not have a column \"{$column_name}\"");
 				}
 				$status = $this->afterSetForeignDataStructureHook($column_name, $struct);
@@ -2792,14 +2760,13 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function isUninitialized(): bool
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function isUninitialized(): bool{
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			if ($this->getObjectStatus() === STATUS_PRELAZYLOAD) {
 				Debug::print("{$f} lazy load in progress");
-			} elseif (parent::isUninitialized()) {
+			}elseif(parent::isUninitialized()) {
 				Debug::print("{$f} parent function returned true");
 			} else {
 				$err = ErrorMessage::getResultMessage($this->getObjectStatus());
@@ -2809,66 +2776,19 @@ StaticPermissionGatewayInterface{
 		return $this->hasObjectStatus() && $this->getObjectStatus() === STATUS_PRELAZYLOAD || parent::isUninitialized();
 	}
 
-	public function getDeleteStatement(): DeleteStatement
-	{
-		return QueryBuilder::delete()->from($this->getDatabaseName(), $this->getTableName())
-			->where(new WhereCondition($this->getIdentifierName(), OPERATOR_EQUALS))
-			->limit(1);
+	public function getDeleteStatement(): DeleteStatement{
+		return QueryBuilder::delete()->from($this->getDatabaseName(), $this->getTableName())->where(new WhereCondition($this->getIdentifierName(), OPERATOR_EQUALS))->limit(1);
 	}
 
-	public function setDeleteForeignDataStructuresFlag($value)
-	{
+	public function setDeleteForeignDataStructuresFlag($value){
 		return $this->setFlag(DIRECTIVE_DELETE_FOREIGN, $value);
 	}
 
-	public function getDeleteForeignDataStructuresFlag()
-	{
+	public function getDeleteForeignDataStructuresFlag(){
 		return $this->getFlag(DIRECTIVE_DELETE_FOREIGN);
 	}
 
-	/**
-	 * counts how many objects have foreign key references to a shared data structure
-	 *
-	 * @param mysqli $mysqli
-	 * @param SharedDataInterface $struct
-	 * @return number
-	 */
-	public static function getForeignReferenceCount(mysqli $mysqli, SharedDataInterface $struct): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		$print = false;
-		if (! $struct instanceof SharedDataInterface) {
-			Debug::error("{$f} don't call this function on something that isn't a SharedDataInterface");
-		}
-		$ref_count = 0;
-		$shared_class = $struct->getClass();
-		$classes = app()->getForeignDataStructureSharingClasses($shared_class);
-		$column_names = $shared_class::getForegnKeyNamesAsSharedDataStructure();
-		$typedef = "";
-		foreach ($classes as $class) {
-			$params = [];
-			$where = new OrCommand();
-			foreach ($column_names as $column_name) {
-				if (! $class::hasColumnStatic($column_name)) {
-					continue;
-				}
-				$typedef .= $struct->getDatumObject($column_name)->getTypeSpecifier();
-				array_push($params, $struct->getIdentifierValue());
-				$where->pushParameters(new WhereCondition($column_name, OPERATOR_EQUALS));
-			}
-			if (empty($params)) {
-				continue;
-			}
-			$ref_count += $class::selectStatic(null, ...$column_names)->where($where)->prepareBindExecuteGetResultCount($mysqli, $typedef, ...$params);
-		}
-		if ($print && $ref_count > 0) {
-			Debug::warning("{$f} more than one object is using this as a description");
-		}
-		return $ref_count;
-	}
-
-	protected function beforeDeleteForeignDataStructuresHook(mysqli $mysqli): int
-	{
+	protected function beforeDeleteForeignDataStructuresHook(mysqli $mysqli): int{
 		$this->dispatchEvent(new BeforeDeleteForeignDataStructuresEvent());
 		return SUCCESS;
 	}
@@ -2879,11 +2799,10 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	public function deleteForeignDataStructures(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function deleteForeignDataStructures(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			$status = $this->permit(user(), DIRECTIVE_DELETE_FOREIGN);
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
@@ -2903,12 +2822,7 @@ StaticPermissionGatewayInterface{
 				if ($column instanceof KeyListDatum) {
 					if ($this->hasForeignDataStructureList($column_name)) {
 						foreach ($this->getForeignDataStructureList($column_name) as $key => $fds) {
-							if (is_a($fds, SharedDataInterface::class, true) && static::getForeignReferenceCount($mysqli, $fds) > 1) {
-								if ($print) {
-									Debug::print("{$f} foreign data structure {$key} from list \"{$column_name}\" is in use by more than one object");
-								}
-								continue;
-							} elseif ($fds->getDeleteFlag()) {
+							if ($fds->getDeleteFlag()) {
 								if ($print) {
 									$fdsc = $fds->getClass();
 									Debug::print("{$f} {$fdsc} with key \"{$key}\" is flagged for deletion");
@@ -2916,25 +2830,20 @@ StaticPermissionGatewayInterface{
 								array_push($delete_us, $fds);
 							}
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} no foreign data structure list \"{$column_name}\"");
 					}
-				} elseif ($column instanceof ForeignKeyDatum) {
+				}elseif($column instanceof ForeignKeyDatum) {
 					if (! $this->hasForeignDataStructure($column_name)) {
 						continue;
 					}
 					$struct = $this->getForeignDataStructure($column_name);
-					if (is_a($column->getForeignDataStructureClass(), SharedDataInterface::class, true) && static::getForeignReferenceCount($mysqli, $struct) > 1) {
-						if ($print) {
-							Debug::print("{$f} foreign data structure \"{$column_name}\" is in use by more than one object");
-						}
-						continue;
-					} elseif (! $struct->getDeleteFlag()) {
+					if (! $struct->getDeleteFlag()) {
 						if ($print) {
 							Debug::print("{$f} foreign data structure at column \"{$column_name}\" is NOT flagged for deletion");
 						}
 						continue;
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} foreign data structure at column \"{$column_name}\" IS flagged for deletion");
 						if ($column_name === "userKey") {
 							$fdsk = $this->getColumnValue($column_name);
@@ -2955,17 +2864,9 @@ StaticPermissionGatewayInterface{
 						Debug::warning("{$f} deleting object returned error status \"{$err}\"");
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} nothing to delete");
 			}
-			/*
-			 * $status = $this->update($mysqli);
-			 * if($status !== SUCCESS){
-			 * $err = ErrorMessage::getResultMessage($status);
-			 * Debug::error("{$f} nullifying description key returned error status \"{$err}\"");
-			 * return $this->setObjectStatus($status);
-			 * }
-			 */
 			$status = $this->afterDeleteForeignDataStructuresHook($mysqli);
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
@@ -2981,8 +2882,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	protected function afterDeleteForeignDataStructuresHook(mysqli $mysqli): int
-	{
+	protected function afterDeleteForeignDataStructuresHook(mysqli $mysqli): int{
 		$this->dispatchEvent(new AfterDeleteForeignDataStructuresEvent());
 		return SUCCESS;
 	}
@@ -2993,9 +2893,8 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	protected function beforeDeleteHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	protected function beforeDeleteHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		$print = false;
 		try {
 			// before delete event
@@ -3008,7 +2907,7 @@ StaticPermissionGatewayInterface{
 					}
 					if ($column instanceof ForeignKeyDatum) {
 						$this->getForeignDataStructure($column_name)->setDeleteFlag(true);
-					} elseif ($column instanceof KeyListDatum) {
+					}elseif($column instanceof KeyListDatum) {
 						if (! $this->hasForeignDataStructureList($column_name)) {
 							continue;
 						}
@@ -3017,7 +2916,7 @@ StaticPermissionGatewayInterface{
 						}
 					}
 					$this->setDeleteForeignDataStructuresFlag(true);
-				} elseif ($column->getContractVertexFlag()) {
+				}elseif($column->getContractVertexFlag()) {
 					if ($print) {
 						Debug::print("{$f} column \"{$column_name}\" has its contractVertex flag set");
 					}
@@ -3027,14 +2926,14 @@ StaticPermissionGatewayInterface{
 						Debug::warning("{$f} contractVertex returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} column \"{$column_name}\" does not have either of its recursiveDelete or contractVertex flag set");
 				}
 			}
 			// delete cascade triggers
 			if ($this->getFlag("cascadeDelete")) {
 				$this->cascadeDelete($mysqli);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} cascade delete flag is not set");
 			}
 			return SUCCESS;
@@ -3043,13 +2942,11 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function getDefaultPersistenceMode(): int
-	{ // XXX not implemented: non-static default persistence mode
+	public function getDefaultPersistenceMode(): int{ // XXX not implemented: non-static default persistence mode
 		return static::getDefaultPersistenceModeStatic();
 	}
 
-	public static function getPermissionStatic(string $name, $data)
-	{
+	public static function getPermissionStatic(string $name, $data){
 		return new AdminOnlyAccountTypePermission($name);
 	}
 
@@ -3059,9 +2956,8 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	public function delete(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function delete(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			// for superglobals
@@ -3123,8 +3019,8 @@ StaticPermissionGatewayInterface{
 				$status = $this->getObjectStatus();
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} prepared query statement returned error status \"{$err}\"");
-				return $this->getObjectStatus();
-			} elseif ($print) {
+				return $status;
+			}elseif($print) {
 				Debug::print("{$f} deletion successful");
 			}
 			// post-deletion hook
@@ -3133,7 +3029,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} after delete hook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif (isset($transactionId)) {
+			}elseif(isset($transactionId)) {
 				db()->commitTransaction($mysqli, $transactionId);
 			}
 			return SUCCESS;
@@ -3148,31 +3044,26 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	protected function afterDeleteHook(mysqli $mysqli): int
-	{
+	protected function afterDeleteHook(mysqli $mysqli): int{
 		$this->afterEditHook($mysqli, directive());
 		$this->dispatchEvent(new AfterDeleteEvent());
 		return SUCCESS;
 	}
 
-	public function getForeignDataStructureKey($column_name)
-	{
+	public function getForeignDataStructureKey($column_name){
 		return $this->getForeignDataStructure($column_name)->getIdentifierValue();
 	}
 
-	public function hasOldDataStructures()
-	{
+	public function hasOldDataStructures(){
 		return isset($this->oldDataStructures) && is_array($this->oldDataStructures) && ! empty($this->oldDataStructures);
 	}
 
-	public function hasOldDataStructureList(string $column_name): bool
-	{
+	public function hasOldDataStructureList(string $column_name): bool{
 		return $this->hasOldDataStructures() && array_key_exists($column_name, $this->oldDataStructures) && is_array($this->oldDataStructures[$column_name]) && ! empty($this->oldDataStructures[$column_name]);
 	}
 
-	public function getForeignDataStructureList(string $column_name): array
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getForeignDataStructureList(string $column_name): array{
+		$f = __METHOD__;
 		if (! $this->hasForeignDataStructureList($column_name)) {
 			Debug::error("{$f} no foreign data structure list at column \"{$column_name}\"");
 			return [];
@@ -3180,9 +3071,8 @@ StaticPermissionGatewayInterface{
 		return $this->foreignDataStructures[$column_name];
 	}
 
-	public function getForeignDataStructureListMember(string $column_name, $key): DataStructure
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getForeignDataStructureListMember(string $column_name, $key): DataStructure{
+		$f = __METHOD__;
 		if (! $this->hasForeignDataStructureListMember($column_name, $key)) {
 			Debug::error("{$f} undefined foreign data structure list member at column \"{$column_name}\", key \"{$key}\"");
 		}
@@ -3191,13 +3081,11 @@ StaticPermissionGatewayInterface{
 		return $s;
 	}
 
-	public function getForeignDataStructureListMemberCommand(string $column_name, $key): GetForeignDataStructureListMemberCommand
-	{
+	public function getForeignDataStructureListMemberCommand(string $column_name, $key): GetForeignDataStructureListMemberCommand{
 		return new GetForeignDataStructureListMemberCommand($this, $column_name, $key);
 	}
 
-	protected function beforeInsertForeignDataStructuresHook(mysqli $mysqli, string $when): int
-	{
+	protected function beforeInsertForeignDataStructuresHook(mysqli $mysqli, string $when): int{
 		$this->dispatchEvent(new BeforeInsertForeignDataStructuresEvent($when));
 		return SUCCESS;
 	}
@@ -3235,7 +3123,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} beforeInsertForeignDataStructuresHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} beforeInsertForeignDataStructureHook returned success");
 			}
 			if (empty($columns)) {
@@ -3272,13 +3160,13 @@ StaticPermissionGatewayInterface{
 									if ($struct->hasIdentifierValue()) {
 										$dupes[$struct->getIdentifierValue()] = $struct;
 									}
-								} elseif ($print) {
+								}elseif($print) {
 									Debug::print("{$f} struct has an identifier, and it has already been added to the insertion queue");
 								}
-							} elseif ($print) {
+							}elseif($print) {
 								Debug::print("{$f} {$column_name} member with key \"{$struct_key}\" is apoptotic before ever getting inserted");
 							}
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} insert flag is not set for foreign data structure list \"{$column_name}\" member \"{$struct_key}\"");
 						}
 					}
@@ -3286,12 +3174,12 @@ StaticPermissionGatewayInterface{
 						foreach ($this->getOldDataStructureList($column_name) as $old) {
 							if ($old->getDeleteFlag()) {
 								$old_structs[$old->getIdentifierValue()] = $old;
-							} elseif ($print) {
+							}elseif($print) {
 								Debug::print("{$f} deletion flag is not set");
 							}
 						}
 					}
-				} elseif ($this->hasForeignDataStructure($column_name)) {
+				}elseif($this->hasForeignDataStructure($column_name)) {
 					if ($print) {
 						Debug::print("{$f} yes, this object has a foreign data structure at column \"{$column_name}\"");
 					}
@@ -3307,7 +3195,7 @@ StaticPermissionGatewayInterface{
 						if ($struct->hasIdentifierValue()) {
 							$dupes[$struct->getIdentifierValue()] = $struct;
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} struct has an identifier, and it has already been added to the insertion queue");
 					}
 					// array_push($structs, $struct);
@@ -3321,10 +3209,10 @@ StaticPermissionGatewayInterface{
 								Debug::print("{$f} object has an old structure at column \"{$column_name}\" -- about to delete it");
 							}
 							array_push($old_structs, $old_struct);
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} old structure at column \"{$column_name}\" does not have its delete flag set");
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} this object does not have an old foreign data structure for column \"{$column_name}\"");
 					}
 				} else {
@@ -3355,7 +3243,7 @@ StaticPermissionGatewayInterface{
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} writing {$pretty} to database returned error message \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} successfully wrote new foreign data structure at column \"{$column_name}\"");
 				}
 			}
@@ -3392,7 +3280,7 @@ StaticPermissionGatewayInterface{
 							return $this->setObjectStatus($status);
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no old data structures to delete");
 			}
 
@@ -3401,7 +3289,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} afterInsertForeignDataStructuresHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} afterInsertForeignDataStructureHook returned success");
 			}
 			if ($print) {
@@ -3413,15 +3301,13 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	protected function afterInsertForeignDataStructuresHook(mysqli $mysqli, string $when): int
-	{
+	protected function afterInsertForeignDataStructuresHook(mysqli $mysqli, string $when): int{
 		$this->dispatchEvent(new AfterInsertForeignDataStructuresEvent($when));
 		return SUCCESS;
 	}
 
-	public function setPreInsertForeignDataStructuresFlag(bool $value = true): bool
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->setPreInsertForeignDataStructuresFlag()";
+	public function setPreInsertForeignDataStructuresFlag(bool $value = true): bool{
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			$did = $this->getDebugId();
@@ -3430,8 +3316,7 @@ StaticPermissionGatewayInterface{
 		return $this->setFlag(DIRECTIVE_PREINSERT_FOREIGN, $value);
 	}
 
-	public function getPreInsertForeignDataStructuresFlag(): bool
-	{
+	public function getPreInsertForeignDataStructuresFlag(): bool{
 		return $this->getFlag(DIRECTIVE_PREINSERT_FOREIGN);
 	}
 
@@ -3442,16 +3327,14 @@ StaticPermissionGatewayInterface{
 	 * @param string $directive
 	 * @return int
 	 */
-	protected function beforeEditHook(mysqli $mysqli, string $directive): int
-	{
+	protected function beforeEditHook(mysqli $mysqli, string $directive): int{
 		$this->dispatchEvent(new BeforeEditEvent(), [
 			'directive' => $directive
 		]);
 		return SUCCESS;
 	}
 
-	public function validate(): int
-	{
+	public function validate(): int{
 		if ($this->hasValidationClosure()) {
 			$closure = $this->getValidationClosure();
 			return $closure($this);
@@ -3466,9 +3349,8 @@ StaticPermissionGatewayInterface{
 	 * @param string $directive
 	 * @return int
 	 */
-	protected function beforeSaveHook(mysqli $mysqli, string $directive): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	protected function beforeSaveHook(mysqli $mysqli, string $directive): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$status = $this->beforeEditHook($mysqli, $directive);
@@ -3476,7 +3358,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} beforeEditHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} beforeEditHook successful");
 			}
 			$status = $this->validate();
@@ -3484,10 +3366,13 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} validate returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} validation successful");
 			}
 			// deal with mutually referential one to one relationships for objects being inserted simultaneously
+			if($print){
+				Debug::print("{$f} about to deal with mutually referential 1:1 foreign keys for class ".$this->getShortClass());
+			}
 			$columns = $this->getFilteredColumns(ForeignKeyDatum::class, COLUMN_FILTER_VALUED, COLUMN_FILTER_UPDATE, "!" . COLUMN_FILTER_INTERSECTION);
 			if (! empty($columns)) {
 				foreach ($columns as $cn => $column) {
@@ -3496,7 +3381,7 @@ StaticPermissionGatewayInterface{
 							Debug::print("{$f} column \"{$cn}\" is not one to one");
 						}
 						continue;
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} column \"{$cn}\" is one-to-one");
 					}
 					$status = $column->fulfillMutualReference();
@@ -3504,11 +3389,11 @@ StaticPermissionGatewayInterface{
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} fulfillMutualReference for column \"{$cn}\" returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} fulfillMutualReference succeeded for column \"{$cn}\"");
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no foreign key datums with defined values");
 				$this->debugMutualOneToOneForeignKeys();
 			}
@@ -3531,7 +3416,7 @@ StaticPermissionGatewayInterface{
 		$columns = $this->getFilteredColumns(ForeignKeyDatum::class, COLUMN_FILTER_VALUED, COLUMN_FILTER_UPDATE, "!" . COLUMN_FILTER_INTERSECTION);
 		if (empty($columns)) {
 			Debug::error("{$f} there are no mututal 1:1 foreign keys to debug");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} success");
 		}
 		return SUCCESS;
@@ -3581,13 +3466,13 @@ StaticPermissionGatewayInterface{
 							Debug::print("{$f} no foreign data structure \"{$name}\"");
 						}
 						continue;
-					} elseif ($column->hasValue()) {
+					}elseif($column->hasValue()) {
 						if ($print) {
 							$value = $column->getValue();
 							Debug::print("{$f} column \"{$name}\" already has a value, and it's \"{$value}\"");
 						}
 						continue;
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} about to generate key for foreign data structure \"{$name}\"");
 					}
 					$struct = $this->getForeignDataStructure($name);
@@ -3598,7 +3483,7 @@ StaticPermissionGatewayInterface{
 						return $this->setObjectStatus($status);
 					}
 					$this->setForeignDataStructure($name, $struct);
-				} elseif ($column instanceof KeyListDatum) {
+				}elseif($column instanceof KeyListDatum) {
 					if (! $this->hasForeignDataStructureList($name)) {
 						continue;
 					}
@@ -3615,7 +3500,7 @@ StaticPermissionGatewayInterface{
 								Debug::print("{$f} one of the foreign data structures for column \"{$name}\" already has an identifier");
 							}
 							continue;
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} about to generate key for foreign data structure list member of column \"{$name}\"");
 						}
 						$status = $struct->generateKey();
@@ -3642,9 +3527,8 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	protected function beforeInsertHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	protected function beforeInsertHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			// $this->debugMutualOneToOneForeignKeys();
@@ -3653,7 +3537,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} generate undefined foreign keys returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} generateUndefinedKeys executed successfully");
 			}
 			$status = $this->loadForeignDataStructures($mysqli);
@@ -3661,7 +3545,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} loadForeignDataStructures returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully loaded foreign data structures");
 			}
 			if (! $this->getFlag("expandForeign")) {
@@ -3670,10 +3554,10 @@ StaticPermissionGatewayInterface{
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} expandForeignDataStructures returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} successfully expanded foreign data structures");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} already expanded foreign data structures");
 			}
 			// beforeSaveHook gets called inside beforeInsert and beforeUpdate
@@ -3682,7 +3566,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} beforeSaveHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} beforeSaveHook executed successfully");
 			}
 			$this->dispatchEvent(new BeforeInsertEvent()); // moved from top
@@ -3692,14 +3576,12 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function beforeExpandHook(mysqli $mysqli): int
-	{
+	public function beforeExpandHook(mysqli $mysqli): int{
 		$this->dispatchEvent(new BeforeExpandEvent());
 		return SUCCESS;
 	}
 
-	public function afterExpandHook(mysqli $mysqli): int
-	{
+	public function afterExpandHook(mysqli $mysqli): int{
 		$this->dispatchEvent(new AfterExpandEvent());
 		return SUCCESS;
 	}
@@ -3710,9 +3592,8 @@ StaticPermissionGatewayInterface{
 	 *
 	 * @return NULL|EmbeddedData[]
 	 */
-	public function getEmbeddedDataStructures(): ?array
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getEmbeddedDataStructures(): ?array{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$columns = $this->getFilteredColumns(COLUMN_FILTER_EMBEDDED);
@@ -3732,13 +3613,16 @@ StaticPermissionGatewayInterface{
 					if ($print) {
 						Debug::print("{$f} EmbeddedData for group \"{$groupname}\" already exists");
 					}
-					$groups[$groupname]->pushColumn($column);
+					$replica = $column->replicate();
+					$replica->setPersistenceMode(PERSISTENCE_MODE_DATABASE);
+					$replica->setDataStructure($groups[$groupname]);
+					$groups[$groupname]->pushColumn($replica);
 					if ($column->getUpdateFlag()) {
 						if ($print) {
 							Debug::print("{$f} yes, embedded column \"{$column_name}\" is flagged for update");
 						}
 						$groups[$groupname]->setUpdateFlag(true);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} no, embedded column \"{$column_name}\" is NOT flagged for update");
 					}
 					continue;
@@ -3756,13 +3640,16 @@ StaticPermissionGatewayInterface{
 						Debug::error("{$f} embedded data identifier \"{$idn}\" is undefined");
 					}
 				}
-				$embedme->pushColumn($column);
+				$replica = $column->replicate();
+				$replica->setPersistenceMode(PERSISTENCE_MODE_DATABASE);
+				$replica->setDataStructure($embedme);
+				$embedme->pushColumn($replica);
 				if ($column->getUpdateFlag()) {
 					$embedme->setUpdateFlag(true);
 					if ($print) {
 						Debug::print("{$f} yes, embedded column \"{$column_name}\" is flagged for update");
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} no, embedded column \"{$column_name}\" is NOT flagged for update");
 				}
 				$groups[$groupname] = $embedme;
@@ -3798,7 +3685,7 @@ StaticPermissionGatewayInterface{
 	 * @return int
 	 */
 	private final function insertIntersectionData(mysqli $mysqli): int{
-		$f = "DataStructure(".static::getShortClass().")->insertIntersectionData()"; //__METHOD__;
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if($print){
@@ -3817,7 +3704,7 @@ StaticPermissionGatewayInterface{
 								$decl = $poly->getDeclarationLine();
 								Debug::error("{$f} zero length foreign key. Instantiated {$decl}");
 							}
-						} elseif ($poly instanceof KeyListDatum) {
+						}elseif($poly instanceof KeyListDatum) {
 							Debug::print("{$f} about to insert intersection data for column \"{$name}\"");
 						} else {
 							$class = $poly->getClass();
@@ -3843,11 +3730,11 @@ StaticPermissionGatewayInterface{
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} insertIntersectionData for column \"{$name}\" returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} successfully inserted intersection data for column \"{$name}\"");
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no polymorphic keys with actual values");
 			}
 			if($print){
@@ -3859,8 +3746,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	protected function beforeDeriveForeignDataStructuresHook(): int
-	{
+	protected function beforeDeriveForeignDataStructuresHook(): int{
 		$this->dispatchEvent(new BeforeDeriveForeignDataStructuresEvent());
 		return SUCCESS;
 	}
@@ -3873,11 +3759,10 @@ StaticPermissionGatewayInterface{
 	 *
 	 * @return int
 	 */
-	public function deriveForeignDataStructures(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function deriveForeignDataStructures(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			if ($this->getFlag("derived")) {
 				if ($print) {
 					Debug::print("{$f} already called this function");
@@ -3892,8 +3777,13 @@ StaticPermissionGatewayInterface{
 			}
 			$derived = $this->getFilteredColumns(COLUMN_FILTER_TEMPLATE);
 			if (empty($derived)) {
+				if($print){
+					Debug::print("{$f} there are no derivable columns to process");
+				}
 				$this->setFlag("derived", true);
 				return $this->afterDeriveForeignDataStructuresHook();
+			}elseif($print){
+				Debug::print("{$f} about to process ".count($derived)." foreign columns");
 			}
 			foreach ($derived as $name => $column) {
 				if (! $column->hasValue() && ! $column->hasOriginalValue()) {
@@ -3901,10 +3791,10 @@ StaticPermissionGatewayInterface{
 						Debug::print("{$f} column \"{$name}\" lacks an original or current value, continuing");
 					}
 					continue;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} about to generate/delete derived foreign data structures for column \"{$name}\"");
 				}
-				$inv = $column->getConverseRelationshipKeyName();
+				$inv = $column->getAppliedTemplateColumnName();
 				$new = $column->hasValue() ? $column->getValue() : [];
 				$old = $column->hasOriginalValue() ? $column->getOriginalValue() : [];
 				// generate derived foreign data structures, and flag them for insertion
@@ -3930,7 +3820,7 @@ StaticPermissionGatewayInterface{
 					}
 					$this->setPostInsertForeignDataStructuresFlag(true);
 					$this->setPostUpdateForeignDataStructuresFlag(true);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} there are no new foreign data structure to generate");
 				}
 				// flag old foreign data structures for deletion that are no longer needed
@@ -3947,15 +3837,16 @@ StaticPermissionGatewayInterface{
 							}
 							$fds->setDeleteFlag(true);
 							$this->setPostUpdateForeignDataStructuresFlag(true);
-						} elseif ($print) {
+							$this->setDeleteForeignDataStructuresFlag(true);
+						}elseif($print) {
 							Debug::print("{$f} foreign data structure in list \"{$name}\" with key \"{$key}\" will NOT be flagged for deletion");
 						}
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} there are no template keys to delete");
 				}
 				// eject column value, because only the derived data structure keeps a reference to the template
-				$column->ejectValue();
+				//$column->ejectValue();
 			}
 			$this->setFlag("derived", true);
 			$status = $this->afterDeriveForeignDataStructuresHook();
@@ -3968,8 +3859,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	protected function afterDeriveForeignDataStructuresHook(): int
-	{
+	protected function afterDeriveForeignDataStructuresHook(): int{
 		$this->dispatchEvent(new AfterDeriveForeignDataStructuresEvent());
 		return SUCCESS;
 	}
@@ -3983,14 +3873,18 @@ StaticPermissionGatewayInterface{
 	public /*final*/ function insert(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try {
+			$type = static::getDataType();
 			$print = false;
+			if($print){
+				Debug::print("{$f} entered");
+			}
 			// $this->debugMutualOneToOneForeignKeys();
 			if ($this->getFlag("inserting")) {
 				Debug::error("{$f} this object is already being inserted");
-			} elseif (! isset($mysqli)) {
+			}elseif(! isset($mysqli)) {
 				Debug::warning("{$f} mysqli object is undefined");
 				return $this->setObjectStatus(ERROR_MYSQL_CONNECT);
-			} elseif ($print) {
+			}elseif($print) {
 				$class = $this->getClass();
 				$did = $this->getDebugId();
 				Debug::print("{$f} inserting {$class} with debug ID \"{$did}\"");
@@ -4052,7 +3946,7 @@ StaticPermissionGatewayInterface{
 						Debug::warning("{$f} checking for duplicate entries returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} on duplicate entry update");
 			}
 			$this->log(DIRECTIVE_INSERT);
@@ -4068,7 +3962,7 @@ StaticPermissionGatewayInterface{
 					Debug::error("{$f} insertForeignDataStructures returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} preinsert foreign data structures flag is not set");
 			}
 			// generate param signature and execute prepared insertion query
@@ -4080,6 +3974,9 @@ StaticPermissionGatewayInterface{
 			$params2 = [];
 			$columns = $this->getFilteredColumns(DIRECTIVE_INSERT);
 			foreach ($columns as $column_name => $column) {
+				if($print){
+					Debug::print("{$f} inserting column \"{$column_name}\"");
+				}
 				$typedef .= $column->getTypeSpecifier();
 				array_push($params, $column->getDatabaseEncodedValue());
 				if ($this->getOnDuplicateKeyUpdateFlag() && $column_name !== $idn) {
@@ -4095,13 +3992,13 @@ StaticPermissionGatewayInterface{
 			$count = count($params);
 			if ($length === 0) {
 				Debug::error("{$f} type specifier is empty string");
-			} elseif ($count === 0) {
+			}elseif($count === 0) {
 				Debug::error("{$f} insert parameter count is 0");
-			} elseif ($length !== $count) {
+			}elseif($length !== $count) {
 				Debug::warning("{$f} type definition string \"{$typedef}\" does not match parameter count {$count} for query statement \"{$insert}\" with the following parameters:");
 				Debug::printArray($params);
 				Debug::printStackTrace();
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} about to prepare insertion query \"{$insert}\" with type definition string \"{$typedef}\" and parameter the following {$count} parameters");
 				Debug::printArray($params);
 			}
@@ -4121,7 +4018,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} failed to execute prepared insert query \"{$insert}\": \"{$err}\"");
 				return $this->setObjectStatus(ERROR_MYSQL_EXECUTE);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully executed prepared insertion query statement \"{$insert}\"");
 			}
 			// insert embedded data
@@ -4148,7 +4045,7 @@ StaticPermissionGatewayInterface{
 				if ($print) {
 					Debug::print("{$f} successfully inserted embedded data structure \"{$groupname}\"");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} there are no embedded data structures to insert");
 			}
 			// insert foreign data structures with foreign key constraints referring to this object
@@ -4166,7 +4063,7 @@ StaticPermissionGatewayInterface{
 					Debug::error("{$f} insertForeignDataStructures returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} post insert foreign data structures flag is not set");
 			}
 			$this->setObjectStatus(SUCCESS);
@@ -4176,7 +4073,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} insertIntersectionData returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully inserted IntersectionData");
 			}
 			// post-insertion hook
@@ -4185,7 +4082,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} after insert hook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif (isset($transactionId)) {
+			}elseif(isset($transactionId)) {
 				db()->commitTransaction($mysqli, $transactionId);
 			}
 			return $this->setObjectStatus($status);
@@ -4194,18 +4091,15 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function setInvalidateCacheFlag(bool $value = true): bool
-	{
+	public function setInvalidateCacheFlag(bool $value = true): bool{
 		return $this->setFlag("invalidateCache", $value);
 	}
 
-	public function getInvalidateCacheFlag(): bool
-	{
+	public function getInvalidateCacheFlag(): bool{
 		return $this->getFlag("invalidateCache");
 	}
 
-	protected function afterEditHook(mysqli $mysqli, string $directive): int
-	{
+	protected function afterEditHook(mysqli $mysqli, string $directive): int{
 		if (cache()->enabled() && $this->getInvalidateCacheFlag()) {
 			$ftn = new FullTableName($this->getDatabaseName(), $this->getTableName());
 			$sql = $ftn->toSQL();
@@ -4220,16 +4114,15 @@ StaticPermissionGatewayInterface{
 		return SUCCESS;
 	}
 
-	protected function afterSaveHook(mysqli $mysqli, string $directive): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	protected function afterSaveHook(mysqli $mysqli, string $directive): int{
+		$f = __METHOD__;
 		$print = false;
 		$status = $this->afterEditHook($mysqli, $directive);
 		if ($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} afterEditHook returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} afterEditHook returned successfully");
 		}
 		$this->dispatchEvent(new AfterSaveEvent(), [
@@ -4238,9 +4131,8 @@ StaticPermissionGatewayInterface{
 		return SUCCESS;
 	}
 
-	protected function afterInsertHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	protected function afterInsertHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		$print = false;
 		$status = $this->afterSaveHook($mysqli, DIRECTIVE_INSERT);
 		if ($status !== SUCCESS) {
@@ -4253,8 +4145,8 @@ StaticPermissionGatewayInterface{
 		if (is_int($status) && $status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} dispatching afterInsert changed status to \"{$err}\"");
-			return $status; // this->setObjectStatus($status);
-		} elseif ($print) {
+			return $status;
+		}elseif($print) {
 			Debug::print("{$f} successfully dispatched afterInsert event");
 		}
 		return SUCCESS;
@@ -4266,8 +4158,7 @@ StaticPermissionGatewayInterface{
 	 * @param ThrottleMeterData $meter
 	 * @return ThrottleMeterData
 	 */
-	protected function initializeThrottleMeter(ThrottleMeterData $meter): ThrottleMeterData
-	{
+	protected function initializeThrottleMeter(ThrottleMeterData $meter): ThrottleMeterData{
 		$limit = 10; // 5; //60;
 		$meter->setLimitPerMinute($limit);
 		return $meter;
@@ -4280,9 +4171,8 @@ StaticPermissionGatewayInterface{
 	 * @param DataStructure[] ...$structs
 	 * @return int
 	 */
-	public function pushForeignDataStructureListMember(string $phylum, ...$structs): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function pushForeignDataStructureListMember(string $phylum, ...$structs): int{
+		$f = __METHOD__;
 		$print = false;
 		if (! isset($structs)) {
 			Debug::error("{$f} missing second parameter");
@@ -4296,7 +4186,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} pushed new child with identifier \"{$key}\"");
 				}
 				$pushed ++;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} already have a child with identifier \"{$key}\"");
 			}
 		}
@@ -4309,8 +4199,7 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	public function throttle(mysqli $mysqli): int
-	{
+	public function throttle(mysqli $mysqli): int{
 		$meter = static::createThrottleMeterObject();
 		$meter = $this->initializeThrottleMeter($meter);
 		$timestamp = time();
@@ -4334,8 +4223,7 @@ StaticPermissionGatewayInterface{
 	 *
 	 * @return NULL
 	 */
-	public static function getCompositeUniqueColumnNames(): ?array
-	{
+	public static function getCompositeUniqueColumnNames(): ?array{
 		return null;
 	}
 
@@ -4346,9 +4234,8 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	public function preventDuplicateEntry(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function preventDuplicateEntry(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$or = new OrCommand();
@@ -4372,7 +4259,7 @@ StaticPermissionGatewayInterface{
 						$column = $this->getColumn($column_name);
 						if ($column->getUniqueFlag()) {
 							Debug::error("{$f} datum at column \"{$column_name}\" cannot be singularly and composite unique");
-						} elseif ($column instanceof ForeignKeyDatum && $column->getPersistenceMode() === PERSISTENCE_MODE_INTERSECTION) {
+						}elseif($column instanceof ForeignKeyDatum && $column->getPersistenceMode() === PERSISTENCE_MODE_INTERSECTION) {
 							if ($print) {
 								Debug::print("{$f} column \"{$column_name}\" is composite unique, foreign and stored in an intersection table");
 							}
@@ -4382,7 +4269,7 @@ StaticPermissionGatewayInterface{
 								}
 								if ($column->hasForeignDataTypeName()) {
 									$typename = $column->getForeignDataTypeName();
-								} elseif ($column->hasForeignDataSubtypeName()) {
+								}elseif($column->hasForeignDataSubtypeName()) {
 									$typename = $column->getForeignDataSubtypeName();
 								}
 								$and->pushParameters(new WhereCondition($typename, OPERATOR_IS_NULL));
@@ -4427,7 +4314,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} no duplicates, you're good");
 				}
 				return SUCCESS;
-			} elseif ($print) {
+			}elseif($print) {
 				if ($this->hasColumn("name")) {
 					$name = $this->getName();
 				} else {
@@ -4443,46 +4330,41 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public static function getKeyGenerationMode(): int
-	{
+	public static function getKeyGenerationMode(): int{
 		return KEY_GENERATION_MODE_PSEUDOKEY;
 	}
 
-	public function setIdentifierName(?string $idn): ?string
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setIdentifierName(?string $idn): ?string{
+		$f = __METHOD__;
 		if ($idn === null) {
 			unset($this->identifierName);
 			return null;
-		} elseif (! is_string($idn)) {
+		}elseif(! is_string($idn)) {
 			Debug::error("{$f} identifier name is not a string");
 		}
 		return $this->identifierName = $idn;
 	}
 
-	public function hasIdentifierName(): bool
-	{
+	public function hasIdentifierName(): bool{
 		return isset($this->identifierName);
 	}
 
-	public function getIdentifierName(): ?string
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getIdentifierName(): ?string{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->hasIdentifierName()) {
 			if ($print) {
 				Debug::print("{$f} non-static identifier name is \"{$this->identifierName}\"");
 			}
 			return $this->identifierName;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} falling back to static identifier name");
 		}
 		return static::getIdentifierNameStatic();
 	}
 
-	public static function getIdentifierNameStatic(): ?string
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public static function getIdentifierNameStatic(): ?string{
+		$f = __METHOD__;
 		$mode = static::getKeyGenerationMode();
 		switch ($mode) {
 			case KEY_GENERATION_MODE_PSEUDOKEY:
@@ -4499,32 +4381,27 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function setIdentifierValue($value)
-	{
+	public function setIdentifierValue($value){
 		return $this->setColumnValue($this->getIdentifierName(), $value);
 	}
 
-	public function getDataStructure(): DataStructure
-	{
+	public function getDataStructure(): DataStructure{
 		return $this;
 	}
 
-	public static function getObjectFromKey(mysqli $mysqli, $key, ?int $mode = null): ?DataStructure
-	{
+	public static function getObjectFromKey(mysqli $mysqli, $key, ?int $mode = null): ?DataStructure{
 		return static::getObjectFromVariable($mysqli, static::getIdentifierNameStatic(), $key, $mode);
 	}
 
-	public static function tableExistsStatic(mysqli $mysqli): bool
-	{
+	public static function tableExistsStatic(mysqli $mysqli): bool{
 		return QueryBuilder::tableExists($mysqli, static::getDatabaseNameStatic(), static::getTableNameStatic());
 	}
 
-	public function tableExists(mysqli $mysqli): bool
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function tableExists(mysqli $mysqli): bool{
+		$f = __METHOD__;
 		if ($mysqli->connect_errno) {
 			Debug::error("{$f} Failed to connect to MySQL: ({$mysqli->connect_errno}) {$mysqli->connect_error}");
-		} elseif (! $mysqli->ping()) {
+		}elseif(! $mysqli->ping()) {
 			Debug::error("{$f} mysqli connection failed ping test: \"" . $mysqli->error . "\"");
 		}
 		return QueryBuilder::tableExists($mysqli, $this->getDatabaseName(), $this->getTableName());
@@ -4538,13 +4415,12 @@ StaticPermissionGatewayInterface{
 	 * @param mixed $value
 	 * @return DataStructure|NULL
 	 */
-	public static function getObjectFromVariable(mysqli $mysqli, string $varname, $value, ?int $mode = null): ?DataStructure
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")::getObjectFromVariable()";
+	public static function getObjectFromVariable(mysqli $mysqli, string $varname, $value, ?int $mode = null): ?DataStructure{
+		$f = __METHOD__;
 		$print = false;
 		if (is_abstract(static::class)) {
 			Debug::error("{$f} don't call this on abstract classes");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::printStackTraceNoExit("{$f} entered; allocation mode is {$mode}");
 		}
 		$obj = new static($mode);
@@ -4560,22 +4436,20 @@ StaticPermissionGatewayInterface{
 		return $obj;
 	}
 
-	public function loadFromKey(mysqli $mysqli, $key): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->loadFromKey()";
+	public function loadFromKey(mysqli $mysqli, $key): int{
+		$f = __METHOD__;
 		$print = false;
 		$status = $this->load($mysqli, $this->getIdentifierName(), $key);
 		if ($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} loading object with key \"{$key}\" returned error status \"{$err}\"");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} loaded object with key \"{$key}\" successfully");
 		}
 		return $status;
 	}
 
-	public function ejectInsertIpAddress()
-	{
+	public function ejectInsertIpAddress(){
 		return $this->ejectColumnValue("insertIpAddress");
 	}
 
@@ -4584,13 +4458,11 @@ StaticPermissionGatewayInterface{
 		return $this->hasColumnValue("insertIpAddress");
 	}
 
-	public function setInsertIpAddress($ip)
-	{
+	public function setInsertIpAddress($ip){
 		return $this->setColumnValue("insertIpAddress", $ip);
 	}
 
-	public function getInsertIpAddress()
-	{
+	public function getInsertIpAddress(){
 		return $this->getColumnValue("insertIpAddress");
 	}
 
@@ -4598,8 +4470,7 @@ StaticPermissionGatewayInterface{
 	 *
 	 * @return InsertStatement
 	 */
-	public function getInsertStatement()
-	{
+	public function getInsertStatement(){
 		$expressions = [];
 		foreach ($this->getFilteredColumnNames(COLUMN_FILTER_INSERT) as $column_name) {
 			$expressions[$column_name] = new QuestionMark();
@@ -4623,9 +4494,8 @@ StaticPermissionGatewayInterface{
 	 * @param string $config_id
 	 * @return boolean[]
 	 */
-	public function getArrayMembershipConfiguration($config_id): ?array
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getArrayMembershipConfiguration($config_id): ?array{
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			Debug::warning("{$f} override this is derived classes to determine which data are returned in the toArray function for a given use case");
@@ -4666,13 +4536,11 @@ StaticPermissionGatewayInterface{
 		return $config;
 	}
 
-	public function setArrayMembershipConfiguredFlag(bool $value = true): bool
-	{
+	public function setArrayMembershipConfiguredFlag(bool $value = true): bool{
 		return $this->setFlag("arrayMembershipConfigured", $value);
 	}
 
-	public function getArrayMembershipConfiguredFlag(): bool
-	{
+	public function getArrayMembershipConfiguredFlag(): bool{
 		return $this->getFlag("arrayMembershipConfigured");
 	}
 
@@ -4683,14 +4551,13 @@ StaticPermissionGatewayInterface{
 	 *        	: array for specifying per-column membership, or a string to pass to getArrayMembershipConfiguration to generate one
 	 * @return int
 	 */
-	public function configureArrayMembership($config_id)
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function configureArrayMembership($config_id){
+		$f = __METHOD__;
 		$print = false;
 		$this->setArrayMembershipConfiguredFlag(true);
 		if (is_string($config_id) || is_int($config_id)) {
 			$keyvalues = $this->getArrayMembershipConfiguration($config_id);
-		} elseif (is_array($config_id)) {
+		}elseif(is_array($config_id)) {
 			$keyvalues = $config_id;
 		} else {
 			Debug::error("{$f} config ID must be a string, integer or array");
@@ -4708,9 +4575,8 @@ StaticPermissionGatewayInterface{
 		return SUCCESS;
 	}
 
-	public function debugPrintForeignDataStructures()
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function debugPrintForeignDataStructures(){
+		$f = __METHOD__;
 		foreach ($this->getForeignDataStructuresArray() as $key => $value) {
 			if (is_array($value)) {
 				foreach (array_keys($value) as $subvalue) {
@@ -4821,16 +4687,16 @@ StaticPermissionGatewayInterface{
 				}
 				if (empty($column)) {
 					Debug::error("{$f} datum is undefined");
-				} elseif (! $column instanceof AbstractDatum) {
+				}elseif(! $column instanceof AbstractDatum) {
 					$gottype = is_object($column) ? $column->getClass() : gettype($column);
 					Debug::error("{$f} datum is a {$gottype}");
-				} elseif ($column instanceof DatumBundle) {
+				}elseif($column instanceof DatumBundle) {
 					$components = $column->generateComponents($ds);
 					foreach ($components as $component) {
 						$component->setDeclaredFlag(true);
 						if (is_array($component)) {
 							Debug::error("{$f} component is an array");
-						} elseif (! $component->hasPersistenceMode()) {
+						}elseif(! $component->hasPersistenceMode()) {
 							$component->setPersistenceMode($ps);
 						}
 						if ($ds !== null) {
@@ -4848,7 +4714,7 @@ StaticPermissionGatewayInterface{
 				if (! $column->hasEncryptionScheme()) {
 					if (! $column->hasPersistenceMode()) {
 						$column->setPersistenceMode($ps);
-					} elseif ($print) {
+					}elseif($print) {
 						$ps2 = $column->getPersistenceMode();
 						Debug::print("{$f} datum \"{$vn}\" already has its storage mode set to {$ps2}");
 					}
@@ -4857,7 +4723,7 @@ StaticPermissionGatewayInterface{
 				$scheme_class = $column->getEncryptionScheme();
 				if (is_int($scheme_class)) {
 					Debug::error("{$f} encryption scheme \"{$scheme_class}\" is an integer");
-				} elseif (! class_exists($scheme_class)) {
+				}elseif(! class_exists($scheme_class)) {
 					Debug::error("{$f} encryption scheme class \"{$scheme_class}\" does not exist");
 				}
 				$scheme_obj = new $scheme_class();
@@ -4865,7 +4731,7 @@ StaticPermissionGatewayInterface{
 					if (! array_key_exists("replacementKeyRequested", $columns)) {
 						if (! $ds instanceof DataStructure) {
 							Debug::error("{$f} this part breaks down if you don't provide a data structure");
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} replacementKeyRequested has not already been pushed");
 						}
 						$requested = new BooleanDatum("replacementKeyRequested");
@@ -4985,7 +4851,7 @@ StaticPermissionGatewayInterface{
 				Debug::print($config_id);
 			}
 			$this->configureArrayMembership($config_id);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} config ID is null");
 		}
 		$columns = $this->getFilteredColumns(COLUMN_FILTER_ARRAY_MEMBER);
@@ -4999,7 +4865,7 @@ StaticPermissionGatewayInterface{
 					Debug::error("{$f} datum \"{$column_name}\" does not have its array membership flag set");
 				}
 				continue;
-			} elseif ($column instanceof JsonDatum) {
+			}elseif($column instanceof JsonDatum) {
 				$value = $column->getValue();
 			} else {
 				if ($print) {
@@ -5029,8 +4895,7 @@ StaticPermissionGatewayInterface{
 		Json::echo($this->toArray(), $destroy, false);
 	}
 
-	public function echoJson(bool $destroy = false): void
-	{
+	public function echoJson(bool $destroy = false): void{
 		Json::echo($this->toArray(), $destroy, false);
 	}
 
@@ -5089,7 +4954,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} generateKey returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully generated key");
 			}
 			// iterate through the other columns and set their values
@@ -5100,12 +4965,12 @@ StaticPermissionGatewayInterface{
 						Debug::print("{$f} column \"{$name}\" has already generated its value \"" . $column->getValue() . "\"");
 					}
 					continue;
-				} elseif ($idn !== null && $name === $idn) {
+				}elseif($idn !== null && $name === $idn) {
 					if ($print) {
 						Debug::print("{$f} skipping identifier column \"{$idn}\" generation");
 					}
 					continue;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} about to generate initial value for column \"{$name}\"");
 				}
 				if ($column->getPersistenceMode() !== PERSISTENCE_MODE_COOKIE || ! headers_sent()) {
@@ -5114,10 +4979,10 @@ StaticPermissionGatewayInterface{
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} column \"{$name}\" returned error status \"{$err}\" when generating initial value");
 						return $this->setObjectStatus($status);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} generated initial value for column \"{$name}\"");
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} this column is stored in cookies, and headers were already sent");
 				}
 			}
@@ -5127,7 +4992,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} afterGenerateInitialValuesHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} returning normally");
 			}
 			return SUCCESS;
@@ -5175,11 +5040,11 @@ StaticPermissionGatewayInterface{
 				if ($print) {
 					Debug::print("{$f} this object has no identifier whatsoever");
 				}
-			} elseif (! $this->hasColumn($idn)) {
+			}elseif(! $this->hasColumn($idn)) {
 				if ($print) {
 					Debug::print("{$f} this object does not have a column \"{$idn}\"");
 				}
-			} elseif (! $this->hasIdentifierValue()) {
+			}elseif(! $this->hasIdentifierValue()) {
 				if ($print) {
 					Debug::print("{$f} key has not been generated");
 				}
@@ -5188,7 +5053,7 @@ StaticPermissionGatewayInterface{
 						$key = $this->getIdentifierValue();
 						Debug::error("{$f} key was already generated -- returning \"{$key}\"");
 						return SUCCESS;
-					} elseif ($print) {
+					}elseif($print) {
 						$column = $this->getColumn('uniqueKey');
 						$column_class = $column->getClass();
 						Debug::print("{$f} key generation mode is \"{$mode}\"; about to generate key with datum of class \"{$column_class}\"");
@@ -5207,7 +5072,7 @@ StaticPermissionGatewayInterface{
 					if (registry()->hasObjectRegisteredToKey($key)) {
 						if ($this->getKeyGenerationMode() !== KEY_GENERATION_MODE_HASH) {
 							Debug::error("{$f} impermissable key collision");
-						} elseif ($print) {
+						}elseif($print) {
 							$collision = registry()->getRegisteredObjectFromKey($key);
 							$cc = $collision->getClass();
 							$did1 = $this->getDebugId();
@@ -5219,10 +5084,10 @@ StaticPermissionGatewayInterface{
 						return $this->setObjectStatus(ERROR_KEY_COLLISION);
 					}
 					registry()->registerObjectToKey($key, $this);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} natural key generation mode");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} object's key was already generated");
 			}
 
@@ -5298,7 +5163,7 @@ StaticPermissionGatewayInterface{
 		if ($value && $this->getDeleteFlag()) {
 			Debug::error("{$f} cannot simultaneously flag an object for both insertion and deletion. The object may have tripped its apoptosis signal");
 			return $this->setDeleteFlag(false);
-		} elseif ($print) {
+		}elseif($print) {
 			$did = $this->getDebugId();
 			Debug::print("{$f} entered. Debug Id is \"{$did}\"");
 		}
@@ -5377,9 +5242,9 @@ StaticPermissionGatewayInterface{
 						if ($print) {
 							if ($delete) {
 								Debug::print("{$f} going to delete the old FileData");
-							} elseif (! is_array($files)) {
+							}elseif(! is_array($files)) {
 								Debug::print("{$f} files array is not an array");
-							} elseif (! array_key_exists($column_name, $files)) {
+							}elseif(! array_key_exists($column_name, $files)) {
 								Debug::print("{$f} key \"{$column_name}\" is not present is files array");
 								Debug::printArray($files);
 							}
@@ -5405,7 +5270,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} datum is a foreign key datum");
 				}
 				$multiple = false;
-			} elseif ($column instanceof KeyListDatum) {
+			}elseif($column instanceof KeyListDatum) {
 				if ($print) {
 					Debug::print("{$f} datum is a key list datum");
 				}
@@ -5539,7 +5404,7 @@ StaticPermissionGatewayInterface{
 						Debug::print("{$f} existing data structure was flagged for deletion before it was inserted into the database. This is only possible if the object was told to apoptose.");
 					}
 					return STATUS_UNCHANGED;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} new data structure did not pre-apoptose");
 				}
 			}
@@ -5560,7 +5425,7 @@ StaticPermissionGatewayInterface{
 					if ($print) {
 						Debug::print("{$f} subordinate {$subclass} has a natural key");
 					}
-				} elseif ($subordinate_structure->hasIdentifierValue()) {
+				}elseif($subordinate_structure->hasIdentifierValue()) {
 					if ($print) {
 						Debug::print("{$f} subordinate structure already has a key");
 					}
@@ -5572,10 +5437,10 @@ StaticPermissionGatewayInterface{
 						}
 						$key = $subordinate_structure->getIdentifierValue();
 						$subordinate_structure = registry()->getRegisteredObjectFromKey($key);
-					} elseif ($status !== SUCCESS) {
+					}elseif($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} generateKey returned error status \"{$err}\"");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} no key collision detected; setting insert flag");
 					}
 				}
@@ -5607,7 +5472,7 @@ StaticPermissionGatewayInterface{
 					}
 					$subordinate_structure->setObjectStatus(STATUS_READY_WRITE);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} foreign data structure \"{$column_name}\" will not get inserted today");
 			}
 			// set reference to foreign data structure
@@ -5631,8 +5496,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	protected function apoptoseHook($caller): int
-	{
+	protected function apoptoseHook($caller): int{
 		$this->dispatchEvent(new ApoptoseEvent($caller));
 		return SUCCESS;
 	}
@@ -5687,7 +5551,7 @@ StaticPermissionGatewayInterface{
 					}
 					return $column->setObjectStatus($status);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} input variable that is supposed to be an array is not");
 			}
 			// CheckedInput has an implicit value of false if its name is not found
@@ -5697,16 +5561,16 @@ StaticPermissionGatewayInterface{
 				}
 				if ($column instanceof BooleanDatum) {
 					$column->setValue(false);
-				} elseif ($column->hasValue()) {
+				}elseif($column->hasValue()) {
 					if ($print) {
 						Debug::print("{$f} datum has a value");
 					}
 					$column->ejectValue();
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} datum does not have a value");
 				}
 				return SUCCESS;
-			} elseif ( // input isn't a checkbox/file and has no apparent value
+			}elseif( // input isn't a checkbox/file and has no apparent value
 			! $input instanceof CheckedInput && ! $input instanceof FileInput && ! $input->hasValueAttribute() && ! $column->getSensitiveFlag()) // XXX TODO what is this for again ???
 			{
 				if ($print) {
@@ -5735,7 +5599,7 @@ StaticPermissionGatewayInterface{
 						return STATUS_UNCHANGED; // continue;
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} input \"{$column_name}\" has a value attribute");
 			}
 			if ($print) {
@@ -5757,7 +5621,7 @@ StaticPermissionGatewayInterface{
 						Debug::print("{$f} name \"{$column_name}\" exists in the files array");
 					}
 					$subfiles = $files[$column_name];
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} name \"{$column_name}\" does NOT exist in the files array");
 					Debug::print($files);
 				}
@@ -5773,11 +5637,11 @@ StaticPermissionGatewayInterface{
 							Debug::print("{$f} time to process resized file");
 						}
 						$status = $this->processResizedFiles($sub_arr);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} not going to bother looking for resized files");
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} input at column \"{$column_name}\" is not a file input");
 			}
 			if ($status === STATUS_UNCHANGED) {
@@ -5785,7 +5649,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} column \"{$column_name}\" did not change");
 				}
 				$unchanged ++;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} column \"{$column_name}\" changed");
 			}
 			if ($print) {
@@ -5904,7 +5768,7 @@ StaticPermissionGatewayInterface{
 											$err = ErrorMessage::getResultMessage($status);
 											Debug::error("{$f} processing subordinate form at column name \"{$column_name}\" returned error status \"{$err}\"");
 									}
-								} elseif ($print) {
+								}elseif($print) {
 									Debug::print("{$f} subordinate form at column \"{$column_name}\" will not be processed");
 								}
 							}
@@ -5921,7 +5785,7 @@ StaticPermissionGatewayInterface{
 							}
 							$unchanged_children = 0;
 						}
-					} elseif ($column instanceof ForeignKeyDatum) {
+					}elseif($column instanceof ForeignKeyDatum) {
 						if (! empty($sub_arr) || ! empty($subfiles)) {
 							if ($print) {
 								Debug::print("{$f} about to process subordinate form at column \"{$column_name}\"");
@@ -5933,10 +5797,10 @@ StaticPermissionGatewayInterface{
 									Debug::print("{$f} processing subordinate form for column \"{$column_name}\" resulted in no change");
 								}
 								$unchanged ++;
-							} elseif ($print) {
+							}elseif($print) {
 								Debug::print("{$f} processing subordinate form resulted in a change to foreign data structure \"{$column_name}\"");
 							}
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} subordinate form at column \"{$column_name}\" will not be processed");
 						}
 					} else {
@@ -5950,11 +5814,11 @@ StaticPermissionGatewayInterface{
 				if (! isset($status)) {
 					Debug::error("{$f} status is undefined");
 					return $this->setObjectStatus(FAILURE);
-				} elseif ($status === SUCCESS) {
+				}elseif($status === SUCCESS) {
 					if ($print) {
 						Debug::print("{$f} assigned value to column name \"{$column_name}\"; unchanged column count is {$unchanged}");
 					}
-				} elseif ($status === STATUS_UNCHANGED) {
+				}elseif($status === STATUS_UNCHANGED) {
 					if ($print) {
 						Debug::print("{$f} value at column \"{$column_name}\" did not change");
 					}
@@ -5971,12 +5835,12 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} this object was marked unchanged at some point");
 				}
 				return $status;
-			} elseif ($unchanged === count($input_classes)) {
+			}elseif($unchanged === count($input_classes)) {
 				if ($print) {
 					Debug::print("{$f} nothing changed ({$unchanged} unchanged columns)");
 				}
 				return STATUS_UNCHANGED;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} returning normally");
 			}
 			return SUCCESS;
@@ -5985,7 +5849,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function ejectSerialNumber(){
+	public function ejectSerialNumber():?int{
 		return $this->ejectColumnValue("num");
 	}
 
@@ -6001,7 +5865,7 @@ StaticPermissionGatewayInterface{
 	 * @param string $column_name
 	 * @return Datum
 	 */
-	public static function getDatumClassStatic($column_name){
+	public static function getDatumClassStatic(string $column_name):string{
 		$f = __METHOD__;
 		try {
 			$columns = [];
@@ -6031,9 +5895,9 @@ StaticPermissionGatewayInterface{
 		foreach ($column_names as $column_name) {
 			if (! is_string($column_name)) {
 				Debug::error("{$f} column name is not a string");
-			} elseif (false === array_search($column_name, $column_names)) {
+			}elseif(false === array_search($column_name, $column_names)) {
 				Debug::error("{$f} column \"{$column_name}\" does not exist");
-			} elseif (! array_key_exists($column_name, $columns)) {
+			}elseif(! array_key_exists($column_name, $columns)) {
 				Debug::error("{$f} there is no column with the name \"{$column_name}\"");
 			}
 			$arr[$column_name] = $columns[$column_name];
@@ -6060,7 +5924,7 @@ StaticPermissionGatewayInterface{
 					} else {
 						Debug::error("{$f} column name is an object created " . $column_name->getDeclarationLine());
 					}
-				} elseif (is_string($column_name)) {
+				}elseif(is_string($column_name)) {
 					$string .= $this->getColumn($column_name)->getTypeSpecifier();
 				} else {
 					Debug::error("{$f} column name is neither string nor type specifiying object");
@@ -6072,11 +5936,11 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function getOnDuplicateKeyUpdateFlag(){
+	public function getOnDuplicateKeyUpdateFlag():bool{
 		return $this->getFlag("onDuplicateKeyUpdate");
 	}
 
-	public function setOnDuplicateKeyUpdateFlag($value){
+	public function setOnDuplicateKeyUpdateFlag(bool $value=true):bool{
 		return $this->setFlag("onDuplicateKeyUpdate", $value);
 	}
 
@@ -6093,7 +5957,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} identifier name is null");
 				}
 				return null;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} identifier name is \"{$vn}\"");
 			}
 			$key = $this->getColumnValue($vn);
@@ -6157,15 +6021,15 @@ StaticPermissionGatewayInterface{
 							Debug::print("{$f} column \"{$column_name}\" is disabled");
 						}
 						continue;
-					} elseif ($column->applyFilter(COLUMN_FILTER_DATABASE)) {
+					}elseif($column->applyFilter(COLUMN_FILTER_DATABASE)) {
 						array_push($db_column_names, $column_name);
-					} elseif ($column->applyFilter(COLUMN_FILTER_EMBEDDED)) {
+					}elseif($column->applyFilter(COLUMN_FILTER_EMBEDDED)) {
 						$group = $column->getEmbeddedName();
 						if (! array_key_exists($group, $embedded_columns)) {
 							$embedded_columns[$group] = [];
 						}
 						array_push($embedded_columns[$group], $column_name);
-					} elseif ($column->applyFilter(COLUMN_FILTER_ALIAS)) {
+					}elseif($column->applyFilter(COLUMN_FILTER_ALIAS)) {
 						array_push($alias_column_names, $column_name);
 					} else {
 						Debug::error("{$f} attempting to select non-database, non-embedded column \"{$column_name}\"");
@@ -6190,7 +6054,7 @@ StaticPermissionGatewayInterface{
 			if (! empty($embedded_columns) || ! empty($alias_column_names)) {
 				if (false === array_search($identifierName, $db_column_names)) {
 					array_push($db_column_names, $identifierName);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} identifier column name is already getting queried");
 				}
 			}
@@ -6259,11 +6123,11 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function getReloadedFlag(){
+	public function getReloadedFlag():bool{
 		return $this->getFlag("reloaded");
 	}
 
-	public function setReloadedFlag($value = true){
+	public function setReloadedFlag(bool $value = true):bool{
 		return $this->setFlag("reloaded", $value);
 	}
 
@@ -6288,7 +6152,7 @@ StaticPermissionGatewayInterface{
 								if ($print) {
 									if (! $fds->getLoadedFlag()) {
 										Debug::print("{$f} foreign data structure \"{$column_name}\" was not loaded from the database in the first place");
-									} elseif ($fds->getReloadedFlag()) {
+									}elseif($fds->getReloadedFlag()) {
 										Debug::print("{$f} foreign data structure \"{$column_name}\" has already been reloaded");
 									}
 								}
@@ -6302,10 +6166,10 @@ StaticPermissionGatewayInterface{
 								Debug::warning("{$f} reloading foreign data structure {$fdsc} \"{$column_name}\" with key \"{$fdsk}\" returned error status \"{$err}\"");
 								return $this->setObjectStatus($status);
 							}
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} foreign object \"{$column_name}\" will not be reloaded");
 						}
-					} elseif ($column instanceof KeyListDatum) {
+					}elseif($column instanceof KeyListDatum) {
 						if ($this->hasForeignDataStructureList($column_name)) {
 							$list = $this->getForeignDataStructureList($column_name);
 							foreach ($list as $foreign_key => $fds) {
@@ -6313,7 +6177,7 @@ StaticPermissionGatewayInterface{
 									if ($print) {
 										if (! $fds->getLoadedFlag()) {
 											Debug::print("{$f} foreign data structure \"{$column_name}\" with key \"{$foreign_key}\" was not loaded from the database in the first place");
-										} elseif ($fds->getReloadedFlag()) {
+										}elseif($fds->getReloadedFlag()) {
 											Debug::print("{$f} foreign data structure \"{$column_name}\" with key \"{$foreign_key}\" has already been reloaded");
 										}
 									}
@@ -6326,12 +6190,12 @@ StaticPermissionGatewayInterface{
 									return $this->setObjectStatus($status);
 								}
 							}
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} no foreign data structure list \"{$column_name}\"");
 						}
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no foreign key columns");
 			}
 			return SUCCESS;
@@ -6361,7 +6225,7 @@ StaticPermissionGatewayInterface{
 					Debug::warning("{$f} failed to reload object: not found");
 				}
 				return $this->loadFailureHook();
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully reloaded object with key \"{$iv}\"");
 			}
 			$status = $this->processQueryResultArray($mysqli, $results[0]);
@@ -6378,7 +6242,7 @@ StaticPermissionGatewayInterface{
 					Debug::error("{$f} reloadForeignDataStructures returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} skipping foreign data structure reload");
 			}
 			$this->setReloadedFlag(false);
@@ -6427,7 +6291,7 @@ StaticPermissionGatewayInterface{
 						}
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} foreign data structures are undefined");
 			}
 			if ($foreign) {
@@ -6441,7 +6305,7 @@ StaticPermissionGatewayInterface{
 					$reloaded->setObjectStatus($status);
 					return $reloaded;
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} not going to reload foreign data structures");
 			}
 			// copy flags, but not all of them
@@ -6506,11 +6370,11 @@ StaticPermissionGatewayInterface{
 		return getDateTimeStringFromTimestamp($this->getUpdatedTimestamp());
 	}
 
-	public function isDeleted(){
+	public function isDeleted():bool{
 		return $this->hasObjectStatus() && $this->getObjectStatus() === STATUS_DELETED;
 	}
 
-	public function hasUpdatedTimestamp(){
+	public function hasUpdatedTimestamp():bool{
 		return $this->hasColumnValue("updatedTimestamp");
 	}
 
@@ -6519,19 +6383,6 @@ StaticPermissionGatewayInterface{
 			return $this->getInsertTimestamp();
 		}
 		return $this->getColumnValue("updatedTimestamp");
-	}
-
-	public function hasSubordinateDataStructures(){
-		$indices = array_keys($this->getSubordinateForeignKeyDatums());
-		if (empty($indices)) {
-			return false;
-		}
-		foreach ($indices as $column_name) {
-			if ($this->hasForeignDataStructure($column_name)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	protected function beforeUpdateForeignDataStructuresHook(mysqli $mysqli, string $when): int{
@@ -6550,7 +6401,7 @@ StaticPermissionGatewayInterface{
 	private function updateForeignDataStructures(mysqli $mysqli, string $when): int{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			switch ($when) {
 				case CONST_BEFORE:
 					$columns = $this->getFilteredColumns(COLUMN_FILTER_BEFORE);
@@ -6568,13 +6419,13 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} beforeUpdateForeignDataStructuresHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} beforeUpdateForeignDataStructureHook returned success");
 			}
 			foreach ($columns as $column_name => $column) {
 				if ($column instanceof KeyListDatum) {
 					$multiple = true;
-				} elseif ($column instanceof ForeignKeyDatum) {
+				}elseif($column instanceof ForeignKeyDatum) {
 					$multiple = false;
 				} else {
 					Debug::error("{$f} neither of the above for column \"{$column_name}\"");
@@ -6599,7 +6450,7 @@ StaticPermissionGatewayInterface{
 							Debug::print("{$f} struct at column \"{$column_name}\" does not have its update flag set");
 						}
 						continue;
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} about to update subordinate data structure at column \"{$column_name}\"");
 					}
 					$status = $struct->update($mysqli);
@@ -6607,18 +6458,17 @@ StaticPermissionGatewayInterface{
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} updating data structure at column \"{$column_name}\" returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} successfully updated subordinate data structure at column \"{$column_name}\"");
 					}
 				}
 			}
-
 			$status = $this->afterUpdateForeignDataStructuresHook($mysqli, $when);
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} afterUpdateForeignDataStructuresHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} afterUpdateForeignDataStructureHook returned success");
 			}
 
@@ -6669,7 +6519,7 @@ StaticPermissionGatewayInterface{
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::error("{$f} generate undefined foreign keys returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} generateUndefinedForeignKeys returned successfully");
 		}
 		$status = $this->loadForeignDataStructures($mysqli);
@@ -6677,7 +6527,7 @@ StaticPermissionGatewayInterface{
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} loadUpdatedForeignDataStructures returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} loadForeignDataStructures returned successfully");
 		}
 		$status = $this->beforeSaveHook($mysqli, DIRECTIVE_UPDATE);
@@ -6685,7 +6535,7 @@ StaticPermissionGatewayInterface{
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} beforeSaveHook returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} beforeSaveHook returned successfully");
 		}
 		return SUCCESS;
@@ -6713,7 +6563,7 @@ StaticPermissionGatewayInterface{
 	private final function postUpdateForeignDataStructures(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			// insert foreign data structures to which this object does not have a constrained reference, or which have a constrained reference to this object
 			if ($this->getPostInsertForeignDataStructuresFlag()) {
 				if ($print) {
@@ -6725,10 +6575,10 @@ StaticPermissionGatewayInterface{
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} post-inserting foreign data structures returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} successfully post-inserted subordinate data structure(s)");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} post-insert foreign data structures flag is not set");
 			}
 			// like the above, except update
@@ -6742,10 +6592,10 @@ StaticPermissionGatewayInterface{
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} post-updateForeignDataStructures returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} successfully post-updated foreign data structures");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} post-update foreign data structures flag is not set");
 			}
 			// delete foreign data structures
@@ -6757,7 +6607,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} deleteForeignDataStructures returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} deleteForeignDataStructures flag is not set");
 			}
 			return SUCCESS;
@@ -6784,11 +6634,11 @@ StaticPermissionGatewayInterface{
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} updating embedded data structure \"{$groupname}\" returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					} elseif ($print) {
-						Debug::print("${f} updated embedded data structure \"{$groupname}\"");
+					}elseif($print) {
+						Debug::print("{$f} updated embedded data structure \"{$groupname}\"");
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no embedded data structures");
 			}
 			// update polymorphic keys stored in intersection tables
@@ -6808,11 +6658,11 @@ StaticPermissionGatewayInterface{
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} updating intersection table for datum \"{$vn}\" returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} successfully updated intersection tables on column \"{$vn}\"");
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no polymorphic foreign keys to update");
 			}
 			return SUCCESS;
@@ -6821,9 +6671,8 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	private final function preUpdateForeignDataStructures(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	private final function preUpdateForeignDataStructures(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			// insert foreign data structures to which this object has a constrained reference
@@ -6837,10 +6686,10 @@ StaticPermissionGatewayInterface{
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} preinserting foreign data structure returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} successfully preinserted foreign data structure(s)");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} preinsert foreign data structures flag is not set");
 			}
 			// update foreign data structures to which this object has a constrained reference
@@ -6854,10 +6703,10 @@ StaticPermissionGatewayInterface{
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} preupdateForeignDataStructures returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} successfully preupdated foreign data structures");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} preupdate foreign data structures flag is not set");
 			}
 			return SUCCESS;
@@ -6872,9 +6721,8 @@ StaticPermissionGatewayInterface{
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	public final function update(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->update()";
+	public final function update(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($mysqli == null) {
@@ -6900,7 +6748,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} before update hook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} beforeUpdateHook returned successfully");
 			}
 			// insert/update foreign data structures that must be dealt with before this object's column is updated
@@ -6911,15 +6759,16 @@ StaticPermissionGatewayInterface{
 					Debug::warning("{$f} preUpdateForeignDataStructures returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} preinsert and preupdate foreign data structures flags are both not set");
 			}
 			// list the datums to update
 			$write_indices = [];
 			$typedef = "";
 			$params = [];
+			$cache_columns = $this->getFilteredColumns(COLUMN_FILTER_UPDATE, '!'.COLUMN_FILTER_VOLATILE);
 			if ($this instanceof EmbeddedData) {
-				$columns = $this->getFilteredColumns(COLUMN_FILTER_UPDATE);
+				$columns = $cache_columns;
 			} else {
 				$columns = $this->getFilteredColumns(COLUMN_FILTER_DATABASE, COLUMN_FILTER_UPDATE);
 			}
@@ -6932,11 +6781,7 @@ StaticPermissionGatewayInterface{
 					$write_indices[$vn] = new QuestionMark();
 					$typedef .= $column->getTypeSpecifier();
 					array_push($params, $column->getDatabaseEncodedValue());
-				} /*
-				   * elseif($print){
-				   * Debug::print("{$f} datum \"{$vn}\" does not have its update flag set");
-				   * }
-				   */
+				}
 			}
 			// write datums that are flagged for update
 			if (! empty($write_indices)) {
@@ -6948,17 +6793,10 @@ StaticPermissionGatewayInterface{
 					$write_indices["updatedTimestamp"] = new QuestionMark();
 					$typedef .= "i";
 					array_push($params, $now);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} timestamp does not exist or is already getting updated");
 				}
 				$identifier = $this->getIdentifierName();
-				// array_push($params, $this->getIdentifierValue());
-				/*
-				 * if(!array_key_exists($identifier, $params)){
-				 * $decl = $this->getDeclarationLine();
-				 * Debug::error("{$f} column \"{$identifier}\" doesn't exist. Instantiated {$decl}");
-				 * }else
-				 */
 				if ($print) {
 					Debug::print("{$f} about to update the following indices:");
 					Debug::printArray($write_indices);
@@ -6980,8 +6818,8 @@ StaticPermissionGatewayInterface{
 					Debug::error("{$f} update query returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
-			} elseif ($print) {
-				Debug::error("{$f} write indices array is empty");
+			}elseif($print) {
+				Debug::print("{$f} write indices array is empty");
 			}
 			$this->setUpdateFlag(false);
 			// insert, update or delete foreign data structures that must be dealt with after this object is updated
@@ -7013,13 +6851,6 @@ StaticPermissionGatewayInterface{
 			if (! $this->getFlag("inserting")) {
 				if ($print) {
 					Debug::print("{$f} this object is NOT in the middle of getting inserted");
-					/*
-					 * if($this->getUpdateFlag()){
-					 * Debug::print("{$f} the update flag is still set");
-					 * }else{
-					 * Debug::print("{$f} no, the update flag is not set anymore");
-					 * }
-					 */
 				}
 				$status = $this->updateForeignColumns($mysqli);
 				if ($status !== SUCCESS) {
@@ -7027,30 +6858,24 @@ StaticPermissionGatewayInterface{
 					Debug::warning("{$f} updateForeignColumns returned error status \"{$err}\"");
 					return $this->setObjectStatus();
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this object is in the middle of getting inserted; will allow insertIntersectionData to handle polymorphic foreign keys");
 			}
-			// update redis cache but don't touch the TTL
+			// update cache but don't touch the TTL
 			if (CACHE_ENABLED && $this->isRegistrable()) {
 				$key = $this->getIdentifierValue();
 				if (cache()->hasAPCu($key)) {
 					$hit = cache()->getAPCu($key);
 					//$filtered = $this->getFilteredColumns(COLUMN_FILTER_UPDATE, "!".COLUMN_FILTER_COOKIE, "!".COLUMN_FILTER_SESSION, "!".COLUMN_FILTER_VOLATILE);
-					foreach ($columns as $column_name => $column) {
+					foreach ($cache_columns as $column_name => $column) {
 						$hit[$column_name] = $column->getDatabaseEncodedValue();
 						//$column->setUpdateFlag(false); // XXX TODO I get the feeling this will fuck something up
 					}
-					
-					if($this instanceof ImageData){
-						Debug::print("{$f} updating cache with the following:");
-						Debug::printArray($hit);
-					}
-					
 					cache()->setAPCu($key, $hit);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} cache miss");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} non-registrable");
 			}
 			// post-update hook
@@ -7059,7 +6884,7 @@ StaticPermissionGatewayInterface{
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} agter update hook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($transactionId !== null) {
+			}elseif($transactionId !== null) {
 				db()->commitTransaction($mysqli, $transactionId);
 			}
 			return SUCCESS;
@@ -7068,9 +6893,8 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	protected function afterUpdateHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	protected function afterUpdateHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		$status = $this->afterSaveHook($mysqli, DIRECTIVE_UPDATE);
 		if ($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
@@ -7087,9 +6911,8 @@ StaticPermissionGatewayInterface{
 	 * @param DataStructure $that
 	 * @return int
 	 */
-	public function copy(DataStructure $that): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function copy(DataStructure $that): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			foreach ($that->getColumns() as $column_name => $column) {
@@ -7105,7 +6928,7 @@ StaticPermissionGatewayInterface{
 					}
 					if (! $this->hasColumn($column_name) || $column instanceof ForeignKeyDatum) {
 						$this->setForeignDataStructure($column_name, $that->getForeignDataStructure($column_name));
-					} elseif ($column instanceof KeyListDatum) {
+					}elseif($column instanceof KeyListDatum) {
 						if ($that->hasForeignDataStructureList($column_name)) {
 							$structs = $that->getForeignDataStructureList($column_name);
 							foreach ($structs as $struct) {
@@ -7129,8 +6952,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function getForeignDataStructureListCommand(string $phylum): GetForeignDataStructureListCommand
-	{
+	public function getForeignDataStructureListCommand(string $phylum): GetForeignDataStructureListCommand{
 		return new GetForeignDataStructureListCommand($this, $phylum);
 	}
 
@@ -7139,9 +6961,8 @@ StaticPermissionGatewayInterface{
 	 *
 	 * @return NULL|DataStructure
 	 */
-	public final function replicate(): ?DataStructure
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public final function replicate(): ?DataStructure{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$status = $this->beforeReplicateHook();
@@ -7166,7 +6987,7 @@ StaticPermissionGatewayInterface{
 						Debug::error("{$f} column count is zero for both original and replica");
 					}
 					Debug::error("{$f} replica column count is 0, but this object has {$count2} columns");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} replica column count is {$count}");
 				}
 			}
@@ -7185,14 +7006,12 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public static function whereIntersectionalHostKey($foreignClass, string $relationship, string $operator = OPERATOR_EQUALS): WhereCondition
-	{
-		return static::generateLazyWhereCondition($foreignClass, "hostKey", $relationship, $operator);
+	public static function whereIntersectionalHostKey($foreignClass, string $relationship, string $operator = OPERATOR_EQUALS): WhereCondition{
+		return static::generateIntersectionalWhereCondition($foreignClass, "hostKey", $relationship, $operator);
 	}
 
-	public static function whereIntersectionalForeignKey($foreignClass, string $relationship, string $operator = OPERATOR_EQUALS): WhereCondition
-	{
-		return static::generateLazyWhereCondition($foreignClass, "foreignKey", $relationship, $operator);
+	public static function whereIntersectionalForeignKey($foreignClass, string $relationship, string $operator = OPERATOR_EQUALS): WhereCondition{
+		return static::generateIntersectionalWhereCondition($foreignClass, "foreignKey", $relationship, $operator);
 	}
 
 	/**
@@ -7206,9 +7025,8 @@ StaticPermissionGatewayInterface{
 	 *        	: operator used to build WhereConditions
 	 * @return WhereCondition
 	 */
-	private static function generateLazyWhereCondition($foreignClass, string $select_expr, string $relationship, string $operator = OPERATOR_EQUALS): WhereCondition
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")::generateLazyWhereCondition()";
+	private static function generateIntersectionalWhereCondition($foreignClass, string $select_expr, string $relationship, string $operator = OPERATOR_EQUALS): WhereCondition{
+		$f = __METHOD__;
 		$print = false;
 		if (is_object($foreignClass)) {
 			$foreignClass = $foreignClass->getClass();
@@ -7253,9 +7071,8 @@ StaticPermissionGatewayInterface{
 	 * @return SelectStatement
 	 */
 	// XXX TODO this is confusing because it does different things based off whether the second parameter is present; break it into 2 functions, one for selecting host keys and the other for foreign keys. Thse third parameter is also rather confusing
-	public static function generateLazyAliasExpression(string $foreignClass, ?string $foreignKeyName = null, ?SelectStatement $subquery = null): SelectStatement
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public static function generateLazyAliasExpression(string $foreignClass, ?string $foreignKeyName = null, ?SelectStatement $subquery = null): SelectStatement{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$idn = $foreignClass::getIdentifierNameStatic();
@@ -7296,8 +7113,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	protected static function pushTemporaryColumnsStatic(?array &$columns, ...$push_us): int
-	{
+	protected static function pushTemporaryColumnsStatic(?array &$columns, ...$push_us): int{
 		if (! isset($columns) || ! is_array($columns)) {
 			$columns = [];
 		}
@@ -7316,14 +7132,13 @@ StaticPermissionGatewayInterface{
 	 * @param mixed $value
 	 * @return int
 	 */
-	public function getAssociationDistance(string $column_name, $value): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getAssociationDistance(string $column_name, $value): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($this->getIdentifierValue() === $value) {
 				return 0;
-			} elseif (! $this->hasColumn($column_name) || ! $this->hasColumnValue($column_name)) {
+			}elseif(! $this->hasColumn($column_name) || ! $this->hasColumnValue($column_name)) {
 				if ($print) {
 					Debug::print("{$f} column \"{$column_name}\" does not exist, or it has a different value");
 				}
@@ -7332,7 +7147,7 @@ StaticPermissionGatewayInterface{
 			$column = $this->getColumn($column_name);
 			if (! $column->applyFilter(COLUMN_FILTER_FOREIGN)) {
 				Debug::error("{$f} column \"{$column_name}\" is not a foreign key");
-			} elseif ($value === $column->getValue()) {
+			}elseif($value === $column->getValue()) {
 				return 1;
 			}
 			$fds = $this->getForeignDataStructure($column_name);
@@ -7346,8 +7161,7 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	private function log(string $directive): int
-	{
+	private function log(string $directive): int{
 		if ($this->getFlag("disableLog")) {
 			return 0;
 		}
@@ -7379,9 +7193,8 @@ StaticPermissionGatewayInterface{
 	 * @param string|string[] ...$column_names
 	 * @return int
 	 */
-	public static function migrateMonomorphicToPoly(mysqli $mysqli, ...$column_names): int
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public static function migrateMonomorphicToPoly(mysqli $mysqli, ...$column_names): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (empty($column_names)) {
@@ -7395,7 +7208,7 @@ StaticPermissionGatewayInterface{
 				if (! $column instanceof ForeignKeyDatum) {
 					Debug::error("{$f} column \'{$column_name}\" is not a ForeignKeyDatum");
 					continue;
-				} elseif (! $column->applyFilter(COLUMN_FILTER_INTERSECTION)) {
+				}elseif(! $column->applyFilter(COLUMN_FILTER_INTERSECTION)) {
 					Debug::error("{$f} column \"{$column_name}\" is not set up to be polymorphic, make it so before calling this function on it");
 				}
 				// 1. create intersection tables if they don't already exist
@@ -7441,9 +7254,9 @@ StaticPermissionGatewayInterface{
 					$intersection = $column->generateIntersectionData();
 					if (! $intersection->hasForeignKey()) {
 						Debug::error("{$f} intersection data lacks a foreign key");
-					} elseif (! $intersection->hasHostKey()) {
+					}elseif(! $intersection->hasHostKey()) {
 						Debug::error("{$f} intersection data lacks a host key");
-					} elseif (! $intersection->hasRelationship()) {
+					}elseif(! $intersection->hasRelationship()) {
 						Debug::error("{$f} intersection data lacks a relationship");
 					}
 					// see if the intersection data already exists
@@ -7461,7 +7274,7 @@ StaticPermissionGatewayInterface{
 						}
 						$column->setUpdateFlag(true);
 						$obj->setUpdateFlag(true);
-					} elseif ($count === 1) {
+					}elseif($count === 1) {
 						if ($print) {
 							Debug::print("{$f} intersection data already exists for object with key \"{$key}\" foreign column \"{$column_name}\"");
 						}
@@ -7476,7 +7289,7 @@ StaticPermissionGatewayInterface{
 						Debug::print("{$f} object with ID \"{$key}\" is not flagged for update");
 					}
 					continue;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} about to update object with key \"{$key}\"");
 				}
 				$status = $obj->update($mysqli);
@@ -7484,7 +7297,7 @@ StaticPermissionGatewayInterface{
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} updating object with ID \"{$key}\" returned error status \"{$err}\"");
 					return $status;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} successfully updated object with ID \"{$key}\"");
 				}
 			}
@@ -7497,24 +7310,20 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public function setInsertingFlag(bool $value = true): bool
-	{
+	public function setInsertingFlag(bool $value = true): bool{
 		return $this->setFlag("inserting", $value);
 	}
 
-	public function getInsertingFlag(): bool
-	{
+	public function getInsertingFlag(): bool{
 		return $this->getFlag("inserting");
 	}
 
-	public function getForeignDataStructureCountCommand(string $column_name): GetForeignDataStructureCountCommand
-	{
+	public function getForeignDataStructureCountCommand(string $column_name): GetForeignDataStructureCountCommand{
 		return new GetForeignDataStructureCountCommand($this, $column_name);
 	}
 
-	public function unshiftForeignDataStructureListMember(string $column_name, DataStructure $struct)
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function unshiftForeignDataStructureListMember(string $column_name, DataStructure $struct){
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasForeignDataStructureList($column_name)) {
 			if ($print) {
@@ -7522,7 +7331,7 @@ StaticPermissionGatewayInterface{
 			}
 			$this->setForeignDataStructureListMember($column_name, $struct);
 			return SUCCESS;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} about to unshift a foreign data structure to the beginning of list \"{$column_name}\"");
 		}
 		$backup = $this->getForeignDataStructureList($column_name);
@@ -7534,70 +7343,20 @@ StaticPermissionGatewayInterface{
 		return SUCCESS;
 	}
 
-	public function setExpandedFlag(bool $value = true): bool
-	{
+	public function setExpandedFlag(bool $value = true): bool{
 		return $this->setFlag('expanded', $value);
 	}
 
-	public function getExpandedFlag(): bool
-	{
+	public function getExpandedFlag(): bool{
 		return $this->getFlag('expanded');
 	}
 
-	public function setSkipLoadoutFlag(bool $value = true): bool
-	{
-		return $this->setFlag("skipLoadout", $value);
-	}
-
-	public function getSkipLoadoutFlag(): bool
-	{
-		return $this->getFlag("skipLoadout");
-	}
-
-	/**
-	 * configure the default loadout generated by this class.
-	 * Override the important part in getDefaultLoadoutDependencies
-	 *
-	 * @param UseCase $use_case
-	 * @return Loadout|NULL
-	 */
-	public final function generateDefaultLoadout(): ?Loadout
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		$print = false;
-		$dependencies = $this->getDefaultLoadoutDependencies();
-		if (empty($dependencies)) {
-			if ($print) {
-				Debug::print("{$f} default loadout dependencies returned null");
-			}
-			$this->setSkipLoadoutFlag(true);
-			return null;
-		} elseif ($print) {
-			Debug::print("{$f} about to generate loadout...");
-		}
-		return Loadout::generate($dependencies);
-	}
-
-	public function getDefaultLoadoutDependencies(): array
-	{
-		return [];
-	}
-
-	public function getFirstRelationship(string $tree_name): ?DataStructure
-	{
+	public function getFirstRelationship(string $tree_name): ?DataStructure{
 		return $this->getForeignDataStructureListMemberAtOffset($tree_name, 0);
 	}
 
-	public function getDefaultChildSelectionParameters(string $phylum, string $child_class): ?array
-	{
-		return [
-			$this->getIdentifierValue()
-		];
-	}
-
-	public function getDescendants(string $phylum): array
-	{
-		$f = __METHOD__; //DataStructure::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getDescendants(string $phylum): array{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (! $this->hasForeignDataStructureList($phylum)) {
@@ -7605,7 +7364,7 @@ StaticPermissionGatewayInterface{
 					Debug::print("{$f} child count is 0");
 				}
 				return [];
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} entered; about to get child array \"{$phylum}\"");
 			}
 			$children = $this->getForeignDataStructureList($phylum);
@@ -7631,14 +7390,12 @@ StaticPermissionGatewayInterface{
 		}
 	}
 
-	public static function getJavaScriptClassPath(): ?string
-	{
+	public static function getJavaScriptClassPath(): ?string{
 		$fn = get_class_filename(DataStructure::class);
 		return substr($fn, 0, strlen($fn) - 3) . "js";
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->elementClass);
 		unset($this->eventListeners);

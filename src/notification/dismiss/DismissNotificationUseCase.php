@@ -1,8 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\dismiss;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -14,11 +15,9 @@ use JulianSeymour\PHPWebApplicationFramework\notification\RetrospectiveNotificat
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 
-class DismissNotificationUseCase extends UseCase
-{
+class DismissNotificationUseCase extends UseCase{
 
-	public function execute(): int
-	{
+	public function execute(): int{
 		$f = __METHOD__;
 		try {
 			Debug::print("{$f} entered");
@@ -73,31 +72,22 @@ class DismissNotificationUseCase extends UseCase
 		}
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return SUCCESS;
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_DISMISS_NOTIFICATION;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/dismiss";
 	}
 
-	public function getResponder(): ?Responder
-	{
-		if ($this->getObjectStatus() === SUCCESS) {
+	public function getResponder(int $status): ?Responder{
+		if ($status === SUCCESS) {
 			return new DismissNotificationResponder();
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 }

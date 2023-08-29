@@ -10,11 +10,11 @@ abstract class CookieData extends SuperGlobalData{
 		return PROGRAM_STORAGE_COOKIE;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Cookie");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Cookies");
 	}
 

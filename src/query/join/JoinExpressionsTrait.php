@@ -1,21 +1,19 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\join;
 
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait JoinExpressionsTrait
-{
+trait JoinExpressionsTrait{
 
 	use ArrayPropertyTrait;
 
-	public function setJoinExpressions($joinExpressions)
-	{
+	public function setJoinExpressions($joinExpressions){
 		return $this->setArrayProperty("joinExpressions", $joinExpressions);
 	}
 
-	public function hasJoinExpressions()
-	{
+	public function hasJoinExpressions(){
 		return $this->hasArrayProperty("joinExpressions");
 	}
 
@@ -23,38 +21,32 @@ trait JoinExpressionsTrait
 	 *
 	 * @return JoinExpression[]
 	 */
-	public function getJoinExpressions()
-	{
+	public function getJoinExpressions(){
 		return $this->getProperty("joinExpressions");
 	}
 
-	public function pushJoinExpressions(...$joinExpressions)
-	{
+	public function pushJoinExpressions(...$joinExpressions){
 		return $this->pushArrayProperty("joinExpressions", ...$joinExpressions);
 	}
 
-	public function mergeJoinExpressions($joinExpressions)
-	{
+	public function mergeJoinExpressions($joinExpressions){
 		return $this->mergeArrayProperty("joinExpressions", $joinExpressions);
 	}
 
-	public function withJoinExpressions(...$joinExpressions)
-	{
+	public function withJoinExpressions(...$joinExpressions){
 		$this->setJoinExpressions($joinExpressions);
 		return $this;
 	}
 
-	public function getJoinExpressionString(): string
-	{
-		$f = __METHOD__; //"JoinExpressionsTrait(".static::getShortClass().")->getJoinExpressionString()";
+	public function getJoinExpressionString(): string{
+		$f = __METHOD__;
 		if (! $this->hasJoinExpressions()) {
 			Debug::error("{$f} join expressions are undefined");
 		}
 		return implode(",", $this->getJoinExpressions());
 	}
 
-	public function getJoinExpressionCount()
-	{
+	public function getJoinExpressionCount():int{
 		return $this->getArrayPropertyCount("joinExpressions");
 	}
 

@@ -40,7 +40,7 @@ class PlaintextEmailContent extends EmailContent{
 			$content_type = $this->getContentType();
 			$ret .= "Content-Type:{$content_type}{$eol}{$eol}";
 		} else {
-			Debug::error("{$f} gotcha");
+			Debug::error("{$f} parent node is undefined");
 		}
 		$ret .= $this->getTextContent() . "{$eol}";
 		return $ret;

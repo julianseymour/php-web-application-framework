@@ -30,12 +30,12 @@ class SessionRecoveryData extends UserFingerprint{
 		]);
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Session recovery data");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
-		return static::getPrettyClassName($lang);
+	public static function getPrettyClassNames():string{
+		return static::getPrettyClassName();
 	}
 
 	public static function getTableNameStatic(): string{

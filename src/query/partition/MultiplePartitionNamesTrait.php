@@ -1,7 +1,7 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\query\partition;
 
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 
 trait MultiplePartitionNamesTrait
 {

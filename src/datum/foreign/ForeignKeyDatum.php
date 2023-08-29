@@ -1,8 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum\foreign;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\registry;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
@@ -25,16 +26,24 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 
 	use ForeignKeyDatumTrait;
 	
-	public function __construct(string $name, ?int $relationship_type = null)
-	{
+	public function __construct(string $name, ?int $relationship_type = null){
 		parent::__construct($name);
 		if ($relationship_type !== null) {
 			$this->setRelationshipType($relationship_type);
 		}
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public function getConstructorParams(): ?array{
+		if($this->hasRelationshipType()){
+			return [
+				$this->getColumnName(),
+				$this->getRelationshipType()
+			];
+		}
+		return [$this->getColumnName()];
+	}
+	
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			COLUMN_FILTER_ADD_TO_RESPONSE, // true => automatically convert foreign data structure referenced by this column to array as part of XMLHttpResponse when the host data structure is also part of that response
 			COLUMN_FILTER_AUTOLOAD, // true => automatically load this column's foreign structure when the host is loaded
@@ -570,6 +579,9 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 			$cn = $this->getColumnName();
 			$fk = $this->getValue();
 			$ds = $this->getDataStructure();
+			if($print){
+				Debug::print("{$f} entered for column \"{$cn}\" of a ".$ds->getShortClass());
+			}
 			if (! registry()->has($fk)) {
 				Debug::warning("{$f} registry does not know of an object with key \"{$fk}\" for mutually referential 1 to 1 foreign relationship \"{$cn}\"");
 				if (! $ds->hasForeignDataStructure($cn)) {
@@ -580,20 +592,22 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 				$fds = registry()->get($fk);
 			}
 			$column = $this;
-			if ($fds->getInsertFlag() && ! $fds->getDeleteFlag()) {
+			if($fds->getInsertFlag() && !$fds->getDeleteFlag()){
 				if ($print) {
 					Debug::print("{$f} foreign data structure \"{$cn}\" is flagged for insertion");
 				}
 				$ds->addEventListener(EVENT_AFTER_INSERT_FOREIGN, function (AfterInsertForeignDataStructuresEvent $event, DataStructure $target) use ($column, $fk, $f, $print) {
-					$print = false;
 					$when = $event->getProperty("when");
 					if ($when !== CONST_AFTER) {
 						if ($print) {
-							Debug::print("{$f} this event is fired only after the object is inserted");
+							Debug::print("{$f} fulfilling mutual reference is fired only after the object is inserted");
 						}
 						return SUCCESS;
 					}
 					$target->removeEventListener($event);
+					if(!registry()->has($fk)){
+						Debug::error("{$f} registry does not know about anythign with key \"{$fk}\"");
+					}
 					$fds = registry()->get($fk);
 					$fds->setInsertFlag(false);
 					$target->setPostInsertForeignDataStructuresFlag(false);
@@ -619,9 +633,65 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 		}
 	}
 
+	public function replicate(){
+		$replica = parent::replicate();
+		if($this->hasKeyParts()){
+			$replica->setKeyParts($this->getKeyParts());
+		}
+		if($this->hasForeignDataIdentifierName()){
+			$replica->setForeignDataIdentifierName($this->getForeignDataIdentifierName());
+		}
+		if($this->hasForeignDataStructureClass()){
+			$replica->setForeignDataStructureClass($this->getForeignDataStructureClass());
+		}
+		if($this->hasForeignDataStructureClassResolver()){
+			$replica->setForeignDataStructureClassResolver($this->getForeignDataStructureClassResolver());
+		}
+		if($this->hasForeignDataType()){
+			$replica->setForeignDataType($this->getForeignDataType());
+		}
+		if($this->hasForeignDataTypeName()){
+			$replica->setForeignDataTypename($this->getForeignDataTypeName());
+		}
+		if($this->hasForeignDataSubtypeName()){
+			$replica->setForeignDataSubtypeName($this->getForeignDataTypeName());
+		}
+		if($this->hasConverseRelationshipKeyName()){
+			$replica->setConverseRelationshipKeyName($this->getConverseRelationshipKeyName());
+		}
+		if($this->hasRelativeSequence()){
+			$replica->setRelativeSequennce($this->getRelativeSequence());
+		}
+		if($this->hasUpdateBehavior()){
+			$replica->setUpdateBehavior($this->getUpdateBehavior());
+		}
+		if($this->hasVertexContractions()){
+			$replica->setVertexContractions($this->getVertexContractions());
+		}
+		if($this->hasOnDelete()){
+			$replica->setOnDelete($this->getOnDelete());
+		}
+		if($this->hasOnUpdate()){
+			$replica->setOnUpdate($this->getOnUpdate());
+		}
+		return $replica;
+	}
+	
 	public function dispose(): void{
 		parent::dispose();
 		unset($this->intersectionData);
-		unset($this->tableName);
+		unset($this->foreignDataIdentifierName);
+		unset($this->foreignDataStructureClass);
+		unset($this->foreignDataStructureClassResolver);
+		unset($this->foreignDataType);
+		unset($this->foreignDataTypeName);
+		unset($this->foreignDataSubtypeName);
+		unset($this->converseRelationshipKeyName);
+		unset($this->relationshipType);
+		unset($this->relativeSequence);
+		unset($this->updateBehavior);
+		unset($this->vertexContractions);
+		unset($this->onDeleteReferenceOption);
+		unset($this->onUpdateReferenceOption);
 	}
 }

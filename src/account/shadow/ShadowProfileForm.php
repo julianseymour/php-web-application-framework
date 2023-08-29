@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\shadow;
 
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
@@ -8,26 +9,22 @@ use JulianSeymour\PHPWebApplicationFramework\form\GenerateEditButtonsCommand;
 use JulianSeymour\PHPWebApplicationFramework\input\EmailInput;
 use JulianSeymour\PHPWebApplicationFramework\input\TextInput;
 use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
-use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsSessionData;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
 
-class ShadowProfileForm extends AjaxForm
-{
+class ShadowProfileForm extends AjaxForm{
 
-	public static function getFormDispatchIdStatic(): ?string
-	{
+	public static function getFormDispatchIdStatic(): ?string{
 		return "shadow";
 	}
 
-	public function bindContext($context)
-	{
+	public function bindContext($context){
 		$resolved_key = $this->getResolvedKey($context);
 		$this->setIdAttribute(new ConcatenateCommand("shadow_profile_form-", $resolved_key));
 		return parent::bindContext($context);
 	}
 
-	public function generateButtons(string $name): ?array
-	{
-		$f = __METHOD__; //ShadowProfileForm::getShortClass()."(".static::getShortClass().")->generateButtons()";
+	public function generateButtons(string $name): ?array{
+		$f = __METHOD__;
 		switch ($name) {
 			case DIRECTIVE_INSERT:
 			case DIRECTIVE_UPDATE:
@@ -40,14 +37,12 @@ class ShadowProfileForm extends AjaxForm
 		}
 	}
 
-	public static function getActionAttributeStatic(): ?string
-	{
+	public static function getActionAttributeStatic(): ?string{
 		return '/shadows';
 	}
 
-	public function getFormDataIndices(): ?array
-	{
-		$session = new LanguageSettingsSessionData();
+	public function getFormDataIndices(): ?array{
+		$session = new LanguageSettingsData();
 		$lang = $session->getLanguageCode();
 		if (Internationalization::lastNameFirst($lang)) {
 			$indices = [

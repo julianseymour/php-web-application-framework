@@ -1,7 +1,7 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\command\variable;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\is_associative;
 use JulianSeymour\PHPWebApplicationFramework\command\data\GetColumnValueCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;

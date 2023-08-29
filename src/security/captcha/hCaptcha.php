@@ -1,53 +1,39 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\captcha;
 
+use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\curl_post;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
+use JulianSeymour\PHPWebApplicationFramework\style\StyleSheetPathTrait;
 use Exception;
 
-class hCaptcha extends DivElement
-{
-
-	public function setDataSiteKeyAttribute($sitekey)
-	{
-		return $this->setAttribute("data-sitekey", $sitekey);
-	}
-
-	public function getDataSiteKeyAttribute()
-	{
-		return $this->getAttribute("data-sitekey");
-	}
-
-	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
-	{
+class hCaptcha extends DivElement{
+	
+	use StyleSheetPathTrait;
+	
+	public function __construct(int $mode=ALLOCATION_MODE_UNDEFINED, $context=null){
 		parent::__construct($mode, $context);
 		$this->addClassAttribute("h-captcha");
 		if (! defined('HCAPTCHA_SITE_KEY')) {
 			Debug::error("{$f} please define HCAPTCHA_SITE_KEY before using this feature");
 		}
-		$sitekey = HCAPTCHA_SITE_KEY;
-		$this->setDataSiteKeyAttribute($sitekey);
+		$this->setAttribute("data-sitekey", HCAPTCHA_SITE_KEY);
 		$this->setAllowEmptyInnerHTML(true);
 	}
-
-	public final function hasColumnName()
-	{
+	
+	public final function hasColumnName():bool{
 		return false;
 	}
-
-	public function getAllocationMode(): int
-	{
-		return ALLOCATION_MODE_NEVER;
-	}
-
-	public static function verifyResponse()
-	{
-		$f = __METHOD__; //hCaptcha::getShortClass()."(".static::getShortClass().")::verifyResponse()";
+	
+	public static function verifyResponse():int{
+		$f = __METHOD__;
 		try {
+			$print = false;
 			if (! hasInputParameter("h-captcha-response")) {
 				return ERROR_HCAPTCHA;
 			} elseif (! defined('HCAPTCHA_SECRET')) {
@@ -58,33 +44,36 @@ class hCaptcha extends DivElement
 				"response" => getInputParameter("h-captcha-response"),
 				"secret" => HCAPTCHA_SECRET
 			];
-			Debug::print("{$f} about to curl hcaptcha with the following arguments:");
-			Debug::printArray($args);
-			$url = "https://hcaptcha.com/siteverify";
-			$result = curl_post($url, $args);
-			Debug::print("{$f} curl result is \"{$result}\"");
+			if($print){
+				Debug::print("{$f} about to curl hcaptcha with the following arguments:");
+				Debug::printArray($args);
+			}
+			$result = curl_post("https://hcaptcha.com/siteverify", $args);
+			if($print){
+				Debug::print("{$f} curl result is \"{$result}\"");
+			}
 			// {"success":false,"error-codes":["invalid-or-already-seen-response"]}
 			$parsed = json_decode($result, true);
 			if ($parsed["success"]) {
-				Debug::print("{$f} success!");
+				if($print){
+					Debug::print("{$f} success!");
+				}
 				return SUCCESS;
-			} else {
+			}elseif($print){
 				Debug::print("{$f} hcaptcha failed with the following error codes:");
 				Debug::printArray($parsed['error-codes']);
-				return ERROR_HCAPTCHA;
 			}
+			return ERROR_HCAPTCHA;
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function getAllowEmptyInnerHTML()
-	{
-		return true;
-	}
-
-	public function dispatchCommands(): int
-	{
+	public function dispatchCommands(): int{
+		$f = __METHOD__;
+		if(!$this->hasIdAttribute()){
+			Debug::error("{$f} ID attribute is undefined");
+		}
 		$this->reportSubcommand(new hCaptchaRenderCommand($this));
 		return SUCCESS;
 	}

@@ -1,11 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\event;
 
-class BeforeDeleteForeignDataStructuresEvent extends ForeignDataStructuresEvent
-{
+class BeforeDeleteForeignDataStructuresEvent extends ForeignDataStructuresEvent{
 
-	public function __construct(string $when, ?array $properties = null)
-	{
-		parent::__construct(EVENT_BEFORE_DELETE_FOREIGN, $when, $properties);
+	public function __construct(?array $properties = null){
+		parent::__construct(EVENT_BEFORE_DELETE_FOREIGN, CONST_BEFORE, $properties);
 	}
 }

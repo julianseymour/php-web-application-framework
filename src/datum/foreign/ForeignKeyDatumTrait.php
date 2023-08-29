@@ -1,7 +1,7 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum\foreign;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\cache\CacheableTrait;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
@@ -80,7 +80,7 @@ trait ForeignKeyDatumTrait{
 	 *
 	 * @var string
 	 */
-	protected $ConverseRelationshipKeyName;
+	protected $converseRelationshipKeyName;
 
 	/**
 	 * RELATIONSHIP_TYPE_ONE_TO_ONE, RELATIONSHIP_TYPE_ONE_TO_MANY, RELATIONSHIP_TYPE_MANY_TO_ONE or RELATIONSHIP_TYPE_MANY_TO_MANY
@@ -656,15 +656,25 @@ trait ForeignKeyDatumTrait{
 
 	public function getAllPossibleIntersectionData(): array{
 		$f = __METHOD__;
+		$print = false;
 		if ($this->hasForeignDataStructureClass()) {
+			if($print){
+				Debug::print("{$f} foreign data structure class is defined");
+			}
 			$intersections = [
 				new IntersectionData($this->getDataStructureClass(), $this->getForeignDataStructureClass(), $this->getColumnName())
 				
 			];
 		} elseif ($this->hasForeignDataStructureClassResolver()) {
+			if($print){
+				Debug::print("{$f} foreign data structure class resolver is defined");
+			}
 			$resolver = $this->getForeignDataStructureClassResolver();
 			$intersections = $resolver::getAllPossibleIntersectionData($this);
 		} else {
+			if($print){
+				Debug::print("{$f} foreign data structure class and resolver are both undefined");
+			}
 			$cn = $this->getColumnName();
 			$dsc = $this->getDataStructureClass();
 			$ds = $this->getDataStructure();
@@ -672,10 +682,15 @@ trait ForeignKeyDatumTrait{
 			Debug::error("{$f} column \"{$cn}\" of data structure class \"{$dsc}\" and key \"{$key}\" lacks either a foreign data structure class or resolver");
 		}
 		if ($this->hasDataStructure()) {
+			if($print){
+				Debug::print("{$f} data structure is defined");
+			}
 			$ds = $this->getDataStructure();
 			foreach ($intersections as $intersection) {
 				$intersection->setHostDataStructure($ds);
 			}
+		}elseif($print){
+			Debug::print("{$f} data strcuture is undefined");
 		}
 		return $intersections;
 	}

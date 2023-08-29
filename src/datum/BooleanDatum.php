@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use function JulianSeymour\PHPWebApplicationFramework\set_secure_cookie;
@@ -10,23 +11,18 @@ use JulianSeymour\PHPWebApplicationFramework\input\CheckedInput;
 use JulianSeymour\PHPWebApplicationFramework\input\choice\MultipleRadioButtons;
 use Exception;
 
-class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInterface
-{
+class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInterface{
 
-	public function __construct($name)
-	{
+	public function __construct($name){
 		parent::__construct($name, 1);
-		// $this->setElementClass(CheckboxInput::class);
 	}
 
-	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string
-	{
+	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string{
 		return CheckboxInput::class;
 	}
 
-	public function cast($v)
-	{
-		$f = __METHOD__; //BooleanDatum::getShortClass()."(".static::getShortClass().")->cast()";
+	public function cast($v){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($v === null) {
@@ -61,19 +57,16 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 		}
 	}
 
-	public static function validateStatic($v): int
-	{
+	public static function validateStatic($v): int{
 		return is_bool($v) ? SUCCESS : FAILURE;
 	}
 
-	public function getDefaultValueString()
-	{
+	public function getDefaultValueString(){
 		return $this->getDefaultValue() ? 1 : 0;
 	}
 
-	public static function getDatabaseEncodedValueStatic($value)
-	{
-		$f = __METHOD__; //BooleanDatum::getShortClass()."(".static::getShortClass().")::getDatabaseEncodedValue()";
+	public static function getDatabaseEncodedValueStatic($value){
+		$f = __METHOD__;
 		if ($value === null) {
 			return 0;
 		} elseif (is_bool($value)) {
@@ -103,9 +96,8 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 		Debug::error("{$f} invalid value \"{$value}\"");
 	}
 
-	public function parseValueFromQueryResult($value)
-	{
-		$f = __METHOD__; //BooleanDatum::getShortClass()."(".static::getShortClass().")->parseValueFromQueryResult()";
+	public function parseValueFromQueryResult($value){
+		$f = __METHOD__;
 		try {
 			$name = $this->getColumnName();
 			$print = false;
@@ -157,9 +149,8 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 		}
 	}
 
-	public function parseValueFromSuperglobalArray($value)
-	{
-		$f = __METHOD__; //BooleanDatum::getShortClass()."(".static::getShortClass().")->parseValueFromSuperglobalArray()";
+	public function parseValueFromSuperglobalArray($value){
+		$f = __METHOD__; 
 		try {
 			$print = false;
 			if (is_bool($value)) {
@@ -201,30 +192,15 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 		}
 	}
 
-	public function setDefaultValue($v)
-	{
-		$f = __METHOD__; //BooleanDatum::getShortClass()."(".static::getShortClass().")->setDefaultValue()";
+	public function setDefaultValue($v){
+		$f = __METHOD__;
 		if ($v !== null && ! is_bool($v)) {
 			Debug::error("{$f} default value must be boolean or null");
 		}
 		return parent::setDefaultValue($v);
 	}
 
-	/*
-	 * public function setValue($v){
-	 * $f = __METHOD__; //BooleanDatum::getShortClass()."(".static::getShortClass().")->setValue()";
-	 * $print = false;
-	 * $vn = $this->getColumnName();
-	 * if(!is_bool($v) && $v !== null){
-	 * Debug::error("{$f} value must be boolean");
-	 * }elseif($print){
-	 * Debug::print("{$f} entered for variable \"{$vn}\"");
-	 * }
-	 * return parent::setValue($v);
-	 * }
-	 */
-	public static function parseString(string $string)
-	{
+	public static function parseString(string $string){
 		return boolval($string);
 	}
 
@@ -234,9 +210,8 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 	 * {@inheritdoc}
 	 * @see Datum::unsetValue()
 	 */
-	public function unsetValue(bool $force = false): int
-	{
-		$f = __METHOD__; //BooleanDatum::getShortClass()."(".static::getShortClass().")->unsetValue()";
+	public function unsetValue(bool $force = false): int{
+		$f = __METHOD__;
 		$print = false;
 		$column_name = $this->getColumnName();
 		if ($print) {
@@ -277,9 +252,8 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 		return STATUS_UNCHANGED;
 	}
 
-	public function processInput($input)
-	{
-		$f = __METHOD__; //BooleanDatum::getShortClass()."(".static::getShortClass().")->processInput()";
+	public function processInput($input){
+		$f = __METHOD__;
 		$cn = $this->getColumnName();
 		$print = false;
 		if ($print) {
@@ -292,9 +266,6 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 			} else {
 				Debug::print("{$f} input has no value attribute");
 			}
-			// $status = $this->getObjectStatus();
-			// $err = ErrorMessage::getResultMessage($status);
-			// Debug::print("{$f} this object has error status \"{$err}\"");
 		}
 		if ($input instanceof CheckedInput) {
 			if ($input->isChecked()) {

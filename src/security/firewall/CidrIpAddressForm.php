@@ -34,7 +34,7 @@ class CidrIpAddressForm extends AjaxForm
 				case "ipAddress":
 					$cidr_notation = _("CIDR notation");
 					$placeholder = _("IP address") . " ({$cidr_notation})";
-					$input->setPlaceholderAttribute($placeholder);
+					$input->setLabelString($placeholder);
 					if (! $context->isUninitialized()) {
 						$input->setValueAttribute($context->getCidrNotation());
 					}

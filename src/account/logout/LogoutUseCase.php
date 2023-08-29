@@ -1,9 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\logout;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\login\FullAuthenticationData;
@@ -26,13 +27,11 @@ use JulianSeymour\PHPWebApplicationFramework\session\resume\SessionRecoveryCooki
 use JulianSeymour\PHPWebApplicationFramework\use_case\ClientUseCaseInterface;
 use Exception;
 
-class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInterface, JavaScriptCounterpartInterface
-{
+class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInterface, JavaScriptCounterpartInterface{
 
 	use JavaScriptCounterpartTrait;
 
-	public function __construct($predecessor = null, $segments = null)
-	{
+	public function __construct($predecessor = null, $segments = null){
 		$f = __METHOD__;
 		if ($predecessor instanceof LogoutUseCase) {
 			Debug::error("{$f} precedessor cannot be another LogoutUseCase");
@@ -40,8 +39,7 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 		return parent::__construct($predecessor, $segments);
 	}
 
-	public function logout($mysqli)
-	{
+	public function logout($mysqli){
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -85,12 +83,6 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 				$class::unsetColumnValuesStatic();
 			}
 			$user = AuthenticateUseCase::getAnonymousUser();
-			/*
-			 * $loadout = $this->generateRootLoadout($user);
-			 * if($loadout instanceof Loadout){
-			 * $user->set/Loadout($loadout);
-			 * }
-			 */
 			return app()->setUserData($user);
 		} catch (Exception $x) {
 			x($f, $x);
@@ -115,8 +107,6 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 				if (! isset($mysqli)) {
 					Debug::error("{$f} mysqli connection returned null");
 				}
-				// $session = new FullAuthenticationData();
-				// $session->ejectDeterministicSecretKey();
 				$this->logout($mysqli);
 			} else {
 				if ($print) {
@@ -139,47 +129,25 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 		$load = new LoadTreeUseCase($this);
 		$load->validateTransition();
 		$load->execute();
-		/*
-		 * $user = $this->authenticate();
-		 * if(!isset($mysqli)){
-		 * Debug::error("{$f} mysqli is undefined");
-		 * }
-		 * $this->load($mysqli);
-		 */
 		return $this->setObjectStatus(RESULT_LOGGED_OUT);
 	}
 
-	public function prerender()
-	{
-		return SUCCESS;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/logout";
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_LOGOUT;
+	public function getAuthenticatedUserClass():?string{
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 
-	public function getAuthenticatedUserClass()
-	{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
-	}
-
-	public function getResponder(): ?Responder
-	{
-		if ($this->getObjectStatus() === RESULT_LOGGED_OUT) {
+	public function getResponder(int $status): ?Responder{
+		if ($status === RESULT_LOGGED_OUT) {
 			return new LogoutResponder();
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 
-	public function getClientUseCaseName(): ?string
-	{
+	public function getClientUseCaseName(): ?string{
 		return "logout";
 	}
 }

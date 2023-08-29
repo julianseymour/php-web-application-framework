@@ -1,22 +1,26 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password\reset;
 
+use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
+use function JulianSeymour\PHPWebApplicationFramework\user;
+use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
-use JulianSeymour\PHPWebApplicationFramework\app\Request;
+use JulianSeymour\PHPWebApplicationFramework\app\Responder;
 use JulianSeymour\PHPWebApplicationFramework\auth\AuthenticatedUser;
 use JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\ValidConfirmationCodeUseCase;
 use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordData;
 use JulianSeymour\PHPWebApplicationFramework\auth\permit\Permission;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\core\Document;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
-use JulianSeymour\PHPWebApplicationFramework\ui\PageContentElement;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 use mysqli;
 
-class ResetPasswordUseCase extends ValidConfirmationCodeUseCase
-{
+class ResetPasswordUseCase extends ValidConfirmationCodeUseCase{
 
 	/**
 	 * reset password when the user doesn't have access to the old one.
@@ -25,17 +29,14 @@ class ResetPasswordUseCase extends ValidConfirmationCodeUseCase
 	 * @param mysqli $mysqli
 	 * @return int
 	 */
-	public function resetPassword($mysqli)
-	{
-		$f = __METHOD__; //ResetPasswordUseCase::getShortClass()."(".static::getShortClass().")->resetPassword()";
+	public function resetPassword($mysqli){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
 				Debug::print("{$f} about to update password data");
 			}
-			// user()->validatePrivateKey(get_file_line());
 			$password_data = PasswordData::generate(getInputParameter('password'));
-			// user()->validatePrivateKey(get_file_line());
 			if (! isset($password_data)) {
 				Debug::warning("{$f} password data returned null");
 				return $this->setObjectStatus(ERROR_NULL_PASSWORD_DATA);
@@ -54,22 +55,13 @@ class ResetPasswordUseCase extends ValidConfirmationCodeUseCase
 				Debug::print("{$f} correspondent name is \"{$name}\"");
 			}
 			$correspondent->setReceptivity(DATA_MODE_RECEPTIVE);
-			// user()->validatePrivateKey(get_file_line());
-			// $dsk_column = new SecretKeyDatum("deterministicSecretKey");
-			// $dsk_column->volatilize();
-			// $correspondent->pushColumn($dsk_column);
 			$correspondent->processPasswordData($password_data);
-			// user()->validatePrivateKey(get_file_line());
 			$correspondent->setHardResetCount($correspondent->getHardResetCount() + 1);
-			// user()->validatePrivateKey(get_file_line());
 			$correspondent->setReceptivity(DATA_MODE_DEFAULT);
 			$backup = $correspondent->getPermission(DIRECTIVE_UPDATE);
-			$correspondent->setPermission(DIRECTIVE_UPDATE, SUCCESS // new AnonymousAccountTypePermission(DIRECTIVE_UPDATE)
-			);
-			// user()->validatePrivateKey(get_file_line());
+			$correspondent->setPermission(DIRECTIVE_UPDATE, SUCCESS);
 			$status = $correspondent->update($mysqli);
 			$correspondent->setPermission(DIRECTIVE_UPDATE, $backup);
-			// user()->validatePrivateKey(get_file_line());
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} error updating password data: \"{$err}\"");
@@ -77,28 +69,14 @@ class ResetPasswordUseCase extends ValidConfirmationCodeUseCase
 			} elseif ($print) {
 				Debug::print("{$f} successfully reset password");
 			}
-			// user()->validatePrivateKey(get_file_line());
-			if (Request::isXHREvent()) {
-				if ($print) {
-					Debug::print("{$f} about to push media command");
-				}
-				$e = PageContentElement::wrap(ErrorMessage::getVisualError(RESULT_RESET_SUCCESS));
-				$e->setIdAttribute("page_content");
-				// user()->validatePrivateKey(get_file_line());
-				$this->pushCommand($e->updateInnerHTML());
-			} elseif ($print) {
-				Debug::print("{$f} this is not an XHR");
-			}
-			// user()->validatePrivateKey(get_file_line());
-			return RESULT_RESET_SUCCESS;
+			return SUCCESS;
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function execute(): int
-	{
-		$f = __METHOD__; //ResetPasswordUseCase::getShortClass()."(".static::getShortClass().")->execute()";
+	public function execute(): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -110,33 +88,23 @@ class ResetPasswordUseCase extends ValidConfirmationCodeUseCase
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::print("{$f} resetPassword returned status \"{$err}\"");
 			}
-			// user()->validatePrivateKey("In ResetPasswordUseCase->execute()");
-
 			return $this->setObjectStatus($status);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return '/reset';
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_RESET_PASSWORD;
-	}
-
-	public function getTransitionFromPermission(): Permission
-	{
+	public function getTransitionFromPermission(): Permission{
 		return new Permission(DIRECTIVE_TRANSITION_FROM, function (PlayableUser $user, UseCase $target, UseCase $predecessor) {
-			$f = __METHOD__; //"ResetPasswordUseCase transition from permission closure";
+			$f = __METHOD__;
 			try {
 				$print = false;
 				if (! $predecessor instanceof ValidateResetPasswordCodeUseCase) {
@@ -162,5 +130,33 @@ class ResetPasswordUseCase extends ValidConfirmationCodeUseCase
 				x($f, $x);
 			}
 		});
+	}
+	
+	public function getPageContent():?array{
+		$status = $this->getObjectStatus();
+		if($status !== SUCCESS){
+			return parent::getPageContent();
+		}
+		return [ErrorMessage::getVisualNotice(_("Your password was reset."))];
+	}
+	
+	public function getResponder(int $status):?Responder{
+		$f = __METHOD__;
+		$print = false;
+		$responder = new Responder();
+		if($status === SUCCESS){
+			if($print){
+				Debug::print("{$f} success");
+			}
+			$responder->setCommands([
+				Document::createElement("div")->withIdAttribute("reset_password_form")->withInnerHTML(
+					$this->getPageContent()[0]->__toString()
+				)->update()
+			]);
+		}elseif($print){
+			$err = ErrorMessage::getResultMessage($status);
+			Debug::print("{$f} error status \"{$err}\"");
+		}
+		return $responder;
 	}
 }

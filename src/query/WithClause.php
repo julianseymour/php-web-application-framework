@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\query;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;

@@ -10,17 +10,15 @@ use JulianSeymour\PHPWebApplicationFramework\datum\AbstractDatum;
  * @author j
  *        
  */
-trait ForeignKeyConstraintTrait
-{
+trait ForeignKeyConstraintTrait{
 
 	protected $onDeleteReferenceOption;
 
 	protected $onUpdateReferenceOption;
 
 	
-	public function setOnDelete($ondelete)
-	{
-		$f = __METHOD__; //"ForeignKeyConstraintTrait(".static::getShortClass().")->setOnDelete()";
+	public function setOnDelete($ondelete){
+		$f = __METHOD__;
 		if ($ondelete == null) {
 			unset($this->onDeleteReferenceOption);
 			return null;
@@ -35,29 +33,25 @@ trait ForeignKeyConstraintTrait
 		return $this->onDeleteReferenceOption = $ondelete;
 	}
 
-	public function hasOnDelete()
-	{
+	public function hasOnDelete(){
 		return isset($this->onDeleteReferenceOption);
 	}
 
-	public function getOnDelete()
-	{
-		$f = __METHOD__; //"ForeignKeyConstraintTrait(".static::getShortClass().")->getOnDelete()";
+	public function getOnDelete(){
+		$f = __METHOD__;
 		if (! $this->hasOnDelete()) {
 			Debug::error("{$f} on delete is undefined");
 		}
 		return $this->onDeleteReferenceOption;
 	}
 
-	public function onDelete($ondelete)
-	{
+	public function onDelete($ondelete){
 		$this->setOnDelete($ondelete);
 		return $this;
 	}
 
-	public function setOnUpdate($onupdate)
-	{
-		$f = __METHOD__; //"ForeignKeyConstraintTrait(".static::getShortClass().")->setOnDelete()";
+	public function setOnUpdate($onupdate){
+		$f = __METHOD__;
 		if ($onupdate == null) {
 			unset($this->onUpdateReferenceOption);
 			return null;
@@ -72,22 +66,19 @@ trait ForeignKeyConstraintTrait
 		return $this->onUpdateReferenceOption = $onupdate;
 	}
 
-	public function hasOnUpdate()
-	{
+	public function hasOnUpdate(){
 		return isset($this->onUpdateReferenceOption);
 	}
 
-	public function getOnUpdate()
-	{
-		$f = __METHOD__; //"ForeignKeyConstraintTrait(".static::getShortClass().")->getOnUpdate()";
+	public function getOnUpdate(){
+		$f = __METHOD__;
 		if (! $this->hasOnUpdate()) {
 			Debug::error("{$f} on update is undefined");
 		}
 		return $this->onUpdateReferenceOption;
 	}
 
-	public function onUpdate($onupdate)
-	{
+	public function onUpdate($onupdate){
 		$this->setOnUpdate($onupdate);
 		return $this;
 	}

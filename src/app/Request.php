@@ -1,19 +1,20 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\app;
 
 // use JulianSeymour\PHPWebApplicationFramework\common\FlagBearingTrait;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
+use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\unset_cookie;
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\file\UploadedFile;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
-use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
+use JulianSeymour\PHPWebApplicationFramework\use_case\ProgramFlowControlUnit;
 use Exception;
-use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 
 /**
  * Represents and incoming request
@@ -259,9 +260,8 @@ class Request extends Basic{
 		$this->setRequestURISegments($segments);
 	}
 
-	public static final function getAsynchronousRequestMethod()
-	{
-		$f = __METHOD__; //Request::getShortClass() . "::getAsynchronousRequestMethod()";
+	public static final function getAsynchronousRequestMethod(){
+		$f = __METHOD__;
 		$print = false;
 		if (! array_key_exists("HTTP_X_REQUESTED_WITH", $_SERVER)) {
 			if ($print) {
@@ -288,19 +288,16 @@ class Request extends Basic{
 		}
 	}
 
-	public static function isXHREvent():bool
-	{
+	public static function isXHREvent():bool{
 		return static::getAsynchronousRequestMethod() === ASYNC_REQUEST_METHOD_XHR;
 	}
 
-	public static final function isFetchEvent():bool
-	{
+	public static final function isFetchEvent():bool{
 		return static::getAsynchronousRequestMethod() === ASYNC_REQUEST_METHOD_FETCH;
 	}
 
-	public function isCurlEvent():bool
-	{
-		$f = __METHOD__; //Request::getShortClass() . "::isCurlEvent()";
+	public function isCurlEvent():bool{
+		$f = __METHOD__;
 		try {
 			$post = $this->getInputParameters();
 			if ($post == null) {
@@ -315,14 +312,12 @@ class Request extends Basic{
 		}
 	}
 
-	protected function hasPHPInputFileContents():bool
-	{
+	protected function hasPHPInputFileContents():bool{
 		return $this->isFetchEvent() && isset($this->PHPInputFileContents) && is_array($this->PHPInputFileContents) && ! empty($this->PHPInputFileContents);
 	}
 
-	protected function getPHPInputFileContents()
-	{
-		$f = __METHOD__; //Request::getShortClass() . "->getPHPInputFileContents()";
+	protected function getPHPInputFileContents(){
+		$f = __METHOD__;
 		if (! $this->isFetchEvent()) {
 			Debug::error("{$f} don't call this unless you're fetching something");
 		} elseif ($this->hasPHPInputFileContents()) {
@@ -335,17 +330,15 @@ class Request extends Basic{
 		return $this->PHPInputFileContents = $arr;
 	}
 
-	public static function getHTTPRequestMethod(): string
-	{
+	public static function getHTTPRequestMethod(): string{
 		if (isset($_POST) && is_array($_POST) && ! empty($_POST)) {
 			return HTTP_REQUEST_METHOD_POST;
 		}
 		return HTTP_REQUEST_METHOD_GET;
 	}
 
-	public function getInputParameters(...$names)
-	{
-		$f = __METHOD__; //Request::getShortClass() . "->getInputParameters()";
+	public function getInputParameters(...$names){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$method = static::getAsynchronousRequestMethod();
@@ -402,9 +395,8 @@ class Request extends Basic{
 		}
 	}
 
-	public static function configureAsynchronousRequestMethodFlags()
-	{
-		$f = __METHOD__; //Request::getShortClass() . "::configureAsynchronousRequestMethodFlags()";
+	public static function configureAsynchronousRequestMethodFlags(){
+		$f = __METHOD__;
 		try {
 			$ajax = static::getAsynchronousRequestMethod();
 			if ($ajax === ASYNC_REQUEST_METHOD_FETCH) {
@@ -416,22 +408,33 @@ class Request extends Basic{
 		}
 	}
 
-	public function hasInputParameter(string $name, UseCase $use_case = null):bool
-	{
-		if ($use_case instanceof UseCase) {
+	public function hasInputParameter(string $name, ProgramFlowControlUnit $use_case = null):bool{
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
+		if ($use_case instanceof ProgramFlowControlUnit) {
+			if($print){
+				Debug::print("{$f} received a use case input parameter");
+			}
 			if ($use_case->hasImplicitParameter($name)) {
 				return true;
 			} elseif ($use_case->URISegmentParameterExists($name)) {
 				return true;
+			}elseif($print){
+				Debug::print("{$f} {$name} is not an implicit or segmented parameter for this use case");
 			}
+		}elseif($print){
+			Debug::printStackTraceNoExit("{$f} did not receive a use case parameter when checking for parameter \"{$name}\"");
 		}
 		$post = $this->getInputParameters();
-		return $post !== null && is_array($post) && array_key_exists($name, $post) && $post[$name] !== null && $post[$name] !== "";
+		if($print){
+			Debug::print("{$f} about to check the following post/get parameters:");
+			Debug::print(json_encode($post));
+		}
+		return is_array($post) && array_key_exists($name, $post) && $post[$name] !== null && $post[$name] !== "";
 	}
 
-	public function hasInputParameters(...$names):bool
-	{
-		$f = __METHOD__; //Request::getShortClass() . "->hasInputParameters()";
+	public function hasInputParameters(...$names):bool{
+		$f = __METHOD__;
 		if (empty($names)) {
 			Debug::error("{$f} received no input parameter names");
 		}
@@ -443,17 +446,17 @@ class Request extends Basic{
 		return true;
 	}
 
-	public function getInputParameter(string $name, UseCase $use_case = null){
+	public function getInputParameter(string $name, ProgramFlowControlUnit $use_case = null){
 		$f = __METHOD__;
 		$print = false;
 		if ($print) {
-			if ($use_case instanceof UseCase) {
+			if ($use_case instanceof ProgramFlowControlUnit) {
 				Debug::print("{$f} received a use case parameter");
 			} else {
 				Debug::print("{$f} did not receive a use case parameter");
 			}
 		}
-		if ($use_case instanceof UseCase) {
+		if ($use_case instanceof ProgramFlowControlUnit) {
 			if($print){
 				Debug::print("{$f} use case is a use case");
 			}
@@ -466,7 +469,9 @@ class Request extends Basic{
 				if ($print) {
 					Debug::print("{$f} use case explicitly maps input parameter");
 				}
-				return $use_case->getURISegmentParameter($name);
+				return $this->getRequestURISegment(
+					array_search($name, $use_case->getUriSegmentParameterMap())
+				);
 			}elseif($print){
 				Debug::print("{$f} use case lacks an implicit input parameter {$name}, nor does a URI segment exist for it");
 			}
@@ -505,14 +510,12 @@ class Request extends Basic{
 		Debug::error("{$f} oh well");
 	}
 
-	private static function emptyFiles($unfixed_arr)
-	{
+	private static function emptyFiles($unfixed_arr):bool{
 		return empty($unfixed_arr['name']) && empty($unfixed_arr['type']) && empty($unfixed_arr['tmp_name']) && $unfixed_arr['error'] === 4 && $unfixed_arr['size'] === 0;
 	}
 
-	public static function repackIncomingFiles(?array $unfixed_arr): ?array
-	{
-		$f = __METHOD__; //Request::getShortClass() . "::repackIncomingFiles()";
+	public static function repackIncomingFiles(?array $unfixed_arr): ?array{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -600,9 +603,8 @@ class Request extends Basic{
 		}
 	}
 
-	public function setRepackedIncomingFiles($files)
-	{
-		$f = __METHOD__; //Request::getShortClass() . "->setRepackedIncomingFiles()";
+	public function setRepackedIncomingFiles($files){
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			Debug::print("{$f} setting the following repacked incoming files");
@@ -611,9 +613,8 @@ class Request extends Basic{
 		return $this->setArrayProperty("repackedIncomingFiles", $files);
 	}
 
-	public function hasRepackedIncomingFiles():bool
-	{
-		$f = __METHOD__; //Request::getShortClass() . "->hasRepackedIncomingFiles()";
+	public function hasRepackedIncomingFiles():bool{
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			if ($this->hasArrayProperty("repackedIncomingFiles")) {
@@ -629,19 +630,16 @@ class Request extends Basic{
 	 *
 	 * @return UploadedFile[]
 	 */
-	public function getRepackedIncomingFiles()
-	{
+	public function getRepackedIncomingFiles(){
 		return $this->getProperty("repackedIncomingFiles");
 	}
 
-	public static function isAjaxRequest():bool
-	{
+	public static function isAjaxRequest():bool{
 		return static::getAsynchronousRequestMethod() !== ASYNC_REQUEST_METHOD_NONE;
 	}
 
-	public function getDirective():string
-	{
-		$f = __METHOD__; //Request::getShortClass() . "->getDirective()";
+	public function getDirective():string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (! $this->hasDirective()) {
@@ -679,28 +677,24 @@ class Request extends Basic{
 		}
 	}
 
-	public function hasDirective():bool
-	{
+	public function hasDirective():bool{
 		return isset($this->directive);
 	}
 
-	protected function setDirective($command)
-	{
+	protected function setDirective($command){
 		return $this->directive = $command;
 	}
 
-	public function getRequestURISegments()
-	{
-		$f = __METHOD__; //Request::getShortClass() . "->getRequestURISegments()";
+	public function getRequestURISegments(){
+		$f = __METHOD__;
 		if (! $this->hasRequestURISegments()) {
 			Debug::error("{$f} request URI segments undefined");
 		}
 		return $this->requestURISegments;
 	}
 
-	public static function getRawRequestURISegments()
-	{
-		$f = __METHOD__; //Request::getShortClass() . "::getRawRequestURISegments()";
+	public static function getRawRequestURISegments(){
+		$f = __METHOD__;
 		$print = false;
 		$uri = $_SERVER['REQUEST_URI'];
 		if ($print) {
@@ -709,19 +703,16 @@ class Request extends Basic{
 		return explode('/', trim($uri, '/'));
 	}
 
-	public function hasRequestURISegments():bool
-	{
+	public function hasRequestURISegments():bool{
 		return isset($this->requestURISegments) && is_array($this->requestURISegments);
 	}
 
-	public function setRequestURISegments($segments)
-	{
+	public function setRequestURISegments($segments){
 		return $this->requestURISegments = $segments;
 	}
 
-	public function getRequestURISegment($i)
-	{
-		$f = __METHOD__; //Request::getShortClass() . "->getRequestURISegment()";
+	public function getRequestURISegment($i){
+		$f = __METHOD__;
 		if (! $this->hasRequestURISegments()) {
 			Debug::error("{$f} request URI segments are undefined");
 		} elseif (! array_key_exists($i, $this->requestURISegments)) {

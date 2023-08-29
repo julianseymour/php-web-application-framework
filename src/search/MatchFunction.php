@@ -124,62 +124,40 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 		}
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->parameterCount);
 		unset($this->searchModifier);
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "match";
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->evaluate()";
+	public function evaluate(?array $params = null){
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function getFlatWhereConditionArray(): ?array
-	{
+	public function getFlatWhereConditionArray(): ?array{
 		return [
 			$this
 		];
 	}
 
-	public function getSuperflatWhereConditionArray(): ?array
-	{
+	public function getSuperflatWhereConditionArray(): ?array{
 		return $this->getFlatWhereConditionArray();
 	}
 
-	public function audit(): int
-	{
-		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->audit()";
-		ErrorMessage::unimplemented($f);
-		return FAILURE;
-	}
-
-	public function inferParameterCount()
-	{
+	public function inferParameterCount(){
 		return $this->getParameterCount();
 	}
 
-	public function getConditionalColumnNames(): array
-	{
+	public function getConditionalColumnNames(): array{
 		return $this->getColumnNames();
-		/*
-		 * $s = "";
-		 * foreach($this->getColumnNames() as $cn){
-		 * $s .= back_quote($cn);
-		 * }
-		 * return $s;
-		 */
 	}
 
-	public function __toString(): string
-	{
+	public function __toString(): string{
 		return $this->toSQL();
 	}
 }

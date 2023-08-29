@@ -2,7 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\use_case\interactive;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 

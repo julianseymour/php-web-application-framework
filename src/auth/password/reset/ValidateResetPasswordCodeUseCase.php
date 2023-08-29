@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password\reset;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
@@ -7,55 +8,41 @@ use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousAccountTypeP
 use JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\ValidateAnonymousConfirmationCodeUseCase;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 
-class ValidateResetPasswordCodeUseCase extends ValidateAnonymousConfirmationCodeUseCase
-{
+class ValidateResetPasswordCodeUseCase extends ValidateAnonymousConfirmationCodeUseCase{
 
-	public static function getBruteforceAttemptClass(): string
-	{
+	public static function getBruteforceAttemptClass(): string{
 		return ResetPasswordAttempt::class;
 	}
 
-	public function getDataOperandObject(): ?DataStructure
-	{
+	public function getDataOperandObject(): ?DataStructure{
 		$user_class = mods()->getUserClass(NormalUser::getAccountTypeStatic());
 		$user = new $user_class();
 		return $user;
 	}
 
-	public static function getConfirmationCodeClass(): string
-	{
+	public static function getConfirmationCodeClass(): string{
 		return ResetPasswordConfirmationCode::class;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_RESET_PASSWORD;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/reset";
 	}
 
-	public static function validateOnFormSubmission(): bool
-	{
+	public static function validateOnFormSubmission(): bool{
 		return true;
 	}
 
-	public function getFormClass(): ?string
-	{
+	public function getFormClass(): ?string{
 		return ResetPasswordForm::class;
 	}
 
-	protected function initializeSwitchUseCases(): ?array
-	{
+	protected function initializeSwitchUseCases(): ?array{
 		return [
 			SUCCESS => ResetPasswordUseCase::class
 		];
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return AnonymousAccountTypePermission::class;
 	}
 }

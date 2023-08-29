@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\db\load;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -27,13 +28,33 @@ use Exception;
 use mysqli;
 use mysqli_result;
 
-class Loadout extends Basic
-{
+class Loadout extends Basic{
 
 	protected $treeSelectStatements;
 
 	protected $userData;
 
+	protected $duplicateTreeSelectStatementRecourse;
+	
+	public function hasDuplicateTreeSelectStatementRecourse():bool{
+		return isset($this->duplicateTreeSelectStatementRecourse);
+	}
+	
+	public function setDuplicateTreeSelectStatementRecourse(?int $recourse):?int{
+		if($recourse === null){
+			unset($this->duplicateTreeSelectStatementRecourse);
+			return null;
+		}
+		return $this->duplicateTreeSelectStatementRecourse = $recourse;
+	}
+	
+	public function getDuplicateTreeSelectStatementRecourse():int{
+		if(!$this->hasDuplicateTreeSelectStatementRecourse()){
+			return RECOURSE_EXIT;
+		}
+		return $this->duplicateTreeSelectStatementRecourse;
+	}
+	
 	public function mapSelectStatement(string $phylum, string $class, SelectStatement $query): void{
 		$f = __METHOD__;
 		$print = false;
@@ -44,39 +65,23 @@ class Loadout extends Basic
 			$this->treeSelectStatements[$phylum] = [
 				$class => $query
 			];
+		}elseif(array_key_exists($class, $this->treeSelectStatements[$phylum])){
+			$recourse = $this->getDuplicateTreeSelectStatementRecourse();
+			switch($recourse){
+				case RECOURSE_IGNORE:
+					$this->treeSelectStatements[$phylum][$class] = $query;
+					break;
+				case RECOURSE_CONTINUE:
+					return;
+				case RECOURSE_EXIT:
+				default:
+					Debug::error("{$f} we already have a query for phylum {$phylum}, class {$class}");
+			}
 		} else {
 			$this->treeSelectStatements[$phylum][$class] = $query;
 		}
 		if ($print) {
 			Debug::print("{$f} mapped query \"{$query}\" to phylum \"{$phylum}\" of for class \"{$class}\"");
-		}
-	}
-
-	public function mapSelectStatementIfUndefined(string $phylum, string $class, SelectStatement $query): void{
-		$f = __METHOD__;
-		$print = false;
-		$did = $this->getDebugId();
-		Debug::print("{$f} debug ID is {$did}");
-		if (! is_array($this->treeSelectStatements)) {
-			if($print){
-				Debug::print("{$f} treeSelectStatements array is empty");
-			}
-			$this->treeSelectStatements = [];
-		}
-		if (! array_key_exists($phylum, $this->treeSelectStatements)) {
-			if($print){
-				Debug::print("{$f} phylum {$phylum} was not mapped to anything");
-			}
-			$this->treeSelectStatements[$phylum] = [
-				$class => $query
-			];
-		} elseif(!array_key_exists($class, $this->treeSelectStatements[$phylum])){
-			if($print){
-				Debug::print("{$f} {$phylum}.{$class} was not mapped to a query");
-			}
-			$this->treeSelectStatements[$phylum][$class] = $query;
-		}elseif($print){
-			Debug::print("{$f} something was already mapped to {$phylum}.{$class}");
 		}
 	}
 	
@@ -285,6 +290,7 @@ class Loadout extends Basic
 								Debug::print("{$f} this is not an AJAX request, adding new dependencies from RiggedLoadoutGenerator");
 							}
 							$rigged = new RiggedLoadoutGenerator();
+							$loadout->setDuplicateTreeSelectStatementRecourse(RECOURSE_CONTINUE);
 							$loadout->addDependencies(
 								$rigged->getNonRootNodeTreeSelectStatements($child, $use_case)
 							);
@@ -642,10 +648,12 @@ class Loadout extends Basic
 				Debug::print("{$f} query does not have a recursive CTE, or load entry point is something besides the intersection table");
 			}
 			$idn = $class::getIdentifierNameStatic();
-			// $results = is_array($result) ? $result : $result->fetch_all(MYSQLI_ASSOC);
 			$count = 0;
 			foreach ($results as $r) {
 				$child = new $class();
+				if($print){
+					$child->debug();
+				}
 				$status = $child->processQueryResultArray($mysqli, $r);
 				if ($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
@@ -686,7 +694,11 @@ class Loadout extends Basic
 						if ($child->getObjectStatus() === STATUS_PRELAZYLOAD) {
 							Debug::print("{$f} lazy load of {$class} has not completed");
 						} elseif ($print) {
-							Debug::print("{$f} query does not have a recursive common table expression -- setting child as foreign data structure list member");
+							$dsc = $ds->getShortClass();
+							$key = $ds->hasIdentifierValue() ? $ds->getIdentifierValue() : "[undefined]";
+							$decl = $ds->getDeclarationLine();
+							$did = $ds->getDebugId();
+							Debug::print("{$f} query does not have a recursive common table expression -- setting child as foreign data structure list member of phylum \"{$phylum}\" for host data structure of class \"{$dsc}\" with key \"{$key}\" and debug ID \"{$did}\" declared {$decl}");
 						}
 					}
 					if($child->hasIdentifierValue()){
@@ -765,6 +777,9 @@ class Loadout extends Basic
 					Debug::print("{$f} about to call prepareBindExecuteGetResult with type specifier \"{$typedef}\" and the following parameters:");
 					Debug::printArray($params);
 				}
+				if($print){
+					$select->debug();
+				}
 				$result = $select->prepareBindExecuteGetResult($mysqli, $typedef, ...$params);
 			} else {
 				$result = $select->executeGetResult($mysqli);
@@ -793,6 +808,7 @@ class Loadout extends Basic
 				$results = is_array($result) ? $result : $result->fetch_all(MYSQLI_ASSOC);
 				if ($print) {
 					Debug::print("{$f} about to process results of query \"{$select}\"");
+					Debug::print(json_encode($results));
 				}
 				static::processChildQueryResults($mysqli, $ds, $phylum, $class, $results, $children, $recursive);
 				if ($print) {

@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\query\index;
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayKeyProviderInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\CommentTrait;

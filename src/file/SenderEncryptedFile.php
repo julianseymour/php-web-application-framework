@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -9,11 +10,9 @@ use JulianSeymour\PHPWebApplicationFramework\file\compress\ZipFileData;
 use Exception;
 use mysqli;
 
-class SenderEncryptedFile extends ProspectiveEncryptedFile
-{
+class SenderEncryptedFile extends ProspectiveEncryptedFile{
 
-	public function __construct()
-	{
+	public function __construct(){
 		parent::__construct();
 		$this->setUserData(user());
 	}
@@ -23,9 +22,8 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile
 	 * @param RecipientEncryptedFile $their_file
 	 * @return string
 	 */
-	public function generateSharedMetadata($their_file)
-	{
-		$f = __METHOD__; //SenderEncryptedFile::getShortClass()."(".static::getShortClass().")->generateSharedMetadata()";
+	public function generateSharedMetadata($their_file){
+		$f = __METHOD__;
 		try {
 			Debug::print("{$f} entered");
 			$their_file->setMimeType($this->getMimeType());
@@ -85,30 +83,26 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile
 	/**
 	 * Do not call this except in writeFile -- it is generated based off of the current date
 	 */
-	public function getUploadDirectory()
-	{
+	public function getUploadDirectory():string{
 		if ($this->hasUploadDirectory()) {
 			return parent::getUploadDirectory();
 		}
-		return "/var/" . DOMAIN_BASE . "/uploads/encrypted";
-		/*
-		 * $year = date("Y");
-		 * $month = date("m");
-		 * return $this->setUploadDirectory("{$base_dir}/{$year}/{$month}");
-		 */
+		return "/var/www/uploads/encrypted";
 	}
 
-	public function generateFilename()
-	{
-		$f = __METHOD__; //SenderEncryptedFile::getShortClass()."(".static::getShortClass().")::generateFilename()";
+	public function generateFilename():string{
+		$f = __METHOD__;
 		try {
-			Debug::print("{$f} entered");
+			$print = false;
+			if($print){
+				Debug::print("{$f} entered");
+			}
 			if ($this->getMessageBox() === MESSAGE_BOX_INBOX) {
 				Debug::print("{$f} this is the recipient's copy of the header; filename should already be set");
 				return $this->getFilename();
 			}
 			Debug::print("{$f} this is the outbox message; about to generate filename");
-			$dir2 = $this->getFullFileDirectory(); // "{$base_dir}/{$year}/{$month}";
+			$dir2 = $this->getFullFileDirectory();
 			$filename_base = sha1(random_bytes(32));
 			$full_path = "{$dir2}/{$filename_base}.zap";
 			// $this->setFullFileDirectory();
@@ -120,16 +114,16 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile
 		}
 	}
 
-	public function generateFileAesNonce()
-	{
+	public function generateFileAesNonce(){
 		return $this->setFileAesNonce(random_bytes(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES));
 	}
 
-	public function generateFileAesKey()
-	{
-		$f = __METHOD__; //SenderEncryptedFile::getShortClass()."(".static::getShortClass().")->generateFileAesKey()";
+	public function generateFileAesKey(){
+		$f = __METHOD__;
 		try {
-			Debug::print("{$f} entered");
+			if($print){
+				Debug::print("{$f} entered");
+			}
 			$aes_key = random_bytes(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES);
 			$this->setFileAesKey($aes_key);
 			$aes_key = $this->getFileAesKey();
@@ -145,9 +139,8 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile
 		}
 	}
 
-	public function processMimeType()
-	{
-		$f = __METHOD__; //SenderEncryptedFile::getShortClass()."(".static::getShortClass().")->processMimeType()";
+	public function processMimeType(){
+		$f = __METHOD__;
 		try {
 			Debug::print("{$f} entered; about to call parent function");
 			$status = parent::processMimeType(); // Files($arr, $index);
@@ -187,9 +180,8 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile
 	 *
 	 * @return string
 	 */
-	protected function compressFile()
-	{
-		$f = __METHOD__; //SenderEncryptedFile::getShortClass()."(".static::getShortClass().")->compressFile()";
+	protected function compressFile(){
+		$f = __METHOD__;
 		try {
 			$original_filename = $this->getOriginalFilename();
 			$mime = $this->getMimeType();
@@ -223,11 +215,13 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile
 	 *
 	 * @return string
 	 */
-	protected function encryptFile()
-	{
-		$f = __METHOD__; //SenderEncryptedFile::getShortClass()."(".static::getShortClass().")->encryptFile()";
+	protected function encryptFile(){
+		$f = __METHOD__;
 		try {
-			Debug::printStackTraceNoExit("{$f} entered");
+			$print = false;
+			if($print){
+				Debug::printStackTraceNoExit("{$f} entered");
+			}
 			$file_zip = $this->compressFile();
 			$aes_key = $this->getFileAesKey();
 			$nonce = $this->getFileAesNonce();
@@ -245,9 +239,8 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile
 	 *
 	 * @return string
 	 */
-	public function getFileToWrite()
-	{
-		$f = __METHOD__; //SenderEncryptedFile::getShortClass()."(".static::getShortClass().")->getFileToWrite()";
+	public function getFileToWrite(){
+		$f = __METHOD__;
 		if ($this->hasFileContents()) {
 			return $this->getFileContents();
 		}
@@ -257,9 +250,8 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile
 		return $this->fileContents = $fc;
 	}
 
-	protected function beforeInsertHook(mysqli $mysqli): int
-	{ // XXX need case for recipient to use same file
-		$f = __METHOD__; //SenderEncryptedFile::getShortClass()."(".static::getShortClass().")->beforeInsertHook()";
+	protected function beforeInsertHook(mysqli $mysqli): int{ // XXX need case for recipient to use same file
+		$f = __METHOD__;
 		try {
 			Debug::print("{$f} entered");
 			$this->getFileToWrite();
@@ -267,17 +259,6 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile
 			if ($mysqli == null) {
 				Debug::error("{$f} mysql connection failed");
 				return $this->setObjectStatus(ERROR_MYSQL_CONNECT);
-				/*
-				 * }elseif(!$this->preventDuplicateEntry($mysqli)){
-				 * Debug::print("{$f} file already exists");
-				 * return $this->setObjectStatus(SUCCESS);
-				 * }elseif(!$this->hasFileAesKey()){
-				 * Debug::error("{$f} file AES key is undefined");
-				 * }elseif(!$this->hasFileIndexNonce()){
-				 * Debug::error("{$f} file index nonce is undefined");
-				 * }else{
-				 */
-				Debug::print("{$f} rejoice, file index nonce is defined");
 			}
 			Debug::print("{$f} about to write file");
 			$status = $this->writeFile();

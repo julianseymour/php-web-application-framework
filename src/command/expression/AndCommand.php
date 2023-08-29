@@ -1,24 +1,22 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\expression;
 
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereConditionalInterface;
 
-class AndCommand extends VariadicExpressionCommand implements WhereConditionalInterface
-{
+class AndCommand extends VariadicExpressionCommand implements WhereConditionalInterface{
 
-	public function getOperator()
-	{
+	public function getOperator(){
 		if (! $this->hasOperator()) {
 			return OPERATOR_AND_BOOLEAN;
 		}
 		return parent::getOperator();
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		$f = __METHOD__; //AndCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
+	public function evaluate(?array $params = null){
+		$f = __METHOD__;
 		$print = false;
 		$parameters = $this->getParameters();
 		$num = 1;
@@ -40,31 +38,12 @@ class AndCommand extends VariadicExpressionCommand implements WhereConditionalIn
 		return true;
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "and";
 	}
 
-	public function toSQL(): string
-	{
+	public function toSQL(): string{
 		$this->setOperator(OPERATOR_AND_DATABASE);
 		return parent::toSQL();
-	}
-
-	/*
-	 * public function mySQLFormat(){
-	 * $this->setOperator(OPERATOR_AND_DATABASE);
-	 * return parent::mySQLFormat();
-	 * }
-	 */
-	public function audit(): int
-	{
-		foreach ($this->getParameters() as $param) {
-			$status = $param->audit();
-			if ($status !== SUCCESS) {
-				return $this->setObjectStatus($status);
-			}
-		}
-		return $status;
 	}
 }

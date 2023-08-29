@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\grant;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -8,8 +9,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\role\DatabaseRoleData;
 use JulianSeymour\PHPWebApplicationFramework\query\table\TableNameTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\user\MultipleDatabaseUserDefinitionsTrait;
 
-abstract class PrivilegeStatement extends QueryStatement
-{
+abstract class PrivilegeStatement extends QueryStatement{
 
 	use DatabaseNameTrait;
 	use MultipleDatabaseUserDefinitionsTrait;
@@ -20,45 +20,37 @@ abstract class PrivilegeStatement extends QueryStatement
 	// object_type: { TABLE | FUNCTION | PROCEDURE }
 	protected $proxyUser;
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->objectType);
 		unset($this->proxyUser);
 	}
 
-	public function setPrivileges($values)
-	{
+	public function setPrivileges($values){
 		return $this->setArrayProperty("privileges", $values);
 	}
 
-	public function pushPrivileges(...$values)
-	{
+	public function pushPrivileges(...$values){
 		return $this->pushArrayProperty("privileges", ...$values);
 	}
 
-	public function mergePrivileges($values)
-	{
+	public function mergePrivileges($values){
 		return $this->mergeArrayProperty("privileges", $values);
 	}
 
-	public function hasPrivileges()
-	{
+	public function hasPrivileges(){
 		return $this->hasArrayProperty("privileges");
 	}
 
-	public function getPrivileges()
-	{
+	public function getPrivileges(){
 		return $this->getProperty("privileges");
 	}
 
-	public function getPrivilegeCount()
-	{
+	public function getPrivilegeCount(){
 		return $this->getArrayPropertyCount("privileges");
 	}
 
-	public function withPrivileges(...$values): PrivilegeStatement
-	{
+	public function withPrivileges(...$values): PrivilegeStatement{
 		if (count($values) == 1 && is_array($values[0])) {
 			$values = $values[0];
 		}
@@ -68,9 +60,8 @@ abstract class PrivilegeStatement extends QueryStatement
 		return $this;
 	}
 
-	public function setObjectType($type)
-	{
-		$f = __METHOD__; //PrivilegeStatement::getShortClass()."(".static::getShortClass().")->setObjectType()";
+	public function setObjectType($type){
+		$f = __METHOD__;
 		if ($type == null) {
 			unset($this->objectType);
 			return null;
@@ -89,45 +80,39 @@ abstract class PrivilegeStatement extends QueryStatement
 		return $this->objectType = $type;
 	}
 
-	public function hasObjectType()
-	{
+	public function hasObjectType(){
 		return isset($this->objectType);
 	}
 
-	public function getObjectType()
-	{
-		$f = __METHOD__; //PrivilegeStatement::getShortClass()."(".static::getShortClass().")->getObjectType()";
+	public function getObjectType(){
+		$f = __METHOD__;
 		if (! $this->hasObjectType()) {
 			Debug::error("{$f} object type is undefined");
 		}
 		return $this->objectType;
 	}
 
-	public function onTable($db, $table): PrivilegeStatement
-	{
+	public function onTable($db, $table): PrivilegeStatement{
 		$this->setObjectType(DATABASE_OBJECT_TYPE_TABLE);
 		$this->setDatabaseName($db);
 		$this->setTableName($table);
 		return $this;
 	}
 
-	public function onFunction($name): PrivilegeStatement
-	{
+	public function onFunction($name): PrivilegeStatement{
 		$this->setObjectType(DATABASE_OBJECT_TYPE_FUNCTION);
 		$this->setTableName($name);
 		return $this;
 	}
 
-	public function onProcedure($name): PrivilegeStatement
-	{
+	public function onProcedure($name): PrivilegeStatement{
 		$this->setObjectType(DATABASE_OBJECT_TYPE_PROCEDURE);
 		$this->setTableName($name);
 		return $this;
 	}
 
-	public function setProxyUser($user_or_role)
-	{
-		$f = __METHOD__; //GrantStatement::getShortClass()."(".static::getShortClass().")->setProxyUser()";
+	public function setProxyUser($user_or_role){
+		$f = __METHOD__;
 		if ($user_or_role == null) {
 			unset($this->proxyUser);
 			return null;
@@ -139,22 +124,19 @@ abstract class PrivilegeStatement extends QueryStatement
 		return $this->proxyUser = $user_or_role;
 	}
 
-	public function hasProxyUser()
-	{
+	public function hasProxyUser(){
 		return isset($this->proxyUser);
 	}
 
-	public function getProxyUser()
-	{
-		$f = __METHOD__; //GrantStatement::getShortClass()."(".static::getShortClass().")->getProxyUser()";
+	public function getProxyUser(){
+		$f = __METHOD__;
 		if (! $this->hasProxyUser()) {
 			Debug::error("{$f} proxy user is undefined");
 		}
 		return $this->proxyUser;
 	}
 
-	public static function proxyOn($user_or_role): PrivilegeStatement
-	{
+	public static function proxyOn($user_or_role): PrivilegeStatement{
 		$class = static::class;
 		$st = new $class();
 		$st->setProxyUser($user_or_role);

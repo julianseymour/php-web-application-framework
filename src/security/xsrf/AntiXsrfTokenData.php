@@ -12,6 +12,10 @@ use Exception;
 
 class AntiXsrfTokenData extends DataStructure{
 
+	public static function getDatabaseNameStatic():string{
+		return "error";
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
 		$xsrf_token = new TextDatum("xsrf_token");
@@ -154,11 +158,11 @@ class AntiXsrfTokenData extends DataStructure{
 		}
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Anti-XSRF token");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Anti-XSRF token");
 	}
 

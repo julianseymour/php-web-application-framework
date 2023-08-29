@@ -1,7 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\register;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
+use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\settings\timezone\GetUserTimezoneCommand;
@@ -22,22 +24,28 @@ use JulianSeymour\PHPWebApplicationFramework\input\EmailInput;
 use JulianSeymour\PHPWebApplicationFramework\input\HiddenInput;
 use JulianSeymour\PHPWebApplicationFramework\input\InputInterface;
 use JulianSeymour\PHPWebApplicationFramework\input\PasswordInput;
+use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
 use JulianSeymour\PHPWebApplicationFramework\security\captcha\hCaptcha;
 use JulianSeymour\PHPWebApplicationFramework\validate\Validator;
 use Exception;
 
-class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterface
-{
+class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterface{
 
+	use JavaScriptCounterpartTrait;
 	use PasswordGeneratingFormTrait;
 
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		$f = __METHOD__;
 		parent::__construct($mode, $context);
-		$this->addClassAttribute("login_form");
 		$this->setIdAttribute("register_form");
+		$this->addClassAttribute('register_form');
 	}
 
+	public static function getJavaScriptClassPath(): ?string{
+		$fn = get_class_filename(static::class);
+		return substr($fn, 0, strlen($fn) - 3) . "js";
+	}
+	
 	public static function getMethodAttributeStatic(): ?string{
 		return HTTP_REQUEST_METHOD_POST;
 	}
@@ -74,63 +82,48 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 		$f = __METHOD__;
 		try {
 			$print = false;
-			$type = $input->getTypeAttribute();
-			switch ($type) {
-				case "checkbox":
-				case "text":
-				case "number":
-				case "select":
-				case "textarea":
-				case "password":
-				case "email":
-					// $input->setWrapperElement(new DivElement());
-					break;
-				default:
-					break;
-			}
 			if (! $input->hasColumnName()) {
+				if($print){
+					Debug::print("{$f} username does not have a column name");
+				}
 				return parent::reconfigureInput($input);
 			}
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "emailAddress":
-					$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
-					$ret = parent::reconfigureInput($input);
 					$id = "reg_email";
 					$input->setIdAttribute($id);
 					$input->setAutocompleteAttribute("off");
+					$ret = parent::reconfigureInput($input);
 					$suffix = new DivElement();
 					$suffix->addClassAttribute("js_valid_light");
 					$suffix->setIdAttribute("js_valid_email");
 					$suffix->setAllowEmptyInnerHTML(true);
 					$input->pushSuccessor($suffix);
 					$input->setRequiredAttribute("required");
-					$input->setPlaceholderAttribute(_("Email address"));
+					$input->setLabelString(_("Email address"));
 					$input->getWrapperElement()->setStyleProperties([
 						"margin-bottom" => "0.5rem"
 					]);
 					return $ret;
-					break;
+				case "name":
+					return SUCCESS;
 				case "password":
 					if ($print) {
 						Debug::printStackTraceNoExit("{$f} reconfiguring password input");
 					}
-					$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
-					$ret = parent::reconfigureInput($input);
 					$id = "reg_password";
 					$input->setIdAttribute($id);
 					$input->setAutocompleteAttribute("off");
 					$placeholder = _("Password") . " (" . substitute(_("%1%+ characters"), 12) . ")";
-					$input->setPlaceholderAttribute($placeholder);
+					$input->setLabelString($placeholder);
+					$ret = parent::reconfigureInput($input);
 					$suffix = new DivElement();
 					$suffix->addClassAttribute("js_valid_light");
 					$suffix->setIdAttribute("js_valid_password");
 					$suffix->setAllowEmptyInnerHTML(true);
 					$input->pushSuccessor($suffix);
 					$input->setRequiredAttribute("required");
-					// $oninput = "changePasswordHandler(event, this);";
-					// $input->setOnInputAttribute($oninput);
-					// $input->setOnPropertyChangeAttribute($oninput);
 					$input->getWrapperElement()->setStyleProperties([
 						//"height" => "calc(100px + 1rem)",
 						"margin-bottom" => "0.5rem"
@@ -210,8 +203,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 				$inputs[$input->getNameAttribute()] = $input;
 			}
 			$hcaptcha = new hCaptcha($mode, $this->getContext());
-			$hcaptcha->setIdAttribute("register_hcaptcha");
-			// $hcaptcha->setStyleProperties(["margin-top" => "3rem"]);
+			$hcaptcha->setIdAttribute('register_hcaptcha');
 			$inputs['hCaptcha'] = $hcaptcha;
 			return $inputs;
 		} catch (Exception $x) {

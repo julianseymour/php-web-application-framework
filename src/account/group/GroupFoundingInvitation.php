@@ -12,9 +12,8 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 class GroupFoundingInvitation extends GroupInvitation
 {
 
-	protected function afterGenerateKeyHook($key): int
-	{
-		$f = __METHOD__; //GroupFoundingInvitation::getShortClass()."(".static::getShortClass().")->afterGenerateKeyHook()";
+	protected function afterGenerateKeyHook($key): int{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->hasGroupData()) {
 			if ($print) {
@@ -34,11 +33,9 @@ class GroupFoundingInvitation extends GroupInvitation
 				$this->setGroupPrivateKey(sodium_crypto_box_secretkey($keypair));
 			} elseif ($print) {
 				Debug::print("{$f} group object is not flagged for insert -- this is not the group's founding invitation");
-				Debug::error("{$f} gotcha");
 			}
 		} elseif ($print) {
 			Debug::print("{$f} group object is undefined");
-			Debug::error("{$f} gotcha");
 		}
 		return parent::afterGenerateKeyHook($key);
 	}

@@ -1,7 +1,7 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\validate;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\request;
@@ -11,34 +11,24 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 
-class AjaxValidatorUseCase extends UseCase
-{
+class AjaxValidatorUseCase extends UseCase{
 
 	use ValidatorTrait;
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/validate";
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return SUCCESS;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_VALIDATE_AJAX;
-	}
-
-	public function execute(): int
-	{
-		$f = __METHOD__; //AjaxValidatorUseCase::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function execute(): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (request()->getRequestURISegmentCount() < 2) {
@@ -101,20 +91,6 @@ class AjaxValidatorUseCase extends UseCase
 				];
 			}
 			$status = $validator->validate($repacked);
-			/*
-			 * if($status !== SUCCESS){
-			 * if($print){
-			 * $err = ErrorMessage::getResultMessage($status);
-			 * Debug::warning("{$f} validation returned error status \"{$err}\"");
-			 * }
-			 * $this->pushCommand($validator->getFailureCommand());
-			 * }else{
-			 * if($print){
-			 * Debug::print("{$f} validation successful");
-			 * }
-			 * $this->pushCommand($validator->getSuccessCommand());
-			 * }
-			 */
 			$this->setValidator($validator);
 			return $this->setObjectStatus($status);
 		} catch (Exception $x) {
@@ -122,8 +98,7 @@ class AjaxValidatorUseCase extends UseCase
 		}
 	}
 
-	public function getResponder(): ?Responder
-	{
+	public function getResponder(int $status):?Responder{
 		return new AjaxValidatorResponder();
 	}
 }

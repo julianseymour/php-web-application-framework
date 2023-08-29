@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password\reset;
 
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
@@ -97,20 +98,19 @@ class ResetPasswordForm extends ConfirmationCodeForm implements PasswordGenerati
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "name":
-					$input->setPlaceholderAttribute(_("Username"));
+					$input->setLabelString(_("Username"));
 					$input->setMinimumLengthAttribute(1);
-					return SUCCESS;
+					break;
 				case "password":
 					$input->setAutocompleteAttribute("off");
 					$input->setRequiredAttribute("required");
 					$newpass = _("New password");
 					$chars = substitute(_("%1%+ characters"), 12);
-					$placeholder = "{$newpass} ({$chars})";
-					$input->setPlaceholderAttribute($placeholder);
-					return SUCCESS;
+					$input->setLabelString("{$newpass} ({$chars})");
+					break;
 				default:
-					return parent::reconfigureInput($input);
 			}
+			return parent::reconfigureInput($input);
 		} catch (Exception $x) {
 			x($f, $x);
 		}

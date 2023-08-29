@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\form;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -9,6 +10,7 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\input\KeypadInput;
 
 class DefaultForm extends AjaxForm{
 
@@ -86,7 +88,11 @@ class DefaultForm extends AjaxForm{
 		$f = __METHOD__;
 		try {
 			$mode = $this->getAllocationMode();
-			$input->setWrapperElement(new DivElement($mode));
+			$div = new DivElement($mode);
+			$div->setStyleProperties([
+				"position" => "relative"
+			]);
+			$input->setWrapperElement($div);
 			return parent::reconfigureInput($input);
 		} catch (Exception $x) {
 			x($f, $x);

@@ -2,6 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\security;
 
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
+use JulianSeymour\PHPWebApplicationFramework\command\data\GetForeignDataStructureCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\Scope;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\AnchorElement;
@@ -52,8 +53,7 @@ class SecurityNotificationElement extends NotificationElement{
 	protected function getScopeResolutionCommands($context, Scope $scope): ?array{
 		return [
 			...$scope->letNames("reasonLoggedString", "insertIpAddress"),
-			CommandBuilder::if($context->hasForeignDataStructureCommand("subjectKey"))->then($scope->let("subject", $context->getForeignDataStructureCommand("subjectKey")), ...$scope->redeclareColumnValues($scope->getDeclaredVariableCommand("subject"), "reasonLoggedString", "insertIpAddress"))
-				->else(...$scope->redeclareMultiple([
+			CommandBuilder::if($context->hasForeignDataStructureCommand("subjectKey"))->then($scope->let("subject", new GetForeignDataStructureCommand($context, "subjectKey")), ...$scope->redeclareColumnValues($scope->getDeclaredVariableCommand("subject"), "reasonLoggedString", "insertIpAddress"))->else(...$scope->redeclareMultiple([
 				"reasonLoggedString" => _("Unknown reason"),
 				"insertIpAddress" => _("Unknown IP address")
 			]))

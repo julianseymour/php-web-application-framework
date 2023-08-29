@@ -1,6 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account;
 
+use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\getDateTimeStringFromTimestamp;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\login\FullAuthenticationData;
@@ -60,14 +62,6 @@ class NormalUser extends AuthenticatedUser{
 		return $roles;
 	}
 
-	/**
-	 *
-	 * @return Administrator
-	 */
-	public static function getAdministratorClass():string{
-		return config()->getAdministratorClass();
-	}
-
 	public function getKycStatus(){
 		return $this->getColumnValue('kycStatus');
 	}
@@ -118,11 +112,11 @@ class NormalUser extends AuthenticatedUser{
 		return $this->getColumnValue("accountType");
 	}
 
-	public static function getPrettyClassName(?string $lang = null):string{
+	public static function getPrettyClassName():string{
 		return _("User");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null):string{
+	public static function getPrettyClassNames():string{
 		return _("Users");
 	}
 

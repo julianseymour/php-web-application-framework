@@ -1,13 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data\columns;
 
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 
-trait SortNameColumnTrait
-{
+trait SortNameColumnTrait{
 
-	public static function getSortNameDatum($name = "sortName")
-	{
+	public static function getSortNameDatum(string $name = "sortName"){
 		$sort_name = new TextDatum($name);
 		$sort_name->setAlphanumeric(true);
 		$sort_name->setHumanReadableName(_("Invisible string for sorting"));
@@ -16,18 +15,15 @@ trait SortNameColumnTrait
 		return $sort_name;
 	}
 
-	public function setSortName($name)
-	{
+	public function setSortName(string $name):string{
 		return $this->setColumnValue("sortName", $name);
 	}
 
-	public function hasSortName()
-	{
+	public function hasSortName():bool{
 		return $this->hasColumnValue("sortName");
 	}
 
-	public function getSortName()
-	{
+	public function getSortName():string{
 		return $this->getColumnValue("sortName");
 	}
 }

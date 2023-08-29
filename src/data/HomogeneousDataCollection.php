@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\ends_with;
@@ -12,14 +13,12 @@ use JulianSeymour\PHPWebApplicationFramework\query\load\LoadDataStatement;
 use Exception;
 use mysqli;
 
-class HomogeneousDataCollection extends DataCollection
-{
+class HomogeneousDataCollection extends DataCollection{
 
 	use DataStructureClassTrait;
 
-	public function __construct($class = null)
-	{
-		$f = __METHOD__; //HomogeneousDataCollection::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($class = null){
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			Debug::print("{$f} entered with data structure class \"{$class}\"; about to call parent function");
@@ -38,19 +37,18 @@ class HomogeneousDataCollection extends DataCollection
 		}
 	}
 
-	public function importCSV(mysqli $mysqli, string $filename, $destroy = false)
-	{
-		$f = __METHOD__; //HomogeneousDataCollection::getShortClass()."(".static::getShortClass().")->importCSV()";
+	public function importCSV(mysqli $mysqli, string $filename, $destroy = false){
+		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			$dsc = $this->getDataStructureClass();
 			if (class_exists(LoadDataStatement::class)) {
-				$load_data = QueryBuilder::loadData()->local()
-					->infile($filename)
-					->columnsTerminatedby(',')
-					->linesTerminatedBy('\\n')
-					->ignoreRows(1)
-					->intoTable($dsc::getDatabaseNameStatic(), $dsc::getTableNameStatic());
+				$db = $dsc::getDatabaseNameStatic();
+				$table = $dsc::getTableNameStatic();
+				if($print){
+					Debug::print("{$f} database \"{$db}\", table \"{$table}\"");
+				}
+				$load_data = QueryBuilder::loadData()->local()->infile($filename)->columnsTerminatedby(',')->linesTerminatedBy('\\n')->ignoreRows(1)->intoTable($db, $table);
 				$status = $load_data->executeGetStatus($mysqli);
 				if ($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);

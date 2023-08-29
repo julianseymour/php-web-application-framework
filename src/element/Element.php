@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -48,8 +49,8 @@ use JulianSeymour\PHPWebApplicationFramework\common\DisposableInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\ReusableInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\UriTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayKeyProviderInterface;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
@@ -61,21 +62,16 @@ use JulianSeymour\PHPWebApplicationFramework\event\BeforeConstructorEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\AfterRenderEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\BeforeRenderEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\EventListeningTrait;
-use JulianSeymour\PHPWebApplicationFramework\form\DefaultForm;
 use JulianSeymour\PHPWebApplicationFramework\form\RepeatingFormInterface;
-use JulianSeymour\PHPWebApplicationFramework\input\CheckboxInput;
 use JulianSeymour\PHPWebApplicationFramework\input\InputInterface;
 use JulianSeymour\PHPWebApplicationFramework\json\EchoJsonInterface;
 use JulianSeymour\PHPWebApplicationFramework\json\EchoJsonTrait;
 use JulianSeymour\PHPWebApplicationFramework\json\Json;
-use JulianSeymour\PHPWebApplicationFramework\language\WordWrapper;
 use JulianSeymour\PHPWebApplicationFramework\script\Attribute;
 use JulianSeymour\PHPWebApplicationFramework\script\DocumentFragment;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptClass;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFunction;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
-use JulianSeymour\PHPWebApplicationFramework\style\CssRule;
-use JulianSeymour\PHPWebApplicationFramework\style\selector\Selector;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateElementFunctionGenerator;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateFlagTrait;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
@@ -826,11 +822,6 @@ ScopedCommandInterface{
 		return isset($this->attributes) && is_array($this->attributes) && ! empty($this->attributes);
 	}
 
-	/*
-	 * public function getInnerHTML/ConversionMode(){
-	 * return $this->innerHTML/ConversionMode;
-	 * }
-	 */
 	public function removeChild($child){
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
@@ -963,9 +954,6 @@ ScopedCommandInterface{
 				Debug::warning("{$f} beforeRenderHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
-			
-			
-			
 			$mode = $this->getAllocationMode();
 			if ($mode !== ALLOCATION_MODE_ULTRA_LAZY) {
 				$predecessors = $this->generatePredecessors();
@@ -1052,7 +1040,6 @@ ScopedCommandInterface{
 				return;
 			}
 			$cache = false;
-			$lang = getCurrentUserLanguagePreference();
 			if ($this->isCacheable() && JSON_CACHE_ENABLED) {
 				if (cache()->has($this->getCacheKey() . ".json")) {
 					if ($print) {
@@ -1204,10 +1191,10 @@ ScopedCommandInterface{
 					}
 					Json::echoKeyValuePair("attributes", $this->attributes, $destroy);
 					/*
-					 * if($destroy){
-					 * unset($this->attributes);
-					 * }
-					 */
+					if($destroy){
+						unset($this->attributes);
+					}
+					*/
 					// InitializeFormCommand needs ID until commands are dispatched
 				} elseif ($print) {
 					Debug::print("{$f} no other attributes defined");
@@ -1293,11 +1280,6 @@ ScopedCommandInterface{
 			echo "}";
 			// successors
 			if ($successors === null) {
-				/*
-				 * if(!$this->hasParentNode()){
-				 * Debug::error("{$f} looks like empty array is no longer considered an array when passed to another function");
-				 * }
-				 */
 				$mode = $this->getAllocationMode();
 				if ($mode === ALLOCATION_MODE_ULTRA_LAZY) {
 					if ($print) {
@@ -1378,13 +1360,7 @@ ScopedCommandInterface{
 				foreach ($this->attributes as $key => $value) {
 					if ($key === "class") {
 						continue;
-					} /*
-					   * elseif($value == "" || $value == null){
-					   * if($key === "id" ){
-					   * continue;
-					   * }
-					   * }
-					   */
+					}
 					echo " {$key}";
 					if ($value === null) {
 						if ($print) {
@@ -1458,23 +1434,19 @@ ScopedCommandInterface{
 		return $this->hasArrayProperty("reportedSubcommands");
 	}
 
-	public function getReportedSubcommands()
-	{
+	public function getReportedSubcommands(){
 		return $this->getProperty("reportedSubcommands");
 	}
 
-	public function hasDispatchedCommands(): bool
-	{
+	public function hasDispatchedCommands(): bool{
 		return $this->getFlag("dispatched");
 	}
 
-	public function setDispatchedCommandsFlag(bool $flag = true): bool
-	{
+	public function setDispatchedCommandsFlag(bool $flag = true): bool{
 		return $this->setFlag("dispatched", $flag);
 	}
 
-	public function setAllowEmptyInnerHTML(bool $allow = true): bool
-	{
+	public function setAllowEmptyInnerHTML(bool $allow = true): bool{
 		return $this->setFlag("allowEmptyInnerHTML", $allow);
 	}
 
@@ -1501,7 +1473,7 @@ ScopedCommandInterface{
 	}
 
 	public function getChildNode($index){
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->getChildNode()";
+		$f = __METHOD__;
 		if(!array_key_exists($index, $this->childNodes)){
 			Debug::error("{$f} there is no child node at index {$index}");
 		}
@@ -1604,10 +1576,6 @@ ScopedCommandInterface{
 					} else {
 						Debug::error("{$f} something went wrong; child class is \"{$cc}\"");
 					}
-				} elseif ($child instanceof WordWrapper) {
-					if ($print) {
-						Debug::print("{$f} child object is the string \"{$child}\"");
-					}
 				} else {
 					Debug::error("{$f} child is an object of class \"{$cc}\"");
 				}
@@ -1629,7 +1597,6 @@ ScopedCommandInterface{
 				$class = $child->getClass();
 				Debug::error("{$f} child object is an instance of \"{$class}\"");
 			}
-
 			$mode = $this->getAllocationMode();
 			if ($this->getContentsGeneratedFlag() && ($mode === ALLOCATION_MODE_ULTRA_LAZY) && $this->getFlag("predecessorsGenerated")) {
 				if (! $this->getFlag("predecessorsGenerated")) {
@@ -1672,8 +1639,7 @@ ScopedCommandInterface{
 		}
 	}
 
-	public function prepend(...$children)
-	{
+	public function prepend(...$children){
 		if (empty($children)) {
 			return null;
 		}
@@ -1748,7 +1714,8 @@ ScopedCommandInterface{
 
 	public function announceYourself(): void{
 		$f = __METHOD__;
-		Debug::print("{$f} declared " . $this->getDeclarationLine());
+		$sc = $this->getShortClass();
+		Debug::print("{$f} class is {$sc}, declared " . $this->getDeclarationLine());
 		if (isset($this->debugId)) {
 			Debug::print("{$f} debug ID is \"{$this->debugId}\"");
 		} else {
@@ -1765,7 +1732,6 @@ ScopedCommandInterface{
 			Debug::print("{$f} attributes array is empty");
 			return;
 		}
-		// Debug::print("{$f} about to print ID attribute");
 		if ($this->hasIdAttribute()) {
 			$id = $this->getIdAttribute();
 			Debug::print("{$f} my ID attribute is \"{$id}\"");
@@ -1773,7 +1739,6 @@ ScopedCommandInterface{
 		} else {
 			Debug::warning("{$f} element has no ID attribute");
 		}
-		// Debug::print("{$f} ID attribute printed successfully");
 		if ($this->hasContext()) {
 			$context = $this->getContext();
 			$class = $context->getClass();
@@ -1786,8 +1751,8 @@ ScopedCommandInterface{
 					Debug::print("{$f} context {$class} does not have a key");
 				}
 			}
-		} else {
-			// Debug::print("{$f} this element does not have a context");
+		}else{
+			Debug::print("{$f} this element does not have a context");
 		}
 		if ($this->hasAttribute("value")) {
 			$value = $this->getValueAttribute();
@@ -1796,7 +1761,6 @@ ScopedCommandInterface{
 		} else {
 			Debug::warning("{$f} element has no value attribute");
 		}
-		// Debug::printStackTrace();
 	}
 
 	/**
@@ -1833,7 +1797,6 @@ ScopedCommandInterface{
 				return;
 			}
 			$mode = $this->getAllocationMode();
-
 			if ($mode === ALLOCATION_MODE_ULTRA_LAZY) {
 				if ($print) {
 					Debug::print("{$f} ultra lazy rendering mode");
@@ -1847,7 +1810,6 @@ ScopedCommandInterface{
 			} elseif ($print) {
 				Debug::print("{$f} some other rendering mode besides ultra lazy");
 			}
-
 			$children = $this->getChildNodes();
 			if (empty($children)) {
 				if ($mode === ALLOCATION_MODE_LAZY) {
@@ -1883,10 +1845,6 @@ ScopedCommandInterface{
 							echo $child->toJavaScript() . ";\n";
 							continue;
 						} elseif (! $child instanceof Element) {
-							if ($child instanceof WordWrapper) {
-								$child->echoString($destroy);
-								continue;
-							}
 							$class = $child->getClass();
 							Debug::warning("{$f} child object is an instance of \"{$class}\"");
 							$this->debugPrintRootElement();
@@ -1965,7 +1923,6 @@ ScopedCommandInterface{
 	}
 
 	public function setInnerHTMLCommand($innerHTML): SetInnerHTMLCommand{
-		$f = __METHOD__;
 		return new SetInnerHTMLCommand($this, $innerHTML);
 	}
 
@@ -2025,10 +1982,6 @@ ScopedCommandInterface{
 		return $this->context;
 	}
 
-	public function getContextObjectStatus(): int{
-		return $this->getContext()->getObjectStatus();
-	}
-
 	public function getSuccessorCount(): int{
 		return $this->getArrayPropertyCount("successors");
 	}
@@ -2048,8 +2001,7 @@ ScopedCommandInterface{
 		return $this->pushArrayProperty("successors", ...$successors);
 	}
 
-	public function ejectPredecessors(): ?array
-	{
+	public function ejectPredecessors(): ?array{
 		return $this->ejectProperty("predecessors");
 	}
 
@@ -2218,7 +2170,8 @@ ScopedCommandInterface{
 	public function renderUri(string $filename): int{
 		$that = $this;
 		include $filename;
-		return $this->dispatchCommands();
+		$this->dispatchCommands();
+		return SUCCESS;
 	}
 
 	public function hasSuccessors(): bool{
@@ -2373,8 +2326,6 @@ ScopedCommandInterface{
 								Debug::print("{$f} predecessor is a value-returning media command");
 							}
 							echo $predecessor->evaluate();
-						} elseif ($predecessor instanceof WordWrapper) {
-							$predecessor->echoString($destroy);
 						} else {
 							$pc = $predecessor->getClass();
 							Debug::error("{$f} predecessor is an object of class \"{$pc}\"");
@@ -2444,7 +2395,6 @@ ScopedCommandInterface{
 				}
 				return;
 			}
-			// $lang = getCurrentUserLanguagePreference();
 			if ($this->getHTMLCacheableFlag() && $this->isCacheable() && HTML_CACHE_ENABLED) {
 				$cache_key = $this->getCacheKey() . ".html";
 				if (cache()->has($cache_key)) {
@@ -2576,8 +2526,6 @@ ScopedCommandInterface{
 								Debug::print("{$f} successor is a value-returning media command");
 							}
 							echo $successor->evaluate();
-						} elseif ($successor instanceof WordWrapper) {
-							$successor->echoString($destroy);
 						} else {
 							$sc = $successor->getClass();
 							Debug::error("{$f} successor is an object of class \"{$sc}\"");
@@ -2602,13 +2550,11 @@ ScopedCommandInterface{
 		}
 	}
 
-	public function generateChildNodes(): ?array
-	{
+	public function generateChildNodes(): ?array{
 		return $this->getChildNodes();
 	}
 
-	protected static function allowUseCaseAsContext(): bool
-	{
+	protected static function allowUseCaseAsContext(): bool{
 		return false;
 	}
 
@@ -2651,47 +2597,6 @@ ScopedCommandInterface{
 					$context = $context->evaluate();
 				}
 			}
-			$mode = $this->getAllocationMode();
-			if ($mode === ALLOCATION_MODE_UNDEFINED) {
-				if ($print) {
-					Debug::print("{$f} rendering mode is undefined");
-				}
-				if ($this instanceof InputInterface || $this instanceof CssRule || $this instanceof Selector) {
-					// ok
-				} else {
-					$class = $this->getClass();
-					switch ($class) {
-						case "AnchorElement":
-						case "BodyElement":
-						case "BoldElement":
-						case "ButtonInput":
-						case "DivElement":
-						case "OptionElement":
-						case "HeadElement":
-						case "ImageElement":
-						case "LabelElement":
-						case "LinkElement":
-						case "ListItemElement":
-						case "MetaElement":
-						case "OrderedListElement":
-						case "ParagraphElement":
-						case "ScriptElement":
-						case "SpanElement":
-						case "StyleElement":
-						case "TableElement":
-						case "TableDataElement":
-						case "TableHeaderElement":
-						case "TableRowElement":
-						case "TitleElement":
-						case "UnorderedListElement":
-							break;
-						default:
-							Debug::error("{$f} this function may no longer be called without a child node generation mode for non-generic element classes such as ".get_short_class($this));
-					}
-				}
-			} elseif ($print) {
-				Debug::print("{$f} rendering mode \"{$mode}\"");
-			}
 			if (isset($this->context)) {
 				Debug::error("{$f} context is already assigned. You can assign the same context to multiple elements but not multiple contexts to the same element");
 			}
@@ -2717,7 +2622,7 @@ ScopedCommandInterface{
 				case ALLOCATION_MODE_EAGER:
 				// case ALLOCATION_MODE_FORM:
 				case ALLOCATION_MODE_TEMPLATE:
-					$this->generateChildNodes(); // XXX why is this not generate contents
+					$this->generateChildNodes(); // XXX why is this not generate contents?
 					break;
 				default:
 					if ($print) {
@@ -2729,42 +2634,36 @@ ScopedCommandInterface{
 		} catch (Exception $x) {}
 	}
 
-	public function setResizeAttribute($resize)
-	{
+	public function setResizeAttribute($resize){
 		return $this->setAttribute("resize", $resize);
 	}
 
-	public static function getUriStatic(): ?string
-	{
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public static function getUriStatic(): ?string{
+		$f = __METHOD__;
 		if (! isset(static::$uriStatic)) {
 			Debug::error("{$f} input form URI is undefined");
 		}
 		return static::$uriStatic;
 	}
 
-	public function hasEmbeddedImageCollector(): bool
-	{
+	public function hasEmbeddedImageCollector(): bool{
 		return isset($this->embeddedImageCollector);
 	}
 
-	public function getEmbeddedImageCollector()
-	{
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function getEmbeddedImageCollector(){
+		$f = __METHOD__;
 		if (! $this->hasEmbeddedImageCollector()) {
 			Debug::error("{$f} embedded image collector is undefined");
 		}
 		return $this->embeddedImageCollector;
 	}
 
-	public function setEmbeddedImageCollector($collector)
-	{
+	public function setEmbeddedImageCollector($collector){
 		return $this->embeddedImageCollector = $collector;
 	}
 
-	public function reportEmbeddedImage($data)
-	{
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function reportEmbeddedImage($data){
+		$f = __METHOD__;
 		$print = false;
 		if ($this->hasEmbeddedImageCollector()) {
 			if ($print) {
@@ -2780,21 +2679,18 @@ ScopedCommandInterface{
 		Debug::error("{$f} embedded image collector and parent node are both undefined");
 	}
 
-	public function position($value): Element
-	{
+	public function position($value): Element{
 		$this->setStyleProperty("position", $value);
 		return $this;
 	}
 
-	public function display($value): Element
-	{
+	public function display($value): Element{
 		$this->setStyleProperty("display", $value);
 		return $this;
 	}
 
-	public function echoInlineStyleAttribute(bool $destroy = false): void
-	{
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function echoInlineStyleAttribute(bool $destroy = false): void{
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasInlineStyleAttribute()) {
 			Debug::error("{$f} inline style attribute is undefined");
@@ -2818,19 +2714,16 @@ ScopedCommandInterface{
 		}
 	}
 
-	public function hasStyleProperties(): bool
-	{
+	public function hasStyleProperties(): bool{
 		return isset($this->style) && is_array($this->style) && ! empty($this->style);
 	}
 
-	public function hasInlineStyleAttribute(): bool
-	{
+	public function hasInlineStyleAttribute(): bool{
 		return $this->hasStyleProperties() || $this->hasAttribute("style");
 	}
 
-	public function getStyleProperties(): ?array
-	{
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function getStyleProperties(): ?array{
+		$f = __METHOD__;
 		if (! $this->hasStyleProperties()) {
 			Debug::error("{$f} inline style properties are undefined");
 		}
@@ -2843,9 +2736,8 @@ ScopedCommandInterface{
 		return $style;
 	}
 	
-	public function getInlineStyleAttribute(): ?string
-	{
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function getInlineStyleAttribute(): ?string{
+		$f = __METHOD__;
 		if (! $this->hasInlineStyleAttribute()) {
 			Debug::error("{$f} inline style attribute is undefined");
 		} elseif ($this->hasAttribute("style")) {
@@ -2918,9 +2810,8 @@ ScopedCommandInterface{
 		}
 	}
 
-	public function setStyleProperty(string $key, $value)
-	{
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function setStyleProperty(string $key, $value){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->setStyleProperty()";
@@ -2994,8 +2885,7 @@ ScopedCommandInterface{
 		return $this->setAttribute("id", $id);
 	}
 
-	public function getIdAttribute()
-	{
+	public function getIdAttribute(){
 		$f = __METHOD__;
 		if (! $this->hasIdAttribute()) {
 			$decl = $this->getDeclarationLine();
@@ -3063,8 +2953,7 @@ ScopedCommandInterface{
 		return implode(' ', $this->classList);
 	}
 
-	public function getClassList(): ?array
-	{
+	public function getClassList(): ?array{
 		if (isset($this->classList) && is_array($this->classList) && ! empty($this->classList)) {
 			return $this->classList;
 		}
@@ -3104,13 +2993,11 @@ ScopedCommandInterface{
 		return $this->documentFragment;
 	}
 
-	public function hasDocumentFragment(): bool
-	{
+	public function hasDocumentFragment(): bool{
 		return isset($this->documentFragment) && $this->documentFragment instanceof DocumentFragment;
 	}
 
-	public function setDocumentFragment(?DocumentFragment $df): ?DocumentFragment
-	{
+	public function setDocumentFragment(?DocumentFragment $df): ?DocumentFragment{
 		return $this->documentFragment = $df;
 	}
 
@@ -3185,28 +3072,23 @@ ScopedCommandInterface{
 		return $this->setArrayProperty("localDeclarations", $values);
 	}
 
-	public function hasLocalDeclarations(): bool
-	{
+	public function hasLocalDeclarations(): bool{
 		return $this->hasArrayProperty("localDeclarations");
 	}
 
-	public function getLocalDeclarations(): ?Array
-	{
+	public function getLocalDeclarations(): ?Array{
 		return $this->getProperty("localDeclarations");
 	}
 
-	public function pushLocalDeclarations(...$values): int
-	{
+	public function pushLocalDeclarations(...$values): int{
 		return $this->pushArrayProperty("localDeclarations", ...$values);
 	}
 
-	public function mergeLocalDeclarations(?array $values): ?array
-	{
+	public function mergeLocalDeclarations(?array $values): ?array{
 		return $this->mergeArrayProperty("localDeclarations", $values);
 	}
 
-	public function getLocalDeclarationCount(): int
-	{
+	public function getLocalDeclarationCount(): int{
 		return $this->getArrayPropertyCount("localDeclarations");
 	}
 
@@ -3232,8 +3114,7 @@ ScopedCommandInterface{
 	 }
 	 */
 
-	public static function getValidOnEventCommands(): ?array
-	{
+	public static function getValidOnEventCommands(): ?array{
 		return [
 			"onblur" => SetOnBlurCommand::class,
 			"onclick" => SetOnClickCommand::class,
@@ -3288,8 +3169,7 @@ ScopedCommandInterface{
 	}
 
 	public function getResolvedColumnValue($context, $index){
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 
 	/**
@@ -3439,22 +3319,19 @@ ScopedCommandInterface{
 		return $this->replacementId = $id;
 	}
 
-	public function hasReplacementId(): bool
-	{
+	public function hasReplacementId(): bool{
 		return isset($this->replacementId);
 	}
 
-	public function getReplacementId(): string
-	{
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function getReplacementId(): string{
+		$f = __METHOD__;
 		if (! $this->hasReplacementId()) {
 			Debug::error("{$f} replacement ID is undefined");
 		}
 		return $this->replacementId;
 	}
 
-	public function getArrayKey(int $count)
-	{
+	public function getArrayKey(int $count){
 		if ($this->hasReplacementId()) {
 			return $this->getReplacementId();
 		} elseif ($this->hasIdAttribute()) {
@@ -3485,9 +3362,8 @@ ScopedCommandInterface{
 		return [];
 	}
 
-	protected final function getResolvedScope(): Scope
-	{
-		$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	protected final function getResolvedScope(): Scope{
+		$f = __METHOD__;
 		$print = false;
 		if (isset($this->scope)) {
 			return $this->scope;
@@ -3505,18 +3381,15 @@ ScopedCommandInterface{
 		return $this->setScope($scope);
 	}
 
-	public function setDisposeContextFlag(bool $value = true): bool
-	{
+	public function setDisposeContextFlag(bool $value = true): bool{
 		return $this->setFlag("disposeContext", $value);
 	}
 
-	public function getDisposeContextFlag(): bool
-	{
+	public function getDisposeContextFlag(): bool{
 		return $this->getFlag("disposeContext");
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		if ($this->hasContext() && $this->getDisposeContextFlag() && $this->context instanceof DisposableInterface) {
 			$this->context->dispose();

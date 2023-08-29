@@ -3,7 +3,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\security\nonexistent_uris;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
@@ -65,9 +65,8 @@ class NonexistentUrisUseCase extends InteractiveUseCase{
 		return false;
 	}
 	
-	public function getPageContent(): array
-	{
-		$f = __METHOD__; //NonexistentUrisUseCase::getShortClass()."(".static::getShortClass().")->getPageContent()";
+	public function getPageContent(): array{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if($print){
@@ -98,11 +97,11 @@ class NonexistentUrisUseCase extends InteractiveUseCase{
 		}
 	}
 	
-	public function getResponder():?Responder{
+	public function getResponder(int $status):?Responder{
 		$directive = directive();
 		switch ($directive) {
 			case DIRECTIVE_UPDATE:
-				if ($this->getObjectStatus() === SUCCESS) {
+				if ($status === SUCCESS) {
 					$operand = $this->getDataOperandObject();
 					$backup = $this->getOriginalOperand();
 					if ($operand->getList() !== $backup->getList()) {
@@ -114,7 +113,7 @@ class NonexistentUrisUseCase extends InteractiveUseCase{
 					}
 				}
 			default:
-				return parent::getResponder();
+				return parent::getResponder($status);
 		}
 	}
 	

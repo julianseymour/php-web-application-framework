@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
@@ -9,11 +10,9 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-class GetForeignDataStructureCommand extends ForeignDataStructureCommand implements ValueReturningCommandInterface
-{
+class GetForeignDataStructureCommand extends ForeignDataStructureCommand implements ValueReturningCommandInterface{
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		$idcs = $this->getIdCommandString();
 		if ($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
@@ -28,9 +27,8 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 		return "{$idcs}.{$cs}({$vn})";
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		$f = __METHOD__; //GetForeignDataStructureCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
+	public function evaluate(?array $params = null){
+		$f = __METHOD__;
 		$print = false;
 		$context = $this->getDataStructure();
 		$vn = $this->getColumnName();
@@ -42,7 +40,11 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 				$context = $context->evaluate();
 			}
 		}
-		if (! $context->hasForeignDataStructure($vn)) {
+		if($context === null){
+			$decl = $this->getDeclarationLine();
+			Debug::error("{$f} null context. Instantiated {$decl}");
+		}
+		if(! $context->hasForeignDataStructure($vn)){
 			if ($print) {
 				Debug::warning("{$f} context does not have a foreign data structure for column \"{$vn}\"");
 			}
@@ -51,24 +53,16 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 		return $context->getForeignDataStructure($vn);
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "getForeignDataStructure";
 	}
 
-	public function getColumnValueCommand($index): GetColumnValueCommand
-	{
+	public function getColumnValueCommand($index): GetColumnValueCommand{
 		return new GetColumnValueCommand($this, $index);
 	}
 
-	/*
-	 * public function getIdentifierValueCommand(){
-	 * return new GetColumnValueCommand($this, new GetIdentifierNameCommand($this));
-	 * }
-	 */
-	public function getForeignDataStructureListMemberAtOffset($column_name, $offset)
-	{
-		$f = __METHOD__; //GetForeignDataStructureCommand::getShortClass()."(".static::getShortClass().")->getForeignDataStructureListMemberAtOffset()";
+	public function getForeignDataStructureListMemberAtOffset($column_name, $offset){
+		$f = __METHOD__;
 		$fds = $this->evaluate();
 		if (! $fds instanceof DataStructure) {
 			Debug::error("{$f} command did not evaluate to a usable data structure");
@@ -76,8 +70,7 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 		return $fds->getForeignDataStructureListMemberAtOffset($column_name, $offset);
 	}
 
-	public function hasColumnValueCommand($column_name): HasColumnValueCommand
-	{
+	public function hasColumnValueCommand($column_name): HasColumnValueCommand{
 		return new HasColumnValueCommand($this, $column_name);
 	}
 }

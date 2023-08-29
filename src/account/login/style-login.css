@@ -1,4 +1,5 @@
 @CHARSET "ISO-8859-1";
+
 .login_page{
 	/*background-color:#00cc00;*/
 	/*overflow:hidden;*/
@@ -69,6 +70,10 @@
 		box-sizing:border-box;
 		text-align:center;
 	}
+	.lenap_pilf{
+		position:absolute;
+		top:0;
+	}
 	.flip_panel > *, .lenap_pilf > *{
 		position:relative;
 		display:block;
@@ -96,18 +101,25 @@
 	}
 	input[type="checkbox"]:checked + #flip_panels .flip_panel{
 		transform:rotateY(180deg);
+		pointer-events:none;
 	}
 	input[type="checkbox"]:not(:checked) + #flip_panels .lenap_pilf{
 		transform:rotateY(180deg);
+		pointer-events:none;
 	}
 	input[type="checkbox"]:not(:checked) + #flip_panels .flip_panel{
 		transform:rotateY(0deg);
+		pointer-events:inherit;
 	}
 	input[type="checkbox"]:checked + #flip_panels .lenap_pilf{
 		transform:rotateY(0deg);
+		pointer-events:inherit;
 	}
-	input[type="checkbox"]:not(:checked) + #flip_panels #register_hcaptcha{
-		display:none;
+	input[type="checkbox"]:not(:checked) + #flip_panels .register_form .h-captcha,
+	input[type="checkbox"]:checked + #flip_panels .login_form .h-captcha{
+		/*display:none;*/
+		pointer-events:none;
+		opacity:0;
 	}
 	
 	#flip_panels{
@@ -131,8 +143,6 @@
 	.login_select:checked ~ .lenap_pilf input{
 		pointer-events:none !important;
 	}
-	.lenap_pilf > .login_form > input[type="text"]{
-	}
 	#flip_panels .lenap_pilf:not(html){
 		transform:rotateY(180deg); /*translate3d(0,0,0);*/
 		opacity:1;
@@ -151,8 +161,8 @@
 	.refresh_session_form .generated_label{
 		font-size:18px; /*1.8rem;*/
 		text-align:center;
-		margin-top:0.5rem;
-		margin-bottom:0.5rem;
+		/*margin-top:0.5rem;
+		margin-bottom:0.5rem;*/
 		cursor:pointer;
 		padding:12px 0;
 		background-color:#0065d1;
@@ -173,7 +183,11 @@
 		box-sizing: border-box;
 	}
 	
-	.login_form > label:hover{
+	.login_form{
+		margin-top:0.5rem;}
+	}
+	.login_form > label:hover,
+	.register_form > label:hover{
 		cursor:pointer;
 		text-decoration:underline;
 	}
@@ -203,29 +217,30 @@
 	input[type="radio"][tab="forgot_password"]:checked ~ [tab="name"],
 	input[type="radio"][tab="login"]:checked ~ [tab="login"],
 	input[type="radio"][tab="login"]:checked ~ [tab="name"],
-	input[type="radio"][tab="forgot_name"]:checked ~ .forgot_password_hint,
-	/*#radio_forgot_name:checked ~ div input[type="email"],*/
-	input[type="radio"][tab="forgot_password"]:checked ~ .forgot_password_hint,
 	input[type="radio"][tab="forgot_password"]:checked ~ button[name="directive"][value="reset"],
 	input[type="radio"][tab="forgot_name"]:checked ~ button[name="directive"][value="reset"]{
 		display:block;
 	}
+	
+	input[type="radio"][tab="forgot_name"]:checked ~ .forgot_password_hint,
+	input[type="radio"][tab="forgot_password"]:checked ~ .forgot_password_hint{
+		display:inline-block !important;
+	}
+	
 	.forgot_name_hint{
 		width:100%;
 		white-space:normal;
 	}
 	
 	#radio_submit_login:checked ~ button[name="directive"][value="reset"],
-	#radio_forgot_name:not(:checked) ~ div input[type="email"],
-	#radio_forgot_name:not(:checked) ~ div input[type="email"] + .placeholder_label,
-	#radio_forgot_name:checked ~ div input[id="login_username_field"],
+	#radio_forgot_name:not(:checked) ~ #login_email_container,
+	#radio_forgot_name:checked ~ #login_username_container,
+	#radio_forgot_name:checked ~ #login_password_container,
 	.login_submit_check:checked ~ .btn_c label[for="reset-login_form"],
 	/*#radio_forgot_name:checked ~ div input[name="name"],
 	#radio_forgot_password:checked ~ div input[type="password"],
 	#radio_forgot_name:checked ~ div input[type="password"],*/
-	#radio_forgot_password:checked ~ .forgot_password_label,
-	#radio_forgot_name:checked ~ .forgot_password_label,
-	#radio_forgot_name:checked ~ .forgot_name_label,
+	#radio_forgot_password:checked ~ #login_password_container,
 	#radio_forgot_name:checked ~ button[name="directive"][value="login"],
 	#radio_forgot_password:checked ~ button[name="directive"][value="login"],
 	input[type="radio"][tab="forgot_name"]:checked ~ [tab="login"],
@@ -269,27 +284,27 @@
 		/*float:left;*/
 	}
 	
+	.register_form > .btn_c.
 	.login_form > .btn_c{
 		text-align:center;
 	}
 	
-	
-	
-	.login_form > .btn_c > input
-	{
+	.register_form > .btn_c > input,
+	.login_form > .btn_c > input{
 		height:50px; /*calc(5.113043478vh + 1.8rem);*/
 		margin-top:1rem;
 	}
+	.register_form > input[type="text"], 
+	.register_form > input[type="password"], 
+	.register_form > input[type="email"],
 	.login_form > input[type="text"], 
 	.login_form > input[type="password"], 
-	.login_form > input[type="email"]
-	{
+	.login_form > input[type="email"]{
 		width:calc(100% - 3.5rem);
 		padding-left:1rem; /*8px; /*1rem;*/
 		padding-right:1rem; /*8px; /*1rem;*/
 	}
-	.terms_container
-	{
+	.terms_container{
 		/*width:100%;*/
 		padding:13px 0;
 		text-align:center;
@@ -299,7 +314,7 @@
 		display:inline;
 		margin:0;
 	}
-	
+	.register_form input[type="submit"],
 	.login_form input[type="submit"]{
 		background-color:#0065d1; /*5a5d5d; /*#1b2223;*/
 		color:#e7e7e7; /*5a5d5d;*/

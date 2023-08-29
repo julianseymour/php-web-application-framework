@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\account;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\config;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\timezone_offset;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -24,12 +24,12 @@ use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\email\EmailAddressColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\input\choice\SelectInput;
-use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
 use JulianSeymour\PHPWebApplicationFramework\query\OrderByClause;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use DateTimeZone;
 use Exception;
 use mysqli;
+use function JulianSeymour\PHPWebApplicationFramework\default_lang_region;
 
 abstract class UserData extends DataStructure{
 
@@ -37,10 +37,18 @@ abstract class UserData extends DataStructure{
 	use EmailAddressColumnTrait;
 	use NormalizedNameColumnTrait;
 
+	public static function getDatabaseNameStatic():string{
+		return "accounts";
+	}
+	
 	public static function getAccountTypeStatic(){
 		return ACCOUNT_TYPE_UNDEFINED;
 	}
 
+	public static function hasSubtypeStatic():bool{
+		return true;
+	}
+	
 	public function loadFailureHook(): int{
 		$this->setAccountType(CONST_ERROR);
 		return parent::loadFailureHook();
@@ -69,7 +77,7 @@ abstract class UserData extends DataStructure{
 	}
 
 	public function getPreferredLanguageName():string{
-		return Internationalization::getLanguageNameFromCode($this->getLanguagePreference());
+		return default_lang_region($this->getLanguagePreference());
 	}
 
 	public static function getAccountTypeStringStatic(string $account_type):?string{
@@ -105,7 +113,7 @@ abstract class UserData extends DataStructure{
 		return static::getAccountTypeStringStatic($this->getAccountType());
 	}
 
-	public function hasUserData(){
+	public function hasUserData():bool{
 		return true;
 	}
 
@@ -173,12 +181,30 @@ abstract class UserData extends DataStructure{
 			$correspondentPublicKey->volatilize();
 			$temporaryRole = new StringEnumeratedDatum("temporaryRole");
 			$temporaryRole->volatilize();
-			static::pushTemporaryColumnsStatic($columns, $account_type, $language, $account_str, $timezone, $correspondentKey, $correspondentPublicKey, $temporaryRole);
+			$country_code = new StringEnumeratedDatum("regionCode");
+			$country_code->setNullable(false);
+			static::pushTemporaryColumnsStatic($columns, $account_type, $language, $account_str, $timezone, $correspondentKey, $correspondentPublicKey, $temporaryRole, $country_code);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
+	public function setRegionCode(string $code):string{
+		return $this->setColumnValue("regionCode", $code);
+	}
+	
+	public function getRegionCode():string{
+		return $this->getColumnValue("regionCode");
+	}
+	
+	public function hasRegionCode():bool{
+		return $this->hasColumnValue("regionCode");
+	}
+
+	public function getLocaleString():string{
+		return $this->getLanguagePreference()."_".$this->getRegionCode();
+	}
+	
 	public function timezone_offset(){
 		if (! $this->hasTimezone()) {
 			return 0;

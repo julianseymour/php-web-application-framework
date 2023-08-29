@@ -68,9 +68,9 @@ class DeleteCookiesUseCase extends UseCase{
 		];
 	}
 
-	public function getResponder(): ?Responder{
+	public function getResponder(int $status):?Responder{
 		$directive = directive();
-		if ($directive === DIRECTIVE_DELETE && $this->getObjectStatus() === SUCCESS) {
+		if ($status === SUCCESS && $directive === DIRECTIVE_DELETE) {
 			return new LogoutResponder();
 		}
 		return null;

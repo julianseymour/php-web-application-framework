@@ -16,6 +16,10 @@ use JulianSeymour\PHPWebApplicationFramework\datum\UnsignedIntegerDatum;
 
 class NonexistentUriData extends DataStructure{
 	
+	public static function getDatabaseNameStatic():string{
+		return "security";
+	}
+	
 	public static function declareColumns(array& $columns, ?DataStructure $ds=null):void{
 		parent::declareColumns($columns, $ds);
 		$ipAddress = new IpAddressDatum("ipAddress");

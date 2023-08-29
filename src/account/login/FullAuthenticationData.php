@@ -28,19 +28,19 @@ class FullAuthenticationData extends AuthenticationData{
 		return $this->getColumnValue("previousLoginMode");
 	}
 
-	public static function getReauthenticationHashColumnName(){
+	public static function getReauthenticationHashColumnName():string{
 		return 'reauth_hash';
 	}
 
-	public static function getReauthenticationNonceColumnName(){
+	public static function getReauthenticationNonceColumnName():string{
 		return 'reauth_nonce';
 	}
 
-	public static function getUsernameColumnName(){
+	public static function getUsernameColumnName():string{
 		return "username";
 	}
 
-	public static function getDeterministicSecretKeyColumnName(){
+	public static function getDeterministicSecretKeyColumnName():string{
 		return 'deterministicSecretKey';
 	}
 
@@ -139,28 +139,29 @@ class FullAuthenticationData extends AuthenticationData{
 		}
 	}
 
-	public function getFullLoginFlag(){
+	public function getFullLoginFlag():bool{
 		return $this->getColumnValue("full_login");
 	}
 
-	public function ejectFullLoginFlag(){
+	public function ejectFullLoginFlag():?bool{
 		return $this->ejectColumnValue("full_login");
 	}
 
-	public function setFullLoginFlag($value){
+	public function setFullLoginFlag(bool $value):bool{
 		return $this->setColumnValue("full_login", $value);
 	}
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
 		$full = new BooleanDatum("full_login");
+		$full->setDefaultValue(false);
 		$previousLoginMode = new UnsignedIntegerDatum("previousLoginMode", 8);
 		$previousLoginMode->volatilize();
 		parent::declareColumns($columns, $ds);
 		static::pushTemporaryColumnsStatic($columns, $full, $previousLoginMode);
 	}
 
-	public static function getSignatureColumnName(){
+	public static function getSignatureColumnName():string{
 		return "signature";
 	}
 }

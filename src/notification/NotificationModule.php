@@ -4,6 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\notification;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\app\EmptyModule;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
+use JulianSeymour\PHPWebApplicationFramework\notification\ui\NotificationsWidget;
 
 class NotificationModule extends EmptyModule
 {
@@ -104,7 +105,8 @@ class NotificationModule extends EmptyModule
 	public function getCascadingStyleSheetFilePaths(): ?array
 	{
 		return [
-			FRAMEWORK_INSTALL_DIRECTORY . "/notification/style-notif.css"
+			FRAMEWORK_INSTALL_DIRECTORY . "/notification/style-notif.css",
+			\JulianSeymour\PHPWebApplicationFramework\notification\ui\NotificationsWidget::getStyleSheetPath()
 		];
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\confirm_code;
 
 use function JulianSeymour\PHPWebApplicationFramework\base64url_decode;
@@ -20,8 +21,7 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 use mysqli;
 
-abstract class ValidateConfirmationCodeUseCase extends UseCase
-{
+abstract class ValidateConfirmationCodeUseCase extends UseCase{
 
 	protected $confirmationCodeObject;
 
@@ -35,21 +35,18 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 
 	protected abstract function decrypt(string $data): ?string;
 
-	public static function declareFlags(): array
-	{
+	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
 			"skipValidation"
 		]);
 	}
 
-	public static final function getSuccessfulResultCode()
-	{
+	public static final function getSuccessfulResultCode(){
 		return static::getBruteforceAttemptClass()::getSuccessfulResultCode();
 	}
 
-	public static function getRequestTimeoutDuration()
-	{
-		$f = __METHOD__; //ValidateConfirmationCodeUseCase::getShortClass()."(".static::getShortClass().")::getRequestTimeoutDuration()";
+	public static function getRequestTimeoutDuration(){
+		$f = __METHOD__;
 		try {
 			return static::getConfirmationCodeClass()::getRequestTimeoutDuration();
 		} catch (Exception $x) {
@@ -61,53 +58,49 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 	 *
 	 * @return ConfirmationCode
 	 */
-	public function createConfirmationCodeObject()
-	{
+	public function createConfirmationCodeObject(){
 		$class = static::getConfirmationCodeClass();
 		return new $class();
 	}
 
-	public function hasConfirmationCodeObject()
-	{
+	public function hasConfirmationCodeObject():bool{
 		return isset($this->confirmationCodeObject);
 	}
 
-	public function setConfirmationCodeObject($cc)
-	{
+	public function setConfirmationCodeObject($cc){
 		return $this->confirmationCodeObject = $cc;
 	}
 
-	public function getConfirmationCodeObject()
-	{
-		$f = __METHOD__; //ValidateConfirmationCodeUseCase::getShortClass()."(".static::getShortClass().")->getConfirmationCodeObject()";
+	public function getConfirmationCodeObject(){
+		$f = __METHOD__;
 		if (! $this->hasConfirmationCodeObject()) {
 			Debug::error("{$f} confirmation code object is undefined");
 		}
 		return $this->confirmationCodeObject;
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getUriSegmentParameterMap(): ?array
-	{
+	public function getUriSegmentParameterMap(): ?array{
 		return [
 			"action",
 			"blob_64"
 		];
 	}
 
-	private final function acquireCleartextSuperGlobalParameters(mysqli $mysqli): ?array
-	{
-		$f = __METHOD__; //ValidateConfirmationCodeUseCase::getShortClass()."(".static::getShortClass().")->acquireCleartextSuperGlobalParameters()";
+	private final function acquireCleartextSuperGlobalParameters(mysqli $mysqli): ?array{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$blob_64 = getInputParameter('blob_64', $this);
+			if($print){
+				Debug::print("{$f} base 64 blob is \"{$blob_64}\"");
+			}
 			$blob = base64url_decode($blob_64);
 			if ($print) {
-				Debug::print("{$f} blob has hash " . sha1($blob));
+				Debug::print("{$f} blob \"{$blob}\" has hash " . sha1($blob));
 			}
 			$decrypted = $this->decrypt($blob);
 			if (empty($decrypted)) {
@@ -153,16 +146,16 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 	 * @param mysqli $mysqli
 	 * @return ConfirmationCode
 	 */
-	public function acquireConfirmationCodeObject($mysqli)
-	{
-		$f = __METHOD__; //ValidateConfirmationCodeUseCase::getShortClass()."(".static::getShortClass().")->acquireConfirmationCodeObject()";
+	public function acquireConfirmationCodeObject(mysqli $mysqli){
+		$f = __METHOD__;
 		try {
 			$print = false;
-
 			$params = $this->acquireCleartextSuperGlobalParameters($mysqli);
-			Debug::printArray($params);
-			if (! array_key_exists("confirmationCodeKey", $params)) {
-				Debug::warning("{$f} confirmation code key is not part of input parameters");
+			if($print){
+				Debug::printArray($params);
+			}
+			if(! array_key_exists("confirmationCodeKey", $params)) {
+				Debug::error("{$f} confirmation code key is not part of input parameters");
 			}
 			$ccc = $this->getConfirmationCodeClass();
 			$confirmation_code = new $ccc();
@@ -177,8 +170,6 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 			} elseif ($print) {
 				Debug::print("{$f} successfully loaded confirmation code");
 			}
-			// $true_user = user() instanceof AnonymousUser ? user()->getCorrespondentObject() : user();
-			// $confirmation_code->setUserData($true_user);
 			$confirmation_code->setAutoloadFlags(true);
 			$status = $confirmation_code->loadForeignDataStructures($mysqli, false, 3);
 			if ($status !== SUCCESS) {
@@ -257,14 +248,12 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 		}
 	}
 
-	public function setSkipValidationFlag(bool $skip): bool
-	{
+	public function setSkipValidationFlag(bool $skip): bool{
 		return $this->setFlag("skipValidation", $skip);
 	}
 
-	public static function getConfirmationCodeAlreadyUsedStatus()
-	{
-		$f = __METHOD__; //ValidateConfirmationCodeUseCase::getShortClass()."(".static::getShortClass().")::getConfirmationCodeAlreadyUsedStatus()";
+	public static function getConfirmationCodeAlreadyUsedStatus():int{
+		$f = __METHOD__;
 		try {
 			$bfac = static::getBruteforceAttemptClass();
 			$rauc = $bfac::getConfirmationCodeAlreadyUsedStatus();
@@ -275,9 +264,8 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 		}
 	}
 
-	public function getConfirmationCodeKey()
-	{
-		$f = __METHOD__; //ValidateConfirmationCodeUseCase::getShortClass()."(".static::getShortClass().")->getConfirmationCodeKey()";
+	public function getConfirmationCodeKey(){
+		$f = __METHOD__;
 		if (! $this->hasConfirmationCodeObject()) {
 			Debug::error("{$f} confirmation code object is undefined");
 		}
@@ -288,9 +276,8 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 		return $cc->getIdentifierValue();
 	}
 
-	public function getExistingAttemptCount($mysqli)
-	{
-		$f = __METHOD__; //ValidateConfirmationCodeUseCase::getShortClass()."(".static::getShortClass().")->getExistingAttemptCount()";
+	public function getExistingAttemptCount(mysqli $mysqli){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$confirmation_code_key = $this->getConfirmationCodeKey();
@@ -301,9 +288,11 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 			$bfac = static::getBruteforceAttemptClass();
 			$db = $bfac::getDatabaseNameStatic();
 			$table = $bfac::getTableNameStatic();
-			$count = $bfac::selectStatic(null, "confirmationCodeKey", "insertTimestamp")->where(new WhereCondition('confirmationCodeKey', OPERATOR_EQUALS))
-				->orderBy(new OrderByClause("insertTimestamp", DIRECTION_DESCENDING))
-				->prepareBindExecuteGetResultCount($mysqli, 's', $confirmation_code_key);
+			$count = $bfac::selectStatic()->where(
+				$bfac::whereIntersectionalHostKey($bfac::getConfirmationCodeClass(), 'confirmationCodeKey')
+			)->orderBy(
+				new OrderByClause("insertTimestamp", DIRECTION_DESCENDING)
+			)->prepareBindExecuteGetResultCount($mysqli, 'ss', $confirmation_code_key, 'confirmationCodeKey');
 			if ($print) {
 				Debug::print("{$f} the number of {$bfac} in table {$db}.{$table} with confirmation code key {$confirmation_code_key} is {$count}");
 			}
@@ -313,9 +302,8 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 		}
 	}
 
-	public function getPageContent(): ?array
-	{
-		$f = __METHOD__; //ValidateConfirmationCodeUseCase::getShortClass()."(".static::getShortClass().")->getPageContent()";
+	public function getPageContent(): ?array{
+		$f = __METHOD__;
 		$print = false;
 		$status = $this->getObjectStatus();
 		switch ($status) {
@@ -336,9 +324,8 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase
 		}
 	}
 
-	public function execute(): int
-	{
-		$f = __METHOD__; //ValidateConfirmationCodeUseCase::getShortClass()."(".static::getShortClass().")->execute()";
+	public function execute(): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			// connect to database

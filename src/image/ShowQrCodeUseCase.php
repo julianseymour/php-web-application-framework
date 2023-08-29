@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\image;
 
 use function JulianSeymour\PHPWebApplicationFramework\base64url_decode;
@@ -12,26 +13,18 @@ use chillerlan\QRCode\QROptions;
 use chillerlan\QRCode\Output\QROutputInterface;
 use Throwable;
 
-class ShowQrCodeUseCase extends UseCase
-{
+class ShowQrCodeUseCase extends UseCase{
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return '/qr';
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_QR_CODE;
-	}
 
-	public function sendHeaders(Request $request): bool
-	{
+	public function sendHeaders(Request $request): bool{
 		return false;
 	}
 

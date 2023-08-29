@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\confirm_code;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;

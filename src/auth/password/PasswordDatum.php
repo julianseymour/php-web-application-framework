@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -18,50 +19,41 @@ use Exception;
 use JulianSeymour\PHPWebApplicationFramework\account\login\FullAuthenticationData;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 
-class PasswordDatum extends BlobDatum
-{
+class PasswordDatum extends BlobDatum{
 
-	public function __construct($name = null)
-	{
+	public function __construct($name = null){
 		if (empty($name)) {
 			$name = static::getColumnNameStatic();
 		}
 		parent::__construct($name);
 	}
 
-	public function getHumanReadableValue()
-	{
+	public function getHumanReadableValue(){
 		return null;
 	}
 
-	public function getHumanWritableValue()
-	{
+	public function getHumanWritableValue(){
 		return null;
 	}
 
-	public final function getSensitiveFlag()
-	{
+	public final function getSensitiveFlag():bool{
 		return true;
 	}
 
-	public static function getColumnNameStatic()
-	{
+	public static function getColumnNameStatic():string{
 		return "password";
 	}
 
-	public function hasMinimumLength()
-	{
+	public function hasMinimumLength():bool{
 		return true;
 	}
 
-	public function getMinimumLength()
-	{
+	public function getMinimumLength():int{
 		return MINIMUM_PASSWORD_LENGTH;
 	}
 
-	public function regenerate(): int
-	{
-		$f = __METHOD__; //PasswordDatum::getShortClass() . "(" . static::getShortClass() . ")->regenerate()";
+	public function regenerate(): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($this->hasRegenerationClosure()) {
@@ -85,10 +77,8 @@ class PasswordDatum extends BlobDatum
 			if (! $form instanceof PasswordGeneratingFormInterface) {
 				Debug::error("{$f} form is not an instanceof PasswordGeneratingFormInterface");
 			}
-			//$nonce = null;
 			$data = PasswordData::generate(
 				getInputParameter($form->getPasswordInputName()),
-				//$nonce,
 				$storage_keypair,
 				$crypto_sign_seed
 			);
@@ -123,14 +113,6 @@ class PasswordDatum extends BlobDatum
 						$mysqli = db()->getConnection($cc);
 						db()->commitTransaction($mysqli, $txid);
 					}
-					/*app()->getLazyLoadHelper()
-						->dropLazyLoadingQueues();
-					$logout = new LogoutUseCase($use_case);
-					// $logout->setFlag("changePassword");
-					$logout->validateTransition();
-					$logout->execute(); // execute(true);
-					$logout->setObjectStatus(RESULT_CHANGEPASS_SUCCESS);*/
-					
 					$select = $user->select()->where(
 						new WhereCondition($user->getIdentifierName(), OPERATOR_EQUALS)
 					)->withParameters($user->getIdentifierValue())->withTypeSpecifier('s');
@@ -140,13 +122,8 @@ class PasswordDatum extends BlobDatum
 					}
 					$results = $result->fetch_all(MYSQLI_ASSOC);
 					$user->setCacheValue($results[0]);
-					
 					$auth = new FullAuthenticationData();
 					$auth->handSessionToUser($user, LOGIN_TYPE_FULL);
-					/*$use_case->setObjectStatus(RESULT_CHANGEPASS_SUCCESS);
-					if ($use_case->getObjectStatus() !== RESULT_CHANGEPASS_SUCCESS) {
-						Debug::error("{$f} immediately after setting use case status it is wrong");
-					}*/
 				}, sha1(random_bytes(32))
 			);
 			return $status;

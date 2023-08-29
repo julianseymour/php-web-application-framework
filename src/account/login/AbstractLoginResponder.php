@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\login;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
@@ -15,11 +16,9 @@ use JulianSeymour\PHPWebApplicationFramework\ui\WidgetContainer;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 
-abstract class AbstractLoginResponder extends Responder
-{
+abstract class AbstractLoginResponder extends Responder{
 
-	protected function getStartingResponseCommandArray(): array
-	{
+	protected function getStartingResponseCommandArray(): array{
 		$notify_ts = user()->getNotificationDeliveryTimestamp();
 		$ts_command = new SetInputValueCommand("notify_ts", $notify_ts);
 		return [
@@ -27,9 +26,8 @@ abstract class AbstractLoginResponder extends Responder
 		];
 	}
 
-	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case)
-	{
-		$f = __METHOD__; //AbstractLoginResponder::getShortClass()."(".static::getShortClass().")->modifyResponse()";
+	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			parent::modifyResponse($response, $use_case);
@@ -55,36 +53,31 @@ abstract class AbstractLoginResponder extends Responder
 					$container->setWidgetClass($widget_class);
 					$container->bindContext($user);
 					$command = $container->update();
-					// $command = $widget_class::getLoginResponseCommand($user);
 					if ($print) {
 						Debug::print("{$f} pushing login response command for widget class \"{$widget_class}\"");
 					}
 					array_push($commands, $command);
 				}
 			}
-			// check theme switch
-			// $theme_command = new CheckInputCommand($user->getTheme()."_theme");
-			// page content
-			if ($use_case->isPageUpdatedAfterLogin()) {
-				if ($print) {
-					Debug::print("{$f} use case does update the page after login");
+			if(!$use_case instanceof ExecutiveLoginUseCase){
+				// page content
+				if ($use_case->isPageUpdatedAfterLogin()) {
+					if ($print) {
+						Debug::print("{$f} use case does update the page after login");
+					}
+					$div = new PageContentElement($mode);
+					$content = $use_case->getPageContent();
+					$div->saveChild(...$content);
+					$div->setCatchReportedSubcommandsFlag(true);
+					$page_command = $div->updateInnerHTML();
+					array_push($commands, $page_command);
+				} else {
+					if ($print) {
+						Debug::print("{$f} no, the use case does not update the page after login");
+					}
 				}
-				$div = new PageContentElement($mode);
-				/*
-				 * $div->setIdAttribute("page_content");
-				 * $div->addClassAttribute("page_content", "background_color_3");
-				 */
-				$content = $use_case->getPageContent();
-				$div->saveChild(...$content);
-				$div->setCatchReportedSubcommandsFlag(true);
-				$page_command = $div->updateInnerHTML(); // new UpdateElementCommand($div);
-				                                         // $page_command->pushSubcommand($theme_command);
-				array_push($commands, $page_command);
-			} else {
-				if ($print) {
-					Debug::print("{$f} no, the use case does not update the page after login");
-				}
-				// array_push($commands, $theme_command);
+			}elseif($print){
+				Debug::print("{$f} use case is an ExecutiveLoginUseCase");
 			}
 			// put them all together
 			foreach ($commands as $command) {

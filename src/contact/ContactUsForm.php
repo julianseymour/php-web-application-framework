@@ -1,6 +1,10 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\contact;
 
+use function JulianSeymour\PHPWebApplicationFramework\app;
+use function JulianSeymour\PHPWebApplicationFramework\request;
+use function JulianSeymour\PHPWebApplicationFramework\user;
+use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousUser;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
 use JulianSeymour\PHPWebApplicationFramework\input\EmailInput;
@@ -14,7 +18,7 @@ use JulianSeymour\PHPWebApplicationFramework\validate\Validator;
 class ContactUsForm extends AjaxForm{
 	
 	public function generateButtons(string $directive): ?array{
-		$f = __METHOD__; //ContactUsForm::getShortClass()."(".static::getShortClass().")->generateButtons()";
+		$f = __METHOD__;
 		switch($directive){
 			case DIRECTIVE_SUBMIT:
 				return [$this->generateGenericButton($directive)];
@@ -50,7 +54,7 @@ class ContactUsForm extends AjaxForm{
 		$inputs = parent::getAdHocInputs();
 		$mode = $this->getAllocationMode();
 		$hcaptcha = new hCaptcha($mode);
-		$hcaptcha->setIdAttribute("contact_us_hcaptcha");
+		$hcaptcha->setIdAttribute('contact_hcaptcha');
 		$inputs['hCaptcha'] = $hcaptcha;
 		return $inputs;
 	}

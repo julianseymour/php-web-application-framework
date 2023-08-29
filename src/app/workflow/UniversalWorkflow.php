@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\app\workflow;
 
 use function JulianSeymour\PHPWebApplicationFramework\directive;
@@ -16,8 +17,16 @@ use Exception;
 
 class UniversalWorkflow extends StandardWorkflow{
 
+	protected static function getLoginUseCaseClass():string{
+		return UniversalLoginUseCase::class;
+	}
+	
+	protected static function getMultifactorAuthenticationUseCaseClass():string{
+		return UniversalMfaUseCase::class;
+	}
+	
 	protected function authenticate(Request $request, UseCase $entry_point): int{
-		$f = __METHOD__; //UniversalWorkflow::getShortClass()."(".static::getShortClass().")->authenticate()";
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$directive = directive();
@@ -33,7 +42,8 @@ class UniversalWorkflow extends StandardWorkflow{
 					if ($print) {
 						Debug::print("{$f} user is logging in");
 					}
-					$login = new UniversalLoginUseCase($entry_point);
+					$login_class = $this->getLoginUseCaseClass();
+					$login = new $login_class($entry_point);
 					$login->validateTransition();
 					return $this->execute($request, $login);
 				case DIRECTIVE_ADMIN_LOGIN:
@@ -47,7 +57,8 @@ class UniversalWorkflow extends StandardWorkflow{
 					if ($print) {
 						Debug::print("{$f} user is submitting a MFA OTP");
 					}
-					$mfa = new UniversalMfaUseCase($entry_point);
+					$mfa_class = $this->getMultifactorAuthenticationUseCaseClass();
+					$mfa = new $mfa_class($entry_point);
 					$mfa->validateTransition();
 					return $this->execute($request, $mfa);
 				default:

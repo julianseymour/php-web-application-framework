@@ -151,11 +151,11 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		]);
 	}
 
-	public function setPushFlag($v){
+	public function setPushFlag(bool $v=true):bool{
 		return $this->setFlag("push", $v);
 	}
 
-	public function getPushFlag(){
+	public function getPushFlag():bool{
 		return $this->getFlag("push");
 	}
 
@@ -167,7 +167,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		return $this->setColumnValue("oldTimestamp", $ndt);
 	}
 
-	public function requiresAttention(){
+	public function requiresAttention():bool{
 		$f = __METHOD__;
 		if (! $this->hasSubjectData()) {
 			Debug::error("{$f} target object is undefined");
@@ -202,7 +202,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		return parent::beforeInsertHook($mysqli);
 	}
 
-	protected static function getRetrospectiveMessageClass(){
+	protected static function getRetrospectiveMessageClass():string{
 		return RetrospectiveMessage::class;
 	}
 
@@ -299,14 +299,14 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		return $this->hasColumnValue("pinnedTimestamp");
 	}
 
-	public function getName(){
+	public function getName():string{
 		$f = __METHOD__;
 		try {
-			if ($this->getNotificationType() === NOTIFICATION_TYPE_SECURITY) {
+			/*if ($this->getNotificationType() === NOTIFICATION_TYPE_SECURITY) {
 				return _("Security notification");
 			} elseif ($this->hasCorrespondentObject()) {
 				return $this->getCorrespondentName();
-			}
+			}*/
 			// Debug::print("{$f} this is not a security notification");
 			return substitute(_("Notification #%1%"), $this->getContext->getSerialnumber());
 		} catch (Exception $x) {
@@ -470,15 +470,11 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		return "notifications";
 	}
 
-	public static function userIsParent(){
-		return true;
-	}
-
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Notification");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Notifications");
 	}
 

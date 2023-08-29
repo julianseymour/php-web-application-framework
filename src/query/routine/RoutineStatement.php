@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\routine;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
@@ -6,34 +7,28 @@ use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\CommentTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\QueryStatement;
 
-abstract class RoutineStatement extends QueryStatement
-{
+abstract class RoutineStatement extends QueryStatement{
 
 	use CommentTrait;
 	use NamedTrait;
 
-	public function setLanguageFlag(bool $value): bool
-	{
+	public function setLanguageFlag(bool $value): bool{
 		return $this->setFlag("language", $value);
 	}
 
-	public function getLanguageFlag(): bool
-	{
+	public function getLanguageFlag(): bool{
 		return $this->getFlag("language");
 	}
 
-	public function setDeterministicFlag(bool $value = true): bool
-	{
+	public function setDeterministicFlag(bool $value = true): bool{
 		return $this->setFlag("deterministic", $value);
 	}
 
-	public function getDeterministicFlag(): bool
-	{
+	public function getDeterministicFlag(): bool{
 		return $this->getFlag("deterministic");
 	}
 
-	protected function getCharacteristics()
-	{
+	protected function getCharacteristics(){
 		$string = "";
 		// COMMENT 'string'
 		if ($this->hasComment()) {
@@ -54,8 +49,7 @@ abstract class RoutineStatement extends QueryStatement
 		return $string;
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->commentString);
 		unset($this->name);

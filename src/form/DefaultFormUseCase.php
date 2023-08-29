@@ -53,17 +53,16 @@ abstract class DefaultFormUseCase extends InteractiveUseCase{
 		return AdminOnlyAccountTypePermission::class;
 	}
 
-	public function getResponder(): ?Responder{
-		$status = $this->getObjectStatus();
+	public function getResponder(int $status): ?Responder{
 		if ($status !== SUCCESS) {
-			return parent::getResponder();
+			return parent::getResponder($status);
 		}
 		switch (directive()) {
 			case DIRECTIVE_INSERT:
 				return new InsertAfterResponder();
 			default:
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 
 	public function getProcessedDataType(): ?string{

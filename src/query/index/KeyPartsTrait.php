@@ -1,40 +1,33 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\query\index;
 
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 
-trait KeyPartsTrait
-{
+trait KeyPartsTrait{
 
 	use ArrayPropertyTrait;
 
-	public function setKeyParts($keyparts)
-	{
+	public function setKeyParts($keyparts){
 		return $this->setArrayProperty("keyParts", $keyparts);
 	}
 
-	public function pushKeyParts(...$keyparts)
-	{
+	public function pushKeyParts(...$keyparts){
 		return $this->pushArrayProperty("keyParts", ...$keyparts);
 	}
 
-	public function hasKeyParts()
-	{
+	public function hasKeyParts(){
 		return $this->hasArrayProperty("keyParts");
 	}
 
-	public function getKeyParts()
-	{
+	public function getKeyParts(){
 		return $this->getProperty("keyParts");
 	}
 
-	public function mergeKeyParts($keyparts)
-	{
+	public function mergeKeyParts($keyparts){
 		return $this->mergeArrayProperty("keyParts", $keyparts);
 	}
 
-	public function withKeyParts($keyparts)
-	{
+	public function withKeyParts($keyparts){
 		$this->setKeyParts($keyparts);
 		return $this;
 	}

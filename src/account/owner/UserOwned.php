@@ -1,8 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\owner;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\account\UserKeyColumnTrait;
@@ -21,6 +22,10 @@ abstract class UserOwned extends DataStructure{
 	use UserKeyColumnTrait;
 	use UserNameKeyColumnTrait;
 
+	public static function getDatabaseNameStatic():string{
+		return "user_content";
+	}
+	
 	public static function getPermissionStatic(string $name, $data){
 		return new OwnerPermission($name);
 	}
@@ -250,10 +255,6 @@ abstract class UserOwned extends DataStructure{
 			return $this->setUserLanguagePreference($lang);
 		}
 		return $lang;
-	}
-
-	public function getUserTimezone(){
-		return $this->getUserData()->getTimezone();
 	}
 
 	public function setUserName(string $value):string{

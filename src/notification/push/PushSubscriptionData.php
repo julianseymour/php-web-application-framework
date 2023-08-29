@@ -1,7 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\push;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousUser;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -95,10 +97,8 @@ class PushSubscriptionData extends UserFingerprint{
 		return "pushSubscriptions";
 	}
 
-	public function getName(){
-		$name = $this->getUserName();
-		$str = "Push subscription data for user {$name}";
-		return $str;
+	public function getName():string{
+		return substitute(_("Push subscription data for user %1%"), $this->getUserName());
 	}
 
 	public function getArrayMembershipConfiguration($config_id): ?array{
@@ -215,11 +215,11 @@ class PushSubscriptionData extends UserFingerprint{
 		}
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Push subscription");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Push subscriptions");
 	}
 }

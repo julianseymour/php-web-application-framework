@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\firewall;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -7,7 +8,7 @@ use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -36,9 +37,9 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 
 	public function getDataOperandClass(): ?string{
 		// $f = __METHOD__;
-		if (hasInputParameter("dataType")) {
+		if (hasInputParameter("dataType", $this)) {
 			$classes = $this->getConditionalDataOperandClasses();
-			$dataType = getInputParameter('dataType');
+			$dataType = getInputParameter('dataType', $this);
 			if (array_key_exists($dataType, $classes)) {
 				return $classes[$dataType];
 			}
@@ -76,8 +77,11 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 		}
 	}
 
-	public function getResponder(): ?Responder{
+	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
+		if($status !== SUCCESS){
+			return parent::getResponder($status);
+		}
 		$directive = directive();
 		switch ($directive) {
 			case DIRECTIVE_INSERT:
@@ -97,7 +101,7 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 					}
 				}
 			default:
-				return parent::getResponder();
+				return parent::getResponder($status);
 		}
 	}
 
@@ -106,9 +110,18 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 		try {
 			Debug::print("{$f} entered");
 			$status = $this->getObjectStatus();
-			if ($status === ERROR_MUST_LOGIN) {
-				Debug::warning("{$f} not logged in");
-				return parent::getPageContent();
+			$err = ErrorMessage::getResultMessage($status);
+			Debug::print("{$f} error status \"{$err}\"");
+			switch($status){
+				case SUCCESS:
+					break;
+				case ERROR_MUST_LOGIN:
+					Debug::warning("{$f} not logged in");
+					return parent::getPageContent();
+				case RESULT_LOGGED_OUT:
+					Debug::warning("{$f} logged out");
+					return parent::getPageContent();
+				default:
 			}
 			$ret = [];
 			$user = user();
@@ -156,8 +169,8 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 	}
 
 	public function getProcessedDataType(): ?string{
-		if (hasInputParameter("dataType")) {
-			$type = getInputParameter('dataType');
+		if (hasInputParameter("dataType", $this)) {
+			$type = getInputParameter('dataType', $this);
 			switch ($type) {
 				case DATATYPE_USER:
 				case DATATYPE_IP_ADDRESS:
@@ -173,10 +186,6 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 		return [
 			ListedIpAddress::class
 		];
-	}
-
-	public function getUseCaseId(): int{
-		return USE_CASE_ACCOUNT_FIREWALL;
 	}
 
 	public function reconfigureDataOperand(mysqli $mysqli, object &$object): int{
@@ -237,9 +246,9 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 								$index = "ip_addresses_{$user_key}";
 								if (cache()->hasAPCu($index)) {
 									if ($print) {
-										Debug::print("{$f} about to set new listed IP address in redis");
+										Debug::print("{$f} about to set new listed IP address in cache");
 									}
-									$object->configureArrayMembership('redis');
+									$object->configureArrayMembership('cache');
 									$results[$object->getIdentifierValue()] = $object->toArray();
 									uasort($results, function ($a, $b) use ($f, $print): int {
 										if ($print) {
@@ -275,7 +284,7 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 							});
 						});
 					} elseif ($print) {
-						Debug::print("{$f} redis cache is disabled");
+						Debug::print("{$f} cache is disabled");
 					}
 					break;
 				case DIRECTIVE_DELETE:
@@ -298,7 +307,7 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 								$index = "ip_addresses_" . $object->getIdentifierValue();
 								if (cache()->hasAPCu($index)) {
 									if ($print) {
-										Debug::print("{$f} about to delete listed IP address in redis");
+										Debug::print("{$f} about to delete listed IP address in cache");
 									}
 									$results = cache()->getAPCu($index);
 									$results = array_remove_key($results, $object->getIdentifierValue());
@@ -309,7 +318,7 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 							});
 						});
 					} elseif ($print) {
-						Debug::print("{$f} redis cache is disabled");
+						Debug::print("{$f} cache is disabled");
 					}
 					break;
 				default:

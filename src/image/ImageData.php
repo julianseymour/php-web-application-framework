@@ -23,8 +23,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 
 	protected $resampledThumbnailFilename;
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$width = new UnsignedIntegerDatum("width", 16);
 		$height = new UnsignedIntegerDatum("height", 16);
@@ -75,73 +74,63 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 		return "images";
 	}
 
-	public function calculateAspectRatio()
-	{
+	public function calculateAspectRatio(){
 		return $this->getImageWidth() / $this->getImageHeight();
 	}
 
-	public function getSubtypeValue()
-	{
+	public function getSubtypeValue(){
 		return $this->getImageType();
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "images";
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Image");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Images");
 	}
 
-	public function hasImageHeight()
-	{
+	public function hasImageHeight():bool{
 		return $this->hasColumnValue("height");
 	}
 
-	public function hasImageWidth()
-	{
+	public function hasImageWidth():bool{
 		return $this->hasColumnValue("width");
 	}
 
-	public function getImageHeight()
-	{
+	public function getImageHeight():int{
 		return $this->getColumnValue("height");
 	}
 
-	public function getImageWidth()
-	{
+	public function getImageWidth():int{
 		return $this->getColumnValue("width");
 	}
 
-	public function setImageWidth($width)
-	{
+	public function setImageWidth(int $width):int{
 		return $this->setColumnValue("width", $width);
 	}
 
-	public function setImageHeight($height)
-	{
+	public function setImageHeight(int $height):int{
 		return $this->setColumnValue("height", $height);
 	}
 
-	public function setResampledThumbnailFilename($rfn)
-	{
+	public function setResampledThumbnailFilename(?string $rfn):?string{
 		return $this->resampledThumbnailFilename = $rfn;
 	}
 
-	public function getResampledThumbnailFilename()
-	{
+	public function getResampledThumbnailFilename():string{
+		$f = __METHOD__;
+		if(!$this->hasResampledThumbnailFilename()){
+			Debug::error("{$f} resampled thumbnail filename is undefined");
+		}
 		return $this->resampledThumbnailFilename;
 	}
 
-	public function hasResampledThumbnailFilename()
-	{
+	public function hasResampledThumbnailFilename():bool{
 		return isset($this->resampledThumbnailFilename);
 	}
 

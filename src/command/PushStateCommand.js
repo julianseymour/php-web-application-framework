@@ -2,7 +2,7 @@ class PushStateCommand extends Command{
 	
 	execute(){
 		let f = this.constructor.name.concat(".execute()");
-		let print = true;
+		let print = false;
 		if(print){
 			console.log(f.concat(": received a command to push new URL \"").concat(this.getUri()).concat("\""));
 		}

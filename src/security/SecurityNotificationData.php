@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -30,8 +31,8 @@ class SecurityNotificationData extends TypedNotificationData{
 		return false;
 	}
 
-	public function getName(){
-		return _();
+	public function getName():string{
+		return _("Security notification");
 	}
 
 	protected function afterGenerateInitialValuesHook(): int{
@@ -72,7 +73,7 @@ class SecurityNotificationData extends TypedNotificationData{
 		return true;
 	}
 
-	public static function getNotificationTypeString($language = null){
+	public static function getNotificationTypeString(){
 		return _("Security");
 	}
 

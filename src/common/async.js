@@ -264,24 +264,6 @@ const initializeBackgroundSync = async function(){
 					window.alert(f+": about to process media commands sent from service worker");
 				}
 				switch(event.data.intent){
-					/*case "alert":
-						window.alert(f+": about to window.alert something from the user");
-						InfoBoxElement.showInfoBox(event.data.info);
-						break;*/
-					/*case "beep":
-						if(print){
-							window.alert(f+": incoming beep");
-						}
-						playNotificationSound();
-						break;
-					/*case "handle_fetch":
-						window.alert(f+": about to log event.data");
-						window.alert(event.data);
-						let type = typeof event.data;
-						window.alert(f.concat(": typeof event.data is \"").concat(type).concat("\""));
-						let callback = function(rt){handleFetchEvent(rt);};
-						let response = new ResponseText(event.data, callback);
-						break;*/
 					case "notificationclick":
 						if(print){
 							window.alert(f+": notification clicked -- you are now inside message event handler");
@@ -292,12 +274,6 @@ const initializeBackgroundSync = async function(){
 						);
 						note_data.handleNotificationClick(event);
 						break;
-					/*case "reset_timeout":
-						if(print){
-							window.alert(f+": about to reset session timeout animation");
-						}
-						resetSessionTimeoutAnimation(false);
-						break;*/
 					default:
 						if(print){
 							window.alert(f+": about to log event.data");
@@ -323,7 +299,7 @@ const initializeBackgroundSync = async function(){
 			window.alert(f+": added message event listener; about to register service worker");
 		}
 		
-		navigator.serviceWorker.register('/service-worker.js');
+		navigator.serviceWorker.register('/script/'.concat(LOCALE).concat('/service-worker.js'));
 		
 		if(print){
 			window.alert(f+": called navigator.serviceWorker.register");

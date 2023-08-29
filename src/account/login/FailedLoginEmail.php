@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\login;
 
 use function JulianSeymour\PHPWebApplicationFramework\getDateTimeStringFromTimestamp;
@@ -19,7 +20,7 @@ class FailedLoginEmail extends EmailNotificationData{
 			WEBSITE_NAME, 
 			getDateTimeStringFromTimestamp(
 				$subject->getInsertTimestamp(), 
-				$this->getUserTimezone()
+				$this->getRecipient()->getTimezone()
 			), 
 			$subject->getInsertIpAddress(), 
 			$subject->getUserAgent()

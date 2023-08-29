@@ -2,7 +2,7 @@ class NotificationsUseCase extends UseCase{
 	static handleResponse(response){
 		let f = "handleResponse()";
 		try{
-			let print = true;
+			let print = false;
 			let count = 0;
 			for(let key in response.getDataStructures()){
 				let note = response.getDataStructure(key);

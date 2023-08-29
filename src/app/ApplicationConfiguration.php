@@ -98,7 +98,6 @@ abstract class ApplicationConfiguration extends Basic
 	 * @return string
 	 */
 	public function getLoadoutGeneratorClass(?DataStructure $object = null): ?string{
-		$f = __METHOD__;
 		return null;
 	}
 
@@ -122,62 +121,9 @@ abstract class ApplicationConfiguration extends Basic
 		return null;
 	}
 
-	public static function getDefaultChildSelectionParameters($parent, $phylum, $child_class): ?array{
-		$f = __METHOD__;
-		$print = false;
-		if ($print) {
-			$class = $parent->getClass();
-			Debug::print("{$f} let's ask the parent object of class \"{$class}\"");
-		}
-		return $parent->getDefaultChildSelectionParameters($phylum, $child_class);
-	}
-
-	public final function isLegalBundleName(string $name): bool{
-		$names = $this->getLegalBundleNames();
-		if (! is_array($names) || empty($names)) {
-			return false;
-		}
-		return false !== array_search($name, $names, true);
-	}
-
-	public function getLegalBundleNames(): ?array{
-		return [
-			"getCascadingStyleSheetFilePaths",
-			"getClientCommandClasses",
-			"getClientDataStructureClasses",
-			"getClientRenderedFormClasses",
-			"getClientUseCaseDictionary",
-			"getDataStructureClasses",
-			"getDebugJavaScriptFilePaths",
-			"getDependentClassespingFunctions",
-			"getFormDataSubmissionClasses",
-			"getInvokeableJavaScriptFunctions",
-			"getJavaScriptFilePaths",
-			"getJavaScriptFunctionGeneratorClasses",
-			"getLegalIntersectionObservers",
-			"getLineItemClasses",
-			"getMessageEventHandlerCases",
-			"getPhpFileInclusionPaths",
-			"getPollingUseCaseClasses",
-			"getServiceWorkerDependencyFilePaths",
-			"getSpecialTemplateClasses",
-			"getStoredRoutines",
-			"getTemplateElementClasses",
-			"getThemeClasses",
-			"getTranslatableDataStructureTypes",
-			"getTypedNotificationClasses",
-			"getUseCaseDictionary",
-			"getValidDirectives",
-			"getValidMimeTypes",
-			"getValidatorClasses",
-			"getWidgetClasses",
-			"getWidgetClasses"
-		];
-	}
-
 	public function beforeInstallHook(): int{
 		$f = __METHOD__;
-		foreach (mods() as $mod) {
+		foreach (mods()->getModules() as $mod) {
 			$status = $mod->beforeInstallHook();
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
@@ -237,5 +183,9 @@ abstract class ApplicationConfiguration extends Basic
 	
 	public function getModuleBundlerClass():string{
 		return ModuleBundler::class;
+	}
+	
+	public function getDefaultPlaceholderMode(){
+		return INPUT_PLACEHOLDER_MODE_NORMAL;
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\admin;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
@@ -20,17 +21,23 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\InteractiveUse
 use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\UpdateResponder;
 use mysqli;
 
-abstract class ProfileAdministrationUseCase extends InteractiveUseCase
-{
+abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 
 	public function getLoadoutGeneratorClass(?PlayableUser $object=null):?string{
+		$f = __METHOD__;
+		$print = false;
 		if(user() instanceof Administrator && request()->hasInputParameter("correspondentKey", $this)){
+			if($print){
+				Debug::print("{$f} user is an administrator, and correspondent key input parameter exists");
+			}
 			return ProfileAdministrationLoadoutGenerator::class;
+		}elseif($print){
+			Debug::print("{$f} correspondentKey does not exist, or user is not an administrator");
 		}
 		return null;
 	}
 
-	public static function getCorrespondentClass(){
+	public static function getCorrespondentClass():string{
 		$f = __METHOD__;
 		$segment = getRequestURISegment(1);
 		switch ($segment) {
@@ -78,17 +85,21 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase
 			return $user->getCorrespondentObject();
 		}elseif(!$user->hasForeignDataStructure("correspondent")){
 			if($print){
-				Debug::print("{$f} correspondent was not loaded");
+				$uc = $user->getShortClass();
+				$key = $user->hasIdentifierValue() ? $user->getIdentifierValue() : "[undefined]";
+				$decl = $user->getDeclarationLine();
+				$did = $user->getDebugId();
+				Debug::print("{$f} user of class {$uc} with key \"{$key}\" and debug ID {$did}, instantated {$decl} does not have a correspondent object");
 			}
 			return null;
 		}elseif($print){
 			Debug::print("{$f} correspondent was loaded via loadout");
 		}
 		$correspondent = $user->getFirstRelationship("correspondent");
-		if($correspondent instanceof Administrator){
+		/*if($correspondent instanceof Administrator){
 			$key = $correspondent->getIdentifierValue();
 			Debug::error("{$f} correspondent with key \"{$key}\" should never be an administrator");
-		}
+		}*/
 		$correspondent->setCorrespondentObject($user);
 		return $user->setCorrespondentObject($correspondent);
 	}
@@ -101,6 +112,8 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} {$err}");
 			return $this->setObjectStatus($status);
+		}elseif($print){
+			Debug::print("{$f} about to call acqireCorrespondentObject");
 		}
 		$correspondent = $this->acquireCorrespondentObject($mysqli);
 		if($correspondent === null){
@@ -108,6 +121,8 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase
 				Debug::print("{$f} correspondent object returned null");
 			}
 			return $this->setObjectStatus(ERROR_FILE_NOT_FOUND);
+		}elseif($print){
+			Debug::print("{$f} returning normally");
 		}
 		return $status;
 	}
@@ -132,13 +147,15 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase
 		$content = [
 			$insert_here
 		];
-		$correspondent = $insert_here->getUserData();
+		$correspondent = user()->getCorrespondentObject();
 		$doc = $this->getDataOperandClass();
 		$element_class = $this->getConditionalElementClass($doc::getDataType());
 		$phylum = $doc::getPhylumName();
 		if($correspondent->hasForeignDataStructureList($phylum)) {
 			$objects = $correspondent->getForeignDataStructureList($phylum);
-			Debug::print("{$f} ".count($objects)." objects");
+			if($print){
+				Debug::print("{$f} ".count($objects)." objects");
+			}
 			foreach ($objects as $object) {
 				$element = new $element_class(ALLOCATION_MODE_LAZY, $object);
 				array_push($content, $element);
@@ -181,10 +198,9 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase
 		return false;
 	}
 
-	public function getResponder(): ?Responder{
-		$status = $this->getObjectStatus();
+	public function getResponder(int $status): ?Responder{
 		if ($status !== SUCCESS) {
-			return parent::getResponder();
+			return parent::getResponder($status);
 		}
 		switch (directive()) {
 			case DIRECTIVE_DELETE_FOREIGN:
@@ -193,7 +209,7 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase
 				return new InsertAfterResponder();
 			default:
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 
 	protected function getExecutePermissionClass(){

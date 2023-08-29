@@ -232,6 +232,8 @@ class SearchForm extends AjaxForm{
 					]);
 					break;
 				case "searchQuery":
+					$input->setLabelString(_("Enter search query"));
+					$ret = parent::reconfigureInput($input);
 					$input->setRequiredAttribute("required");
 					$input->setStyleProperties([
 						"height" => "50px",
@@ -248,9 +250,8 @@ class SearchForm extends AjaxForm{
 						"padding" => "0.5rem"
 					]);
 					$input->pushSuccessor($search_label);
-					$input->setPlaceholderAttribute(_("Enter search query"));
 					$input->setStyleProperty("width", "calc(100% - 128px)");
-					return SUCCESS;
+					return $ret;
 				default:
 			}
 			return parent::reconfigureInput($input);

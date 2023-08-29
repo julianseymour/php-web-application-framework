@@ -159,24 +159,21 @@ trait ParentKeyColumnTrait
 		return $this->hasColumnValue('parentKey');
 	}
 
-	public function hasParentObject()
-	{
+	public function hasParentObject(){
 		return $this->hasForeignDataStructure('parentKey');
 	}
 
-	public function setParentKey($key)
-	{
-		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")::setParentKey({$key})";
+	public function setParentKey($key){
+		$f = __METHOD__;
 		if (empty($key)) {
 			Debug::warning("{$f} passed a null parameter");
-			return $this->setObjectStatus(ERROR_NULL_PARENTKEY);
+			return $this->setObjectStatus(ERROR_NULL_PARENT_KEY);
 		}
 		return $this->setColumnValue('parentKey', $key);
 	}
 
-	public function getSiblingKeys()
-	{
-		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")->getSiblingKeys()";
+	public function getSiblingKeys(){
+		$f = __METHOD__;
 		try {
 			$parent = $this->getParentObject();
 			$keys = [];
@@ -200,9 +197,8 @@ trait ParentKeyColumnTrait
 		}
 	}
 
-	public function getParentName()
-	{
-		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")::getParentName()";
+	public function getParentName(){
+		$f = __METHOD__;
 		if ($this->hasParentObject()) {
 			return $this->getParentObject()->getName();
 		}

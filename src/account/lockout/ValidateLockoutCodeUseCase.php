@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\lockout;
 
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -11,22 +12,18 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 use mysqli;
 
-class ValidateLockoutCodeUseCase extends ValidateAnonymousConfirmationCodeUseCase
-{
+class ValidateLockoutCodeUseCase extends ValidateAnonymousConfirmationCodeUseCase{
 
-	public static function getFormDisplayStatus()
-	{
+	public static function getFormDisplayStatus(){
 		return ERROR_DISPATCH_NOTHING;
 	}
 
-	public static function getBruteforceAttemptClass(): string
-	{
+	public static function getBruteforceAttemptClass(): string{
 		return LockoutWaiverAttempt::class;
 	}
 
-	public function afterLoadHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //ValidateLockoutCodeUseCase::getShortClass()."(".static::getShortClass().")->afterLoadHook()";
+	public function afterLoadHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$status = parent::afterLoadHook($mysqli);
 			$user = user();
@@ -44,28 +41,19 @@ class ValidateLockoutCodeUseCase extends ValidateAnonymousConfirmationCodeUseCas
 		}
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return AnonymousAccountTypePermission::class;
 	}
 
-	public static function getConfirmationCodeClass(): string
-	{
+	public static function getConfirmationCodeClass(): string{
 		return LockoutConfirmationCode::class;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_LOCKOUT_WAIVER;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/unlock";
 	}
 
-	public function getFormClass(): ?string
-	{
+	public function getFormClass(): ?string{
 		return null;
 	}
 
@@ -81,8 +69,7 @@ class ValidateLockoutCodeUseCase extends ValidateAnonymousConfirmationCodeUseCas
 		];
 	}
 
-	public function beforeTransitionHook(UseCase $successor): int
-	{
+	public function beforeTransitionHook(UseCase $successor): int{
 		parent::beforeTransitionHook($successor);
 		if (! $successor instanceof WaiveLockoutUseCase) {
 			return FAILURE;

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\image;
 
 use function JulianSeymour\PHPWebApplicationFramework\directive;
@@ -10,30 +11,25 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\InsertAfterRes
 use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\InteractiveUseCase;
 use JulianSeymour\PHPWebApplicationFramework\ui\ProcessedDataListElement;
 
-abstract class ImageGalleryUseCase extends InteractiveUseCase
-{
+abstract class ImageGalleryUseCase extends InteractiveUseCase{
 
-	public static function allowFileUpload(): bool
-	{
+	public static function allowFileUpload(): bool{
 		return true;
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getResponder(): ?Responder
-	{
-		$f = __METHOD__; //ImageGalleryUseCase::getShortClass()."(".static::getShortClass().")->getResponder()";
+	public function getResponder(int $status): ?Responder{
+		$f = __METHOD__;
 		$print = false;
-		$status = $this->getObjectStatus();
 		if ($status !== SUCCESS) {
 			if ($print) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::print("{$f} object status \"{$err}\"");
 			}
-			return parent::getResponder();
+			return parent::getResponder($status);
 		}
 		$directive = directive();
 		if ($print) {
@@ -51,49 +47,42 @@ abstract class ImageGalleryUseCase extends InteractiveUseCase
 		if ($print) {
 			Debug::print("{$f} returning parent function");
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 
-	public function getProcessedDataType(): ?string
-	{
+	public function getProcessedDataType(): ?string{
 		return DATATYPE_FILE;
 	}
 
-	public function getConditionalElementClasses(): ?array
-	{
+	public function getConditionalElementClasses(): ?array{
 		return [
 			$this->getProcessedDataType() => $this->getProcessedFormClass()
 		];
 	}
 
-	public function getConditionalDataOperandClasses(): ?array
-	{
+	public function getConditionalDataOperandClasses(): ?array{
 		return [
 			$this->getProcessedDataType() => $this->getDataOperandClass()
 		];
 	}
 
-	public function getConditionalProcessedFormClasses(): ?array
-	{
+	public function getConditionalProcessedFormClasses(): ?array{
 		return [
 			$this->getProcessedDataType() => $this->getProcessedFormClass()
 		];
 	}
 
-	public function getProcessedDataListClasses(): ?array
-	{
+	public function getProcessedDataListClasses(): ?array{
 		return [
 			$this->getDataOperandClass()
 		];
 	}
 
-	public function isCurrentUserDataOperand(): bool
-	{
+	public function isCurrentUserDataOperand(): bool{
 		return true;
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return AdminOnlyAccountTypePermission::class;
 	}
 	

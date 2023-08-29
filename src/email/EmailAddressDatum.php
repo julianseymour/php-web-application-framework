@@ -22,7 +22,7 @@ class EmailAddressDatum extends TextDatum implements StaticHumanReadableNameInte
 		$this->setMaximumLength(254);
 	}
 
-	public static function normalize($email){
+	public static function normalize(string $email):string{
 		$f = __METHOD__;
 		try {
 			if (empty($email)) {

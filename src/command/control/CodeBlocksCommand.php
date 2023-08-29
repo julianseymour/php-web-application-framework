@@ -5,7 +5,7 @@ use JulianSeymour\PHPWebApplicationFramework\command\Command;
 use JulianSeymour\PHPWebApplicationFramework\command\ServerExecutableCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\element\ElementCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\element\MultipleElementCommand;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 

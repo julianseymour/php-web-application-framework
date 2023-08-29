@@ -1,8 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\push;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -19,12 +20,10 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\InteractiveUse
 use Exception;
 use mysqli;
 
-class FetchNotificationUseCase extends InteractiveUseCase
-{
+class FetchNotificationUseCase extends InteractiveUseCase{
 
-	public function execute(): int
-	{
-		$f = __METHOD__; //FetchNotificationUseCase::getShortClass()."(".static::getShortClass().")->execute()";
+	public function execute(): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -44,13 +43,11 @@ class FetchNotificationUseCase extends InteractiveUseCase
 			} elseif ($print) {
 				Debug::print("{$f} client key is \"{$user_key}\"");
 			}
-
 			$key = user()->getIdentifierValue();
 			if ($user_key !== $key) {
 				Debug::error("{$f} looks like you logged in on a public computer -- need to reassign notification with user key \"{$user_key}\" so it has user key \"{$key}\"");
 				return $this->setObjectStatus(ERROR_EXPIRED_PUSH_SUBSCRIPTION);
 			}
-
 			if (! isset($num)) {
 				Debug::warning("{$f} object number is undefined");
 				return $this->setObjectStatus(ERROR_NULL_OBJECTNUM);
@@ -109,66 +106,51 @@ class FetchNotificationUseCase extends InteractiveUseCase
 		return RetrospectiveNotificationData::class;
 	}
 
-	public function getConditionalDataOperandClasses(): ?array
-	{
+	public function getConditionalDataOperandClasses(): ?array{
 		return [
 			RetrospectiveNotificationData::class
 		];
 	}
 
-	public function getProcessedDataType(): ?string
-	{
+	public function getProcessedDataType(): ?string{
 		return DATATYPE_NOTIFICATION;
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_FETCH_NOTIFICATION;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/fetch_update";
 	}
 
-	public function getProcessedDataListClasses(): ?array
-	{
-		$f = __METHOD__; //FetchNotificationUseCase::getShortClass()."(".static::getShortClass().")::getProcessedDataListClasses()";
+	public function getProcessedDataListClasses(): ?array{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function getConditionalElementClasses(): ?array
-	{
-		$f = __METHOD__; //FetchNotificationUseCase::getShortClass()."(".static::getShortClass().")::getConditionalElementClasses()";
+	public function getConditionalElementClasses(): ?array{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function getConditionalProcessedFormClasses(): ?array
-	{
-		$f = __METHOD__; //FetchNotificationUseCase::getShortClass()."(".static::getShortClass().")::getConditionalProcessedFormClasses()";
+	public function getConditionalProcessedFormClasses(): ?array{
+		$f = __METHOD__;
 		Debug::printArray(getInputParameters());
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function isCurrentUserDataOperand(): bool
-	{
+	public function isCurrentUserDataOperand(): bool{
 		return true;
 	}
 
-	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData
-	{
+	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData{
 		return user();
 	}
 
-	public function getResponder(): ?Responder
-	{
-		if ($this->getObjectStatus() !== SUCCESS) {
-			return parent::getResponder();
+	public function getResponder(int $status): ?Responder{
+		if ($status !== SUCCESS) {
+			return parent::getResponder($status);
 		}
 		return new FetchNotificationResponder();
 	}

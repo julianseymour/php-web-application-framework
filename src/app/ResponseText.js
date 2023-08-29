@@ -4,7 +4,7 @@ class ResponseText extends Basic{
 		//super(body, callback);
 		let f = "ResponseText constructor()";
 		try{
-			let print = true;
+			let print = false;
 			let parsed;
 			if(isset(body)){
 				if(typeof body == 'string'){

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\throttle;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -14,61 +15,57 @@ use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 use mysqli;
 
-abstract class ThrottleMeterData extends DataStructure
-{
+abstract class ThrottleMeterData extends DataStructure{
 
-	public static function getDataType(): string
-	{
+	public static function getDatabaseNameStatic():string{
+		return "security";
+	}
+	
+	public static function getDefaultPersistenceModeStatic():int{
+		return PERSISTENCE_MODE_UNDEFINED;
+	}
+	
+	public static function getDataType(): string{
 		return DATATYPE_LINKCOUNTER;
 	}
 
-	public function getLimitPerMinute()
-	{
+	public function getLimitPerMinute(){
 		return $this->getColumnValue("perMinute");
 	}
 
-	public function hasLimitPerMinute()
-	{
+	public function hasLimitPerMinute(){
 		return $this->hasColumnValue("perMinute");
 	}
 
-	public function setLimitPerMinute($limit)
-	{
+	public function setLimitPerMinute($limit){
 		return $this->setColumnValue("perMinute", $limit);
 	}
 
-	public function getLimitPerHour()
-	{
+	public function getLimitPerHour(){
 		return $this->getColumnValue("perHour");
 	}
 
-	public function hasLimitPerHour()
-	{
+	public function hasLimitPerHour(){
 		return $this->hasColumnValue("perHour");
 	}
 
-	public static function throttleOnInsert(): bool
-	{
+	public static function throttleOnInsert(): bool{
 		return false;
 	}
 
-	public function setLimitPerHour($limit)
-	{
+	public function setLimitPerHour($limit){
 		return $this->setColumnValue("perHour", $limit);
 	}
 
-	public function getLimitPerDay()
-	{
+	public function getLimitPerDay(){
 		return $this->getColumnValue("perDay");
 	}
 
-	public function hasLimitPerDay()
-	{
+	public function hasLimitPerDay(){
 		return $this->hasColumnValue("perDay");
 	}
 
-	public function setLimitPerDay($limit)
-	{
+	public function setLimitPerDay($limit){
 		return $this->setColumnValue("perDay", $limit);
 	}
 
@@ -330,12 +327,12 @@ abstract class ThrottleMeterData extends DataStructure
 		return "throttleMeters";
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Throttle settings");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
-		return static::getPrettyClassName($lang);
+	public static function getPrettyClassNames():string{
+		return static::getPrettyClassName();
 	}
 
 	public static function getTableNameStatic(): string{

@@ -246,27 +246,18 @@ abstract class UserFingerprint extends UserOwned
 		}
 	}
 
-	public function setReasonLogged($value)
-	{
+	public function setReasonLogged($value){
 		return $this->setColumnValue("reasonLogged", $value);
 	}
 
-	public function getExpiredTimestamp()
-	{
+	public function getExpiredTimestamp(){
 		return $this->getInsertTimestamp() - LOCKOUT_DURATION;
 	}
 
-	public function generateExpiredTimestamp()
-	{
-		// $f = __METHOD__;
+	public function generateExpiredTimestamp(){
 		if ($this->hasInsertTimestamp()) {
 			return $this->getExpiredTimestamp();
 		}
 		return $this->generateInsertTimestamp() - LOCKOUT_DURATION;
-	}
-
-	public static function userIsParent()
-	{
-		return true;
 	}
 }

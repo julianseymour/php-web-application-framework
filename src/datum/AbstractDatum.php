@@ -1,8 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayKeyProviderInterface;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\HumanReadableNameTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
@@ -12,11 +14,11 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
  * @author j
  *        
  */
-abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface
-{
+abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 
 	use ArrayPropertyTrait;
-
+	use HumanReadableNameTrait;
+	
 	/**
 	 * specifies default value or expression to generate default value
 	 *
@@ -38,11 +40,6 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface
 	 */
 	protected $encryptionScheme;
 
-	/**
-	 *
-	 * @var string
-	 */
-	// protected $ConverseRelationshipKeyName;
 
 	/**
 	 * Where the value is stored for persistence.
@@ -52,26 +49,22 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface
 	 */
 	protected $persistenceMode;
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			COLUMN_FILTER_EVENT_SOURCE,
 			COLUMN_FILTER_NULLABLE
 		]);
 	}
 
-	public function setEventSourceFlag(bool $value = true): bool
-	{
+	public function setEventSourceFlag(bool $value = true): bool{
 		return $this->setFlag(COLUMN_FILTER_EVENT_SOURCE, $value);
 	}
 
-	public function getEventSourceFlag(): bool
-	{
+	public function getEventSourceFlag(): bool{
 		return $this->getFlag(COLUMN_FILTER_EVENT_SOURCE);
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->defaultValue);
 		unset($this->embeddedName);
@@ -79,9 +72,8 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface
 		unset($this->persistenceMode);
 	}
 
-	public function embed(string $group_name)
-	{
-		$f = __METHOD__; //AbstractDatum::getShortClass()."(".static::getShortClass().")->embed()";
+	public function embed(string $group_name){
+		$f = __METHOD__;
 		if (! is_string($group_name)) {
 			Debug::error("{$f} group name must be a string");
 		} elseif (empty($group_name)) {
@@ -92,14 +84,12 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface
 		return $this;
 	}
 
-	public function hasEmbeddedName()
-	{
+	public function hasEmbeddedName(){
 		return isset($this->embeddedName) && is_string($this->embeddedName) && ! empty($this->embeddedName);
 	}
 
-	public function getEmbeddedName()
-	{
-		$f = __METHOD__; //AbstractDatum::getShortClass()."(".static::getShortClass().")->getEmbeddedName()";
+	public function getEmbeddedName(){
+		$f = __METHOD__;
 		if (! $this->hasEmbeddedName()) {
 			$cn = $this->getColumnName();
 			Debug::error("{$f} embed group name is undefined for column \"{$cn}\"");
@@ -112,27 +102,23 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface
 	 *
 	 * @return int
 	 */
-	public function getPersistenceMode()
-	{
+	public function getPersistenceMode(){
 		if (! $this->hasPersistenceMode()) {
 			return CONST_UNDEFINED;
 		}
 		return $this->persistenceMode;
 	}
 
-	public function setPersistenceMode($pm)
-	{
+	public function setPersistenceMode($pm){
 		return $this->persistenceMode = $pm;
 	}
 
-	public function hasPersistenceMode()
-	{
+	public function hasPersistenceMode(){
 		return isset($this->persistenceMode);
 	}
 
-	public function setEncryptionScheme($scheme)
-	{
-		$f = __METHOD__; //AbstractDatum::getShortClass()."(".static::getShortClass().")->setEncryptionScheme()";
+	public function setEncryptionScheme($scheme){
+		$f = __METHOD__;
 		if (! is_string($scheme)) {
 			Debug::error("{$f} scheme class name is not a string");
 		} elseif (! class_exists($scheme)) {
@@ -141,64 +127,54 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface
 		return $this->encryptionScheme = $scheme;
 	}
 
-	public function hasEncryptionScheme()
-	{
+	public function hasEncryptionScheme():bool{
 		return isset($this->encryptionScheme) && is_string($this->encryptionScheme) && class_exists($this->encryptionScheme);
 	}
 
-	public function getEncryptionScheme()
-	{
-		$f = __METHOD__; //AbstractDatum::getShortClass()."(".static::getShortClass().")->getEncryptionScheme()";
+	public function getEncryptionScheme(){
+		$f = __METHOD__;
 		if (! $this->hasEncryptionScheme()) {
 			Debug::error("{$f} encryption scheme is undefined");
 		}
 		return $this->encryptionScheme;
 	}
 
-	public function setDefaultValue($v)
-	{
+	public function setDefaultValue($v){
 		if ($v === null) {
 			$this->setNullable(true);
 		}
 		return $this->defaultValue = $v;
 	}
 
-	public function getDefaultValue()
-	{
+	public function getDefaultValue(){
 		if ($this->hasDefaultValue()) {
 			return $this->defaultValue;
 		}
 		return null;
 	}
 
-	public function hasDefaultValue()
-	{
+	public function hasDefaultValue():bool{
 		return $this->defaultValue !== null;
 	}
 
-	public function withDefaultValue($value)
-	{
+	public function withDefaultValue($value){
 		$this->setDefaultValue($value);
 		return $this;
 	}
 
-	public function getDefaultValueString()
-	{
+	public function getDefaultValueString(){
 		return $this->getDefaultValue();
 	}
 
-	public function setNullable($value = true)
-	{
+	public function setNullable(bool $value = true):bool{
 		return $this->setFlag(COLUMN_FILTER_NULLABLE, $value);
 	}
 
-	public function isNullable()
-	{
+	public function isNullable():bool{
 		return $this->getFlag(COLUMN_FILTER_NULLABLE);
 	}
 
-	public function volatilize()
-	{
+	public function volatilize(){
 		$this->setPersistenceMode(PERSISTENCE_MODE_VOLATILE);
 		return $this;
 	}

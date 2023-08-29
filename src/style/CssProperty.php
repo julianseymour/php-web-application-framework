@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\style;
 
 use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayKeyProviderInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\ValuedElement;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;

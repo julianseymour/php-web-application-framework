@@ -5,31 +5,25 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use mysqli;
 
-trait ErrorMessageColumnTrait
-{
+trait ErrorMessageColumnTrait{
 
-	public function setErrorMessage(string $value): string
-	{
+	public function setErrorMessage(string $value): string{
 		return $this->setColumnValue("errorMessage", $value);
 	}
 
-	public function hasErrorMessage(): bool
-	{
+	public function hasErrorMessage(): bool{
 		return $this->hasColumnValue("errorMessage");
 	}
 
-	public function getErrorMessage(): string
-	{
+	public function getErrorMessage(): string{
 		return $this->getColumnValue("errorMessage");
 	}
 
-	public function ejectErrorMessage(): ?string
-	{
+	public function ejectErrorMessage(): ?string{
 		return $this->ejectColumnValue("errorMessage");
 	}
 
-	public function updateErrorMessage(mysqli $mysqli, ?string $msg): int
-	{
+	public function updateErrorMessage(mysqli $mysqli, ?string $msg): int{
 		$f = __METHOD__; //"ErrorMessageColumnTrait(".static::getShortClass().")->updateErrorMessage()";
 		if ($msg == null) {
 			$this->ejectErrorMessage();

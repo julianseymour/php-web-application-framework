@@ -76,7 +76,7 @@ class Menu extends Basic{
 	//XXX TODO this should be a generated function
 	static setViewportHeightCustomProperty(){
 		let f = "setViewportHeightCustomProperty()";
-		let print = true;
+		let print = false;
 		/*let vh = window.innerHeight * 0.01;
 		if(print){
 			console.log("Setting vh property to ".concat(vh));

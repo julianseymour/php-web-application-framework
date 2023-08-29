@@ -22,7 +22,6 @@ class EmailFooterElement extends DivElement
 			"padding-top" => "8px",
 			"padding-bottom" => "8px"
 		]);
-		$lang = $user->getLanguagePreference();
 		$this->setInnerHTML(substitute(_("Copyright %1% %2%"), date('Y'), WEBSITE_NAME));
 	}
 }

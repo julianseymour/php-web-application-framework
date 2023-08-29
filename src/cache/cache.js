@@ -69,7 +69,7 @@ function clearClientCache(event, target){
 function initializePopState(){
 	let f = "initializePopState()";
 	try{
-		let print = true;
+		let print = false;
 		window.onpopstate = function(event){
 			if(print){
 				console.log("window popstate event");

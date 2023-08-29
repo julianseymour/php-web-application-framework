@@ -142,10 +142,10 @@ class LazyLoadHelper extends Basic
 								Debug::print("{$f} there are no dirty cache flagged columns");
 							}
 						} elseif ($print) {
-							Debug::print("{$f} there is no redis cached value with key \"{$key}\"");
+							Debug::print("{$f} there is no cached value with key \"{$key}\"");
 						}
 					} elseif ($print) {
-						Debug::print("{$f} redis cache is not enabled");
+						Debug::print("{$f} cache is not enabled");
 					}
 					if($print){
 						Debug::print("{$f} completely done with object {$key}");
@@ -261,8 +261,6 @@ class LazyLoadHelper extends Basic
 			if ($print) {
 				Debug::print("{$f} lazy loading queue is empty");
 			}
-			// $this->advanceExecutionState(EXECUTION_STATE_LOADED);
-			// $status = $this->afterLoadHook($mysqli);
 			return SUCCESS;
 		}
 		// lazy load to optimize foreign data structures that would otherwise be loaded piecemeal
@@ -287,7 +285,6 @@ class LazyLoadHelper extends Basic
 			$mem = memory_get_usage();
 			Debug::print("{$f} memory after loading: {$mem}");
 		}
-		// $this->advanceExecutionState(EXECUTION_STATE_LOADED);
 		return SUCCESS;
 	}
 }

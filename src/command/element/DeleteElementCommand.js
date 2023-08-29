@@ -23,7 +23,7 @@ class DeleteElementCommand extends Command{
 	execute(){
 		let f = this.constructor.name.concat(".execute()");
 		try{
-			let print = true;
+			let print = false;
 			if(print){
 				console.log(f+": about to delete an element");
 			}

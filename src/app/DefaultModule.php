@@ -1,10 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\app;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
-use JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\CodeConfirmationAttempt;
+use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use mysqli;
 
 class DefaultModule extends EmptyModule{
 
@@ -44,7 +46,7 @@ class DefaultModule extends EmptyModule{
 			"resend" => \JulianSeymour\PHPWebApplicationFramework\account\activate\ResendActivationEmailUseCase::class,
 			"reset" => \JulianSeymour\PHPWebApplicationFramework\auth\password\reset\ValidateResetPasswordCodeUseCase::class,
 			"robots.txt" => \JulianSeymour\PHPWebApplicationFramework\app\RobotsDotTxtUseCase::class,
-			"script" => \JulianSeymour\PHPWebApplicationFramework\script\JavaScriptBundleUseCase::class,
+			"script" => \JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFileRouter::class,
 			"server_cache" => \JulianSeymour\PHPWebApplicationFramework\cache\server\ClearServerCacheUseCase::class,
 			"settings" => \JulianSeymour\PHPWebApplicationFramework\account\settings\AccountSettingsUseCase::class,
 			"sitemap.xml" => \JulianSeymour\PHPWebApplicationFramework\app\SiteMapUseCase::class,
@@ -105,6 +107,7 @@ class DefaultModule extends EmptyModule{
 			\JulianSeymour\PHPWebApplicationFramework\command\element\SetTextContentCommand::class,
 			\JulianSeymour\PHPWebApplicationFramework\form\SetUniversalFormActionCommand::class,
 			\JulianSeymour\PHPWebApplicationFramework\command\input\SoftDisableInputCommand::class,
+			\JulianSeymour\PHPWebApplicationFramework\command\str\SubstituteCommand::class,
 			\JulianSeymour\PHPWebApplicationFramework\command\element\UpdateElementCommand::class,
 			\JulianSeymour\PHPWebApplicationFramework\account\online\UpdateOnlineStatusIndicatorCommand::class
 		];
@@ -145,6 +148,9 @@ class DefaultModule extends EmptyModule{
 					DIRECTIVE_INSERT,
 					DIRECTIVE_UPDATE
 				],
+				config()->getNormalUserClass() => [
+					DIRECTIVE_UPDATE
+				],
 				\JulianSeymour\PHPWebApplicationFramework\security\condemn\CondemnedIpAddress::class => [
 					DIRECTIVE_INSERT
 				],
@@ -161,9 +167,6 @@ class DefaultModule extends EmptyModule{
 				\JulianSeymour\PHPWebApplicationFramework\security\firewall\ListedIpAddress::class => [
 					DIRECTIVE_INSERT
 				],
-				config()->getNormalUserClass() => [
-					DIRECTIVE_UPDATE
-				],
 				"intersections.*" => [
 					DIRECTIVE_INSERT
 				]
@@ -175,6 +178,19 @@ class DefaultModule extends EmptyModule{
 				config()->getGuestUserClass() => [
 					DIRECTIVE_UPDATE
 				],
+				config()->getNormalUserClass() => [
+					DIRECTIVE_UPDATE
+				],
+				\JulianSeymour\PHPWebApplicationFramework\cascade\CascadeDeleteTriggerData::class => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE,
+					DIRECTIVE_DELETE
+				],
+				\JulianSeymour\PHPWebApplicationFramework\file\CleartextFileData::class => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE,
+					DIRECTIVE_DELETE
+				],
 				\JulianSeymour\PHPWebApplicationFramework\email\DummyEmail::class => [
 					DIRECTIVE_INSERT
 				],
@@ -185,6 +201,11 @@ class DefaultModule extends EmptyModule{
 				],
 				\JulianSeymour\PHPWebApplicationFramework\auth\mfa\InvalidatedOtp::class => [
 					DIRECTIVE_INSERT
+				],
+				\JulianSeymour\PHPWebApplicationFramework\language\MultilingualStringData::class => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE,
+					DIRECTIVE_DELETE
 				],
 				\JulianSeymour\PHPWebApplicationFramework\security\nonexistent_uris\NonexistentUriData::class => [
 					DIRECTIVE_UPDATE,
@@ -218,6 +239,16 @@ class DefaultModule extends EmptyModule{
 					DIRECTIVE_INSERT,
 					DIRECTIVE_UPDATE,
 					DIRECTIVE_DELETE
+				],
+				"embedded.*" => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE
+				],
+				"events.*" => [
+					DIRECTIVE_INSERT
+				],
+				"*.*" => [
+					DIRECTIVE_FILE
 				]
 			],
 			"writer-public" => [
@@ -225,8 +256,13 @@ class DefaultModule extends EmptyModule{
 					DIRECTIVE_INSERT,
 					DIRECTIVE_UPDATE
 				],
-				CodeConfirmationAttempt::class => [
+				\JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\CodeConfirmationAttempt::class => [
 					DIRECTIVE_INSERT
+				],
+				\JulianSeymour\PHPWebApplicationFramework\cascade\CascadeDeleteTriggerData::class => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE,
+					DIRECTIVE_DELETE
 				],
 				\JulianSeymour\PHPWebApplicationFramework\contact\ContactusEmail::class => [
 					DIRECTIVE_INSERT
@@ -235,6 +271,9 @@ class DefaultModule extends EmptyModule{
 					DIRECTIVE_INSERT,
 					DIRECTIVE_UPDATE,
 					DIRECTIVE_DELETE
+				],
+				\JulianSeymour\PHPWebApplicationFramework\file\InstallableEncryptedFile::class => [
+					DIRECTIVE_INSERT
 				],
 				\JulianSeymour\PHPWebApplicationFramework\auth\mfa\InvalidatedOtp::class => [
 					DIRECTIVE_INSERT
@@ -284,6 +323,10 @@ class DefaultModule extends EmptyModule{
 					DIRECTIVE_INSERT,
 					DIRECTIVE_UPDATE
 				],
+				"embedded.*" => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE
+				],
 				"events.*" => [
 					DIRECTIVE_INSERT,
 					DIRECTIVE_UPDATE
@@ -301,32 +344,28 @@ class DefaultModule extends EmptyModule{
 		return [
 			\JulianSeymour\PHPWebApplicationFramework\account\UsernameData::class,
 			\JulianSeymour\PHPWebApplicationFramework\image\ImageData::class,
-			[
-				config()->getAdministratorClass(),
-				config()->getNormalUserClass(),
-				config()->getGuestUserClass(),
-				config()->getShadowUserClass()
-			],
-			[
-				\JulianSeymour\PHPWebApplicationFramework\language\MultilingualNameData::class,
-				\JulianSeymour\PHPWebApplicationFramework\data\SharedStringData::class
-			],
+			config()->getAdministratorClass(),
+			config()->getNormalUserClass(),
+			config()->getGuestUserClass(),
+			config()->getShadowUserClass(),
 			\JulianSeymour\PHPWebApplicationFramework\contact\ContactUsEmail::class,
+			\JulianSeymour\PHPWebApplicationFramework\cascade\CascadeDeleteTriggerData::class,
 			\JulianSeymour\PHPWebApplicationFramework\db\credentials\EncryptedDatabaseCredentials::class,
 			\JulianSeymour\PHPWebApplicationFramework\auth\mfa\InvalidatedOtp::class,
-			[
-				\JulianSeymour\PHPWebApplicationFramework\security\condemn\CondemnedIpAddress::class,
-				\JulianSeymour\PHPWebApplicationFramework\security\firewall\ListedIpAddress::class
-			],
-			[
-				\JulianSeymour\PHPWebApplicationFramework\account\activate\PreActivationConfirmationCode::class,
-				\JulianSeymour\PHPWebApplicationFramework\security\firewall\UnlistedIpAddressConfirmationCode::class
-			],
-			[
-				\JulianSeymour\PHPWebApplicationFramework\account\login\LoginAttempt::class,
-				\JulianSeymour\PHPWebApplicationFramework\account\activate\ActivationAttempt::class,
-				\JulianSeymour\PHPWebApplicationFramework\auth\ReauthenticationEvent::class
-			],
+			\JulianSeymour\PHPWebApplicationFramework\security\condemn\CondemnedIpAddress::class,
+			\JulianSeymour\PHPWebApplicationFramework\file\CleartextFileData::class,
+			\JulianSeymour\PHPWebApplicationFramework\file\InstallableEncryptedFile::class,
+			\JulianSeymour\PHPWebApplicationFramework\security\firewall\ListedIpAddress::class,
+			\JulianSeymour\PHPWebApplicationFramework\language\MultilingualStringData::class,
+			\JulianSeymour\PHPWebApplicationFramework\security\nonexistent_uris\NonexistentUriData::class,
+			\JulianSeymour\PHPWebApplicationFramework\account\activate\PreActivationConfirmationCode::class,
+			\JulianSeymour\PHPWebApplicationFramework\security\firewall\UnlistedIpAddressConfirmationCode::class,
+			\JulianSeymour\PHPWebApplicationFramework\email\change\ChangeEmailAddressConfirmationCode::class,
+			\JulianSeymour\PHPWebApplicationFramework\auth\password\reset\ResetPasswordConfirmationCode::class,
+			\JulianSeymour\PHPWebApplicationFramework\account\lockout\LockoutConfirmationCode::class,
+			\JulianSeymour\PHPWebApplicationFramework\account\login\LoginAttempt::class,
+			\JulianSeymour\PHPWebApplicationFramework\account\activate\ActivationAttempt::class,
+			\JulianSeymour\PHPWebApplicationFramework\auth\ReauthenticationEvent::class,
 			\JulianSeymour\PHPWebApplicationFramework\session\resume\SessionRecoveryData::class,
 			\JulianSeymour\PHPWebApplicationFramework\notification\push\PushSubscriptionData::class,
 			\JulianSeymour\PHPWebApplicationFramework\email\DummyEmail::class,
@@ -362,7 +401,8 @@ class DefaultModule extends EmptyModule{
 			\JulianSeymour\PHPWebApplicationFramework\input\FancyRadioButton::getStyleSheetPath(),
 			\JulianSeymour\PHPWebApplicationFramework\account\avatar\Avatar::getStyleSheetPath(),
 			\JulianSeymour\PHPWebApplicationFramework\form\AjaxForm::getStyleSheetPath(),
-			\JulianSeymour\PHPWebApplicationFramework\input\ToggleInput::getStyleSheetPath()
+			\JulianSeymour\PHPWebApplicationFramework\input\ToggleInput::getStyleSheetPath(),
+			\JulianSeymour\PHPWebApplicationFramework\security\captcha\hCaptcha::getStyleSheetPath()
 		];
 	}
 
@@ -422,14 +462,12 @@ class DefaultModule extends EmptyModule{
 			'SUCCESS' => SUCCESS,
 			'ERROR_LOGIN_CREDENTIALS' => ERROR_LOGIN_CREDENTIALS,
 			'ERROR_XSRF' => ERROR_LOGIN_CREDENTIALS,
-			'RESULT_ACTIVATE_SUCCESS' => RESULT_ACTIVATE_SUCCESS,
-			'RESULT_BFP_MFA_CONFIRM' => RESULT_ACTIVATE_SUCCESS,
+			'RESULT_BFP_MFA_CONFIRM' => RESULT_BFP_MFA_CONFIRM,
 			'RESULT_LOGGED_OUT' => RESULT_LOGGED_OUT,
-			'RESULT_REGISTER_SUCCESS' => RESULT_LOGGED_OUT,
 			'RESULT_RESET_SUBMIT' => RESULT_RESET_SUBMIT,
 			'RESULT_SETTINGS_UPDATED' => RESULT_SETTINGS_UPDATED,
 			'RESULT_SUBMISSION_ACCEPTED' => RESULT_SUBMISSION_ACCEPTED,
-			'RESULT_BFP_MFA_FAILED' => RESULT_BFP_MFA_FAILED,
+			'ERROR_INVALID_MFA_OTP' => ERROR_INVALID_MFA_OTP,
 			// account types
 			'ACCOUNT_TYPE_ERROR' => ACCOUNT_TYPE_ERROR,
 			'ACCOUNT_TYPE_ADMIN' => ACCOUNT_TYPE_ADMIN,
@@ -486,6 +524,7 @@ class DefaultModule extends EmptyModule{
 			"STRING_APPEAR_OFFLINE" => _("Appear offline"),
 			"STRING_AWAY" => _("Away"),
 			"STRING_BUSY" => _("Busy"),
+			"STRING_ERROR_PROCESSING_REQUEST" => _("There was an error processing your request."),
 			"STRING_IMPORT_CSV_FILES" => _("Import CSV files"),
 			"STRING_NOTIFICATION_DISMISSAL_ERROR" => _("Notification dismissal error"),
 			"STRING_OFFLINE" => _("Offline"),
@@ -534,18 +573,19 @@ class DefaultModule extends EmptyModule{
 			FRAMEWORK_INSTALL_DIRECTORY . "/form/AjaxForm.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/common/locutus.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/common/common.js",
+			FRAMEWORK_INSTALL_DIRECTORY . "/common/async.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/cache/cache.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/ui/WidgetIcon.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/file/EncryptedFile.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/image/EncryptedImage.js",
 			FRAMEWORK_INSTALL_DIRECTORY . '/location/location.js',
-			FRAMEWORK_INSTALL_DIRECTORY . "/account/login/login.js",
+			\JulianSeymour\PHPWebApplicationFramework\account\login\LoginForm::getJavaScriptClassPath(),
+			\JulianSeymour\PHPWebApplicationFramework\account\logout\LogoutForm::getJavaScriptClassPath(),
 			FRAMEWORK_INSTALL_DIRECTORY . "/ui/Menu.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/datum/NameDatum.js",
-			FRAMEWORK_INSTALL_DIRECTORY . "/account/register/register.js",
+			\JulianSeymour\PHPWebApplicationFramework\account\register\RegistrationForm::getJavaScriptClassPath(),
 			FRAMEWORK_INSTALL_DIRECTORY . "/search/search.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/account/settings/settings.js",
-			FRAMEWORK_INSTALL_DIRECTORY . "/language/translate/translate.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/command/Command.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/command/element/ElementCommand.js",
 			FRAMEWORK_INSTALL_DIRECTORY . "/command/element/MultipleElementCommand.js",
@@ -656,5 +696,37 @@ class DefaultModule extends EmptyModule{
 		return [
 			\JulianSeymour\PHPWebApplicationFramework\security\SecurityNotificationData::class
 		];
+	}
+	
+	public function afterInstallHook(mysqli $mysqli):int{
+		$f = __METHOD__;
+		$print = false;
+		//create /var/www/uploads
+		if(!is_dir("/var/www/uploads")){
+			if($print){
+				Debug::print("{$f} creating uploads directory");
+			}
+			mkdir("/var/www/uploads", 0777, true);
+		}elseif($print){
+			Debug::print("{$f} uploads directory was already created");
+		}
+		//create /var/www/html/images/profile
+		if(!is_dir("/var/www/html/images/profile")){
+			if(!is_dir("/var/www/html/images")){
+				if($print){
+					Debug::print("{$f} creating images directory");
+				}
+				mkdir("/var/www/htmlimages", 0777, true);
+			}elseif($print){
+				Debug::print("{$f} images directory was already created");
+			}
+			if($print){
+				Debug::print("{$f} creating profile images folder");
+			}
+			mkdir("/var/www/html/images/profile", 0777, true);
+		}elseif($print){
+			Debug::print("{$f} profile images directory was already created");
+		}
+		return SUCCESS;
 	}
 }

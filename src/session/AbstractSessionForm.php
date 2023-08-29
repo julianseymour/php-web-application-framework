@@ -66,11 +66,11 @@ abstract class AbstractSessionForm extends ExpandingMenuNestedForm
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "bindIpAddress":
-					$bindme = STRING_IP_ADDRESS;
+					$bindme = _("IP address");
 					$hint = $this->getIpAddressHint();
 					break;
 				case "bindUserAgent":
-					$bindme = STRING_USER_AGENT;
+					$bindme = _("User agent");
 					$hint = $this->getUserAgentHint();
 					break;
 				default:

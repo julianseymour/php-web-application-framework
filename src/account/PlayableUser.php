@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
@@ -56,8 +57,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 use mysqli;
 
-abstract class PlayableUser extends UserData
-{
+abstract class PlayableUser extends UserData{
 
 	use EnabledTrait;
 	use PasswordDerivedColumnsTrait;
@@ -72,8 +72,7 @@ abstract class PlayableUser extends UserData
 
 	public abstract function getProfileImageData();
 
-	public function __construct(?int $mode = ALLOCATION_MODE_EAGER)
-	{
+	public function __construct(?int $mode = ALLOCATION_MODE_EAGER){
 		if ($mode === ALLOCATION_MODE_SUBJECTIVE) {
 			$this->setAllocationMode($mode);
 			$mode = ALLOCATION_MODE_EAGER;
@@ -100,9 +99,8 @@ abstract class PlayableUser extends UserData
 		return $this->getName();
 	}
 
-	public function getRequestEventObject()
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->getRequestEventObject()";
+	public function getRequestEventObject(){
+		$f = __METHOD__;
 		try {
 			if (! $this->hasRequestEventObject()) {
 				Debug::error("{$f} request attempt object is undefined");
@@ -113,8 +111,7 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function getStaticRoles(): ?array
-	{
+	public function getStaticRoles(): ?array{
 		$roles = parent::getStaticRoles();
 		if ($this->isDisabled()) {
 			$roles["disabled"] = "disabled";
@@ -124,35 +121,23 @@ abstract class PlayableUser extends UserData
 		return $roles;
 	}
 
-	public function updateLastSeenTimestamp($mysqli, $timestamp)
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function updateLastSeenTimestamp($mysqli, $timestamp){
+		$f = __METHOD__;
 		$print = false;
-		/*
-		 * if(!$this->tableExists($mysqli)){
-		 * Debug::warning("{$f} table does not exist, oh well");
-		 * return SUCCESS;
-		 * }elseif($print){
-		 * Debug::print("{$f} updating last seen timestamp to \"{$timestamp}\"");
-		 * }
-		 */
 		$this->setLastSeenTimestamp($timestamp);
 		return $this->update($mysqli);
 	}
 
-	public function setRequestEventObject($obj)
-	{
+	public function setRequestEventObject($obj){
 		return $this->setForeignDataStructure("accessAttemptKey", $obj);
 	}
 
-	public function hasRequestEventObject()
-	{
+	public function hasRequestEventObject(){
 		return $this->hasForeignDataStructure("accessAttemptKey");
 	}
 
-	public static function getPermissionStatic(string $name, $object)
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public static function getPermissionStatic(string $name, $object){
+		$f = __METHOD__;
 		switch ($name) {
 			case DIRECTIVE_INSERT:
 				return new AnonymousAccountTypePermission($name);
@@ -167,24 +152,20 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function hasCurrentThemeData()
-	{
+	public function hasCurrentThemeData(){
 		return $this->hasForeignDataStructure("theme");
 	}
 
-	public function setCurrentThemeData($theme)
-	{
+	public function setCurrentThemeData($theme){
 		return $this->setForeignDataStructure("theme", $theme);
 	}
 
-	public function getLastSeenTimestampString()
-	{
+	public function getLastSeenTimestampString(){
 		return getDateTimeStringFromTimestamp($this->getLastSeenTimestamp());
 	}
 
-	public function getMessageUpdateTimestamp()
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function getMessageUpdateTimestamp(){
+		$f = __METHOD__;
 		if (! $this->hasMessageUpdateTimestamp()) {
 			Debug::warning("{$f} message update timestamp is undefined");
 		}
@@ -192,48 +173,43 @@ abstract class PlayableUser extends UserData
 		return $this->getColumnValue("messageUpdateTimestamp");
 	}
 
-	public function hasMessageUpdateTimestamp()
-	{
+	public function hasMessageUpdateTimestamp(){
 		return $this->hasColumnValue("messageUpdateTimestamp");
 	}
 
-	public function setMessageUpdateTimestamp($time)
-	{
+	public function setMessageUpdateTimestamp($time){
 		return $this->setColumnValue("messageUpdateTimestamp", $time);
 	}
 
-	public function getLastSeenTimestamp()
-	{
+	public function getLastSeenTimestamp(){
 		return $this->getColumnValue("lastSeenTimestamp");
 	}
 
-	public function setLastSeenTimestamp($ts)
-	{
+	public function setLastSeenTimestamp($ts){
 		return $this->setColumnValue("lastSeenTimestamp", $ts);
 	}
 
-	public function hasLastSeenTimestamp()
-	{
+	public function hasLastSeenTimestamp(){
 		return $this->hasColumnValue("lastSeenTimestamp") && $this->getColumnValue("lastSeenTimestamp") > 0;
 	}
 
-	public function getNotificationDeliveryTimestamp()
-	{
+	public function getNotificationDeliveryTimestamp(){
 		if ($this->hasNotificationDeliveryTimestamp()) {
 			return $this->getColumnValue('notificationDeliveryTimestamp');
 		}
 		return $this->setNotificationDeliveryTimestamp($this->getInsertTimestamp());
 	}
 
-	public function setNotificationDeliveryTimestamp($ts)
-	{
+	public function setNotificationDeliveryTimestamp($ts){
 		return $this->setColumnValue('notificationDeliveryTimestamp', $ts);
 	}
 
-	protected function afterGenerateInitialValuesHook(): int
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	protected function afterGenerateInitialValuesHook(): int{
+		$f = __METHOD__;
 		$print = false;
+		if(!$this->hasRegionCode()){
+			$this->setRegionCode(geoip_country_code_by_name($_SERVER['REMOTE_ADDR']));
+		}
 		$status = parent::afterGenerateInitialValuesHook();
 		if ($print) {
 			Debug::print("{$f} returned from parent function");
@@ -248,7 +224,6 @@ abstract class PlayableUser extends UserData
 		}
 		$ts = $this->generateInsertTimestamp();
 		$this->setNotificationDeliveryTimestamp($ts);
-		
 		$crypto_sign_seed = $this->getColumnValue("signatureSeed");
 		$length = strlen($crypto_sign_seed);
 		if ($length !== SODIUM_CRYPTO_SIGN_SEEDBYTES) {
@@ -257,19 +232,16 @@ abstract class PlayableUser extends UserData
 		}elseif($print){
 			Debug::print("{$f} signature seed is the correct length");
 		}
-		
 		// $this->setInsertIpAddress($_SERVER['REMOTE_ADDR']);
 		return $status;
 	}
 
-	public function hasNotificationDeliveryTimestamp()
-	{
+	public function hasNotificationDeliveryTimestamp(){
 		return $this->hasColumnValue("notificationDeliveryTimestamp") && $this->getColumnValue("notificationDeliveryTimestamp") > 0;
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			parent::declareColumns($columns, $ds);
@@ -432,29 +404,8 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function setMessagePreviewEnabled($e)
-	{
-		return $this->setColumnValue("messagePreviewEnabled", $e);
-	}
-
-	public function getMessagePreviewEnabled()
-	{
-		return $this->getColumnValue("messagePreviewEnabled");
-	}
-
-	public function setMessagePreviewDuration($dur)
-	{
-		return $this->setColumnValue("messagePreviewDuration", $dur);
-	}
-
-	public function getMessagePreviewDuration()
-	{
-		return $this->getColumnValue("messagePreviewDuration");
-	}
-
-	public function getNormalizedDisplayName()
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function getNormalizedDisplayName(){
+		$f = __METHOD__;
 		try {
 			$sdn = $this->getColumnValue('displayNormalizedName');
 			if (isset($sdn)) {
@@ -471,8 +422,7 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function hasDisplayName()
-	{
+	public function hasDisplayName():bool{
 		return $this->hasColumn("displayName") && $this->hasColumnValue("displayName");
 	}
 
@@ -483,13 +433,8 @@ abstract class PlayableUser extends UserData
 		return $this->getColumnValue('displayName');
 	}
 
-	public function setDisplayName($name){
-		// $this->setColumnValue('displayNormalizedName', NameDatum::normalize($name));
+	public function setDisplayName(string $name):string{
 		return $this->setColumnValue('displayName', $name);
-	}
-
-	public function getMessagePreview(){
-		return _("New conversation");
 	}
 
 	protected static function createAuthenticationCookie($mode = LOGIN_TYPE_UNDEFINED){
@@ -521,8 +466,6 @@ abstract class PlayableUser extends UserData
 					Debug::print("{$f} session data of class {$sdc} lacks a signature");
 				}
 				$session->unsetColumnValues();
-				// session_destroy();
-				// (new FullAuthenticationData())->unsetColumnValues();
 				return FAILURE;
 			}
 			$reauth_nonce = $session->getReauthenticationNonce();
@@ -576,17 +519,6 @@ abstract class PlayableUser extends UserData
 			if ($print) {
 				Debug::print("{$f} about to validate current IP address");
 			}
-			/*
-			 * if(!QueryBuilder::tableExists(
-			 * $mysqli,
-			 * ListedIpAddress::getDatabaseNameStatic(),
-			 * ListedIpAddress::getTableNameStatic()
-			 * )){
-			 * Debug::warning("{$f} listed IP address table does not exist");
-			 * return SUCCESS;
-			 * return FAILURE;
-			 * }
-			 */
 			if($this->getValidIpAddressFlag()){
 				if($print){
 					$did = $this->getDebugId();
@@ -631,7 +563,7 @@ abstract class PlayableUser extends UserData
 	}
 
 	public function validateCurrentIpAddress(mysqli $mysqli):int{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->validateCurrentIpAddress()";
+		$f = __METHOD__;
 		$print = false;
 		$ret = $this->filterIpAddress($mysqli, $_SERVER['REMOTE_ADDR'], false);
 		if($ret === SUCCESS){
@@ -645,9 +577,8 @@ abstract class PlayableUser extends UserData
 		return $ret;
 	}
 	
-	protected function generateReauthenticationHash($mode = LOGIN_TYPE_UNDEFINED, $old_mode = LOGIN_TYPE_UNDEFINED)
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	protected function generateReauthenticationHash($mode = LOGIN_TYPE_UNDEFINED, $old_mode = LOGIN_TYPE_UNDEFINED){
+		$f = __METHOD__;
 		try {
 			$sd = static::createAuthenticationData($mode);
 			$cookie = new ReauthenticationCookie();
@@ -661,23 +592,12 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function getUserHardResetCount()
-	{
+	public function getUserHardResetCount(){
 		return $this->getHardResetCount();
 	}
 
-	/*
-	 * public function getAuthenticationNonce(){
-	 * return $this->getColumnValue('authenticationNonce');
-	 * }
-	 *
-	 * public function setAuthenticationNonce($nonce){
-	 * return $this->setColumnValue('authenticationNonce', $nonce);
-	 * }
-	 */
-	protected static function createAuthenticationData($mode = LOGIN_TYPE_UNDEFINED)
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	protected static function createAuthenticationData($mode = LOGIN_TYPE_UNDEFINED){
+		$f = __METHOD__;
 		try {
 			switch ($mode) {
 				case LOGIN_TYPE_PARTIAL:
@@ -698,9 +618,8 @@ abstract class PlayableUser extends UserData
 	 * @param int $mode
 	 * @return NULL|string
 	 */
-	public function getDeterministicSecretKey($mode = LOGIN_TYPE_UNDEFINED)
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function getDeterministicSecretKey($mode = LOGIN_TYPE_UNDEFINED):string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($mode === LOGIN_TYPE_UNDEFINED) {
@@ -709,21 +628,9 @@ abstract class PlayableUser extends UserData
 			$sd = static::createAuthenticationData($mode);
 			if (is_string($sd)) {
 				Debug::error("{$f} authentication data is the string \"{$sd}\"");
+			}elseif ($sd->hasDeterministicSecretKey() && $print){
+				Debug::print("{$f} session data already has its deterministic secret key");
 			}
-			if ($sd->hasDeterministicSecretKey()) {
-				if ($print) {
-					Debug::print("{$f} session data already has its deterministic secret key");
-				}
-			} /*
-			   * elseif(!$sd->hasKeyGenerationNonce()){
-			   * if(!$this->hasKeyGenerationNonce()){
-			   * Debug::error("{$f} key generation nonce is undefined");
-			   * }
-			   * Debug::warning("{$f} authentication session data lacks a key generation nonce");
-			   * Debug::printArray($_SESSION);
-			   * Debug::printStackTrace();
-			   * }
-			   */
 			$key = $sd->getDeterministicSecretKey();
 			if ($print) {
 				$hash = sha1($key);
@@ -736,9 +643,8 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function setDeterministicSecretKey($dsk, $mode = LOGIN_TYPE_UNDEFINED)
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function setDeterministicSecretKey($dsk, $mode = LOGIN_TYPE_UNDEFINED){
+		$f = __METHOD__;
 		$print = false;
 		if ($this->getColumn("deterministicSecretKey") instanceof VirtualDatum) {
 			if ($print) {
@@ -757,9 +663,8 @@ abstract class PlayableUser extends UserData
 	 * @param array $password_data
 	 * @return string
 	 */
-	public function processPasswordData(PasswordData $password_data)
-	{ // , $set_dsk=true){
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function processPasswordData(PasswordData $password_data){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -767,93 +672,35 @@ abstract class PlayableUser extends UserData
 			}
 
 			$this->setDeterministicSecretKey($password_data->getDeterministicSecretKey(), LOGIN_TYPE_FULL);
-			/*
-			 * if($print){
-			 * //user()->validatePrivateKey("after setting DSK");
-			 * }
-			 */
-
 			$this->setPrivateKey($password_data->getPrivateKey());
-
 			$this->setKeyGenerationNonce($password_data->getKeyGenerationNonce());
 			if (! $this->hasKeyGenerationNonce()) {
 				Debug::error("{$f} key generation nonce is undefined immediately after setting it");
-			} elseif ($print) {
-				// user()->validatePrivateKey("after setting keygen nonce");
 			}
-			// $this->setReceptivity(DATA_MODE_RECEPTIVE);
-
-			$this->setPasswordHash($password_data->getPasswordHash()); // password_hash']);
-			if ($print) {
-				// user()->validatePrivateKey("after setting hashed password");
-			}
-
-			$this->setPublicKey($password_data->getPublicKey()); // ['publicKey']);
-			if ($print) {
-				// user()->validatePrivateKey("after setting public key");
-			}
-
-			// $this->setAesNonce($password_data['aes_nonce']);
+			$this->setPasswordHash($password_data->getPasswordHash());
+			$this->setPublicKey($password_data->getPublicKey());
 			$this->setSignaturePublicKey($password_data->getSignaturePublicKey());
-			if ($print) {
-				// user()->validatePrivateKey("after setting signature public key");
-			}
-
-			/*
-			 * if($print){
-			 * //user()->validatePrivateKey("after setting private key");
-			 * }
-			 */
-
 			$this->setSignaturePrivateKey($password_data->getSignaturePrivateKey());
-			if ($print) {
-				// user()->validatePrivateKey("after setting signature private key");
-			}
-
 			if ($this->hasColumn("sessionRecoveryNonce")) {
 				$this->setSessionRecoveryNonce($password_data->getSessionRecoveryNonce());
-
-				if ($print) {
-					// user()->validatePrivateKey("after setting session recovery nonce");
-				}
 			} elseif ($print) {
 				Debug::print("{$f} this object does not have a session recovery nonce");
 			}
-			// $this->setReceptivity(DATA_MODE_DEFAULT);
-
 			$this->setSignatureSeed($password_data->getSignatureSeed());
 			if ($print) {
 				Debug::print("{$f} returning normally");
 			}
-
 			return SUCCESS;
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function setSessionVariables($mode = LOGIN_TYPE_UNDEFINED)
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
-		try {
-			// Debug::print("{$f} entered");
-			$sd = static::createAuthenticationData($mode);
-			$sd->setUserData($this);
-			$status = $sd->getObjectStatus();
-			// Debug::print("{$f} returning normally");
-			return $status;
-		} catch (Exception $x) {
-			x($f, $x);
-		}
-	}
-
-	public function getNotifications()
-	{
+	public function getNotifications(){
 		return $this->getForeignDataStructureList(NotificationData::getPhylumName());
 	}
 
-	public function getNotificationCount()
-	{
+	public function getNotificationCount(){
 		return $this->getForeignDataStructureCount(NotificationData::getPhylumName());
 	}
 
@@ -922,38 +769,6 @@ abstract class PlayableUser extends UserData
 						$decl = $sub->getDeclarationLine();
 						Debug::error("{$f} push subscription with key {$key} and debug ID {$did} declared {$decl} lacks a user data");
 					}
-					
-					/*
-					 * $signature = $sub->getSignature();
-					 * if(empty($signature)){
-					 * $err = ErrorMessage::getResultMessage(ERROR_NULL_SIGNATURE);
-					 * Debug::warning("{$f} {$err}");
-					 * continue;
-					 * }elseif($print){
-					 * Debug::print("{$f} signature is not null or empty string");
-					 * }
-					 * $len = strlen(($signature));
-					 * if($len !== SODIUM_CRYPTO_SIGN_BYTES){
-					 * Debug::error("{$f} signature \"{$signature}\" is {$len} bytes, when it must be ".SODIUM_CRYPTO_SIGN_BYTES);
-					 * }
-					 * $endpoint = $sub->getPushApiEndpoint();
-					 * if($print){
-					 * Debug::print("{$f} about to verify signed endpoint");
-					 * }
-					 * $verified = $this->verifySignedMessage($signature, $endpoint);
-					 * if(!$verified){
-					 * Debug::warning("{$f} signature failed");
-					 * continue;
-					 * $sub->setObjectStatus(ERROR_SIGNATURE_FAILED);
-					 * //XXX can't delete these right now because password resets require a notification update
-					 * /*$status = $sub->delete($mysqli);
-					 * if($status !== SUCCESS){
-					 * Debug::warning("{$f} failed to delete push subscription data -- got error status \"".ErrorMessage::getResultMessage($status)."\"");
-					 * }*\/
-					 * }elseif($print){
-					 * Debug::print("{$f} verified signature; about to send push note");
-					 * }
-					 */
 					if ($print) {
 						$username = $this->getName();
 						Debug::print("{$f} about to send {$username} a push notification");
@@ -969,65 +784,8 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function writeUpdatedNotificationDeliveryTimestamp($mysqli)
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
-		try {
-			$this->setNotificationDeliveryTimestamp(time());
-			$status = $this->update($mysqli);
-			if ($status !== SUCCESS) {
-				$err = ErrorMessage::getResultMessage($status);
-				Debug::warning("{$f} updating notification delivery timestamp returned error status \"{$err}\"");
-			}
-			return $status;
-		} catch (Exception $x) {
-			x($f, $x);
-		}
-	}
-
-	/**
-	 * returns the sum of all the notification counts for each unread message notification`
-	 *
-	 * @return int
-	 */
-	public function getUnreadMessageCount()
-	{
-		return $this->getColumnValue("unreadMessageCount");
-	}
-
-	public function hasUnreadMessageCount(): bool
-	{
-		return $this->hasColumnValue("unreadMessageCount");
-	}
-
-	public function setUnreadMessageCount(int $value): int
-	{
-		return $this->setColumnValue("unreadMessageCount", $value);
-	}
-
-	/**
-	 *
-	 * @param mysqli $mysqli
-	 * @param NoteworthyInterface $subject
-	 */
-	/*
-	 * public function updateNotificationData($mysqli, $subject){
-	 * $f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-	 * $class = $subject->getNotificationClass();
-	 * $mode = $class::getNotificationUpdateMode();
-	 * switch($mode){
-	 * case NOTIFICATION_MODE_UPDATE_EXISTING:
-	 * return $this->updateExistingNotification($mysqli, $subject);
-	 * case NOTIFICATION_MODE_SEND_NEW:
-	 * return $this->notifyIfWarranted($mysqli, $subject);
-	 * default:
-	 * Debug::error("{$f} invalid notification update mode");
-	 * }
-	 * }
-	 */
-	protected function updateExistingNotification($mysqli, $subject)
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->updateExistingNotification()";
+	protected function updateExistingNotification(mysqli $mysqli, $subject){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if($print){
@@ -1163,9 +921,8 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	protected function afterInsertHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	protected function afterInsertHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$status = parent::afterInsertHook($mysqli);
@@ -1194,8 +951,7 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function getVirtualColumnValue(string $columnName)
-	{
+	public function getVirtualColumnValue(string $columnName){
 		switch ($columnName) {
 			case "deterministicSecretKey":
 				return $this->getDeterministicSecretKey(LOGIN_TYPE_FULL);
@@ -1209,9 +965,8 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function hasVirtualColumnValue(string $column_name): bool
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function hasVirtualColumnValue(string $column_name): bool{
+		$f = __METHOD__;
 		try {
 			switch ($column_name) {
 				case "deterministicSecretKey":
@@ -1231,7 +986,7 @@ abstract class PlayableUser extends UserData
 
 	public function hasDeterministicSecretKey(): bool
 	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 		return false;
 	}
@@ -1242,9 +997,8 @@ abstract class PlayableUser extends UserData
 	 * @param NoteworthyInterface $subject
 	 * @return int
 	 */
-	public final function notifyIfWarranted(mysqli $mysqli, NoteworthyInterface $subject): int
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->notifyIfWarranted()";
+	public final function notifyIfWarranted(mysqli $mysqli, NoteworthyInterface $subject): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if($print){
@@ -1271,16 +1025,10 @@ abstract class PlayableUser extends UserData
 			$mode = $class::getNotificationUpdateMode();
 			switch ($mode) {
 				case NOTIFICATION_MODE_UPDATE_EXISTING:
-					// if(!$subject->getInsertedFlag()){
 					if ($print) {
 						Debug::print("{$f} will attempt to update an existing notification");
 					}
 					return $this->updateExistingNotification($mysqli, $subject);
-				/*
-				 * }elseif($print){
-				 * Debug::print("{$f} we are inserting the subject, will insert a new notification");
-				 * }
-				 */
 				case NOTIFICATION_MODE_SEND_NEW:
 					return $this->notify($mysqli, $subject);
 				default:
@@ -1291,9 +1039,8 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public final function notify(mysqli $mysqli, NoteworthyInterface $subject): int
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->notify()";
+	public final function notify(mysqli $mysqli, NoteworthyInterface $subject): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if($print){
@@ -1325,9 +1072,8 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function validatePrivateKey($where): void
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function validatePrivateKey($where): void{
+		$f = __METHOD__;
 		try {
 			$class = static::class;
 			$key = $this->getIdentifierValue();
@@ -1354,9 +1100,8 @@ abstract class PlayableUser extends UserData
 		}
 	}
 
-	public function getArrayMembershipConfiguration($config_id): array
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->" . __METHOD__ . "()";
+	public function getArrayMembershipConfiguration($config_id): array{
+		$f = __METHOD__;
 		$print = false;
 		$config = parent::getArrayMembershipConfiguration($config_id);
 		switch ($config_id) {
@@ -1375,28 +1120,24 @@ abstract class PlayableUser extends UserData
 		return $config;
 	}
 
-	public function hasCacheValue(): bool
-	{
+	public function hasCacheValue(): bool{
 		return isset($this->cacheValue) && is_array($this->cacheValue) && ! empty($this->cacheValue);
 	}
 
-	public function setCacheValue(array $value): array
-	{
+	public function setCacheValue(array $value): array{
 		return $this->cacheValue = $value;
 	}
 
-	public function getCacheValue(): array
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->getCacheValue()";
+	public function getCacheValue(): array{
+		$f = __METHOD__;
 		if (! $this->hasCacheValue()) {
 			Debug::error("{$f} cache value is undefined");
 		}
 		return $this->cacheValue;
 	}
 
-	protected function nullPrivateKeyHook(): int
-	{
-		$f = __METHOD__; //PlayableUser::getShortClass()."(".static::getShortClass().")->nullPrivateKeyHook()";
+	protected function nullPrivateKeyHook(): int{
+		$f = __METHOD__;
 		Debug::error("{$f} private key is null");
 		return FAILURE;
 	}

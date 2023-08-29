@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
@@ -17,13 +18,12 @@ use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionComman
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\DisabledFlagTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\ElementBindableTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\HumanReadableNameTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\ReplicableTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\UpdateFlagBearingTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\ValuedTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayKeyProviderInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\CipherDatum;
 use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\SharedEncryptionSchemeInterface;
@@ -42,7 +42,6 @@ use JulianSeymour\PHPWebApplicationFramework\event\BeforeEjectValueEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\BeforeSetValueEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\BeforeUnsetValueEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\EventListeningTrait;
-use JulianSeymour\PHPWebApplicationFramework\image\ImageData;
 use JulianSeymour\PHPWebApplicationFramework\input\InputElement;
 use JulianSeymour\PHPWebApplicationFramework\json\JsonDatum;
 use JulianSeymour\PHPWebApplicationFramework\query\CollatedTrait;
@@ -78,8 +77,7 @@ use mysqli;
  *
  * @author j
  */
-abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface, SQLInterface, StaticPropertyTypeInterface
-{
+abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface, SQLInterface, StaticPropertyTypeInterface{
 
 	use CollatedTrait;
 	use ColumnNameTrait;
@@ -90,7 +88,6 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	use ElementBindableTrait;
 	use EmbeddableTrait;
 	use EventListeningTrait;
-	use HumanReadableNameTrait;
 	use IndexNameTrait;
 	use IndexTypeTrait;
 	use PermissiveTrait;
@@ -243,9 +240,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 
 	protected abstract function getConstructorParams(): ?array;
 
-	public function __construct($name)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function __construct($name){
+		$f = __METHOD__;
 		parent::__construct();
 		// $this->requirePropertyType("constraints", Constraint::class); //memprof says this is a hog
 		if (! isset($name)) {
@@ -256,8 +252,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		$this->setTrimmableFlag(true);
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"adminInterface", // true => automatically generate an input for this datum in a DefaultForm
 			COLUMN_FILTER_ALWAYS_VALID,
@@ -286,25 +281,21 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		]);
 	}
 
-	public function setAlwaysValidFlag(bool $value = true): bool
-	{
+	public function setAlwaysValidFlag(bool $value = true): bool{
 		return $this->setFlag(COLUMN_FILTER_ALWAYS_VALID, $value);
 	}
 	
-	public function getAlwaysValidFlag(): bool
-	{
+	public function getAlwaysValidFlag(): bool{
 		return $this->getFlag(COLUMN_FILTER_ALWAYS_VALID);
 	}
 	
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
 		return [
 			"constraints" => Constraint::class
 		];
 	}
 
-	public function setDeclaredFlag(bool $value = true): bool
-	{
+	public function setDeclaredFlag(bool $value = true): bool{
 		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
 		$cn = $this->getColumnName();
 		if ($cn === "listedIpAddresses") {
@@ -313,28 +304,23 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->setFlag(COLUMN_FILTER_DECLARED, $value);
 	}
 
-	public function getDeclaredFlag(): bool
-	{
+	public function getDeclaredFlag(): bool{
 		return $this->getFlag(COLUMN_FILTER_DECLARED);
 	}
 
-	public function setUpdateFlag($value = true)
-	{
-		// $f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setUpdateFlag($value = true){
 		if ($this->hasDataStructure()) {
 			$this->getDataStructure()->setUpdateFlag($value);
 		}
 		return $this->setFlag(DIRECTIVE_UPDATE, $value);
 	}
 
-	public final function getArrayKey(int $count)
-	{
+	public final function getArrayKey(int $count):string{
 		return $this->getColumnName();
 	}
 
-	public function hasGenerationClosure(): bool
-	{
-		return isset($this->generationClosure) && $this->generationClosure instanceof Closure;
+	public function hasGenerationClosure(): bool{
+		return isset($this->generationClosure);
 	}
 
 	public function setGenerationClosure(?Closure $closure): ?Closure
@@ -393,9 +379,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	 * @param mixed $next_state
 	 * @return int
 	 */
-	public function eventSource(mysqli $mysqli, $input_token, $previous_state, $next_state): int
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function eventSource(mysqli $mysqli, $input_token, $previous_state, $next_state): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$event_src = new EventSourceData($this, ALLOCATION_MODE_EAGER);
@@ -408,13 +393,6 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 			}
 			$event_src->setCurrentState($next_state);
 			$event_src->setTargetData($this->getDataStructure());
-
-			/*
-			 * if(!$event_src->tableExists($mysqli)){
-			 * $event_src->createTable($mysqli);
-			 * }
-			 */
-
 			$status = $event_src->insert($mysqli);
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
@@ -429,15 +407,13 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		}
 	}
 
-	public function encrypt(?string $scheme): Datum
-	{
+	public function encrypt(?string $scheme): Datum{
 		$this->setEncryptionScheme($scheme);
 		return $this;
 	}
 
-	public function generate(): int
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function generate(): int{
+		$f = __METHOD__;
 		try {
 			$cn = $this->getColumnName();
 			$print = false;
@@ -469,9 +445,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		}
 	}
 
-	public function regenerate(): int
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function regenerate(): int{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->hasRegenerationClosure()) {
 			if ($print) {
@@ -490,14 +465,12 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->generate();
 	}
 
-	public function hasDecryptionKeyName()
-	{
-		return isset($this->decryptionKeyName) && is_string($this->decryptionKeyName) && ! empty($this->decryptionKeyName);
+	public function hasDecryptionKeyName():bool{
+		return isset($this->decryptionKeyName);
 	}
 
-	public function setDecryptionKeyName($n)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setDecryptionKeyName(?string $n):?string{
+		$f = __METHOD__;
 		if ($n == null) {
 			unset($this->decryptionKeyName);
 			return null;
@@ -511,9 +484,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->decryptionKeyName = $n;
 	}
 
-	public function getDecryptionKeyName()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getDecryptionKeyName():string{
+		$f = __METHOD__;
 		if (! $this->hasDecryptionKeyName()) {
 			$name = $this->getColumnName();
 			Debug::error("{$f} transcryption key name is undefined for column \"{$name}\"");
@@ -522,14 +494,12 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->decryptionKeyName;
 	}
 
-	public function hasTranscryptionKeyName()
-	{
-		return isset($this->transcryptionKeyName) && is_string($this->transcryptionKeyName) && ! empty($this->transcryptionKeyName);
+	public function hasTranscryptionKeyName():bool{
+		return isset($this->transcryptionKeyName);
 	}
 
-	public function setTranscryptionKeyName($n)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setTranscryptionKeyName(?string $n):?string{
+		$f = __METHOD__;
 		if ($n == null) {
 			unset($this->transcryptionKeyName);
 			return null;
@@ -543,9 +513,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->transcryptionKeyName = $n;
 	}
 
-	public function getTranscryptionKeyName()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getTranscryptionKeyName(){
+		$f = __METHOD__;
 		if (! $this->hasTranscryptionKeyName()) {
 			$name = $this->getColumnName();
 			Debug::error("{$f} transcryption key name is undefined for column \"{$name}\"");
@@ -554,39 +523,33 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->transcryptionKeyName;
 	}
 
-	public function setDataStructureClass($class)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setDataStructureClass(?string $class):?string{
+		$f = __METHOD__;
 		if (! class_exists($class)) {
 			Debug::error("{$f} class \"{$class}\" does not exist");
 		}
 		return $this->dataStructureClass = $class;
 	}
 
-	protected function hasDataStructureClass()
-	{
+	protected function hasDataStructureClass():bool{
 		return isset($this->dataStructureClass);
 	}
 
-	private function setApoptoticSignalFlag($value = true)
-	{
+	private function setApoptoticSignalFlag(bool $value = true):bool{
 		return $this->setFlag(COLUMN_FILTER_APOPTOTIC, $value);
 	}
 
-	private function getApoptoticSignalFlag()
-	{
+	private function getApoptoticSignalFlag():bool{
 		return $this->getFlag(COLUMN_FILTER_APOPTOTIC);
 	}
 
-	public function setApoptoticSignal($value)
-	{
+	public function setApoptoticSignal($value){
 		$this->setApoptoticSignalFlag(true);
 		return $this->apoptoticSignal = $value;
 	}
 
-	public function hasApoptoticSignal()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->hasApoptoticSignal()";
+	public function hasApoptoticSignal():bool{
+		$f = __METHOD__;
 		$cn = $this->getColumnName();
 		$print = false;
 		if ($print) {
@@ -604,56 +567,47 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return isset($this->apoptoticSignal) || $this->getApoptoticSignalFlag();
 	}
 
-	public function getApoptoticSignal()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getApoptoticSignal(){
+		$f = __METHOD__;
 		if (! $this->hasApoptoticSignal()) {
 			Debug::error("{$f} apoptotic signal is undefined");
 		}
 		return $this->apoptoticSignal;
 	}
 
-	public function clearApoptoticSignal()
-	{
+	public function clearApoptoticSignal(){
 		unset($this->apoptoticSignal);
 		$this->setFlag(COLUMN_FILTER_APOPTOTIC, false);
 	}
 
-	public function setTrimmableFlag(bool $value = true): bool
-	{
+	public function setTrimmableFlag(bool $value = true): bool{
 		return $this->setFlag(COLUMN_FILTER_TRIMMABLE, $value);
 	}
 
-	public function getTrimmableFlag(): bool
-	{
+	public function getTrimmableFlag(): bool{
 		return $this->getFlag(COLUMN_FILTER_TRIMMABLE);
 	}
 
-	public function setIndexFlag(bool $value = true): bool
-	{
+	public function setIndexFlag(bool $value = true): bool{
 		return $this->setFlag(COLUMN_FILTER_INDEX, $value);
 	}
 
-	public function getIndexFlag(): bool
-	{
+	public function getIndexFlag(): bool{
 		return $this->getFlag(COLUMN_FILTER_INDEX);
 	}
 
-	public function index(bool $value = true): Datum
-	{
+	public function index(bool $value = true): Datum{
 		$this->setIndexFlag($value);
 		return $this;
 	}
 
-	protected function beforeEjectValueHook()
-	{
+	protected function beforeEjectValueHook():int{
 		$this->dispatchEvent(new BeforeEjectValueEvent());
 		return SUCCESS;
 	}
 
-	public function ejectValue()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function ejectValue(){
+		$f = __METHOD__;
 		$name = $this->getColumnName();
 		$print = false;
 		if ($this->hasValue()) {
@@ -679,60 +633,51 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return null;
 	}
 
-	protected function afterEjectValueHook($v)
-	{
+	protected function afterEjectValueHook($v):int{
 		$this->dispatchEvent(new AfterEjectValueEvent($v));
 		return SUCCESS;
 	}
 
-	public function configureArrayMembership($value)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function configureArrayMembership($value){
+		$f = __METHOD__;
 		if (! is_bool($value)) {
 			Debug::error("{$f} only foreign key datums can configure array membership");
 		}
 		return $this->setArrayMembershipFlag($value);
 	}
 
-	public function isSearchable():bool
-	{
+	public function isSearchable():bool{
 		return $this->getFlag(COLUMN_FILTER_SEARCHABLE);
 	}
 
-	public function setSearchable(bool $value = true):bool
-	{
+	public function setSearchable(bool $value = true):bool{
 		return $this->setFlag(COLUMN_FILTER_SEARCHABLE, $value);
 	}
 
-	public function setProcessValuelessInputFlag(bool $value = true):bool
-	{
+	public function setProcessValuelessInputFlag(bool $value = true):bool{
 		return $this->setFlag("processValuelessInput", $value);
 	}
 
-	public function getProcessValuelessInputFlag()
-	{
+	public function getProcessValuelessInputFlag():bool{
 		return $this->getFlag("processValuelessInput");
 	}
 
-	public function setArrayMembershipFlag(bool $value): bool
-	{
+	public function setArrayMembershipFlag(bool $value): bool{
 		if ($this->getNeverLeaveServer()) {
 			return false;
 		}
 		return $this->setFlag(COLUMN_FILTER_ARRAY_MEMBER, $value);
 	}
 
-	public function getArrayMembershipFlag():bool
-	{
+	public function getArrayMembershipFlag():bool{
 		if ($this->getNeverLeaveServer()) { // note: sensitive data can still be converted to array because the backup server needs them
 			return false;
 		}
 		return $this->getFlag(COLUMN_FILTER_ARRAY_MEMBER);
 	}
 
-	public function copy(Datum $that): int
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function copy(Datum $that): int{
+		$f = __METHOD__;
 		$print = false;
 		if ($that->hasFlags()) { // XXX should not be copying flags
 			foreach ($that->declareFlags() as $flag) {
@@ -760,26 +705,18 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return SUCCESS;
 	}
 
-	/*
-	 * public function getEncryptionScheme(){
-	 * return $this->encryptionScheme;
-	 * }
-	 */
-	public function setValueFromSuperglobalArray($value)
-	{
+	public function setValueFromSuperglobalArray($value){
 		$parsed = $this->parseValueFromSuperglobalArray($value);
 		return $this->setValue($parsed);
 	}
 
-	public function announceYourself()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function announceYourself():void{
+		$f = __METHOD__;
 		Debug::print("{$f} my name is \"" . $this->getColumnName() . "\"");
 	}
 
-	public function getDataStructureKey()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getDataStructureKey(){
+		$f = __METHOD__;
 		try {
 			if (! $this->hasDataStructure()) {
 				Debug::error("{$f} row data object is undefined");
@@ -793,8 +730,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		}
 	}
 
-	public function validate($v): int
-	{
+	public function validate($v): int{
 		$f = __METHOD__;
 		$print = false;
 		if ($this->hasValidationClosure()) {
@@ -814,18 +750,16 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return static::validateStatic($v);
 	}
 
-	public function setOriginalValue($value)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setOriginalValue($value){
+		$f = __METHOD__;
 		if (! $this->getRetainOriginalValueFlag()) {
 			Debug::error("{$f} retain original value flag is undefined");
 		}
 		return $this->originalValue = $value;
 	}
 
-	public function getOriginalValue()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getOriginalValue(){
+		$f = __METHOD__;
 		if (! $this->getRetainOriginalValueFlag()) {
 			$cn = $this->getColumnName();
 			$dsc = $this->getDataStructureClass();
@@ -836,9 +770,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->originalValue;
 	}
 
-	public function hasOriginalValue()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function hasOriginalValue():bool{
+		$f = __METHOD__;
 		$column_name = $this->getColumnName();
 		$print = false;
 		if ($this->getRetainOriginalValueFlag()) {
@@ -857,9 +790,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return false;
 	}
 
-	public final function setValueFromQueryResult($raw)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public final function setValueFromQueryResult($raw){
+		$f = __METHOD__;
 		try {
 			$vn = $this->getColumnName();
 			$print = false;
@@ -886,37 +818,31 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		}
 	}
 
-	public function setRetainOriginalValueFlag($value = true)
-	{
+	public function setRetainOriginalValueFlag(bool $value = true):bool{
 		return $this->setFlag(COLUMN_FILTER_RETAIN_ORIGINAL_VALUE, $value);
 	}
 
-	public function getRetainOriginalValueFlag()
-	{
+	public function getRetainOriginalValueFlag():bool{
 		return $this->getFlag(COLUMN_FILTER_RETAIN_ORIGINAL_VALUE);
 	}
 
-	public function retainOriginalValue(bool $value = true): Datum
-	{
+	public function retainOriginalValue(bool $value = true): Datum{
 		$this->setRetainOriginalValueFlag($value);
 		return $this;
 	}
 
-	public function getDataStructureClass()
-	{
+	public function getDataStructureClass(){
 		if ($this->hasDataStructureClass()) {
 			return $this->dataStructureClass;
 		}
 		return $this->getDataStructure()->getClass();
 	}
 
-	public function setSensitiveFlag($v)
-	{
+	public function setSensitiveFlag(bool $v=true):bool{
 		return $this->setFlag(COLUMN_FILTER_SENSITIVE, $v);
 	}
 
-	public function getSensitiveFlag()
-	{
+	public function getSensitiveFlag():bool{
 		return $this->getFlag(COLUMN_FILTER_SENSITIVE);
 	}
 
@@ -956,19 +882,16 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return static::getDatabaseEncodedValueStatic($value);
 	}
 
-	public static function getDatabaseEncodedValueStatic($value)
-	{
+	public static function getDatabaseEncodedValueStatic($value){
 		return $value;
 	}
 
-	public function getIdentifierValue()
-	{
+	public function getIdentifierValue(){
 		return $this->getValue();
 	}
 
-	public function replicate()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function replicate(){
+		$f = __METHOD__;
 		$status = $this->beforeReplicateHook();
 		if ($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
@@ -991,9 +914,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $replica;
 	}
 
-	public function getSelectOperatorAndIncrement($value)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSelectOperatorAndIncrement($value){
+		$f = __METHOD__;
 		try {
 			if ($value === null) {
 				if (! $this->isNullable()) {
@@ -1016,25 +938,21 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	 * @param mixed $v
 	 * @return NULL|ValueReturningCommandInterface
 	 */
-	public function setIdentifierValue($v)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setIdentifierValue($v){
+		$f = __METHOD__;
 		Debug::printStackTrace("{$f} what is this used for?");
 		return $this->setValue($v);
 	}
 
-	public function getUserWritableFlag()
-	{
+	public function getUserWritableFlag():bool{
 		return $this->getFlag("userWritable");
 	}
 
-	public function setUserWritableFlag($v)
-	{
+	public function setUserWritableFlag(bool $v=true):bool{
 		return $this->setFlag("userWritable", $v);
 	}
 
-	public function cast($v)
-	{
+	public function cast($v){
 		return $v;
 	}
 
@@ -1043,14 +961,12 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	 *
 	 * @return int
 	 */
-	public function initializeLinkedData()
-	{
+	public function initializeLinkedData(){
 		return SUCCESS;
 	}
 
-	public function getCipherColumn(): ?CipherDatum
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getCipherColumn(): ?CipherDatum{
+		$f = __METHOD__;
 		try {
 			if (! $this->hasDataStructure()) {
 				Debug::error("{$f} data structure is undefined");
@@ -1070,8 +986,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		}
 	}
 
-	private function pushMirrorIndex($column_name)
-	{
+	private function pushMirrorIndex(string $column_name):string{
 		if (! is_array($this->mirrorIndices)) {
 			$this->mirrorIndices = [];
 		} elseif (array_key_exists($column_name, $this->mirrorIndices)) {
@@ -1080,8 +995,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->mirrorIndices[$column_name] = $column_name;
 	}
 
-	public function mirrorAtIndex($column_name)
-	{
+	public function mirrorAtIndex($column_name){
 		$class = static::class;
 		$mirror = new $class($column_name);
 		$mirror->setPersistenceMode($this->getPersistenceMode());
@@ -1089,14 +1003,12 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $mirror;
 	}
 
-	private function hasMirrorIndices()
-	{
+	private function hasMirrorIndices(){
 		return is_array($this->mirrorIndices) && ! empty($this->mirrorIndices);
 	}
 
-	private function setMirroredValues($v)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	private function setMirroredValues($v){
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasMirrorIndices()) { // empty($this->mirrorIndices)){
 			if ($print) {
@@ -1229,7 +1141,9 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 				if ($this->hasDataStructure()) {
 					$ds = $this->getDataStructure();
 					$dsc = $ds->getClass();
-					Debug::print("{$f} data structure class is \"{$dsc}\"");
+					$did = $ds->getDebugId();
+					$decl = $ds->getDeclarationLine();
+					Debug::print("{$f} data structure of class \"{$dsc}\" with debug ID {$did} was instantiated {$decl}");
 				}
 			}
 			$this->dispatchEvent(new BeforeSetValueEvent($v));
@@ -1648,7 +1562,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 					if ($this->value !== null && $this->value !== "") {
 						Debug::print("{$f} yes, value of \"{$vn}\" is non-null and not empty string");
 					} else {
-						Debug::print("{$f} no, value of \"{$vn}\" is null or empty string");
+						$decl = $this->hasDataStructure() ? $this->getDataStructure()->getDeclarationLine() : "[unavailable]";
+						Debug::print("{$f} no, value of \"{$vn}\" is null or empty string. Data structure was instantiated {$decl}");
 					}
 				}
 				return isset($this->value) && $this->value !== null && $this->value !== "";
@@ -1768,10 +1683,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->generatedAlwaysAsExpression = $expression;
 	}
 
-	public function hasGeneratedAlwaysAsExpression()
-	{
+	public function hasGeneratedAlwaysAsExpression(){
 		return isset($this->generatedAlwaysAsExpression);
-		// && $this->generatedAlwaysAsExpression instanceof ExpressionCommand;
 	}
 
 	public function getGeneratedAlwaysAsExpression(){
@@ -1782,8 +1695,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->generatedAlwaysAsExpression;
 	}
 
-	public function generatedAlwaysAs($expression)
-	{
+	public function generatedAlwaysAs($expression){
 		$this->setGeneratedAlwaysAsExpression($expression);
 		return $this;
 	}
@@ -1880,9 +1792,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	 *
 	 * @return IndexDefinition
 	 */
-	public function generateIndexDefinition()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function generateIndexDefinition(){
+		$f = __METHOD__;
 		try {
 			$cn = $this->getColumnName();
 			if ($this->hasIndexName()) {
@@ -1916,15 +1827,13 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		}
 	}
 
-	public function canHaveDefaultValue(): bool
-	{
+	public function canHaveDefaultValue(): bool{
 		return ! ($this instanceof BlobDatum || $this instanceof JsonDatum || $this instanceof TextDatum || $this instanceof GeometryDatum);
 	}
 
 	// XXX missing reference definition
-	public function toSQL(): string
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function toSQL(): string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$string = back_quote($this->getColumnName()) . " " . $this->getColumnTypeString();
@@ -2033,18 +1942,15 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		}
 	}
 
-	public function isComparable()
-	{
+	public function isComparable(){
 		return true;
 	}
 
-	public function isRewritable()
-	{
+	public function isRewritable(){
 		return $this->getFlag(COLUMN_FILTER_REWRITABLE);
 	}
 
-	public function setRewritableFlag($value = true)
-	{
+	public function setRewritableFlag($value = true){
 		return $this->setFlag(COLUMN_FILTER_REWRITABLE, $value);
 	}
 
@@ -2054,9 +1960,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	 * @param string[] $filters
 	 * @return boolean
 	 */
-	public function applyFilter(...$filters): bool
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function applyFilter(...$filters): bool{
+		$f = __METHOD__;
 		try {
 			$column_name = $this->getColumnName();
 			// $ds = $this->getDataStructure();
@@ -2162,8 +2067,23 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 					case COLUMN_FILTER_CREATE_TABLE:
 						if ($this->getDataStructure() instanceof EmbeddedData) {
 							$pass = ! $this instanceof VirtualDatum && ($pm === PERSISTENCE_MODE_EMBEDDED || $pm === PERSISTENCE_MODE_DATABASE);
+							if($print){
+								Debug::print("{$f} data structure is embedded");
+							}
 						} else {
+							if($print){
+								Debug::print("{$f} data structure is NOT embedded");
+							}
 							$pass = ! $this instanceof VirtualDatum && $pm === PERSISTENCE_MODE_DATABASE;
+						}
+						if($print){
+							if($pass){
+								Debug::print("{$f} filter satisfied");
+							}elseif($this instanceof VirtualDatum){
+								Debug::print("{$f} filter failed because this is a virtual datum");
+							}else{
+								Debug::print("{$f} filter failed due to ".Debug::getPersistenceModeString($pm)." persistence mode");
+							}
 						}
 						break;
 					/*
@@ -2186,7 +2106,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 						$pass = $this->hasDefaultValue();
 						break;
 					case COLUMN_FILTER_DIRTY_CACHE:
-						$pass = $this->getFlag(COLUMN_FILTER_DIRTY_CACHE);
+						$pass = $this->getFlag(COLUMN_FILTER_DIRTY_CACHE) && $pm !== COLUMN_FILTER_VOLATILE;
 						break;
 					case COLUMN_FILTER_RECURSIVE_DELETE:
 						$pass = $this instanceof ForeignKeyDatumInterface && $this->getRecursiveDeleteFlag();
@@ -2369,7 +2289,9 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 							if ($print) {
 								Debug::print("{$f} filter is a datum class");
 								if ($this instanceof $filter) {
-									Debug::print("{$f} yes, this is a {$filter}");
+									Debug::print("{$f} yes, column {$column_name} is a {$filter}");
+								}else{
+									Debug::print("{$f} no, column {$column_name} of class ".$this->getClass()." is not a {$filter}");
 								}
 							}
 							$pass = $this instanceof $filter;
@@ -2410,29 +2332,24 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		}
 	}
 
-	public function seal(bool $value = true): Datum
-	{
+	public function seal(bool $value = true): Datum{
 		$this->setSealedFlag($value);
 		return $this;
 	}
 
-	public function setSealedFlag(bool $value = true): bool
-	{
+	public function setSealedFlag(bool $value = true): bool{
 		return $this->setFlag(COLUMN_FILTER_SEALED, $value);
 	}
 
-	public function getSealedFlag(): bool
-	{
+	public function getSealedFlag(): bool{
 		return $this->getFlag(COLUMN_FILTER_SEALED);
 	}
 
-	public function hasAliasExpression(): bool
-	{
-		return isset($this->aliasExpression) && (is_string($this->aliasExpression) || $this->aliasExpression instanceof SelectStatement);
+	public function hasAliasExpression(): bool{
+		return isset($this->aliasExpression);
 	}
 
-	public function setAliasExpression($st)
-	{
+	public function setAliasExpression($st){
 		if ($st == null) {
 			unset($this->aliasExpression);
 			return null;
@@ -2441,20 +2358,17 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->aliasExpression = $st;
 	}
 
-	public function alias($st): Datum
-	{
+	public function alias($st): Datum{
 		$this->setAliasExpression($st);
 		return $this;
 	}
 
-	public function hasSubqueryWhereCondition(): bool
-	{
-		return isset($this->subqueryWhereCondition) && (is_string($this->subqueryWhereCondition) || $this->subqueryWhereCondition instanceof WhereConditionalInterface || $this->subqueryWhereCondition instanceof BinaryExpressionCommand);
+	public function hasSubqueryWhereCondition(): bool{
+		return isset($this->subqueryWhereCondition);
 	}
 
-	public function getSubqueryWhereCondition()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryWhereCondition(){
+		$f = __METHOD__;
 		if (! $this->hasSubqueryWhereCondition()) {
 			$name = $this->getColumnName();
 			$decl = $this->getDeclarationLine();
@@ -2463,8 +2377,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryWhereCondition;
 	}
 
-	public function setSubqueryWhereCondition($where)
-	{
+	public function setSubqueryWhereCondition($where){
 		if ($where == null) {
 			unset($this->subqueryWhereCondition);
 			return null;
@@ -2473,13 +2386,11 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryWhereCondition = $where;
 	}
 
-	public function hasSubqueryColumnName(): bool
-	{
-		return isset($this->subqueryColumnName) && is_string($this->subqueryColumnName) && ! empty($this->subqueryColumnName);
+	public function hasSubqueryColumnName(): bool{
+		return isset($this->subqueryColumnName);
 	}
 
-	public function setSubqueryColumnName(?string $sqcn): ?string
-	{
+	public function setSubqueryColumnName(?string $sqcn): ?string{
 		if ($sqcn === null) {
 			unset($this->subqueryColumnName);
 			return null;
@@ -2487,9 +2398,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryColumnName = $sqcn;
 	}
 
-	public function getSubqueryColumnName(): string
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryColumnName(): string{
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasSubqueryColumnName()) {
 			if ($print) {
@@ -2500,9 +2410,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryColumnName;
 	}
 
-	public function setSubqueryExpression($expr)
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->setSubqueryExpression()";
+	public function setSubqueryExpression($expr){
+		$f = __METHOD__;
 		if ($expr == null) {
 			unset($this->subqueryExpression);
 			return null;
@@ -2511,14 +2420,12 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryExpression = $expr;
 	}
 
-	public function hasSubqueryExpression(): bool
-	{
-		return isset($this->subqueryExpression) && (is_string($this->subqueryExpression) || $this->subqueryExpression instanceof Command);
+	public function hasSubqueryExpression(): bool{
+		return isset($this->subqueryExpression);
 	}
 
-	public function getSubqueryExpression()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryExpression(){
+		$f = __METHOD__;
 		$print = false;
 		$name = $this->getColumnName();
 		if (! $this->hasSubqueryExpression()) {
@@ -2535,9 +2442,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryExpression;
 	}
 
-	public function setSubqueryClass(?string $class): ?string
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setSubqueryClass(?string $class): ?string{
+		$f = __METHOD__; 
 		if ($class == null) {
 			unset($this->subqueryClass);
 			return null;
@@ -2547,27 +2453,23 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryClass = $class;
 	}
 
-	public function hasSubqueryClass(): bool
-	{
-		return isset($this->subqueryClass) && is_string($this->subqueryClass) && ! empty($this->subqueryClass) && class_exists($this->subqueryClass);
+	public function hasSubqueryClass(): bool{
+		return isset($this->subqueryClass);
 	}
 
-	public function getSubqueryClass(): string
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryClass(): string{
+		$f = __METHOD__;
 		if (! $this->hasSubqueryClass()) {
 			Debug::error("{$f} subquery class is undefined");
 		}
 		return $this->subqueryClass;
 	}
 
-	public function hasSubqueryDatabaseName(): bool
-	{
-		return isset($this->subqueryDatabaseName) && is_string($this->subqueryDatabaseName);
+	public function hasSubqueryDatabaseName(): bool{
+		return isset($this->subqueryDatabaseName);
 	}
 
-	public function setSubqueryDatabaseName(?string $db): ?string
-	{
+	public function setSubqueryDatabaseName(?string $db): ?string{
 		if ($db == null) {
 			unset($this->subqueryDatabaseName);
 			return null;
@@ -2575,9 +2477,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryDatabaseName = $db;
 	}
 
-	public function getSubqueryDatabaseName(): string
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryDatabaseName(): string{
+		$f = __METHOD__;
 		if ($this->hasSubqueryDatabaseName()) {
 			return $this->subqueryDatabaseName;
 		} elseif ($this->hasSubqueryClass()) {
@@ -2586,13 +2487,11 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		Debug::error("{$f} subquery database name and class are undefined");
 	}
 
-	public function hasSubqueryTableName(): bool
-	{
-		return isset($this->subqueryTableName) && is_string($this->subqueryTableName);
+	public function hasSubqueryTableName(): bool{
+		return isset($this->subqueryTableName);
 	}
 
-	public function setSubqueryTableName(?string $db): ?string
-	{
+	public function setSubqueryTableName(?string $db): ?string{
 		if ($db == null) {
 			unset($this->subqueryTableName);
 			return null;
@@ -2600,9 +2499,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryTableName = $db;
 	}
 
-	public function getSubqueryTableName(): string
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryTableName(): string{
+		$f = __METHOD__;
 		if ($this->hasSubqueryTableName()) {
 			return $this->subqueryTableName;
 		} elseif ($this->hasSubqueryClass()) {
@@ -2611,20 +2509,17 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		Debug::error("{$f} subquery table name and class are undefined");
 	}
 
-	public function getFullSubqueryTableName(): string
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->getFullSubqueryTableName()";
+	public function getFullSubqueryTableName(): string{
+		$f = __METHOD__;
 		ErrorMessage::deprecated($f);
 		return $this->getSubqueryDatabaseName() . "." . $this->getSubqueryTableName();
 	}
 
-	public function hasSubqueryTableAlias(): bool
-	{
-		return isset($this->subqueryTableAlias) && is_string($this->subqueryTableAlias) && ! empty($this->subqueryTableAlias);
+	public function hasSubqueryTableAlias(): bool{
+		return isset($this->subqueryTableAlias);
 	}
 
-	public function setSubqueryTableAlias(?string $alias): ?string
-	{
+	public function setSubqueryTableAlias(?string $alias): ?string{
 		if ($alias == null) {
 			unset($this->subqueryTableAlias);
 			return null;
@@ -2632,21 +2527,18 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryTableAlias = $alias;
 	}
 
-	public function getSubqueryTableAlias(): string
-	{
+	public function getSubqueryTableAlias(): string{
 		if ($this->hasSubqueryTableAlias()) {
 			return $this->subqueryTableAlias;
 		}
 		return $this->getSubqueryTableName() . "_alias";
 	}
 
-	public function hasSubqueryOrderBy(): bool
-	{
-		return isset($this->subqueryOrderBy) && is_array($this->subqueryOrderBy) && ! empty($this->subqueryOrderBy);
+	public function hasSubqueryOrderBy(): bool{
+		return isset($this->subqueryOrderBy);
 	}
 
-	public function setSubqueryOrderBy($ob): ?array
-	{
+	public function setSubqueryOrderBy($ob): ?array{
 		if ($ob == null) {
 			unset($this->subqueryOrderBy);
 			return null;
@@ -2658,31 +2550,27 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryOrderBy = $ob;
 	}
 
-	public function getSubqueryOrderBy(): array
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryOrderBy(): array{
+		$f = __METHOD__;
 		if (! $this->hasSubqueryOrderBy()) {
 			Debug::error("{$f} subquery order by is undefined");
 		}
 		return $this->subqueryOrderBy;
 	}
 
-	public function hasSubqueryLimit(): bool
-	{
-		return isset($this->subqueryLimit) && is_int($this->subqueryLimit);
+	public function hasSubqueryLimit(): bool{
+		return isset($this->subqueryLimit);
 	}
 
-	public function getSubqueryLimit(): int
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryLimit(): int{
+		$f = __METHOD__;
 		if (! $this->hasSubqueryLimit()) {
 			Debug::error("{$f} subquery limit is undefined");
 		}
 		return $this->subqueryLimit;
 	}
 
-	public function setSubqueryLimit(?int $limit): ?int
-	{
+	public function setSubqueryLimit(?int $limit): ?int{
 		if ($limit == null) {
 			unset($this->subqueryLimit);
 			return null;
@@ -2690,26 +2578,23 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryLimit = $limit;
 	}
 
-	public function hasSubqueryParameters(): bool
-	{
-		return isset($this->subqueryParameters) && is_array($this->subqueryParameters) && ! empty($this->subqueryParameters);
+	public function hasSubqueryParameters(): bool{
+		return isset($this->subqueryParameters);
 	}
 
-	public function getSubqueryParameters(): array
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryParameters(): array{
+		$f = __METHOD__;
 		if (! $this->hasSubqueryParameters()) {
 			Debug::error("{$f} subquery parameters are undefined");
 		}
 		return $this->subqueryParameters;
 	}
 
-	public function setSubqueryParameters($params): ?array
-	{
+	public function setSubqueryParameters($params): ?array{
 		if ($params == null) {
 			unset($this->subqueryParameters);
 			return null;
-		} elseif (! is_arraY($params)) {
+		} elseif (! is_array($params)) {
 			$params = [
 				$params
 			];
@@ -2717,13 +2602,11 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryParameters = $params;
 	}
 
-	public function hasSubqueryTypeSpecifier(): bool
-	{
-		return isset($this->subqueryTypeSpecifier) && is_string($this->subqueryTypeSpecifier) && ! empty($this->subqueryTypeSpecifier);
+	public function hasSubqueryTypeSpecifier(): bool{
+		return isset($this->subqueryTypeSpecifier);
 	}
 
-	public function setSubqueryTypeSpecifier(?string $ts): ?string
-	{
+	public function setSubqueryTypeSpecifier(?string $ts): ?string{
 		if ($ts == null) {
 			unset($this->subqueryTypeSpecifier);
 			return null;
@@ -2731,35 +2614,40 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->subqueryTypeSpecifier = $ts;
 	}
 
-	public function getSubqueryTypeSpecifier(): string
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSubqueryTypeSpecifier(): string{
+		$f = __METHOD__;
 		if ($this->hasSubqueryTypeSpecifier()) {
 			return $this->subqueryTypeSpecifier;
 		} elseif ($this->hasSubqueryClass() && $this->hasSubqueryWhereCondition()) {
-			/*
-			 * return $this->getDataStructure()->getTypeSpecifier(
-			 * $this->getSubqueryWhereCondition()->getConditionalColumnNames()
-			 * );
-			 */
 			return $this->getSubqueryClass()::getTypeSpecifierStatic($this->getSubqueryWhereCondition()->getConditionalColumnNames());
 		}
 		Debug::warning("{$f} explicit type specifier or subquery class and where condition are undefined -- inferring type specifier from parameters");
 		return getTypeSpecifier($this->getSubqueryParameters());
 	}
 
-	public function getAliasExpression()
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		$print = false;
+	public function getAliasExpression(){
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
 		if ($this->hasAliasExpression()) {
+			if($print){
+				Debug::print("{$f} alias expression is already defined");
+			}
 			return $this->aliasExpression;
+		}elseif($print){
+			Debug::print("{$f} alias expression is not already defined, creating one now");
 		}
 		$select = new SelectStatement($this->getSubqueryExpression());
-		$select->withJoinExpressions(TableFactor::create()->withDatabaseName($this->getSubqueryDatabaseName())
-			->withTableName($this->getSubqueryTableName())
-			->as($this->getSubqueryTableAlias()))
-			->where($this->getSubqueryWhereCondition());
+		$select->withJoinExpressions(
+			TableFactor::create()->withDatabaseName(
+				$this->getSubqueryDatabaseName()
+			)->withTableName(
+				$this->getSubqueryTableName()
+			)->as(
+				$this->getSubqueryTableAlias()
+			)
+		)->where(
+			$this->getSubqueryWhereCondition()
+		);
 		if ($this->hasSubqueryOrderBy()) {
 			$select->setOrderBy(...$this->getSubqueryOrderBy());
 		}
@@ -2767,8 +2655,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 			$select->limit($this->getSubqueryLimit());
 		}
 		if ($this->hasSubqueryParameters()) {
-			$select->withTypeSpecifier($this->getSubqueryTypeSpecifier())
-				->withParameters($this->getSubqueryParameters());
+			$select->withTypeSpecifier($this->getSubqueryTypeSpecifier())->withParameters($this->getSubqueryParameters());
 		} elseif ($print) {
 			$decl = $this->getDeclarationLine();
 			Debug::print("{$f} no subquery parameters. Instantiated {$decl}");
@@ -2776,13 +2663,11 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $select;
 	}
 
-	public function hasColumnAlias(): bool
-	{
+	public function hasColumnAlias(): bool{
 		return isset($this->columnAlias);
 	}
 
-	public function setColumnAlias($alias)
-	{
+	public function setColumnAlias($alias){
 		if ($alias == null) {
 			unset($this->columnAlias);
 			return null;
@@ -2790,37 +2675,31 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->columnAlias = $alias;
 	}
 
-	public function getColumnAlias(): ColumnAlias
-	{
+	public function getColumnAlias(): ColumnAlias{
 		if ($this->hasColumnAlias()) {
 			return $this->columnAlias;
 		}
 		return new ColumnAlias($this->getAliasExpression(), $this->getColumnName());
 	}
 
-	public function getPrimaryKeyFlag()
-	{
+	public function getPrimaryKeyFlag():bool{
 		return $this->getFlag(COLUMN_FILTER_PRIMARY_KEY);
 	}
 
-	public function setDirtyCacheFlag(bool $value = true): bool
-	{
+	public function setDirtyCacheFlag(bool $value = true): bool{
 		return $this->setFlag(COLUMN_FILTER_DIRTY_CACHE, $value);
 	}
 
-	public function getDirtyCacheFlag(): bool
-	{
+	public function getDirtyCacheFlag(): bool{
 		return $this->getFlag(COLUMN_FILTER_DIRTY_CACHE);
 	}
 
-	public function recache(bool $value = true): Datum
-	{
+	public function recache(bool $value = true): Datum{
 		$this->setDirtyCacheFlag($value);
 		return $this;
 	}
 
-	public function setReferenceColumn(?ForeignKeyDatum $column): ?ForeignKeyDatum
-	{
+	public function setReferenceColumn(?ForeignKeyDatum $column): ?ForeignKeyDatum{
 		if ($column == null) {
 			unset($this->referenceColumn);
 			return null;
@@ -2828,22 +2707,19 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->referenceColumn = $column;
 	}
 
-	public function hasReferenceColumn(): bool
-	{
-		return isset($this->referenceColumn) && $this->referenceColumn instanceof ForeignKeyDatum;
+	public function hasReferenceColumn(): bool{
+		return isset($this->referenceColumn);
 	}
 
-	public function getReferenceColumn(): ForeignKeyDatum
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->getReferenceColumn()";
+	public function getReferenceColumn(): ForeignKeyDatum{
+		$f = __METHOD__;
 		if (! $this->hasReferenceColumn()) {
 			Debug::error("{$f} reference column is undefined");
 		}
 		return $this->referenceColumn;
 	}
 
-	public function setReferenceColumnName(?string $rcn): ?string
-	{
+	public function setReferenceColumnName(?string $rcn): ?string{
 		if ($rcn == null) {
 			unset($this->referenceColumnName);
 			return null;
@@ -2851,14 +2727,12 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->referenceColumnName = $rcn;
 	}
 
-	public function hasReferenceColumnName(): bool
-	{
-		return isset($this->referenceColumnName) && is_string($this->referenceColumnName) && ! empty($this->referenceColumnName) || $this->hasReferenceColumn();
+	public function hasReferenceColumnName(): bool{
+		return isset($this->referenceColumnName);
 	}
 
-	public function getReferenceColumnName(): string
-	{
-		$f = __METHOD__; //Datum::getShortClass()."(".static::getShortClass().")->getReferenceColumnName()";
+	public function getReferenceColumnName(): string{
+		$f = __METHOD__;
 		if (! $this->hasReferenceColumnName()) {
 			Debug::error("{$f} reference column name is undefined");
 		} elseif ($this->hasReferenceColumn()) {
@@ -2867,8 +2741,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->referenceColumnName;
 	}
 
-	public function antialias(int $persistence_mode = PERSISTENCE_MODE_DATABASE): Datum
-	{
+	public function antialias(int $persistence_mode = PERSISTENCE_MODE_DATABASE): Datum{
 		unset($this->columnAlias);
 		unset($this->subqueryClass);
 		unset($this->subqueryColumnName);
@@ -2885,8 +2758,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this;
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->apoptoticSignal);
 		unset($this->properties);

@@ -35,65 +35,52 @@ class PinNotificationUseCase extends InteractiveUseCase
 		];
 	}
 
-	public function getConditionalProcessedFormClasses(): ?array
-	{
+	public function getConditionalProcessedFormClasses(): ?array{
 		return [
 			PinNotificationForm::class
 		];
 	}
 
-	public function getProcessedDataType(): ?string
-	{
+	public function getProcessedDataType(): ?string{
 		return DATATYPE_NOTIFICATION;
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getProcessedFormClass(): ?string
-	{
+	public function getProcessedFormClass(): ?string{
 		return PinNotificationForm::class;
 	}
 
-	public function getDataOperandClass(): ?string
-	{
+	public function getDataOperandClass(): ?string{
 		return RetrospectiveNotificationData::class;
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return EnabledAccountTypePermission::class;
 	}
 
-	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData
-	{
+	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData{
 		return user();
 	}
 
-	public static function getNotificationTargetId()
-	{
+	public static function getNotificationTargetId(){
 		return "pin_notification_here";
 	}
 
-	public function getResponder(): ?Responder
-	{
+	public function getResponder(int $status): ?Responder{
+		if($status !== SUCCESS){
+			return parent::getResponder($status);
+		}
 		return new PinNotificationResponder();
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_PIN_NOTIFICATION;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/pin";
 	}
 
-	public function isCurrentUserDataOperand(): bool
-	{
+	public function isCurrentUserDataOperand(): bool{
 		return true;
 	}
 }

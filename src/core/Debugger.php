@@ -1,13 +1,13 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\core;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+use function JulianSeymour\PHPWebApplicationFramework\use_case;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use JulianSeymour\PHPWebApplicationFramework\common\FlagBearingTrait;
 
-class Debugger extends Debug
-{
+class Debugger extends Debug{
 
 	use FlagBearingTrait;
 
@@ -15,28 +15,24 @@ class Debugger extends Debug
 
 	protected $logged;
 
-	public static function declareFlags(): array
-	{
+	public static function declareFlags(): array{
 		return [
 			"forbidGuest"
 		];
 	}
 
-	public function hasEnforcedPrivateKey(): bool
-	{
+	public function hasEnforcedPrivateKey(): bool{
 		return isset($this->enforcedPrivateKey) && is_string($this->enforcedPrivateKey) && ! empty($this->enforcedPrivateKey);
 	}
 
-	public function setEnforcedPrivateKey(?string $key): ?string
-	{
+	public function setEnforcedPrivateKey(?string $key): ?string{
 		if ($key === null) {
 			unset($this->enforcedPrivateKey);
 		}
 		return $this->enforcedPrivateKey = $key;
 	}
 
-	public function getEnforcedPrivateKey(): string
-	{
+	public function getEnforcedPrivateKey(): string{
 		$f = __METHOD__;
 		if (! $this->hasEnforcedPrivateKey()) {
 			Debug::error("{$f} enforced private key is undefined");
@@ -44,8 +40,7 @@ class Debugger extends Debug
 		return $this->enforcedPrivateKey;
 	}
 
-	public function enforcePrivateKey(?string $key): Debugger
-	{
+	public function enforcePrivateKey(?string $key): Debugger{
 		$f = __METHOD__;
 		if (! $this->hasEnforcedPrivateKey()) {
 			$this->setEnforcedPrivateKey($key);
@@ -56,8 +51,7 @@ class Debugger extends Debug
 		return $this;
 	}
 
-	public function log(string $s): int
-	{
+	public function log(string $s): int{
 		if (! is_array($this->logged)) {
 			$this->logged = [];
 		}
@@ -65,21 +59,28 @@ class Debugger extends Debug
 		return count($this->logged);
 	}
 
-	public function spew(): void
-	{
+	public function spew(): void{
 		$f = __METHOD__;
 		if (isset($this->logged) && is_array($this->logged) && ! empty($this->logged)) {
 			foreach ($this->logged as $i => $l) {
 				Debug::print("#{$i}: {$l}");
 			}
 		}
+		$string = "";
 		if (app() != null && app()->hasUserData()) {
 			$user = user();
 			$uc = $user->getClass();
 			$key = $user->hasIdentifierValue() ? $user->getIdentifierValue() : "[undefined]";
-			Debug::print("{$f} user is a {$uc} with key \"{$key}\"");
+			$string .= "user is a {$uc} with key \"{$key}\". ";
 		} else {
-			Debug::print("{$f} user data is undefined");
+			$string .= "user data is undefined.";
 		}
+		if(app() != null && app()->hasUseCase()){
+			$uc = use_case();
+			$string .= "Use case is a ".$uc->getShortClass()." declared ".$uc->getDeclarationLine();
+		}else{
+			$string .= "No use case.";
+		}
+		Debug::print("{$f} {$string}");
 	}
 }

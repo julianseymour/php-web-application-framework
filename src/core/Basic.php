@@ -1,8 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\core;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getExecutionTime;
 use function JulianSeymour\PHPWebApplicationFramework\get_file_line;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
@@ -12,13 +13,12 @@ use JulianSeymour\PHPWebApplicationFramework\app\ApplicationRuntime;
 use JulianSeymour\PHPWebApplicationFramework\app\ApplicationConfiguration;
 
 /**
- * This class defines very generic behavior that is used by most classes
+ * This class defines very generic behavior that is used by many derived classes
  *
  * @author j
  *        
  */
-abstract class Basic
-{
+abstract class Basic{
 
 	use FlagBearingTrait;
 	use StatusTrait;
@@ -61,7 +61,7 @@ abstract class Basic
 	}
 
 	public function setDeclarationLine($dl): ?string{
-		$f = __METHOD__; //Basic::getShortClass()."(".static::getShortClass().")->setDeclarationLine()";
+		$f = __METHOD__;
 		if ($dl == null) {
 			unset($this->declarationLine);
 			return null;
@@ -74,7 +74,7 @@ abstract class Basic
 	}
 
 	public function getDeclarationLine(): string{
-		$f = __METHOD__; //Basic::getShortClass()."(".static::getShortClass().")->getDeclarationLine()";
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasDeclarationLine()) {
 			if ($print) {
@@ -111,7 +111,7 @@ abstract class Basic
 		return $this;
 	}
 
-	protected function setDebugId($id){
+	protected function setDebugId(?string $id):?string{
 		return $this->debugId = $id;
 	}
 
@@ -123,8 +123,7 @@ abstract class Basic
 		$this->dispose();
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		$f = __METHOD__;
 		$print = false;
 		if ($print) {
@@ -141,11 +140,14 @@ abstract class Basic
 		unset($this->undeclaredFlags);
 	}
 
-	public function hasDebugId(){
+	public function hasDebugId():bool{
 		return isset($this->debugId);
 	}
 
-	public function getDebugId(){
+	public function getDebugId():string{
+		if(!$this->hasDebugId()){
+			return "[undefined]";
+		}
 		return $this->debugId;
 	}
 

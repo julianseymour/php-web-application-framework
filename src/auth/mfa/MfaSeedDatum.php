@@ -3,7 +3,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\auth\mfa;
 
 use function JulianSeymour\PHPWebApplicationFramework\base32_decode;
 use function JulianSeymour\PHPWebApplicationFramework\base32_encode;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\Base32Datum;

@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\account\group;
 
 use function JulianSeymour\PHPWebApplicationFramework\directive;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\request;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
@@ -82,47 +82,35 @@ class CreateGroupUseCase extends InteractiveUseCase
 		}
 	}
 
-	public function isCurrentUserDataOperand(): bool
-	{
+	public function isCurrentUserDataOperand(): bool{
 		return false;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_CREATE_GROUP;
-	}
-
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getDataOperandClass(): ?string
-	{
+	public function getDataOperandClass(): ?string{
 		return $this->getConditionalDataOperandClass($this->getProcessedDataType());
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return AuthenticatedAccountTypePermission::class;
 	}
 
-	public function getResponder(): ?Responder
-	{
-		$status = $this->getObjectStatus();
+	public function getResponder(int $status): ?Responder{
 		if ($status !== SUCCESS) {
-			return parent::getResponder();
+			return parent::getResponder($status);
 		}
 		switch (directive()) {
 			case DIRECTIVE_INSERT:
 				return new InsertAfterResponder();
 			default:
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 
-	public function getPageContent(): ?array
-	{
+	public function getPageContent(): ?array{
 		$mode = ALLOCATION_MODE_LAZY;
 		$elements = [];
 		if (user()->hasForeignDataStructureList(GroupData::getPhylumName())) {

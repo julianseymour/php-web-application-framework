@@ -7,7 +7,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\paginate\Paginator;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 
 abstract class LoadoutGenerator extends Basic
 {
@@ -46,7 +46,7 @@ abstract class LoadoutGenerator extends Basic
 		return null;
 	}
 
-	public function getRootNodeTreeSelectStatements(?PlayableUser $ds = null, ?UseCase $use_case = null): ?array{
+	public function getRootNodeTreeSelectStatements(?PlayableUser $ds = null, ?UseCase $use_case = null):?array{
 		return null;
 	}
 

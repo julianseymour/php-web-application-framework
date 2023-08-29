@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\where;
 
 use function JulianSeymour\PHPWebApplicationFramework\cache;
@@ -17,8 +18,7 @@ use mysqli;
 use mysqli_result;
 use mysqli_sql_exception;
 
-abstract class WhereConditionalStatement extends QueryStatement implements CacheableInterface, WhereConditionalInterface
-{
+abstract class WhereConditionalStatement extends QueryStatement implements CacheableInterface, WhereConditionalInterface{
 
 	use CacheableTrait;
 	use LimitOffsetTrait;
@@ -31,19 +31,12 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	 */
 	protected $whereCondition;
 
-	public function where(...$wc): WhereConditionalStatement
-	{
+	public function where(...$wc): WhereConditionalStatement{
 		$this->setWhereCondition(...$wc);
 		return $this;
 	}
 
-	/*
-	 * public function getRequiredParameterCount():int{
-	 * return $this->getWhereCondition()->getRequiredParameterCount();
-	 * }
-	 */
-	public function inferParameterCount()
-	{
+	public function inferParameterCount(){
 		if (! $this->hasParameters()) {
 			$count = 0;
 			$wheres = $this->getFlatWhereConditionArray();
@@ -57,8 +50,7 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 		return $this->getParameterCount();
 	}
 
-	public function getConditionalColumnNames(): array
-	{
+	public function getConditionalColumnNames(): array{
 		return $this->getWhereCondition()->getConditionalColumnNames();
 	}
 
@@ -75,9 +67,8 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	 * @param mixed ...$conditions
 	 * @return WhereConditionalInterface|AndCommand|WhereCondition
 	 */
-	public function setWhereCondition(...$conditions)
-	{
-		$f = __METHOD__; //WhereConditionalStatement::getShortClass()."(".static::getShortClass().")->setWhereCondition()";
+	public function setWhereCondition(...$conditions){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$count = count($conditions);
@@ -113,7 +104,6 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 			} else {
 				Debug::error("{$f} none of the above");
 			}
-			// $whereCondition->mySQLFormat();
 			if ($print) {
 				Debug::print("{$f} assigning WhereCondition \"{$whereCondition}\"");
 			}
@@ -123,39 +113,34 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 		}
 	}
 
-	public function getWhereCondition()
-	{
-		$f = __METHOD__; //WhereConditionalStatement::getShortClass()."(".static::getShortClass().")->getWhereCondition()";
+	public function getWhereCondition(){
+		$f = __METHOD__;
 		if (! $this->hasWhereCondition()) {
 			Debug::error("{$f} where condition is undefined");
 		}
 		return $this->whereCondition;
 	}
 
-	public function getFlatWhereConditionArray(): ?array
-	{
+	public function getFlatWhereConditionArray(): ?array{
 		if (! $this->hasWhereCondition()) {
 			return null;
 		}
 		return $this->getWhereCondition()->getFlatWhereConditionArray();
 	}
 
-	public function getSuperflatWhereConditionArray(): ?array
-	{
+	public function getSuperflatWhereConditionArray(): ?array{
 		if (! $this->hasWhereCondition()) {
 			return null;
 		}
 		return $this->getWhereCondition()->getSuperflatWhereConditionArray();
 	}
 
-	public function hasWhereCondition(): bool
-	{
+	public function hasWhereCondition(): bool{
 		return isset($this->whereCondition);
 	}
 
-	public function pushWhereConditionParameters(...$parameters)
-	{
-		$f = __METHOD__; //WhereConditionalStatement::getShortClass()."(".static::getShortClass().")->pushWhereConditionParameters()";
+	public function pushWhereConditionParameters(...$parameters){
+		$f = __METHOD__; 
 		$print = false;
 		if (! $this->hasWhereCondition()) {
 			Debug::error("{$f} don't call this unless the QueryStatement already has a WhereCondition");
@@ -177,52 +162,6 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 		return $this->setWhereCondition($and);
 	}
 
-	public function audit(): int
-	{
-		return $this->getWhereCondition()->audit();
-	}
-
-	/**
-	 * returns the type specifier string minus update parameters (empty string except in UpdateStatement)
-	 */
-	protected function trimConditionalTypeSpecifier($typedef)
-	{
-		return "";
-	}
-
-	protected function trimConditionalParameters($params)
-	{
-		return [];
-	}
-
-	/**
-	 * overridden by UpdateStatement, which also has parameters for the values being updated
-	 *
-	 * @return number
-	 */
-	protected function getUnconditionalParameterCount()
-	{
-		return 0;
-	}
-
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->cacheKey);
-		unset($this->limitCount);
-		unset($this->tableName);
-		unset($this->whereCondition);
-	}
-
-	/*
-	 * public function mySQLFormat(){
-	 * if(!$this->hasWhereCondition()){
-	 * return SUCCESS;
-	 * }
-	 * return $this->getWhereCondition()->mySQLFormat();
-	 * }
-	 */
-
 	/**
 	 *
 	 * @param mysqli $mysqli
@@ -230,9 +169,8 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	 * @param mixed[] $params
 	 * @return NULL|mysqli_result
 	 */
-	public function prepareBindExecuteGetResult($mysqli, $typedef, ...$params)
-	{
-		$f = __METHOD__; //WhereConditionalStatement::getShortClass()."(".static::getShortClass().")->prepareBindExecuteGetResult()";
+	public function prepareBindExecuteGetResult($mysqli, $typedef, ...$params){
+		$f = __METHOD__;
 		try {
 			$print = $this->getDebugFlag();
 			if (empty($mysqli)) {
@@ -276,12 +214,7 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 					Debug::error("{$f} executed statement returned null -- this is only permissible in the case of a failed WhereCondition evaluation");
 				}
 				return null;
-			} /*
-			   * elseif($print){
-			   * Debug::print("{$f} successfully executed prepared query \"{$query_string}\"");
-			   * }
-			   */
-			if ($result = $st->get_result()) {
+			}elseif ($result = $st->get_result()) {
 				if ($print) {
 					Debug::print("{$f} successfully got result of prepared query statement {$this}");
 				}
@@ -298,7 +231,6 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 					Debug::print("{$f} no results for query {$this} with the following parameters:");
 					Debug::printArray($params);
 				}
-
 				return $result;
 			}
 			Debug::error("{$f} failed to get result of prepared query statement: \"{$st->error}\"");
@@ -317,9 +249,8 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	 * @param string $query
 	 * @return mysqli_result
 	 */
-	public function executeGetResult($mysqli)
-	{
-		$f = __METHOD__; //WhereConditionalStatement::getShortClass()."(".static::getShortClass().")->executeGetResult()";
+	public function executeGetResult($mysqli){
+		$f = __METHOD__;
 		try {
 			$print = $this->getDebugFlag();
 			if ($this->hasParameters() && $this->hasTypeSpecifier()) {
@@ -346,12 +277,9 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	 * @param mixed[] $params
 	 * @return NULL|int
 	 */
-	public function prepareBindExecuteGetResultCount(mysqli $mysqli, string $typedef, ...$params): ?int
-	{
-		$f = __METHOD__; //WhereConditionalStatement::getShortClass()."(".static::getShortClass().")->prepareBindExecuteGetResultCount()";
+	public function prepareBindExecuteGetResultCount(mysqli $mysqli, string $typedef, ...$params): ?int{
+		$f = __METHOD__;
 		try {
-			// Debug::printStackTraceNoExit("{$f} use count(*) instead");
-			// ErrorMessage::deprecated($f);
 			$print = $this->getDebugFlag();
 			if ($print) {
 				Debug::print("{$f} about to get result count for query \"{$this}\" with type specifier string \"{$typedef}\" and the following parameters:");

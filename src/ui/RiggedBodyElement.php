@@ -1,12 +1,15 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\config;
+use function JulianSeymour\PHPWebApplicationFramework\getlocale;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\use_case;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\app\Request;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -20,7 +23,6 @@ use JulianSeymour\PHPWebApplicationFramework\security\xsrf\AntiXsrfTokenContaine
 use JulianSeymour\PHPWebApplicationFramework\session\timeout\SessionTimeoutOverlay;
 use JulianSeymour\PHPWebApplicationFramework\ui\infobox\InfoBoxElement;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 
 class RiggedBodyElement extends BodyElement{
 
@@ -28,8 +30,7 @@ class RiggedBodyElement extends BodyElement{
 		return true;
 	}
 
-	public function __construct(int $mode = ALLOCATION_MODE_UNDEFINED, $context = null)
-	{
+	public function __construct(int $mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		parent::__construct($mode, $context);
 		$this->setIdAttribute("body");
 	}
@@ -53,6 +54,7 @@ class RiggedBodyElement extends BodyElement{
 			$content_and_footer = new DivElement($mode);
 			$content_and_footer->addClassAttribute("content_and_footer");
 			$page_content = new PageContentElement($mode);
+			$status = $use_case->getObjectStatus(); //XXX leave this alone for now
 			$content_array = $use_case->getPageContent();
 			if (empty($content_array)) {
 				$page_content->appendChild(ErrorMessage::getVisualError($use_case->getObjectStatus()));
@@ -137,8 +139,16 @@ class RiggedBodyElement extends BodyElement{
 				Debug::print("{$f} this is an AJAX request");
 			}
 			$condition = "isMobileSafari()";
-			$this->appendChild(Document::createElement("script")->withInnerHTML("resetSessionTimeoutAnimation(true);\n" . CommandBuilder::if($condition)->then(CommandBuilder::call("Menu.setViewportHeightCustomProperty")
-			)->else(CommandBuilder::log("You are not browsing with mobile safari"))->toJavaScript()));
+			$this->appendChild(
+				Document::createElement("script")->withInnerHTML(
+					"resetSessionTimeoutAnimation(true);\n" . 
+					CommandBuilder::if($condition)->then(
+						CommandBuilder::call("Menu.setViewportHeightCustomProperty")
+					)->else(
+						CommandBuilder::log("You are not browsing with mobile safari")
+					)->toJavaScript()
+				)
+			);
 			if ($print) {
 				Debug::print("{$f} generated child nodes");
 			}

@@ -910,7 +910,11 @@ msgid ""
 "instructions on how to activate your account. If cannot find the email in "
 "your inbox, check your spam folder. If you cannot find it in your spam "
 "folder, please %2%"
-msgstr "You are now registered. An email has been sent to %1% containing instructions on how to activate your account. If cannot find the email in your inbox, check your spam folder. If you cannot find it in your spam folder, please %2%"
+msgstr ""
+"You are now registered. An email has been sent to %1% containing "
+"instructions on how to activate your account. If cannot find the email in "
+"your inbox, check your spam folder. If you cannot find it in your spam "
+"folder, please %2%"
 
 #: julianseymour/php-web-application-framework/src/account/register/RegistrationForm.php:109
 #: julianseymour/php-web-application-framework/src/email/EmailAddressDatum.php:70
@@ -1147,7 +1151,7 @@ msgstr "Usernames"
 msgid "Log out"
 msgstr "Log out"
 
-#: julianseymour/php-web-application-framework/src/language/settings/LanguageSettingsSessionData.php:23
+#: julianseymour/php-web-application-framework/src/language/settings/LanguageSettingsData.php:23
 msgid "Language selection"
 msgstr "Language selection"
 
@@ -1163,11 +1167,11 @@ msgstr "Deleted string"
 msgid "Deleted strings"
 msgstr "Deleted strings"
 
-#: julianseymour/php-web-application-framework/src/language/MultilingualNameData.php:31
+#: julianseymour/php-web-application-framework/src/language/MultilingualStringData.php:31
 msgid "Multilingual name"
 msgstr "Multilingual name"
 
-#: julianseymour/php-web-application-framework/src/language/MultilingualNameData.php:56
+#: julianseymour/php-web-application-framework/src/language/MultilingualStringData.php:56
 msgid "Multilingual names"
 msgstr "Multilingual names"
 
@@ -1522,32 +1526,74 @@ msgstr ""
 "Your display name is optionally shown in communications and cannot be used "
 "for authentication."
 
-msgid "Click \"Delete all cookies\" to remove all cookies placed on your device by this website. This will terminate your session."
-msgstr "Click \"Delete all cookies\" to remove all cookies placed on your device by this website. This will terminate your session."
+msgid ""
+"Click \"Delete all cookies\" to remove all cookies placed on your device by "
+"this website. This will terminate your session."
+msgstr ""
+"Click \"Delete all cookies\" to remove all cookies placed on your device by "
+"this website. This will terminate your session."
 
-msgid "A password reset request for your account was submitted to %1%. To reset your password, visit the following URL:"
-msgstr "A password reset request for your account was submitted to %1%. To reset your password, visit the following URL:"
+msgid ""
+"A password reset request for your account was submitted to %1%. To reset "
+"your password, visit the following URL:"
+msgstr ""
+"A password reset request for your account was submitted to %1%. To reset "
+"your password, visit the following URL:"
 
-msgid "This email was sent because your email adress was submitted to %1% as a new email address for an existing account. To confirm %2% as your new email address, visit the following link:"
-msgstr "This email was sent because your email adress was submitted to %1% as a new email address for an existing account. To confirm %2% as your new email address, visit the following link:"
+msgid ""
+"This email was sent because your email adress was submitted to %1% as a new "
+"email address for an existing account. To confirm %2% as your new email "
+"address, visit the following link:"
+msgstr ""
+"This email was sent because your email adress was submitted to %1% as a new "
+"email address for an existing account. To confirm %2% as your new email "
+"address, visit the following link:"
 
 msgid "Copyright %1% %2%"
 msgstr "Copyright %1% %2%"
 
-msgid "With block policy enabled, unauthorized IP addresses will be unable to access your account until authorized via a link sent to your email address. This email can be disabled (this is not recommended)."
-msgstr "With block policy enabled, unauthorized IP addresses will be unable to access your account until authorized via a link sent to your email address. This email can be disabled (this is not recommended)."
+msgid ""
+"With block policy enabled, unauthorized IP addresses will be unable to "
+"access your account until authorized via a link sent to your email address. "
+"This email can be disabled (this is not recommended)."
+msgstr ""
+"With block policy enabled, unauthorized IP addresses will be unable to "
+"access your account until authorized via a link sent to your email address. "
+"This email can be disabled (this is not recommended)."
 
-msgid "Someone attempted to access your account from unauthorized IP address %1% on a browser with user agent string \"%2%\". To authorize this IP address, please vist the following URL:"
-msgstr "Someone attempted to access your account from unauthorized IP address %1% on a browser with user agent string \"%2%\". To authorize this IP address, please vist the following URL:"
+msgid ""
+"Someone attempted to access your account from unauthorized IP address %1% on "
+"a browser with user agent string \"%2%\". To authorize this IP address, "
+"please vist the following URL:"
+msgstr ""
+"Someone attempted to access your account from unauthorized IP address %1% on "
+"a browser with user agent string \"%2%\". To authorize this IP address, "
+"please vist the following URL:"
 
-msgid "Nothing here. This list will display IP addresses that attempt to access your account."
-msgstr "Nothing here. This list will display IP addresses that attempt to access your account."
+msgid ""
+"Nothing here. This list will display IP addresses that attempt to access "
+"your account."
+msgstr ""
+"Nothing here. This list will display IP addresses that attempt to access "
+"your account."
 
-msgid "With this option enabled, your session will automatically terminate if your user agent string differs from what it was when you logged in. Your user agent string is \"%1%\""
-msgstr "With this option enabled, your session will automatically terminate if your user agent string differs from what it was when you logged in. Your user agent string is \"%1%\""
+msgid ""
+"With this option enabled, your session will automatically terminate if your "
+"user agent string differs from what it was when you logged in. Your user "
+"agent string is \"%1%\""
+msgstr ""
+"With this option enabled, your session will automatically terminate if your "
+"user agent string differs from what it was when you logged in. Your user "
+"agent string is \"%1%\""
 
-msgid "With this option enabled, your session will automatically terminate if your IP address changes from what it was when you logged in. Your IP address is %1%"
-msgstr "With this option enabled, your session will automatically terminate if your IP address changes from what it was when you logged in. Your IP address is %1%"
+msgid ""
+"With this option enabled, your session will automatically terminate if your "
+"IP address changes from what it was when you logged in. Your IP address is "
+"%1%"
+msgstr ""
+"With this option enabled, your session will automatically terminate if your "
+"IP address changes from what it was when you logged in. Your IP address is "
+"%1%"
 
 msgid "Sessions last %1% minutes or until you delete your cookies."
 msgstr "Sessions last %1% minutes or until you delete your cookies."
@@ -1556,16 +1602,33 @@ msgid ""
 "This session has been terminated because it has been accessed by a device "
 "with an incorrect %1%, and you configured your account settings to do so "
 "under these circumstances."
-msgstr "This session has been terminated because it has been accessed by a device with an incorrect %1%, and you configured your account settings to do so under these circumstances."
+msgstr ""
+"This session has been terminated because it has been accessed by a device "
+"with an incorrect %1%, and you configured your account settings to do so "
+"under these circumstances."
 
-msgid "With this option selected, your session cookies will only be valid on the same browser used to create the cookie"
-msgstr "With this option selected, your session cookies will only be valid on the same browser used to create the cookie"
+msgid ""
+"With this option selected, your session cookies will only be valid on the "
+"same browser used to create the cookie"
+msgstr ""
+"With this option selected, your session cookies will only be valid on the "
+"same browser used to create the cookie"
 
-msgid "Select this for additional security if you know your IP address will not change"
-msgstr "Select this for additional security if you know your IP address will not change"
+msgid ""
+"Select this for additional security if you know your IP address will not "
+"change"
+msgstr ""
+"Select this for additional security if you know your IP address will not "
+"change"
 
-msgid "By choosing 'Remember Me', your session will automatically refresh upon expiration. You will remain logged in until you logout, terminate your saved session or delete this site's cookies from your device."
-msgstr "By choosing 'Remember Me', your session will automatically refresh upon expiration. You will remain logged in until you logout, terminate your saved session or delete this site's cookies from your device."
+msgid ""
+"By choosing 'Remember Me', your session will automatically refresh upon "
+"expiration. You will remain logged in until you logout, terminate your saved "
+"session or delete this site's cookies from your device."
+msgstr ""
+"By choosing 'Remember Me', your session will automatically refresh upon "
+"expiration. You will remain logged in until you logout, terminate your saved "
+"session or delete this site's cookies from your device."
 
 msgid "Multifactor authentication"
 msgstr "Multifactor authentication"
@@ -1585,3 +1648,749 @@ msgstr "Notification dismissal error"
 msgid "Passwords must match"
 msgstr "Passwords must match"
 
+#: ErrorMessage.php:50
+msgid "Missing variable."
+msgstr ""
+
+#: ErrorMessage.php:52
+msgid "MySQL query error."
+msgstr "MySQL query error."
+
+#: ErrorMessage.php:54
+msgid "MySQL fetch result error."
+msgstr "MySQL fetch result error."
+
+#: ErrorMessage.php:57
+msgid "Session expired."
+msgstr "Session expired."
+
+#: ErrorMessage.php:59
+msgid "MySQL execution error."
+msgstr "MySQL execution error."
+
+#: ErrorMessage.php:61
+msgid "MySQL bind parameters error."
+msgstr "MySQL bind parameters error."
+
+#: ErrorMessage.php:63
+msgid "MySQL prepared query statement error."
+msgstr "MySQL prepared query statement error."
+
+#: ErrorMessage.php:66
+msgid "MySQL connection error."
+msgstr "MySQL connection error."
+
+#: ErrorMessage.php:69
+msgid "Internal server error."
+msgstr "Internal server error."
+
+#: ErrorMessage.php:71
+msgid "Required input left blank."
+msgstr "Required input left blank."
+
+#: ErrorMessage.php:75
+msgid "Invalid credentials."
+msgstr "Invalid credentials."
+
+#: ErrorMessage.php:77
+msgid "Your account has already been activated."
+msgstr "Your account has already been activated."
+
+#: ErrorMessage.php:79
+msgid "Account inactive"
+msgstr "Account inactive"
+
+#: ErrorMessage.php:81
+msgid "You are already logged in."
+msgstr "You are already logged in."
+
+#: ErrorMessage.php:83
+msgid "You have been logged out."
+msgstr "You have been logged out."
+
+#: ErrorMessage.php:85
+msgid "Your request was processed successfully."
+msgstr "Your request was processed successfully."
+
+#: ErrorMessage.php:89
+msgid "An email has been sent to the address we have on file containing instructions on how to reset your password. If you do not receive an email check your spam folder. If the problem persists please contact us directly."
+msgstr "An email has been sent to the address we have on file containing instructions on how to reset your password. If you do not receive an email check your spam folder. If the problem persists please contact us directly."
+
+#: ErrorMessage.php:91
+msgid "Password reset."
+msgstr "Password reset."
+
+#: ErrorMessage.php:93
+msgid "Your password has been updated."
+msgstr "Your password has been updated."
+
+#: ErrorMessage.php:95
+msgid "Invalid password."
+msgstr "Invalid password."
+
+#: ErrorMessage.php:97
+msgid "IP address blocked by user."
+msgstr "IP address blocked by user."
+
+#: ErrorMessage.php:99
+msgid "This feature has not been implemented."
+msgstr "This feature has not been implemented."
+
+#: ErrorMessage.php:101
+msgid "Your email address has been updated."
+msgstr "Your email address has been updated."
+
+#: ErrorMessage.php:105
+msgid "The link you followed has expired."
+msgstr "The link you followed has expired."
+
+#: ErrorMessage.php:108
+msgid "IMEI mode undefined."
+msgstr "IMEI mode undefined."
+
+#: ErrorMessage.php:110
+msgid "Unauthorized transaction."
+msgstr "Unauthorized transaction."
+
+#: ErrorMessage.php:112
+msgid "Confirm transaction:"
+msgstr "Confirm transaction:"
+
+#: ErrorMessage.php:114
+msgid "Undefined base service key."
+msgstr "Undefined base service key."
+
+#: ErrorMessage.php:116 ErrorMessage.php:435
+msgid "Nothing to report."
+msgstr "Nothing to report."
+
+#: ErrorMessage.php:118
+msgid "Unidefined unique identifier."
+msgstr "Unidefined unique identifier."
+
+#: ErrorMessage.php:120
+msgid "You must login to access this feature."
+msgstr "You must login to access this feature."
+
+#: ErrorMessage.php:122
+msgid "Invalid datatype."
+msgstr "Invalid datatype."
+
+#: ErrorMessage.php:124
+msgid "Identical name."
+msgstr "Identical name."
+
+#: ErrorMessage.php:126
+msgid "Undefined parent key."
+msgstr "Undefined parent key."
+
+#: ErrorMessage.php:128
+msgid "Undefined description."
+msgstr "Undefined description."
+
+#: ErrorMessage.php:131
+msgid "File not found."
+msgstr "File not found."
+
+#: ErrorMessage.php:133
+msgid "Unregistered unique key."
+msgstr "Unregistered unique key."
+
+#: ErrorMessage.php:135
+msgid "Invalid username length."
+msgstr "Invalid username length."
+
+#: ErrorMessage.php:139
+msgid "Password confirmation required."
+msgstr "Password confirmation required."
+
+#: ErrorMessage.php:141
+msgid "Undefined password."
+msgstr "Undefined password."
+
+#: ErrorMessage.php:143
+msgid "Confirmation code validation failed."
+msgstr "Confirmation code validation failed."
+
+#: ErrorMessage.php:145
+msgid "Passwords do not match."
+msgstr "Passwords do not match."
+
+#: ErrorMessage.php:147
+msgid "Undefined name."
+msgstr "Undefined name."
+
+#: ErrorMessage.php:149
+msgid "Transaction rejected because it is a repeat purchase."
+msgstr "Transaction rejected because it is a repeat purchase."
+
+#: ErrorMessage.php:151
+msgid "You must specify a quantity to place this order."
+msgstr "You must specify a quantity to place this order."
+
+#: ErrorMessage.php:153
+msgid "You must select at least one item to place an order."
+msgstr "You must select at least one item to place an order."
+
+#: ErrorMessage.php:155
+msgid "Transaction blocked because the user tampered with POST."
+msgstr "Transaction blocked because the user tampered with POST."
+
+#: ErrorMessage.php:157
+msgid "Invalid item price."
+msgstr "Invalid item price."
+
+#: ErrorMessage.php:159
+msgid "Iterator is undefined."
+msgstr "Iterator is undefined."
+
+#: ErrorMessage.php:161
+msgid "Your account is not allowed to access this feature pending review by an administrator."
+msgstr "Your account is not allowed to access this feature pending review by an administrator."
+
+#: ErrorMessage.php:164
+msgid "IMEI is required for this purchase."
+msgstr "IMEI is required for this purchase."
+
+#: ErrorMessage.php:166
+msgid "Deletion successful."
+msgstr "Deletion successful."
+
+#: ErrorMessage.php:168
+msgid "Undefined service."
+msgstr "Undefined service."
+
+#: ErrorMessage.php:170
+msgid "Undefined implicit service."
+msgstr "Undefined implicit service."
+
+#: ErrorMessage.php:173
+msgid "Duplicate entry."
+msgstr "Duplicate entry."
+
+#: ErrorMessage.php:175
+msgid "Cycle detected."
+msgstr "Cycle detected."
+
+#: ErrorMessage.php:177
+msgid "Error updating transaction state."
+msgstr "Error updating transaction state."
+
+#: ErrorMessage.php:179
+msgid "Transaction update successful."
+msgstr "Transaction update successful."
+
+#: ErrorMessage.php:181
+msgid "Insufficient credit balance."
+msgstr "Insufficient credit balance."
+
+#: ErrorMessage.php:183
+msgid "Your settings have been updated."
+msgstr "Your settings have been updated."
+
+#: ErrorMessage.php:185
+msgid "Your account has been updated."
+msgstr "Your account has been updated."
+
+#: ErrorMessage.php:187
+msgid "Login error."
+msgstr "Login error."
+
+#: ErrorMessage.php:189
+msgid "Multifactor authentication is now enabled."
+msgstr "Multifactor authentication is now enabled."
+
+#: ErrorMessage.php:191
+msgid "Enter the code from your authenticator app."
+msgstr "Enter the code from your authenticator app."
+
+#: ErrorMessage.php:193
+msgid "Context is undefined."
+msgstr "Context is undefined."
+
+#: ErrorMessage.php:195
+msgid "Multifactor authentication is now disabled."
+msgstr "Multifactor authentication is now disabled."
+
+#: ErrorMessage.php:197
+msgid "Invalid verification code."
+msgstr "Invalid verification code."
+
+#: ErrorMessage.php:199
+msgid "Generated a new MFA seed."
+msgstr "Generated a new MFA seed."
+
+#: ErrorMessage.php:201
+msgid "Displaying MFA QR code."
+msgstr "Displaying MFA QR code."
+
+#: ErrorMessage.php:203
+msgid "Email addresses must match."
+msgstr "Email addresses must match."
+
+#: ErrorMessage.php:207
+msgid "The page you are attempting to access is no longer available."
+msgstr "The page you are attempting to access is no longer available."
+
+#: ErrorMessage.php:211
+msgid "Your IP address has been blocked due to excessive failed login attempts."
+msgstr "Your IP address has been blocked due to excessive failed login attempts."
+
+#: ErrorMessage.php:213
+msgid "Your purchase was successful but your session timed out while you were authorizing payment. Please login again."
+msgstr "Your purchase was successful but your session timed out while you were authorizing payment. Please login again."
+
+#: ErrorMessage.php:215
+msgid "Your IP address has already registered an account recently; your registration attempt has been filtered to protect the server from spam."
+msgstr ""
+
+#: ErrorMessage.php:217
+msgid "The hidden input for preventing repeat submissions was not submitted; tampering with POST won't accomplish anything."
+msgstr "The hidden input for preventing repeat submissions was not submitted; tampering with POST won't accomplish anything."
+
+#: ErrorMessage.php:219
+msgid "An email has been sent to your email address containing instructions on how to activate your account."
+msgstr "An email has been sent to your email address containing instructions on how to activate your account."
+
+#: ErrorMessage.php:221
+msgid "Order placement successful."
+msgstr "Order placement successful."
+
+#: ErrorMessage.php:223
+msgid "Login to activate your account."
+msgstr "Login to activate your account."
+
+#: ErrorMessage.php:225
+msgid "Decryption failed."
+msgstr "Decryption failed."
+
+#: ErrorMessage.php:227
+msgid "No new messages."
+msgstr "No new messages."
+
+#: ErrorMessage.php:229
+msgid "Undefined message ID."
+msgstr "Undefined message ID."
+
+#: ErrorMessage.php:231
+msgid "Undefined query statement."
+msgstr "Undefined query statement."
+
+#: ErrorMessage.php:233
+msgid "Undefined parent type."
+msgstr "Undefined parent type."
+
+#: ErrorMessage.php:235
+msgid "Timestamp is undefined."
+msgstr "Timestamp is undefined."
+
+#: ErrorMessage.php:237
+msgid "New message"
+msgstr "New message"
+
+#: ErrorMessage.php:239
+msgid "Sodium keysize error."
+msgstr "Sodium keysize error."
+
+#: ErrorMessage.php:241
+msgid "Undefined product key."
+msgstr "Undefined product key."
+
+#: ErrorMessage.php:243
+msgid "Undefined product."
+msgstr "Undefined product."
+
+#: ErrorMessage.php:245
+msgid "Error retrieving user data."
+msgstr "Error retrieving user data."
+
+#: ErrorMessage.php:247
+msgid "Nice try."
+msgstr "Nice try."
+
+#: ErrorMessage.php:249
+msgid "Illegal child load state."
+msgstr "Illegal child load state."
+
+#: ErrorMessage.php:251
+msgid "Parent class is undefined."
+msgstr "Parent class is undefined."
+
+#: ErrorMessage.php:253
+msgid "Error updating unique key."
+msgstr "Error updating unique key."
+
+#: ErrorMessage.php:257
+msgid "Unitialized data."
+msgstr "Unitialized data."
+
+#: ErrorMessage.php:259
+msgid "Undefined correspondent."
+msgstr "Undefined correspondent."
+
+#: ErrorMessage.php:261
+msgid "Invalid IMEI."
+msgstr "Invalid IMEI."
+
+#: ErrorMessage.php:263
+msgid "IMEI has not changed."
+msgstr "IMEI has not changed."
+
+#: ErrorMessage.php:265
+msgid "Note unchanged."
+msgstr "Note unchanged."
+
+#: ErrorMessage.php:267
+msgid "Empty string."
+msgstr "Empty string."
+
+#: ErrorMessage.php:269
+msgid "Note updated."
+msgstr "Note updated."
+
+#: ErrorMessage.php:271
+msgid "Public key is undefined."
+msgstr "Public key is undefined."
+
+#: ErrorMessage.php:273
+msgid "This object has already been deleted."
+msgstr "This object has already been deleted."
+
+#: ErrorMessage.php:275
+msgid "Null identifier."
+msgstr "Null identifier."
+
+#: ErrorMessage.php:277
+msgid "Node expansion failed."
+msgstr "Node expansion failed."
+
+#: ErrorMessage.php:279
+msgid "Order key undefined."
+msgstr "Order key undefined."
+
+#: ErrorMessage.php:281
+msgid "Employees only."
+msgstr "Employees only."
+
+#: ErrorMessage.php:283
+msgid "Article deleted."
+msgstr "Article deleted."
+
+#: ErrorMessage.php:285
+msgid "PayPal API error."
+msgstr "PayPal API error."
+
+#: ErrorMessage.php:289
+msgid "You may now sign in."
+msgstr "You may now sign in."
+
+#: ErrorMessage.php:291
+msgid "Your IP address has been temporarily banned due to an excess of failed login attempts. Please try again in 10 minutes."
+msgstr "Your IP address has been temporarily banned due to an excess of failed login attempts. Please try again in 10 minutes."
+
+#: ErrorMessage.php:293
+msgid "Digital signature verification failed."
+msgstr "Digital signature verification failed."
+
+#: ErrorMessage.php:295
+msgid "You cannot dismiss this notification."
+msgstr "You cannot dismiss this notification."
+
+#: ErrorMessage.php:297
+msgid "Invalid notification type."
+msgstr "Invalid notification type."
+
+#: ErrorMessage.php:299 ErrorMessage.php:373
+msgid "Your account is disabled."
+msgstr "Your account is disabled."
+
+#: ErrorMessage.php:303
+msgid "File size is too big."
+msgstr "File size is too big."
+
+#: ErrorMessage.php:305
+msgid "Impossible value."
+msgstr "Impossible value."
+
+#: ErrorMessage.php:307
+msgid "File upload failed."
+msgstr "File upload failed."
+
+#: ErrorMessage.php:309
+msgid "Illegal MIME type."
+msgstr "Illegal MIME type."
+
+#: ErrorMessage.php:311
+msgid "Invalid file parameters."
+msgstr "Invalid file parameters."
+
+#: ErrorMessage.php:313
+msgid "Undefined correspondent key."
+msgstr "Undefined correspondent key."
+
+#: ErrorMessage.php:315
+msgid "The email address you provided is unavailable for registration."
+msgstr "The email address you provided is unavailable for registration."
+
+#: ErrorMessage.php:317
+msgid "Critical data was not loaded."
+msgstr "Critical data was not loaded."
+
+#: ErrorMessage.php:319
+msgid "Undefined parent object."
+msgstr "Undefined parent object."
+
+#: ErrorMessage.php:321
+msgid "sendmail error."
+msgstr "sendmail error."
+
+#: ErrorMessage.php:323
+msgid "Undefined confirmation code."
+msgstr "Undefined confirmation code."
+
+#: ErrorMessage.php:325
+msgid "Signature verification failed."
+msgstr "Signature verification failed."
+
+#: ErrorMessage.php:327
+msgid "You already have a lockout waiver in effect for this IP address."
+msgstr "You already have a lockout waiver in effect for this IP address."
+
+#: ErrorMessage.php:329
+msgid "The confirmation code you submitted has already been used."
+msgstr "The confirmation code you submitted has already been used."
+
+#: ErrorMessage.php:331
+msgid "IPv6 is unsupported."
+msgstr "IPv6 is unsupported."
+
+#: ErrorMessage.php:333
+msgid "Undefined anti-XSRF token."
+msgstr "Undefined anti-XSRF token."
+
+#: ErrorMessage.php:335
+msgid "Your IP address is blocked."
+msgstr "Your IP address is blocked."
+
+#: ErrorMessage.php:337
+msgid "Failed to update firewall settings. You cannot lock yourself out of your account."
+msgstr "Failed to update firewall settings. You cannot lock yourself out of your account."
+
+#: ErrorMessage.php:339 ErrorMessage.php:460
+msgid "Your IP address is unauthorized."
+msgstr "Your IP address is unauthorized."
+
+#: ErrorMessage.php:341
+msgid "Your IP address is authorized."
+msgstr "Your IP address is authorized."
+
+#: ErrorMessage.php:343
+msgid "Access attempt is undefined."
+msgstr "Access attempt is undefined."
+
+#: ErrorMessage.php:345
+msgid "Invalid array encoding."
+msgstr "Invalid array encoding."
+
+#: ErrorMessage.php:347
+msgid "Server has already been initialized."
+msgstr "Server has already been initialized."
+
+#: ErrorMessage.php:349
+msgid "Please log in to use the messenger."
+msgstr "Please log in to use the messenger."
+
+#: ErrorMessage.php:351
+msgid "Use case is undefined."
+msgstr "Use case is undefined."
+
+#: ErrorMessage.php:353
+msgid "This feature is of no concern to administrators."
+msgstr "This feature is of no concern to administrators."
+
+#: ErrorMessage.php:355
+msgid "This feature is deprecated."
+msgstr "This feature is deprecated."
+
+#: ErrorMessage.php:357
+msgid "oth password fields were left empty."
+msgstr "oth password fields were left empty."
+
+#: ErrorMessage.php:359
+msgid "Null password hash."
+msgstr "Null password hash."
+
+#: ErrorMessage.php:361
+msgid "Nothing to see here."
+msgstr "Nothing to see here."
+
+#: ErrorMessage.php:363
+msgid "Undefined user key."
+msgstr "Undefined user key."
+
+#: ErrorMessage.php:365
+msgid "Enter billing information."
+msgstr "Enter billing information."
+
+#: ErrorMessage.php:367
+msgid "Try again."
+msgstr "Try again."
+
+#: ErrorMessage.php:369
+msgid "Undefined signatory."
+msgstr "Undefined signatory."
+
+#: ErrorMessage.php:371
+msgid "Null target object."
+msgstr "Null target object."
+
+#: ErrorMessage.php:375
+msgid "Your submission has been rejected because you have been flooding the server with requests."
+msgstr "Your submission has been rejected because you have been flooding the server with requests."
+
+#: ErrorMessage.php:377
+msgid "Your messenger privileges have been provoked."
+msgstr "Your messenger privileges have been provoked."
+
+#: ErrorMessage.php:379
+msgid "Integer out of bounds."
+msgstr "Integer out of bounds."
+
+#: ErrorMessage.php:381
+msgid "Submission accepted."
+msgstr "Submission accepted."
+
+#: ErrorMessage.php:383
+msgid "Successfully edited comment."
+msgstr "Successfully edited comment."
+
+#: ErrorMessage.php:385
+msgid "Undefined object number."
+msgstr "Undefined object number."
+
+#: ErrorMessage.php:387
+msgid "Push subscription is expired."
+msgstr "Push subscription is expired."
+
+#: ErrorMessage.php:390
+msgid "Undefined location key."
+msgstr "Undefined location key."
+
+#: ErrorMessage.php:392
+msgid "No addresses."
+msgstr "No addresses."
+
+#: ErrorMessage.php:394
+msgid "Attachments disabled."
+msgstr "Attachments disabled."
+
+#: ErrorMessage.php:396
+msgid "Language settings updated."
+msgstr "Language settings updated."
+
+#: ErrorMessage.php:399
+msgid "You must confirm must your new email address in order to finalize the changes to your account. Instructions on completing the process have been sent to %1%. If you cannot find the message in your inbox or spam folder please contact us directly."
+msgstr "You must confirm must your new email address in order to finalize the changes to your account. Instructions on completing the process have been sent to %1%. If you cannot find the message in your inbox or spam folder please contact us directly."
+
+#: ErrorMessage.php:403
+msgid "Activation prohibited: You are already logged in as %1%."
+msgstr "Activation prohibited: You are already logged in as %1%."
+
+#: ErrorMessage.php:408
+msgid "Your account has already been credited %1% credits."
+msgstr "Your account has already been credited %1% credits."
+
+#: ErrorMessage.php:411
+msgid "Successfully updated settings for user %1%."
+msgstr "Successfully updated settings for user %1%."
+
+#: ErrorMessage.php:413
+msgid "Your account has been credited %1% credits."
+msgstr "Your account has been credited %1% credits."
+
+#: ErrorMessage.php:415
+msgid "Invalid currency."
+msgstr "Invalid currency."
+
+#: ErrorMessage.php:417
+msgid "Invalid user role."
+msgstr "Invalid user role."
+
+#: ErrorMessage.php:419
+msgid "Invalid location key."
+msgstr "Invalid location key."
+
+#: ErrorMessage.php:421
+msgid "Invalid appointment type."
+msgstr "Invalid appointment type."
+
+#: ErrorMessage.php:423
+msgid "Purchase successful."
+msgstr "Purchase successful."
+
+#: ErrorMessage.php:425
+msgid "New parent key is identical to the old one."
+msgstr "New parent key is identical to the old one."
+
+#: ErrorMessage.php:427
+msgid "hCaptcha verification failed."
+msgstr "hCaptcha verification failed."
+
+#: ErrorMessage.php:429
+msgid "Submission accepted. You will be notified as soon as the administrator verifies payment."
+msgstr "Submission accepted. You will be notified as soon as the administrator verifies payment."
+
+#: ErrorMessage.php:431
+msgid "Invalid username."
+msgstr "Invalid username."
+
+#: ErrorMessage.php:433
+msgid "Rejection reason required."
+msgstr "Rejection reason required."
+
+#: ErrorMessage.php:437
+msgid "Invalid IP address."
+msgstr "Invalid IP address."
+
+#: ErrorMessage.php:441
+msgid "IP address banned."
+msgstr "IP address banned."
+
+#: ErrorMessage.php:443
+msgid "Successfully deleted saved sessions."
+msgstr "Successfully deleted saved sessions."
+
+#: ErrorMessage.php:445
+msgid "Invalid MFA OTP."
+msgstr "Invalid MFA OTP."
+
+#: ErrorMessage.php:447
+msgid "Undefined MFA seed."
+msgstr "Undefined MFA seed."
+
+#: ErrorMessage.php:455
+msgid "Guest users only."
+msgstr ""
+
+#: ErrorMessage.php:457
+msgid "No results."
+msgstr "No results."
+
+#: ErrorMessage.php:462
+msgid "Key collision error."
+msgstr "Key collision error."
+
+#: ErrorMessage.php:464
+msgid "Forbidden"
+msgstr "Forbidden"
+
+#: ErrorMessage.php:466
+msgid "Your account has been locked."
+msgstr "Your account has been locked."
+
+#: ErrorMessage.php:469
+msgid "Error code %1%."
+msgstr "Error code %1%."
+
+msgid "Invalid email address."
+msgstr "Invalid email address."

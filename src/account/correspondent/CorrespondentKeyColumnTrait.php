@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\correspondent;
 
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
@@ -10,8 +11,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefining
 use Exception;
 use mysqli;
 
-trait CorrespondentKeyColumnTrait
-{
+trait CorrespondentKeyColumnTrait{
 
 	use MultipleColumnDefiningTrait;
 

@@ -7,7 +7,6 @@ use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\use_case;
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\app\Request;
 use JulianSeymour\PHPWebApplicationFramework\auth\permit\PermissiveTrait;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
@@ -453,7 +452,7 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 
 	public function dispatchCommands(): int{
 		$f = __METHOD__;
-		$print = false;
+		$print = $this->getDebugFlag();
 		if ($this->skipFormInitialization()) {
 			if ($print) {
 				Debug::print("{$f} skipping form initialization command because this form does not get initialized");
@@ -610,9 +609,9 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 							Debug::print("{$f} about to call subindexNestedInput(input, {$super_index})");
 						}
 						$this->subindexNestedInput($input, $super_index);
-						if (! $this->getDisableRenderingFlag() && $input->hasColumnName()) {
+						/*if (! $this->getDisableRenderingFlag() && $input->hasColumnName()) {
 							$subordinate_form->reconfigureInput($input);
-						}
+						}*/ //this happens anyway in generateaInputs
 						$input->setForm($this);
 					} elseif ($print) {
 						Debug::error("{$f} subordinate container lacks child nodes, nothing to reindex");
@@ -691,7 +690,7 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 		$cn = $input->hasColumnName() ? $input->getColumnName() : "[undefined]";
 		$dsc = $input->hasContext() && $input->getContext()->hasDataStructure() ? $input->getContext()->getDataStructure()->getShortClass() : "[undefined]";
 		$decl = $this->getDeclarationLine();
-		Debug::error("{$f} gotcha. Input column name is {$cn}. DataStructure class is {$dsc}. Instantiated {$decl}");
+		Debug::error("{$f} Input column name is {$cn}. DataStructure class is {$dsc}. Instantiated {$decl}");
 		/*$print = false;
 		if ($this->hasSuperiorForm()) {
 			if($print){
@@ -911,7 +910,8 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 						Debug::print("{$f} about to get foreign data structure class for column \"{$column_name}\"");
 					}
 					if (! $datum instanceof ForeignKeyDatumInterface) {
-						Debug::error("{$f} column \"{$column_name}\" is not a foreign key datum");
+						$context_class = $context->getShortClass();
+						Debug::error("{$f} column \"{$column_name}\" is not a foreign key datum for context of class \"{$context_class}\"");
 					}
 					$subordinate_class = $datum->getForeignDataStructureClass($context);
 					$subordinate_struct = new $subordinate_class();
@@ -1166,7 +1166,7 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 					Debug::print("{$f} context is undefined");
 				}
 				// form dispatch ID
-				if ($this->hasFormDispatchId()) {
+				if ($this->hasFormDispatchId() && !$this->hasSuperiorForm()) {
 					$dispatch_id = $this->getFormDispatchId();
 					$mode = $this->getAllocationMode();
 					$dispatch = new HiddenInput($mode);
@@ -1266,7 +1266,11 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 				}
 				foreach ($ad_hoc as $input) {
 					if (! $input->hasAllocationMode()) {
-						Debug::error("{$f} input lacks a rendering mode on line 1163");
+						if($print){
+							$decl = $input->getDeclarationLine();
+							Debug::error("{$f} input instantiated {$decl} lacks allocation mode on line 1163");
+						}
+						$input->setAllocationMode(ALLOCATION_MODE_UNDEFINED);
 					}
 					if ($input instanceof InputInterface && $input->hasColumnName()) {
 						$this->attachInputValidators($input);
@@ -1395,7 +1399,6 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 		try {
 			$mode = $this->getAllocationMode();
 			$button = new ButtonInput($mode);
-
 			if ($value !== null) {
 				$button->setValueAttribute($value);
 				$button->setNameAttribute(new ConcatenateCommand("directive", "[", $directive, "]"));

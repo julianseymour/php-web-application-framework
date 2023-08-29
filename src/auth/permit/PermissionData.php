@@ -14,6 +14,10 @@ class PermissionData extends DataStructure{
 	use NameColumnTrait;
 	use PriorityColumnTrait;
 
+	public static function getDatabaseNameStatic():string{
+		return "security";
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$name = new StringEnumeratedDatum("name");
@@ -26,7 +30,7 @@ class PermissionData extends DataStructure{
 		static::pushTemporaryColumnsStatic($columns, $name, $policy, $acp, $priority);
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Permission");
 	}
 
@@ -38,7 +42,7 @@ class PermissionData extends DataStructure{
 		return DATATYPE_PERMISSION;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Permissions");
 	}
 

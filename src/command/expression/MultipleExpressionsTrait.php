@@ -1,49 +1,43 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\expression;
 
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
-use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 
-trait MultipleExpressionsTrait
-{
+trait MultipleExpressionsTrait{
 
 	use ArrayPropertyTrait;
 
-	public function setExpressions($values)
-	{
-		$f = __METHOD__; //"MultipleExpressionsTrait(".static::getShortClass().")->setExpressions()";
+	public function withExpressions($values):object{
+		$this->setExpressions($values);
+		return $this;
+	}
+	
+	public function setExpressions($values){
 		return $this->setArrayProperty('expressions', $values);
 	}
 
-	public function pushExpressions(...$values)
-	{
-		$f = __METHOD__; //"MultipleExpressionsTrait(".static::getShortClass().")->pushExpressions()";
+	public function pushExpressions(...$values){
 		return $this->pushArrayProperty('expressions', ...$values);
 	}
 
-	public function mergeExpressions($values)
-	{
-		$f = __METHOD__; //"MultipleExpressionsTrait(".static::getShortClass().")->mergeExpressions()";
+	public function mergeExpressions($values){
 		return $this->mergeArrayProperty('expressions', $values);
 	}
 
-	public function hasExpressions()
-	{
+	public function hasExpressions():bool{
 		return $this->hasArrayProperty("expressions");
 	}
 
-	public function getExpressions()
-	{
+	public function getExpressions(){
 		return $this->getProperty("expressions");
 	}
 
-	public function getExpressionCount()
-	{
+	public function getExpressionCount():int{
 		return $this->getArrayPropertyCount("expressions");
 	}
 
-	public function getExpression($i)
-	{
+	public function getExpression($i){
 		return $this->getArrayPropertyValue("expressions", $i);
 	}
 }

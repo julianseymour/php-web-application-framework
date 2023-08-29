@@ -301,7 +301,7 @@ class IntersectionData extends DataStructure{
 		return parent::insert($mysqli);
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Intersection data");
 	}
 
@@ -314,7 +314,7 @@ class IntersectionData extends DataStructure{
 		return DATATYPE_INTERSECTION;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Intersection data");
 	}
 

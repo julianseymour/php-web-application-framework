@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\ui;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -26,11 +27,13 @@ use JulianSeymour\PHPWebApplicationFramework\ui\TabMutex;
 use JulianSeymour\PHPWebApplicationFramework\ui\WidgetInterface;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\style\StyleSheetPathTrait;
 
 class NotificationsWidget extends DivElement implements JavaScriptCounterpartInterface, WidgetInterface{
 
 	use JavaScriptCounterpartTrait;
-
+	use StyleSheetPathTrait;
+	
 	protected $widgetIcon;
 
 	protected $tabMutex;
@@ -169,7 +172,7 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 
 	public static function getOpenDisplayProperties(): ?array{
 		return [
-			"max-height" => "100%",
+			"max-height" => "calc(100% - 50px)",
 			"max-width" => "480px",
 			"transform" => "scale3d(1, 1, 1)",
 			"border-radius" => "0",

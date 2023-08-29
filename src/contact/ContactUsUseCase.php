@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\contact;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
@@ -31,7 +32,7 @@ class ContactUsUseCase extends UseCase{
 		if($result = $select->executeGetResult($mysqli)){
 			if($result->num_rows !== 1){
 				Debug::warning("{$f} {$result->num_rows} rows in result");
-				return $this->setObjectStatus(ERROR_MYSQL_NO_RESULTS);
+				return $this->setObjectStatus(ERROR_NOT_FOUND);
 			}
 			$results = $result->fetch_all(MYSQLI_ASSOC);
 			$status = $admin->processQueryResultArray($mysqli, $results[0]);
@@ -106,17 +107,16 @@ class ContactUsUseCase extends UseCase{
 		return SUCCESS;
 	}
 	
-	public function getResponder():?Responder{
+	public function getResponder(int $status):?Responder{
 		$f = __METHOD__;
 		$print = false;
 		$directive = directive();
-		$status = $this->getObjectStatus();
 		if($directive !== DIRECTIVE_SUBMIT || $status !== SUCCESS){
 			if($print){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::print("{$f} error status \"{$err}\", returning parent function");
 			}
-			return parent::getResponder();
+			return parent::getResponder($status);
 		}elseif($print){
 			Debug::print("{$f} returning InfoBoxResponder");
 		}

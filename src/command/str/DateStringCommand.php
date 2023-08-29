@@ -1,20 +1,20 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\str;
 
 use function JulianSeymour\PHPWebApplicationFramework\getDateStringFromTimestamp;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
+use DateTimeZone;
 
-class DateStringCommand extends StringTransformationCommand
-{
+class DateStringCommand extends StringTransformationCommand{
 
 	protected $timezone;
 
 	protected $format;
 
-	public function __construct($subject, $timezone = null, ?string $format = null)
-	{
+	public function __construct($subject, $timezone = null, ?string $format = null){
 		parent::__construct($subject);
 		if ($timezone !== null) {
 			$this->setTimezone($timezone);
@@ -24,18 +24,15 @@ class DateStringCommand extends StringTransformationCommand
 		}
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "toDateString";
 	}
 
-	public function hasTimezone(): bool
-	{
+	public function hasTimezone(): bool{
 		return isset($this->timezone);
 	}
 
-	public function setTimezone($timezone)
-	{
+	public function setTimezone($timezone){
 		if ($timezone === null) {
 			unset($this->timezone);
 			return null;
@@ -43,21 +40,18 @@ class DateStringCommand extends StringTransformationCommand
 		return $this->timezone = $timezone;
 	}
 
-	public function getTimezone()
-	{
+	public function getTimezone(){
 		if ($this->hasTimezone()) {
 			return $this->timezone;
 		}
 		return null;
 	}
 
-	public function hasFormat(): bool
-	{
+	public function hasFormat(): bool{
 		return isset($this->format);
 	}
 
-	public function setFormat($format)
-	{
+	public function setFormat($format){
 		if ($format === null) {
 			unset($this->format);
 			return null;
@@ -65,17 +59,15 @@ class DateStringCommand extends StringTransformationCommand
 		return $this->format = $format;
 	}
 
-	public function getFormat()
-	{
-		$f = __METHOD__; //DateStringCommand::getShortClass()."(".static::getShortClass().")->getFormat()";
+	public function getFormat(){
+		$f = __METHOD__;
 		if (! $this->hasFormat()) {
 			Debug::error("{$f} format is undefined");
 		}
 		return $this->format;
 	}
 
-	public function evaluate(?array $params = null)
-	{
+	public function evaluate(?array $params = null){
 		$ts = $this->getSubject();
 		while ($ts instanceof ValueReturningCommandInterface) {
 			$ts = $ts->evaluate();
@@ -83,6 +75,9 @@ class DateStringCommand extends StringTransformationCommand
 		$timezone = $this->getTimezone();
 		while ($timezone instanceof ValueReturningCommandInterface) {
 			$timezone = $timezone->evaluate();
+		}
+		if(!in_array($timezone, DateTimeZone::listIdentifiers())){
+			$timezone = date_default_timezone_get();
 		}
 		if ($this->hasFormat()) {
 			$format = $this->getFormat();
@@ -95,8 +90,7 @@ class DateStringCommand extends StringTransformationCommand
 		return getDateStringFromTimestamp($ts, $timezone, $format);
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		$ts = $this->getSubject();
 		if ($ts instanceof JavaScriptInterface) {
 			$ts = $ts->toJavaScript();
@@ -104,8 +98,7 @@ class DateStringCommand extends StringTransformationCommand
 		return "parseDateStringFromTimestamp({$ts})";
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->format);
 		unset($this->timezone);

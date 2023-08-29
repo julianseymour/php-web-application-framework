@@ -1,16 +1,14 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\session\resume;
 
-class GuestSessionRecoveryCookie extends SessionRecoveryCookie
-{
+class GuestSessionRecoveryCookie extends SessionRecoveryCookie{
 
-	protected static function getCookieSecretColumnName()
-	{
+	protected static function getCookieSecretColumnName():string{
 		return "guestCookieSecret";
 	}
 
-	protected static function getRecoveryKeyColumnName()
-	{
+	protected static function getRecoveryKeyColumnName():string{
 		return "guestRecoveryKey";
 	}
 }

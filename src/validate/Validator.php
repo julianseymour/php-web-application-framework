@@ -5,20 +5,21 @@ namespace JulianSeymour\PHPWebApplicationFramework\validate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessageTrait;
 use JulianSeymour\PHPWebApplicationFramework\input\InputInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
 use Exception;
 use mysqli;
 
-abstract class Validator extends Basic implements JavaScriptCounterpartInterface, StaticPropertyTypeInterface
-{
+abstract class Validator extends Basic implements JavaScriptCounterpartInterface, StaticPropertyTypeInterface{
 
 	use ArrayPropertyTrait;
+	use ErrorMessageTrait;
 	use JavaScriptCounterpartTrait;
 	use StaticPropertyTypeTrait;
 
@@ -30,55 +31,40 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 
 	public abstract function evaluate(&$validate_me): int;
 
-	/*
-	 * public function __construct(){
-	 * $this->setCovalidateWhen(COVALIDATE_BEFORE);
-	 * parent::__construct();
-	 * //$this->requirePropertyType("covalidators", Validator::class);
-	 * }
-	 */
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
 		return [
 			"covalidators" => Validator::class
 		];
 	}
 
-	public function hasSpecialFailureStatus()
-	{
+	public function hasSpecialFailureStatus(){
 		return isset($this->specialFailureStatus);
 	}
 
-	public function setSpecialFailureStatus($status)
-	{
+	public function setSpecialFailureStatus($status){
 		return $this->specialFailureStatus = $status;
 	}
 
-	public function getSpecialFailureStatus()
-	{
+	public function getSpecialFailureStatus(){
 		if ($this->hasSpecialFailureStatus()) {
 			return $this->specialFailureStatus;
 		}
 		return FAILURE;
 	}
 
-	public function hasCovalidators()
-	{
+	public function hasCovalidators(){
 		return $this->hasArrayProperty("covalidators");
 	}
 
-	public function pushCovalidators(...$covalidators)
-	{
+	public function pushCovalidators(...$covalidators){
 		return $this->pushArrayProperty("covalidators", ...$covalidators);
 	}
 
-	public function getCovalidators()
-	{
+	public function getCovalidators(){
 		return $this->getProperty("covalidators");
 	}
 
-	private function covalidate(&$validate_me)
-	{
+	private function covalidate(&$validate_me){
 		$f = __METHOD__; //Validator::getShortClass()."(".static::getShortClass().")->covalidate()";
 		$print = false;
 		if (! $this->hasCovalidators()) {
@@ -103,8 +89,7 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 		return SUCCESS;
 	}
 
-	private function covalidateBefore()
-	{
+	private function covalidateBefore(){
 		return $this->hasCovalidators() && $this->getCovalidateWhen() === COVALIDATE_BEFORE;
 	}
 
@@ -113,16 +98,14 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 		return $this->hasCovalidators() && $this->getCovalidateWhen() === COVALIDATE_AFTER;
 	}
 
-	public function getCovalidateWhen()
-	{
+	public function getCovalidateWhen(){
 		if (! isset($this->covalidateWhen)) {
 			return COVALIDATE_BEFORE;
 		}
 		return $this->covalidateWhen;
 	}
 
-	public function setCovalidateWhen(?string $when)
-	{
+	public function setCovalidateWhen(?string $when){
 		if ($when === null) {
 			unset($this->covalidateWhen);
 			return null;
@@ -130,8 +113,7 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 		return $this->covalidateWhen = $when;
 	}
 
-	public function extractParameters(&$params)
-	{
+	public function extractParameters(&$params){
 		return $params;
 	}
 
@@ -142,8 +124,7 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 	 * @param array $validate_me
 	 * @return int
 	 */
-	protected function prevalidate(&$validate_me)
-	{
+	protected function prevalidate(&$validate_me){
 		return SUCCESS;
 	}
 
@@ -152,9 +133,8 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 	 * @param mixed $validate_me
 	 * @return int
 	 */
-	public final function validate(array &$validate_me): int
-	{
-		$f = __METHOD__; //Validator::getShortClass()."(".static::getShortClass().")->validate()";
+	public final function validate(array &$validate_me): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$this->prevalidate($validate_me);

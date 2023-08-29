@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\mfa;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -6,7 +7,6 @@ use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\registry;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -20,15 +20,14 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\db\load\LoadTreeUseCase;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\DetectLocaleUseCase;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 use mysqli;
 
-abstract class MfaUseCase extends AbstractLoginUseCase
-{
+abstract class MfaUseCase extends AbstractLoginUseCase{
 
-	public function loadUserData(mysqli $mysqli, LoginAttempt $attempt): ?AuthenticatedUser
-	{
+	public function loadUserData(mysqli $mysqli, LoginAttempt $attempt): ?AuthenticatedUser{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -40,6 +39,7 @@ abstract class MfaUseCase extends AbstractLoginUseCase
 			}
 			$session = new PreMultifactorAuthenticationData();
 			$user_class = $this->getAuthenticatedUserClass();
+			DetectLocaleUseCase::detectLocaleStatic();
 			$user = new $user_class(ALLOCATION_MODE_SUBJECTIVE);
 			if (! $session->hasUserKey()) {
 				if ($print) {
@@ -96,27 +96,6 @@ abstract class MfaUseCase extends AbstractLoginUseCase
 						$attempt->setObjectStatus($status);
 						return null;
 					}
-					// update temporary query results with foreign keys from intersection tables
-					/*
-					 * if(cache()->enabled() && USER_CACHE_ENABLED){
-					 * $columns = $user->getFilteredColumns(COLUMN_FILTER_DIRTY_CACHE);
-					 * if(!empty($columns)){
-					 * foreach($columns as $column_name => $column){
-					 * $results[$column_name] = $column->getDatabaseEncodedValue();
-					 * $column->setDirtyCacheFlag(false);
-					 * }
-					 * }elseif($print){
-					 * Debug::print("{$f} there are no dirty cache flagged columns");
-					 * }
-					 * }elseif($print){
-					 * Debug::print("{$f} redis cache flag is not enabled; skipping cleanup of dirty cacheable foreign keys");
-					 * }
-					 * if(cache()->enabled() && USER_CACHE_ENABLED){
-					 * $user->setCacheValue($results);
-					 * }elseif($print){
-					 * Debug::print("{$f} redis cache is disabled; skippins setCacheValue");
-					 * }
-					 */
 					$status = $user->loadForeignDataStructures($mysqli, false);
 					if ($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
@@ -141,8 +120,7 @@ abstract class MfaUseCase extends AbstractLoginUseCase
 		}
 	}
 
-	public function validateLoginMfaOtp($mysqli)
-	{
+	public function validateLoginMfaOtp($mysqli){
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -202,7 +180,7 @@ abstract class MfaUseCase extends AbstractLoginUseCase
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} reauthenticate returned error status \"{$err}\"");
 				}
-				$this->setObjectStatus(RESULT_BFP_MFA_FAILED);
+				$this->setObjectStatus(ERROR_INVALID_MFA_OTP);
 				$attempt->setLoginResult($status);
 				// return $this->setObjectStatus($status);
 			} else {
@@ -247,7 +225,7 @@ abstract class MfaUseCase extends AbstractLoginUseCase
 						$err = ErrorMessage::getResultMessage($mfade);
 						Debug::print("{$f} MFA OTP failed with error status \"{$err}\"");
 					}
-					$this->setObjectStatus(RESULT_BFP_MFA_FAILED);
+					$this->setObjectStatus(ERROR_INVALID_MFA_OTP);
 					$attempt->setLoginResult($mfade);
 				}
 			}
@@ -273,7 +251,6 @@ abstract class MfaUseCase extends AbstractLoginUseCase
 				$err = ErrorMessage::getResultMessage($result);
 				Debug::warning("{$f} completing half login returned error status \"{$err}\"");
 				$session->unsetColumnValues();
-				// $user->unsetSessionVariables(LOGIN_TYPE_PARTIAL);
 				$user = AuthenticateUseCase::getAnonymousUser();
 			} elseif ($print) {
 				Debug::print("{$f} MFA OTP validation & login attempt insertion successful");
@@ -287,8 +264,7 @@ abstract class MfaUseCase extends AbstractLoginUseCase
 		}
 	}
 
-	public function execute(): int
-	{
+	public function execute(): int{
 		$f = __METHOD__;
 		try {
 			Debug::print("{$f} entered");
@@ -317,23 +293,15 @@ abstract class MfaUseCase extends AbstractLoginUseCase
 		}
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/login_mfa";
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_LOGIN_MFA;
-	}
-
-	public function getAuthenticatedUserClass(): string
-	{
+	public function getAuthenticatedUserClass(): ?string{
 		return config()->getNormalUserClass();
 	}
 
-	public function getClientUseCaseName(): ?string
-	{
+	public function getClientUseCaseName(): ?string{
 		return "mfa";
 	}
 }

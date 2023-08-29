@@ -2,7 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\use_case\interactive;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\request;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;

@@ -25,9 +25,8 @@ class ResetPasswordConfirmationCode extends AnonymousConfirmationCode
 		return RESULT_RESET_SUBMIT;
 	}
 
-	protected function afterGenerateInitialValuesHook(): int
-	{
-		$f = __METHOD__; //ResetPasswordConfirmationCode::getShortClass()."(".static::getShortClass().")->afterGenerateKeyHook()";
+	protected function afterGenerateInitialValuesHook(): int{
+		$f = __METHOD__;
 		try {
 			// Debug::print("{$f} entered");
 			$post = getInputParameters();
@@ -59,13 +58,11 @@ class ResetPasswordConfirmationCode extends AnonymousConfirmationCode
 		}
 	}
 
-	public function setEmailAddress($email)
-	{
+	public function setEmailAddress($email){
 		return $email;
 	}
 
-	public function isSecurityNotificationWarranted()
-	{
+	public function isSecurityNotificationWarranted():bool{
 		return true;
 	}
 
@@ -74,24 +71,20 @@ class ResetPasswordConfirmationCode extends AnonymousConfirmationCode
 		return WEBSITE_URL . "/reset/{$suffix}";
 	}
 
-	public static function getEmailNotificationClass()
-	{
+	public static function getEmailNotificationClass():string{
 		return ResetPasswordEmail::class;
 	}
 
-	public static function getConfirmationCodeTypeStatic()
-	{
+	public static function getConfirmationCodeTypeStatic(){
 		return ACCESS_TYPE_RESET;
 	}
 
-	public static function getIpLogReason()
-	{
+	public static function getReasonLoggedStatic(){
 		return BECAUSE_RESET;
 	}
 
-	public static function getPermissionStatic(string $name, $data)
-	{
-		$f = __METHOD__; //ResetPasswordConfirmationCode::getShortClass()."(".static::getShortClass().")::getPermissionStatic()";
+	public static function getPermissionStatic(string $name, $data){
+		$f = __METHOD__;
 		switch ($name) {
 			case DIRECTIVE_INSERT:
 				if (user() instanceof AnonymousUser) {
@@ -103,8 +96,7 @@ class ResetPasswordConfirmationCode extends AnonymousConfirmationCode
 		}
 	}
 
-	public function getFraudReportUri(): string
-	{
+	public function getFraudReportUri(): string{
 		return WEBSITE_URL . "/reset_fraud/" . $this->getIdentifierValue();
 	}
 }

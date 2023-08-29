@@ -53,12 +53,11 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "password":
-					$input->setPlaceholderAttribute(_("Current password"));
+					$input->setLabelString(_("Current password"));
 					$input->setWrapperElement(Document::createElement("div")->withStyleProperties([
 						"position" => "relative"
 					]));
 					$input->setRequiredAttribute("required");
-					$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
 					break;
 				default:
 			}
@@ -81,7 +80,6 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 			$twelve_plus = substitute(_("%1%+ characters"), 12);
 			$placeholder = "{$new_password} ({$twelve_plus})";
 			$npi->setLabelString($placeholder);
-			$npi->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
 			$npi->setWrapperElement(new DivElement($mode));
 			$npi->setWrapperElement(Document::createElement("div")->withStyleProperties([
 				"margin-bottom" => "1rem",

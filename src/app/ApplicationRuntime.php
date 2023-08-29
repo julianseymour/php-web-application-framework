@@ -1,9 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\app;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\mark;
 use function JulianSeymour\PHPWebApplicationFramework\push;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -28,6 +29,7 @@ use JulianSeymour\PHPWebApplicationFramework\notification\push\PushNotifier;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\element\HTMLElement;
 
 /**
  * this class contains high level functionality defining behavior that encompasses the entire web
@@ -37,8 +39,7 @@ use mysqli;
  *
  * @author j
  */
-class ApplicationRuntime extends Basic
-{
+class ApplicationRuntime extends Basic{
 
 	use FlagBearingTrait;
 
@@ -74,6 +75,12 @@ class ApplicationRuntime extends Basic
 	protected $debugger;
 
 	/**
+	 * 
+	 * @var HTMLElement
+	 */
+	//protected $documentRoot;
+	
+	/**
 	 *
 	 * @var UseCase
 	 */
@@ -92,14 +99,6 @@ class ApplicationRuntime extends Basic
 	 * @var Scope
 	 */
 	protected $globalScope;
-
-	/**
-	 * Override the return value of getCurrentUserLanguagePreference.
-	 * Needed for generating StringTable script
-	 *
-	 * @var string
-	 */
-	protected $languageOverride;
 
 	/**
 	 *
@@ -335,38 +334,6 @@ class ApplicationRuntime extends Basic
 			return $this->databaseManager;
 		}
 		return $this->databaseManager = new DatabaseManager();
-	}
-
-	public function setLanguageOverride(?string $lang): ?string{
-		$f = __METHOD__;
-		if ($lang == null) {
-			unset($this->languageOverride);
-			return null;
-		} elseif (! config()->isLanguageSupported($lang)) {
-			Debug::error("{$f} unsupported language \"{$lang}\"");
-		}
-		return $this->languageOverride = $lang;
-	}
-
-	public function hasLanguageOverride(): bool{
-		return isset($this->languageOverride) && is_string($this->languageOverride) && ! empty($this->languageOverride);
-	}
-
-	public function getLanguageOverride(): ?string{
-		$f = __METHOD__;
-		if (! $this->hasLanguageOverride()) {
-			Debug::error("{$f} language override is undefined");
-		}
-		return $this->languageOverride;
-	}
-
-	public function getCurrentUserLanguagePreference(){
-		if ($this->hasLanguageOverride()) {
-			return $this->getLanguageOverride();
-		} elseif (! $this->hasUserData()) {
-			return LANGUAGE_DEFAULT;
-		}
-		return $this->getUserData()->getLanguagePreference();
 	}
 
 	/**
@@ -652,4 +619,24 @@ class ApplicationRuntime extends Basic
 		}
 		return $this->workflow;
 	}
+	
+	/*public function hasDocumentRoot():bool{
+		return isset($this->documentRoot);
+	}
+	
+	public function setDocumentRoot(?HTMLElement $root):?HTMLElement{
+		if($root == null){
+			unset($this->documentRoot);
+			return null;
+		}
+		return $this->documentRoot = $root;
+	}
+	
+	public function getDocumentRoot():HTMLElement{
+		$f = __METHOD__;
+		if(!$this->hasDocumentRoot()){
+			Debug::error("{$f} document root is undefined");
+		}
+		return $this->documentRoot;
+	}*/
 }

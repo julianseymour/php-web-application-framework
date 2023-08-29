@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
@@ -18,14 +19,12 @@ use JulianSeymour\PHPWebApplicationFramework\paginate\Paginator;
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatement;
 use Exception;
 
-class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
-{
+class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 
 	use MultipleSearchClassesTrait;
 	use StaticPropertyTypeTrait;
 
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
 		return array_merge(parent::declarePropertyTypes($that), [
 			"searchClasses" => "class",
 			"searchableTimestamps" => "?" . SearchTimestampDatum::class,
@@ -33,47 +32,40 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 		]);
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->properties);
 		unset($this->propertyTypes);
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Search query");
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_SEARCH_QUERY;
 	}
 
-	public function hasSearchableTimestamps()
-	{
+	public function hasSearchableTimestamps():bool{
 		return $this->hasArrayProperty("searchableTimestamps");
 	}
 
-	public function getSearchableTimestamps()
-	{
+	public function getSearchableTimestamps(){
 		return $this->getProperty("searchableTimestamps");
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
-		// $f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$query = new TextDatum("searchQuery");
 		$query->setHumanReadableName(_("Search query"));
 		$case_sensitive = new BooleanDatum("caseSensitive");
 		$case_sensitive->setHumanReadableName(_("Case sensitive"));
+		$case_sensitive->setDefaultValue(false);
 		$search_mode = new StringEnumeratedDatum("searchMode", 8);
 		$valid = [
 			SEARCH_MODE_ANY,
@@ -89,26 +81,14 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 		static::pushTemporaryColumnsStatic($columns, $query, $case_sensitive, $search_mode, $autosearch);
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"translate"
 		]);
 	}
 
-	public function setTranslateFlag($value){
+	public function getPageLinkHTTPQueryParameters($pg){
 		$f = __METHOD__;
-		return $this->setFlag("translate", $value);
-	}
-
-	public function getTranslateFlag()
-	{
-		return $this->getFlag("translate");
-	}
-
-	public function getPageLinkHTTPQueryParameters($pg)
-	{
-		$f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
 		try {
 			$print = false;
 			$params = parent::getPageLinkHTTPQueryParameters($pg);
@@ -175,37 +155,29 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 		}
 	}
 
-	public function hasSearchQuery()
-	{
+	public function hasSearchQuery():bool{
 		return $this->hasColumnValue("searchQuery");
 	}
 
-	public function setSearchQuery($query_string)
-	{
+	public function setSearchQuery($query_string){
 		return $this->setColumnValue("searchQuery", $query_string);
 	}
 
-	public function getSearchQuery()
-	{
-		// $f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSearchQuery(){
 		if (! $this->hasSearchQuery()) {
 			return null;
 		}
 		return $this->getColumnValue("searchQuery");
 	}
 
-	private function generateBooleanDatum($className)
-	{
-		// $f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	private function generateBooleanDatum($className){
 		$datum = new SearchFieldDatum("search".get_short_class($className));
 		$datum->setSearchClass($className);
 		$datum->setDataStructure($this);
 		return $datum;
 	}
 
-	private function generateSubordinateFormInput($className)
-	{
-		// $f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	private function generateSubordinateFormInput(string $className):ForeignKeyDatum{
 		$datum = new ForeignKeyDatum("fields_".get_short_class($className));
 		$datum->setDataStructure($this);
 		$datum->setForeignDataStructureClass(SearchFieldsData::class);
@@ -218,9 +190,8 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 		return $datum;
 	}
 
-	public function pushSearchClass($class)
-	{
-		$f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function pushSearchClass(string $class):int{
+		$f = __METHOD__;
 		$boolean = $this->generateBooleanDatum($class);
 		$sub = $this->generateSubordinateFormInput($class);
 		$vn1 = $boolean->getColumnName();
@@ -233,9 +204,8 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 		return $this->pushArrayProperty("searchClasses", $class);
 	}
 
-	public function setSearchClasses($classes)
-	{
-		$f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setSearchClasses($classes){
+		$f = __METHOD__;
 		$print = false;;
 		if (empty($classes)) {
 			Debug::error("{$f} classes array is empty");
@@ -254,7 +224,7 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 		return $this->setArrayProperty("searchClasses", $classes);
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Search queries");
 	}
 
@@ -266,34 +236,28 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 	}
 
 
-	public function getSearchFieldsData(string $classname): ?SearchFieldsData
-	{
+	public function getSearchFieldsData(string $classname): ?SearchFieldsData{
 		return $this->getForeignDataStructure("fields_".get_short_class($classname));
 	}
 
-	public function getSearchMode()
-	{
+	public function getSearchMode(){
 		return $this->getColumnValue("searchMode");
 	}
 
-	public function setSearchMode($mode)
-	{
+	public function setSearchMode($mode){
 		return $this->setColumnValue("searchMode", $mode);
 	}
 
-	public function isCaseSensitive()
-	{
+	public function isCaseSensitive():bool{
 		return $this->getColumnValue("caseSensitive");
 	}
 
-	public function setCaseSensitive($value)
-	{
+	public function setCaseSensitive($value){
 		return $this->setColumnValue("caseSensitive", $value);
 	}
 
-	public function getSearchTerms()
-	{
-		$f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSearchTerms(){
+		$f = __METHOD__;
 		$raw = $this->getColumn("searchQuery")->getValue();
 		$mode = $this->getSearchMode();
 		switch ($mode) {
@@ -323,19 +287,16 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 		return $terms;
 	}
 
-	public function hasSearchableTimestamp($vn)
-	{
+	public function hasSearchableTimestamp($vn):bool{
 		return $this->hasArrayPropertyKey("searchableTimestamps", $vn);
 	}
 
-	public function getSearchableTimestamp($vn)
-	{
+	public function getSearchableTimestamp($vn){
 		return $this->getArrayPropertyValue("searchableTimestamps", $vn);
 	}
 
-	public function setSearchableTimestamp($vn, $searchable)
-	{
-		$f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function setSearchableTimestamp($vn, $searchable){
+		$f = __METHOD__;
 		if ($this->getDebugFlag() && $vn === "insertTimestamp") {
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
@@ -349,9 +310,7 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 		return $ret;
 	}
 
-	public function reportSearchableTimestamp($datum)
-	{
-		// $f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function reportSearchableTimestamp($datum){
 		$vn = $datum->getColumnName();
 		$class = $datum->getDataStructure()->getClass();
 		if ($this->hasSearchableTimestamp($vn)) {
@@ -366,9 +325,8 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 		return $datum;
 	}
 
-	public function getSearchableTimestampParameters($classname)
-	{
-		$f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getSearchableTimestampParameters($classname){
+		$f = __METHOD__;
 		$fields = $this->getForeignDataStructure("fields_".get_short_class($classname));
 		$template = $fields->getSearchTemplateObject();
 		$timestamps = $this->getSearchableTimestamps();
@@ -397,9 +355,8 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface
 	 * @param array $terms
 	 * @return array
 	 */
-	public function duplicateMultipleFieldParameters($classname, $terms)
-	{
-		$f = __METHOD__; //SearchPaginator::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function duplicateMultipleFieldParameters(string $classname, $terms){
+		$f = __METHOD__;
 		$term_count = count($terms);
 		$field_count = $this->getSearchFieldCount($classname);
 		$total_count = $term_count * $field_count;

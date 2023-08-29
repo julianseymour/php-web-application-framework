@@ -2,7 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\use_case\interactive;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\app\XMLHttpResponse;
 use JulianSeymour\PHPWebApplicationFramework\cache\CachePageContentCommand;

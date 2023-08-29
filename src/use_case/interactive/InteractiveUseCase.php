@@ -83,16 +83,14 @@ abstract class InteractiveUseCase extends UseCase
 		return $this->originalOperand;
 	}
 
-	public function createDataOperandObject(): DataStructure
-	{
+	public function createDataOperandObject(): DataStructure{
 		$doc = $this->getDataOperandClass();
 		$ds = new $doc();
 		return $ds;
 	}
 
-	public function getProcessedFormClass(): ?string
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getProcessedFormClass()";
+	public function getProcessedFormClass(): ?string{
+		$f = __METHOD__;
 		$print = false;
 		$classes = $this->getConditionalProcessedFormClasses();
 		if (empty($classes)) {
@@ -435,9 +433,8 @@ abstract class InteractiveUseCase extends UseCase
 	 *
 	 * @return AjaxForm
 	 */
-	protected function generateProcessedForm(): ?AjaxForm
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->generateProcessedForm()";
+	protected function generateProcessedForm(): ?AjaxForm{
+		$f = __METHOD__;
 		$form_class = $this->getProcessedFormClass();
 		if (empty($form_class)) {
 			Debug::warning("{$f} getProcessedFormClass returned empty string");
@@ -451,15 +448,14 @@ abstract class InteractiveUseCase extends UseCase
 		return $form;
 	}
 
-	public function getResponder(): ?Responder
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getResponder()";
+	public function getResponder(int $status): ?Responder{
+		$f = __METHOD__;
 		$print = false;
-		if ($this->getObjectStatus() !== SUCCESS) {
+		if ($status !== SUCCESS) {
 			if ($print) {
 				Debug::print("{$f} use case was not executed successfully");
 			}
-			return parent::getResponder();
+			return parent::getResponder($status);
 		} elseif ($print) {
 			Debug::print("{$f} use case was executed successfully");
 		}
@@ -481,12 +477,11 @@ abstract class InteractiveUseCase extends UseCase
 		if ($print) {
 			Debug::print("{$f} calling parent function");
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 
-	protected function getInteractorClass(): ?string
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getInteractorClass()";
+	protected function getInteractorClass(): ?string{
+		$f = __METHOD__;
 		switch (directive()) {
 			case DIRECTIVE_DELETE: // XXX moved before update as a hacky workaround for CIDR IP address form
 				return DeleteUseCase::class;

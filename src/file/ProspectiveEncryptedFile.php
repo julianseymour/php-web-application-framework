@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -7,18 +8,15 @@ use JulianSeymour\PHPWebApplicationFramework\event\AfterSetForeignDataStructureE
 use Exception;
 use mysqli;
 
-abstract class ProspectiveEncryptedFile extends EncryptedFile
-{
+abstract class ProspectiveEncryptedFile extends EncryptedFile{
 
-	public function __construct()
-	{
+	public function __construct(){
 		parent::__construct();
 		$this->setReceptivity(DATA_MODE_RECEPTIVE);
 	}
 
-	public function setMimeType($mime)
-	{
-		$f = __METHOD__; //ProspectiveEncryptedFile::getShortClass()."(".static::getShortClass().")->setMimeType()";
+	public function setMimeType(string $mime):string{
+		$f = __METHOD__;
 		switch ($mime) {
 			case MIME_TYPE_GIF:
 			case MIME_TYPE_JPG:
@@ -45,9 +43,8 @@ abstract class ProspectiveEncryptedFile extends EncryptedFile
 		return parent::setMimeType($mime);
 	}
 
-	public function getMetadataJson()
-	{
-		$f = __METHOD__; //ProspectiveEncryptedFile::getShortClass()."(".static::getShortClass().")->getMetadataJson()";
+	public function getMetadataJson(){
+		$f = __METHOD__;
 		try {
 			$config = $this->getArrayMembershipConfiguration("metadata");
 			Debug::printArray($config);
@@ -71,24 +68,19 @@ abstract class ProspectiveEncryptedFile extends EncryptedFile
 				default:
 					break;
 			}
-			// $arr['size'] = $this->getFileSize();
 			$arr['counterpartKey'] = $this->getCounterpartKey();
 			$json = http_build_query($arr);
-			/*
-			 * if(!is_json($json)){
-			 * Debug::error("{$f} invalid JSON");
-			 * }
-			 */
-			Debug::print("{$f} returning normally");
+			if($print){
+				Debug::print("{$f} returning normally");
+			}
 			return $json;
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	protected function afterGenerateInitialValuesHook(): int
-	{
-		$f = __METHOD__; //ProspectiveEncryptedFile::getShortClass()."(".static::getShortClass().")->afterGenerateKeyHook()";
+	protected function afterGenerateInitialValuesHook(): int{
+		$f = __METHOD__;
 		try {
 			$json = $this->getMetadataJson();
 			if (! isset($json)) {
@@ -101,24 +93,13 @@ abstract class ProspectiveEncryptedFile extends EncryptedFile
 		}
 	}
 
-	/*
-	 * public function generateFileIndexNonce(){
-	 * $f = __METHOD__; //ProspectiveEncryptedFile::getShortClass()."(".static::getShortClass().")->generateFileIndexNonce()";
-	 * return $this->setFileIndexNonce(random_bytes(SODIUM_CRYPTO_PWHASH_SALTBYTES));
-	 * }
-	 */
-	protected function beforeInsertHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //ProspectiveEncryptedFile::getShortClass()."(".static::getShortClass().")->beforeInsertHook()";
+	protected function beforeInsertHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$ret = parent::beforeInsertHook($mysqli);
 			if (! $this->hasMimeType()) {
 				Debug::error("{$f} mime type is undefined");
-			} /*
-			   * elseif($this->getMimeType() !== MIME_TYPE_JPEG){
-			   * Debug::error("{$f} only accepting JPEGs atm");
-			   * }
-			   */
+			}
 			return $ret;
 		} catch (Exception $x) {
 			x($f, $x);

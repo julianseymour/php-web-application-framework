@@ -1,7 +1,7 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum\foreign;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\registry;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
@@ -15,22 +15,29 @@ use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 use mysqli;
 
-class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
-{
+class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 
 	use ForeignKeyDatumTrait;
 	use LoadedFlagTrait;
 
-	public function __construct(string $name, ?int $type = null)
-	{
+	public function __construct(string $name, ?int $type = null){
 		parent::__construct($name);
 		if ($type !== null) {
 			$this->setRelationshipType($type);
 		}
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public function getConstructorParams(): ?array{
+		if($this->hasRelationshipType()){
+			return [
+				$this->getColumnName(),
+				$this->getRelationshipType()
+			];
+		}
+		return [$this->getColumnName()];
+	}
+	
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			COLUMN_FILTER_ADD_TO_RESPONSE,
 			COLUMN_FILTER_AUTOLOAD,
@@ -45,8 +52,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		]);
 	}
 
-	public function configureArrayMembership($value)
-	{
+	public function configureArrayMembership($value){
 		$f = __METHOD__;
 		$print = false;
 		$column_name = $this->getColumnName();
@@ -73,16 +79,14 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		return $value;
 	}
 
-	public function getHumanReadableName()
-	{
+	public function getHumanReadableName(){
 		if (! $this->hasHumanReadableName() && $this->hasForeignDataStructureClass()) {
 			return $this->getForeignDataStructureClass()::getPrettyClassNames();
 		}
 		return parent::getHumanReadableName();
 	}
 
-	public function processInput($input): int
-	{
+	public function processInput($input): int{
 		$f = __METHOD__;
 		$print = false;
 		$keyvalues = $input->getValueAttribute();
@@ -107,8 +111,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		return SUCCESS;
 	}
 
-	public static function getDatabaseEncodedValueStatic($arr)
-	{
+	public static function getDatabaseEncodedValueStatic($arr){
 		if (! empty($arr)) {
 			foreach ($arr as $key => $value) {
 				if (is_object($value)) {
@@ -119,8 +122,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		return parent::getDatabaseEncodedValueStatic($arr);
 	}
 
-	public function setRelationshipType(int $type): int
-	{
+	public function setRelationshipType(int $type): int{
 		$f = __METHOD__;
 		switch ($type) {
 			case RELATIONSHIP_TYPE_ONE_TO_ONE:
@@ -135,8 +137,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		return $this->relationshipType = $type;
 	}
 
-	public function getPersistenceMode(): int
-	{
+	public function getPersistenceMode(): int{
 		$p = parent::getPersistenceMode();
 		switch ($p) {
 			case PERSISTENCE_MODE_DATABASE:
@@ -152,8 +153,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		}
 	}
 
-	public function getRetainOriginalValueFlag(): bool
-	{
+	public function getRetainOriginalValueFlag(): bool{
 		if ($this->getTemplateFlag()) {
 			return true;
 		}
@@ -166,16 +166,14 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		}
 	}
 
-	public function getValueCount(): int
-	{
+	public function getValueCount(): int{
 		if (! $this->hasValue()) {
 			return 0;
 		}
 		return count($this->value);
 	}
 
-	public function updateIntersectionTables(mysqli $mysqli): int
-	{
+	public function updateIntersectionTables(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try {
 			if ($this->getPersistenceMode() === PERSISTENCE_MODE_VOLATILE) {
@@ -305,8 +303,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		}
 	}
 
-	public function insertIntersectionData(mysqli $mysqli): int
-	{
+	public function insertIntersectionData(mysqli $mysqli): int{
 		return $this->updateIntersectionTables($mysqli);
 	}
 
@@ -316,29 +313,24 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 	 * @param bool $value
 	 * @return bool
 	 */
-	public function setOneSidedFlag(bool $value = true): bool
-	{
+	public function setOneSidedFlag(bool $value = true): bool{
 		return $this->setFlag(COLUMN_FILTER_ONE_SIDED, $value);
 	}
 
-	public function getOneSidedFlag(): bool
-	{
+	public function getOneSidedFlag(): bool{
 		return $this->getFlag(COLUMN_FILTER_ONE_SIDED);
 	}
 
-	public function oneSided(bool $value = true): KeyListDatum
-	{
+	public function oneSided(bool $value = true): KeyListDatum{
 		$this->setOneSidedFlag($value);
 		return $this;
 	}
 
-	public function inArray($value): bool
-	{
+	public function inArray($value): bool{
 		return isset($this->value) && is_array($this->value) & in_array($value, $this->value, true);
 	}
 
-	public function pushValue(...$values): int
-	{
+	public function pushValue(...$values): int{
 		$f = __METHOD__;
 		$print = false;
 		if (count($values) === 1 && is_array($values[0])) {
@@ -375,8 +367,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		return $pushed;
 	}
 
-	public final function pushValueFromQueryResult(...$values): int
-	{
+	public final function pushValueFromQueryResult(...$values): int{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -407,9 +398,8 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 		}
 	}
 
-	public function pushOriginalValue(...$values): int
-	{
-		$f = __METHOD__; //KeyListDatum::getShortClass()."(".static::getShortClass().")->pushOriginalValue()";
+	public function pushOriginalValue(...$values): int{
+		$f = __METHOD__;
 		if (count($values) === 1 && is_array($values[0])) {
 			$values = $values[0];
 		}
@@ -417,5 +407,49 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface
 			$this->originalValue = [];
 		}
 		return array_push($this->originalValue, ...$values);
+	}
+	
+	public function replicate(){
+		$replica = parent::replicate();
+		if($this->hasKeyParts()){
+			$replica->setKeyParts($this->getKeyParts());
+		}
+		if($this->hasForeignDataIdentifierName()){
+			$replica->setForeignDataIdentifierName($this->getForeignDataIdentifierName());
+		}
+		if($this->hasForeignDataStructureClass()){
+			$replica->setForeignDataStructureClass($this->getForeignDataStructureClass());
+		}
+		if($this->hasForeignDataStructureClassResolver()){
+			$replica->setForeignDataStructureClassResolver($this->getForeignDataStructureClassResolver());
+		}
+		if($this->hasForeignDataType()){
+			$replica->setForeignDataType($this->getForeignDataType());
+		}
+		if($this->hasForeignDataTypeName()){
+			$replica->setForeignDataTypename($this->getForeignDataTypeName());
+		}
+		if($this->hasForeignDataSubtypeName()){
+			$replica->setForeignDataSubtypeName($this->getForeignDataTypeName());
+		}
+		if($this->hasConverseRelationshipKeyName()){
+			$replica->setConverseRelationshipKeyName($this->getConverseRelationshipKeyName());
+		}
+		if($this->hasRelativeSequence()){
+			$replica->setRelativeSequennce($this->getRelativeSequence());
+		}
+		if($this->hasUpdateBehavior()){
+			$replica->setUpdateBehavior($this->getUpdateBehavior());
+		}
+		if($this->hasVertexContractions()){
+			$replica->setVertexContractions($this->getVertexContractions());
+		}
+		if($this->hasOnDelete()){
+			$replica->setOnDelete($this->getOnDelete());
+		}
+		if($this->hasOnUpdate()){
+			$replica->setOnUpdate($this->getOnUpdate());
+		}
+		return $replica;
 	}
 }

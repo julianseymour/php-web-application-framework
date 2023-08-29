@@ -40,7 +40,7 @@ class UpdateElementCommand extends MultipleElementCommand{
 	execute(){
 		let f = this.constructor.name.concat(".execute()");
 		try{
-			let print = true;
+			let print = false;
 			if(!this.hasElements()){
 				return error(f, "elements are undefined");
 			}

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\session\resume;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -15,11 +16,17 @@ use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicReadCredentials;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\DetectLocaleUseCase;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 
 class SessionRecoveryCookie extends DataStructure{
 
+	public static function getDatabaseNameStatic():string{
+		return "user_content";
+	}
+	
 	public static function getDataType(): string{
 		return DATATYPE_UNKNOWN;
 	}
@@ -49,7 +56,6 @@ class SessionRecoveryCookie extends DataStructure{
 	}
 
 	public function setRecoveryKey($key){
-		$f = __METHOD__;
 		return $this->setColumnValue(static::getRecoveryKeyColumnName(), $key);
 	}
 
@@ -65,9 +71,8 @@ class SessionRecoveryCookie extends DataStructure{
 		return $this->setForeignDataStructure(static::getRecoveryKeyColumnName(), $srd);
 	}
 
-	public function hasValidRecoveryData()
-	{
-		$f = __METHOD__; //SessionRecoveryCookie::getShortClass()."(".static::getShortClass().")->hasValidRecoveryData()";
+	public function hasValidRecoveryData(){
+		$f = __METHOD__;
 		try {
 			if (! $this->hasRecoveryKey()) {
 				return false;
@@ -91,19 +96,16 @@ class SessionRecoveryCookie extends DataStructure{
 		}
 	}
 
-	protected static function getCookieSecretColumnName()
-	{
+	protected static function getCookieSecretColumnName():string{
 		return "cookieSecret";
 	}
 
-	protected static function getRecoveryKeyColumnName()
-	{
+	protected static function getRecoveryKeyColumnName():string{
 		return "recoveryKey";
 	}
 
-	public function recoverSession()
-	{
-		$f = __METHOD__; //SessionRecoveryCookie::getShortClass()."(".static::getShortClass().")->recoverSession()";
+	public function recoverSession():?PlayableUser{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
@@ -131,6 +133,7 @@ class SessionRecoveryCookie extends DataStructure{
 			$deterministicSecretKey = base64_decode($kit['deterministicSecretKey_64']);
 			// load user data
 			$user_class = mods()->getUserClass($user_type);
+			DetectLocaleUseCase::detectLocaleStatic();
 			$user = new $user_class(ALLOCATION_MODE_SUBJECTIVE);
 			$idn = $user->getIdentifierName();
 			$result = $user->select()->where(new WhereCondition($idn, OPERATOR_EQUALS))->withTypeSpecifier($user->getColumn($idn)->getTypeSpecifier())->withParameters($user_key)->executeGetResult($mysqli);
@@ -167,15 +170,9 @@ class SessionRecoveryCookie extends DataStructure{
 				}
 				$user->setCacheValue($results);
 			} elseif ($print) {
-				Debug::print("{$f} redis cache is disabled, skipping loaded user cache");
+				Debug::print("{$f} cache is disabled, skipping loaded user cache");
 			}
 			$user->setObjectStatus(SUCCESS);
-			/*$status = $user->getObjectStatus();
-			if ($status !== SUCCESS) {
-				$err = ErrorMessage::getResultMessage($status);
-				Debug::warning("{$f} loaded user with error status \"{$err}\"");
-				return null;
-			}*/
 			$status = $user->loadForeignDataStructures($mysqli, false, 3);
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
@@ -253,14 +250,6 @@ class SessionRecoveryCookie extends DataStructure{
 		}
 		$recovery_data->setUserKey($kit["userKey"]);
 		$recovery_data->setUserAccountType($kit['userAccountType']);
-		/*
-		 * $status = $recovery_data->loadFromKey($mysqli, $recovery_key);
-		 * if($status !== SUCCESS){
-		 * $err = ErrorMessage::getResultMessage($this->setObjectStatus($status));
-		 * Debug::warning("{$f} loading recovery data from database returned error status \"{$err}\"");
-		 * return $this->getObjectStatus();
-		 * }
-		 */
 		$status = $recovery_data->loadForeignDataStructures($mysqli, false);
 		if ($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($this->setObjectStatus($status));
@@ -285,41 +274,34 @@ class SessionRecoveryCookie extends DataStructure{
 		return SUCCESS;
 	}
 
-	public static function getTableNameStatic(): string
-	{
-		$f = __METHOD__; //SessionRecoveryCookie::getShortClass()."(".static::getShortClass().")::getTableNameStatic()";
+	public static function getTableNameStatic(): string{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "sessionRecoveryCookie";
 	}
 
-	public static function getDefaultPersistenceModeStatic(): int
-	{
+	public static function getDefaultPersistenceModeStatic(): int{
 		return PERSISTENCE_MODE_COOKIE;
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
-		$f = __METHOD__; //SessionRecoveryCookie::getShortClass()."(".static::getShortClass().")::getPrettyClassName()";
+	public static function getPrettyClassName():string{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
-		$f = __METHOD__; //SessionRecoveryCookie::getShortClass()."(".static::getShortClass().")::getPrettyClassNames()";
+	public static function getPrettyClassNames():string{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function isRegistrable(): bool
-	{
+	public function isRegistrable(): bool{
 		return false;
 	}
 
-	public static function isRegistrableStatic(): bool
-	{
+	public static function isRegistrableStatic(): bool{
 		return false;
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -8,9 +9,9 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Exception;
 use mysqli;
 
-abstract class CleartextFileData extends FileData{
+class CleartextFileData extends FileData{
 
-	public function getOriginalFilename(){
+	public function getOriginalFilename():string{
 		$f = __METHOD__;
 		if (! $this->hasOriginalFilename()) {
 			Debug::error("{$f} original filename is undefined");
@@ -19,11 +20,11 @@ abstract class CleartextFileData extends FileData{
 		return $this->getColumnValue("originalFilename");
 	}
 
-	public function hasFilename(){
+	public function hasFilename():bool{
 		return $this->hasColumnValue("filename");
 	}
 
-	public function getFilename(){
+	public function getFilename():string{
 		$f = __METHOD__;
 		if (! $this->hasFilename()) {
 			$class = $this->getClass();
@@ -58,19 +59,19 @@ abstract class CleartextFileData extends FileData{
 		}
 	}
 
-	public function setFilename($name){
+	public function setFilename(string $name):string{
 		return $this->setColumnValue("filename", $name);
 	}
 
-	public function hasMimeType(){
+	public function hasMimeType():bool{
 		return $this->hasColumnValue("mimeType");
 	}
 
-	public function hasOriginalFilename(){
+	public function hasOriginalFilename():bool{
 		return $this->hasColumnValue("originalFilename");
 	}
 
-	public function getMimeType(){
+	public function getMimeType():string{
 		$f = __METHOD__;
 		if (! $this->hasMimeType()) {
 			Debug::error("{$f} mime type is undefined");
@@ -79,11 +80,11 @@ abstract class CleartextFileData extends FileData{
 		return $this->getColumnValue("mimeType");
 	}
 
-	public function setMimeType($mime){
+	public function setMimeType(string $mime):string{
 		return $this->setColumnValue("mimeType", $mime);
 	}
 
-	public function setOriginalFilename($name){
+	public function setOriginalFilename(string $name):string{
 		return $this->setColumnValue("originalFilename", $name);
 	}
 
@@ -91,7 +92,7 @@ abstract class CleartextFileData extends FileData{
 		return $this->setColumnValue("size", $size);
 	}
 
-	public function hasSize(){
+	public function hasSize():bool{
 		return $this->hasColumnValue("size");
 	}
 
@@ -103,11 +104,11 @@ abstract class CleartextFileData extends FileData{
 		return $this->getColumnValue("size");
 	}
 
-	public function getWebFilePath(){
+	public function getWebFilePath():string{
 		return $this->getWebFileDirectory() . '/' . $this->getFilename();
 	}
 
-	public function getFullFileDirectory(){
+	public function getFullFileDirectory():string{
 		return "/var/www/html" . $this->getWebFileDirectory();
 	}
 
@@ -141,7 +142,7 @@ abstract class CleartextFileData extends FileData{
 		}
 	}
 
-	public function getWebFileDirectory(){
+	public function getWebFileDirectory():string{
 		return "/files";
 	}
 
@@ -152,7 +153,7 @@ abstract class CleartextFileData extends FileData{
 		return $this->fileContents = file_get_contents($this->getUploadedTempFilename());
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("File");
 	}
 
@@ -160,7 +161,7 @@ abstract class CleartextFileData extends FileData{
 		return "files";
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Files");
 	}
 }

@@ -1,14 +1,16 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\getCurrentUserLanguagePreference;
+use function JulianSeymour\PHPWebApplicationFramework\user;
 use JulianSeymour\PHPWebApplicationFramework\cache\CacheableInterface;
 use JulianSeymour\PHPWebApplicationFramework\cache\CacheableTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\DisposableInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\EscapeTypeTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\json\EchoJsonInterface;
@@ -29,8 +31,7 @@ use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
  * @author j
  *        
  */
-abstract class Command extends Basic implements CacheableInterface, DisposableInterface, EchoJsonInterface, JavaScriptCounterpartInterface
-{
+abstract class Command extends Basic implements CacheableInterface, DisposableInterface, EchoJsonInterface, JavaScriptCounterpartInterface{
 
 	use ArrayPropertyTrait;
 	use CacheableTrait;
@@ -60,21 +61,20 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 		}
 	}
 
-	public function echoJson(bool $destroy = false): void
-	{
-		$f = __METHOD__; //Command::getShortClass()."(".static::getShortClass().")->echoJson()";
+	public function echoJson(bool $destroy = false): void{
+		$f = __METHOD__;
 		$print = false;
 		$cache = false;
-		$lang = getCurrentUserLanguagePreference();
+		$locale = user()->getLocaleString();
 		if ($this->isCacheable() && JSON_CACHE_ENABLED) {
 			if ($print) {
 				Debug::print("{$f} this command is cacheable");
 			}
-			if (cache()->has($this->getCacheKey() . "_{$lang}.json")) {
+			if (cache()->has($this->getCacheKey() . "_{$locale}.json")) {
 				if ($print) {
 					Debug::print("{$f} cache hit");
 				}
-				echo cache()->get($this->getCacheKey() . "_{$lang}.json");
+				echo cache()->get($this->getCacheKey() . "_{$locale}.json");
 				return;
 			} else {
 				if ($print) {
@@ -94,7 +94,7 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 				Debug::print("{$f} about to cache JSON");
 			}
 			$json = ob_get_clean();
-			cache()->set($this->getCacheKey() . "_{$lang}.json", $json, time() + 30 * 60);
+			cache()->set($this->getCacheKey() . "_{$locale}.json", $json, time() + 30 * 60);
 			echo $json;
 			unset($json);
 		} elseif ($print) {

@@ -1,7 +1,7 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password\change;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use JulianSeymour\PHPWebApplicationFramework\app\Responder;
 use JulianSeymour\PHPWebApplicationFramework\app\XMLHttpResponse;

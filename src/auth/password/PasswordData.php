@@ -23,6 +23,10 @@ class PasswordData extends DataStructure{
 
 	use PasswordDerivedColumnsTrait;
 
+	public static function getDatabaseNameStatic():string{
+		return "error";
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$hash = new PasswordDatum("password");
 		$privateKey = new BlobDatum("privateKey");
@@ -36,7 +40,7 @@ class PasswordData extends DataStructure{
 		static::pushTemporaryColumnsStatic($columns, $hash, $privateKey, $public, $keyGenerationNonce, $signaturePrivateKey, $signatureSeed, $encrypted_nonce, $public_sign, $dsk);
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Password");
 	}
 
@@ -48,7 +52,7 @@ class PasswordData extends DataStructure{
 		return DATATYPE_UNKNOWN;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Passwords");
 	}
 
@@ -173,15 +177,15 @@ class PasswordData extends DataStructure{
 		}
 	}
 
-	public function hasDeterministicSecretKey(){
+	public function hasDeterministicSecretKey():bool{
 		return $this->hasColumnValue("deterministicSecretKey");
 	}
 
-	public function setDeterministicSecretKey($value){
+	public function setDeterministicSecretKey(string $value):string{
 		return $this->setColumnValue("deterministicSecretKey", $value);
 	}
 
-	public function getDeterministicSecretKey(){
+	public function getDeterministicSecretKey():string{
 		return $this->getColumnValue("deterministicSecretKey");
 	}
 

@@ -28,15 +28,15 @@ class TimestampDatum extends SignedIntegerDatum implements StaticElementClassInt
 		]);
 	}
 
-	public function setUpdateToCurrentTimeFlag($value){
+	public function setUpdateToCurrentTimeFlag(bool $value = true):bool{
 		return $this->setFlag("updateToCurrentTime", $value);
 	}
 
-	public function getUpdateToCurrentTimeFlag(){
+	public function getUpdateToCurrentTimeFlag():bool{
 		return $this->getFlag("updateToCurrentTime");
 	}
 
-	public function getProcessValuelessInputFlag(){
+	public function getProcessValuelessInputFlag():bool{
 		return parent::getProcessValuelessInputFlag() || $this->getUpdateToCurrentTimeFlag();
 	}
 

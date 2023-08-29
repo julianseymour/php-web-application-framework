@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account;
 
 use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousAccountTypePermission;
@@ -12,15 +13,17 @@ use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use mysqli;
 
-class UsernameData extends DataStructure
-{
+class UsernameData extends DataStructure{
 
 	use NormalizedNameColumnTrait;
 	use UserKeyColumnTrait;
 
-	public function __construct(?int $mode = ALLOCATION_MODE_EAGER)
-	{
-		$f = __METHOD__; //UsernameData::getShortClass()."(".static::getShortClass().")->__construct()";
+	public static function getDatabaseNameStatic():string{
+		return "usernames";
+	}
+	
+	public function __construct(?int $mode = ALLOCATION_MODE_EAGER){
+		$f = __METHOD__;
 		parent::__construct($mode);
 		if ($mode === ALLOCATION_MODE_EAGER) {
 			if (! $this->getColumn("userAccountType")->getRetainOriginalValueFlag()) {
@@ -29,8 +32,7 @@ class UsernameData extends DataStructure
 		}
 	}
 
-	public static function getCompositeUniqueColumnNames(): ?array
-	{
+	public static function getCompositeUniqueColumnNames(): ?array{
 		return [
 			[
 				"normalizedName"
@@ -38,33 +40,27 @@ class UsernameData extends DataStructure
 		];
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_USERNAME;
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "usernames";
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Username");
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "usernames";
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Usernames");
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 
 		$userKey = new ForeignKeyDatum("userKey");
@@ -123,13 +119,11 @@ class UsernameData extends DataStructure
 		static::pushTemporaryColumnsStatic($columns, $userKey, $type, $name, $normalized, $display_name);
 	}
 
-	public static function getKeyGenerationMode(): int
-	{
+	public static function getKeyGenerationMode(): int{
 		return KEY_GENERATION_MODE_HASH;
 	}
 
-	public static function getPermissionStatic($name, $object)
-	{
+	public static function getPermissionStatic($name, $object){
 		switch ($name) {
 			case DIRECTIVE_INSERT:
 				return new AnonymousAccountTypePermission($name);
@@ -140,9 +134,7 @@ class UsernameData extends DataStructure
 		}
 	}
 
-	// copied the following 2 functions from UserOwned
-	public function getUserRoles(mysqli $mysqli, UserData $user): ?array
-	{
+	public function getUserRoles(mysqli $mysqli, UserData $user): ?array{
 		$roles = parent::getUserRoles($mysqli, $user);
 		if ($this->isOwnedBy($user)) {
 			$roles[USER_ROLE_OWNER] = USER_ROLE_OWNER;
@@ -150,9 +142,8 @@ class UsernameData extends DataStructure
 		return $roles;
 	}
 
-	public function isOwnedBy($user)
-	{
-		$f = __METHOD__; //UsernameData::getShortClass()."(".static::getShortClass().")->isOwnedBy()";
+	public function isOwnedBy(UserData $user):bool{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->hasUserData()) {
 			if ($print) {

@@ -43,11 +43,11 @@ class RarFileData extends CompressedFileData{
 		return $filenames;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("RAR file");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("RAR files");
 	}
 

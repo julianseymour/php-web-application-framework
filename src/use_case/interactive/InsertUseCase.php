@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\use_case\interactive;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\request;
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -20,11 +20,9 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\SubsequentUseCase;
 use Exception;
 use mysqli;
 
-class InsertUseCase extends SubsequentUseCase
-{
+class InsertUseCase extends SubsequentUseCase{
 
-	public function execute(): int
-	{
+	public function execute(): int{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -117,9 +115,6 @@ class InsertUseCase extends SubsequentUseCase
 			} elseif ($print) {
 				Debug::print("{$f} notification is not necessary");
 			}
-			// XXX TODO check where this is needed, if anywhere
-			// 10. push child object
-			// user()->setForeignDataStructureListMember($inserted_object->getPhylumName(), $inserted_object);
 			return SUCCESS;
 		} catch (Exception $x) {
 			x($f, $x);
@@ -133,8 +128,7 @@ class InsertUseCase extends SubsequentUseCase
 	 * @param DataStructure $subject
 	 * @return int
 	 */
-	protected function insertNotificationData(mysqli $mysqli, $subject)
-	{
+	protected function insertNotificationData(mysqli $mysqli, $subject){
 		$f = __METHOD__;
 		try {
 			$print = false;

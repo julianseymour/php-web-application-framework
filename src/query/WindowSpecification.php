@@ -5,7 +5,7 @@ use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\MultipleExpressionsTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayKeyProviderInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;

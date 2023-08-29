@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\permit;
 
 use function JulianSeymour\PHPWebApplicationFramework\array_remove_key;
@@ -8,9 +9,9 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Closure;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\account\activate\ActivateAccountUseCase;
 
-trait PermissiveTrait
-{
+trait PermissiveTrait{
 
 	protected $permissions;
 
@@ -18,15 +19,12 @@ trait PermissiveTrait
 
 	protected $permissionGateway;
 
-	// protected $permissionGatewayClass;
-	public function hasPermissionGateway()
-	{
+	public function hasPermissionGateway(){
 		return isset($this->permissionGateway);
 	}
 
-	public function setPermissionGateway($gateway)
-	{
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")->setPermissionGateway()";
+	public function setPermissionGateway($gateway){
+		$f = __METHOD__;
 		if (is_string($gateway)) {
 			if (empty($gateway)) {
 				Debug::error("{$f} empty string");
@@ -40,33 +38,16 @@ trait PermissiveTrait
 		return $this->permissionGateway = $gateway;
 	}
 
-	public function getPermissionGateway()
-	{
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")->getPermissionGateway()";
+	public function getPermissionGateway(){
+		$f = __METHOD__;
 		if (! $this->hasPermissionGateway()) {
 			Debug::error("{$f} permission gateway is undefined");
 		}
 		return $this->permissionGateway;
 	}
 
-	/*
-	 * public function hasPermissionGatewayClass(){
-	 * return isset($this->permissionGatewayClass)
-	 * || static::hasStaticPermissionGatewayClass()
-	 * || $this instanceof StaticPermissionGatewayInterface;
-	 * }
-	 *
-	 * public function setPermissionGatewayClass($pgc){
-	 * $f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")->setPermissionGatewayClass()";
-	 * if(!static::validatePermissionGatewayClass($pgc)){
-	 * Debug::error("{$f} invalid permission gateway class \"{$pgc}\"");
-	 * }
-	 * return $this->permissionGatewayClass = $pgc;
-	 * }
-	 */
-	private static function validatePermissionGatewayClass($class)
-	{
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")::validatePermissionGatewayClass()";
+	private static function validatePermissionGatewayClass($class){
+		$f = __METHOD__;
 		if (! is_string($class)) {
 			Debug::error("{$f} permission gateway class is not a string");
 			return false;
@@ -77,9 +58,8 @@ trait PermissiveTrait
 		return true;
 	}
 
-	public static function hasStaticPermissionGatewayClass()
-	{
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")::hasStaticPermissionGatewayClass()";
+	public static function hasStaticPermissionGatewayClass(){
+		$f = __METHOD__;
 		if (! isset(static::$staticPermissionGatewayClass)) {
 			// Debug::print("{$f} static permission gateway class is undefined");
 			return false;
@@ -90,42 +70,40 @@ trait PermissiveTrait
 		return true;
 	}
 
-	public static function getStaticPermissionGatewayClass()
-	{
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")::getStaticPermissionGatewayClass()";
+	public static function getStaticPermissionGatewayClass(){
+		$f = __METHOD__;
 		if (! static::hasStaticPermissionGatewayClass()) {
 			Debug::error("{$f} static permission gateway class is undefined or invalid");
 		}
 		return static::$staticPermissionGatewayClass;
 	}
 
-	/*
-	 * public function getPermissionGatewayClass(){
-	 * $f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")->getPermissionGatewayClass()";
-	 * if(!$this->hasPermissionGatewayClass()){
-	 * Debug::error("{$f} permission gateway class is undefined");
-	 * }elseif(isset($this->permissionGatewayClass)){
-	 * return $this->permissionGatewayClass;
-	 * }elseiF(static::hasStaticPermissionGatewayClass()){
-	 * return static::getStaticPermissionGatewayClass();
-	 * }elseif($this instanceof StaticPermissionGatewayInterface){
-	 * return static::class;
-	 * }
-	 * Debug::error("{$f} you are shit out of luck");
-	 * }
-	 */
-	public function hasPermission($name)
-	{
-		return isset($this->permissions) && is_array($this->permissions) && array_key_exists($name, $this->permissions);
+	public function hasPermission($name):bool{
+		return isset($this->permissions) 
+		&& is_array($this->permissions) 
+		&& array_key_exists($name, $this->permissions);
 	}
 
-	public function setPermission($name, $closure)
-	{
+	public function setPermission($name, $closure){
+		$f = __METHOD__;
+		$print = false;
+		if($print){
+			Debug::printStackTraceNoExit("{$f} entered");
+		}
 		if ($closure instanceof Permission) {
+			if($print){
+				Debug::print("{$f} input parameter is a Permission");
+			}
 			$permission = $closure;
 		} elseif (is_int($closure) || is_bool($closure)) {
+			if($print){
+				Debug::print("{$f} input parameter is an integer or boolean value");
+			}
 			$permission = $closure;
 		} else {
+			if($print){
+				Debug::print("{$f} input parameter is something else");
+			}
 			$permission = new Permission($name, $closure);
 		}
 		if (! isset($this->permissions) || ! is_array($this->permissions)) {
@@ -134,14 +112,12 @@ trait PermissiveTrait
 		return $this->permissions[$name] = $permission;
 	}
 
-	public function hasSinglePermissionGateway($name)
-	{
+	public function hasSinglePermissionGateway($name):bool{
 		return isset($this->singlePermissionGateways) && is_array($this->singlePermissionGateways) && array_key_exists($name, $this->singlePermissionGateways);
 	}
 
-	public function setSinglePermissionGateway($name, $gateway)
-	{
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")->setSinglePermissionGateway()";
+	public function setSinglePermissionGateway($name, $gateway){
+		$f = __METHOD__;
 		if (is_string($gateway)) {
 			if (! static::validatePermissionGatewayClass($gateway)) {
 				Debug::error("{$f} invalid permission gateway class \"{$gateway}\"");
@@ -153,9 +129,8 @@ trait PermissiveTrait
 		return $this->singlePermissionGateways[$name] = $gateway;
 	}
 
-	public function getSinglePermissionGateway($name)
-	{
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")->getSinglePermissionGateway()";
+	public function getSinglePermissionGateway($name){
+		$f = __METHOD__;
 		if (! $this->hasSinglePermissionGateway($name)) {
 			Debug::error("{$f} this object does not have a single permission gateway for \"{$name}\"");
 		}
@@ -163,20 +138,8 @@ trait PermissiveTrait
 	}
 
 	public final function getPermission(string $name){
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")->getPermission()";
+		$f = __METHOD__;
 		$print = false;
-		/*
-		 * if(
-		 * $this->hasStaticPermissionGatewayClass()
-		 * && $this instanceof StaticPermissionGatewayInterface
-		 * ){
-		 * if($print){
-		 * Debug::print("{$f} static permission gateway class is defined");
-		 * }
-		 * $static = static::$staticPermissionGatewayClass;
-		 * Debug::error("{$f} StaticPermissionGatewayInterfaces cannot have static permission gateway classes ({$static})");
-		 * }else
-		 */
 		if ($this->hasPermission($name)) { // 1. non-statically assigned permissions`
 			if ($print) {
 				Debug::print("{$f} permission \"{$name}\" is defined");
@@ -231,9 +194,8 @@ trait PermissiveTrait
 		return FAILURE;
 	}
 
-	public function removePermission($name)
-	{
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")->removePermission()";
+	public function removePermission($name){
+		$f = __METHOD__;
 		if (! $this->hasPermission($name)) {
 			Debug::error("{$f} permission \"{$name}\" does not exist");
 		}
@@ -244,9 +206,8 @@ trait PermissiveTrait
 		return $name;
 	}
 
-	public final function permit($user, $permission_name, ...$params)
-	{
-		$f = __METHOD__; //"PermissiveTrait(".static::getShortClass().")->permit()";
+	public final function permit($user, $permission_name, ...$params){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$permission = $this->getPermission($permission_name);

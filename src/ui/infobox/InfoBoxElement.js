@@ -14,7 +14,7 @@ class InfoBoxElement extends Basic{
 	static showInfoBox(content, callback_success, callback_error){
 		let f = "InfoBoxElement.showInfoBox()";
 		try{
-			let print = true;
+			let print = false;
 			if(print){
 				console.log(f+": entered; about to log infobox content");
 				console.log(content);

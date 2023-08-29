@@ -8,7 +8,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 trait ChoosableDataTrait{
 
-	public abstract static function getPrettyClassName($lang = null);
+	public abstract static function getPrettyClassName():string;
 
 	public static function getLoadedChoices(?array $selected_keys): ?array{
 		$f = __METHOD__;

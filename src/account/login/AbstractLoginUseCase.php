@@ -1,7 +1,7 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\login;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\auth\PreauthenticationUseCase;
@@ -13,11 +13,9 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\ClientUseCaseInterface;
 use Exception;
 use mysqli;
 
-abstract class AbstractLoginUseCase extends PreauthenticationUseCase implements ClientUseCaseInterface
-{
+abstract class AbstractLoginUseCase extends PreauthenticationUseCase implements ClientUseCaseInterface{
 
-	public function initializeAccessAttempt(mysqli $mysqli, LoginAttempt $attempt): int
-	{
+	public function initializeAccessAttempt(mysqli $mysqli, LoginAttempt $attempt): int{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -55,7 +53,7 @@ abstract class AbstractLoginUseCase extends PreauthenticationUseCase implements 
 			$attempt->setInsertIpAddress($_SERVER['REMOTE_ADDR']);
 			$attempt->setUserAgent($_SERVER['HTTP_USER_AGENT']);
 			$status = $attempt->getObjectStatus();
-			if ($status !== SUCCESS && $status !== ERROR_UNINITIALIZED) {
+			if ($status !== SUCCESS && $status !== STATUS_UNINITIALIZED) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} error status \"{$err}\"");
 				return $attempt->setObjectStatus($status);

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\group;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
@@ -24,16 +25,18 @@ use mysqli;
  * @author j
  *        
  */
-class GroupData extends DataStructure
-{
+class GroupData extends DataStructure{
 
 	use KeypairedTrait;
 	use KeypairColumnsTrait;
 	use NameColumnTrait;
 	use ParentKeyColumnTrait;
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function getDatabaseNameStatic():string{
+		return "user_content";
+	}
+	
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		// group name
 		$name = new NameDatum("name");
@@ -47,15 +50,8 @@ class GroupData extends DataStructure
 		$founder = new UserMetadataBundle("founder", $ds);
 		// group type
 		$type = new StringEnumeratedDatum("groupType");
-		$type->setNullable(true); // DefaultValue(CONST_NONE);
-		                          // group private key
-		/*
-		 * $privateKey = new BlobDatum("privateKey");
-		 * $privateKey->setNullable(false);
-		 * $privateKey->setNeverLeaveServer(true);
-		 * $privateKey->setEncryptionScheme(AsymmetricEncryptionScheme::class);
-		 * $privateKey->volatilize();
-		 */
+		$type->setNullable(true);
+		
 		// group public key
 		$public = new SodiumCryptoBoxPublicKeyDatum("publicKey");
 		$public->setUserWritableFlag(true);
@@ -120,43 +116,36 @@ class GroupData extends DataStructure
 		return $roles;
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Group");
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "groups";
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_GROUP;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Groups");
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "groups";
 	}
 
-	public function beforeInsertHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //GroupData::getShortClass()."(".static::getShortClass().")->beforeInsertHook()";
+	public function beforeInsertHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		if (! $this->hasPrivateKey()) {
 			Debug::error("{$f} private key is undefined");
 		}
 		return parent::beforeInsertHook($mysqli);
 	}
 
-	protected function nullPrivateKeyHook(): int
-	{
-		$f = __METHOD__; //GroupData::getShortClass()."(".static::getShortClass().")->nullPrivateKeyHook()";
+	protected function nullPrivateKeyHook(): int{
+		$f = __METHOD__;
 		Debug::error("{$f} private key is null");
 		return FAILURE;
 	}

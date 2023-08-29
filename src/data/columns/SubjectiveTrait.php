@@ -62,19 +62,16 @@ trait SubjectiveTrait
 		}
 	}
 
-	public function getSubjectData()
-	{
+	public function getSubjectData(){
 		return $this->getForeignDataStructure('subjectKey');
 	}
 
-	public function hasSubjectData()
-	{
+	public function hasSubjectData():bool{
 		return $this->hasForeignDataStructure("subjectKey");
 	}
 
-	public function setSubjectData(DataStructure $obj): ?DataStructure
-	{
-		$f = __METHOD__; //"SubjectiveTrait(".static::getShortClass().")->setSubjectData()";
+	public function setSubjectData(DataStructure $obj): ?DataStructure{
+		$f = __METHOD__;
 		try {
 			$status = $obj->getObjectStatus();
 			if ($status === ERROR_NOT_FOUND) {
@@ -91,33 +88,27 @@ trait SubjectiveTrait
 		}
 	}
 
-	public function getSubjectSubtype()
-	{
+	public function getSubjectSubtype(){
 		return $this->getColumnValue("subjectSubtype");
 	}
 
-	public function hasSubjectSubtype()
-	{
+	public function hasSubjectSubtype():bool{
 		return $this->hasColumnValue("subjectSubtype");
 	}
 
-	public function setSubjectSubtype(string $subtype): string
-	{
+	public function setSubjectSubtype(string $subtype): string{
 		return $this->setColumnValue("subjectSubtype", $subtype);
 	}
 
-	public function hasSubjectKey()
-	{
+	public function hasSubjectKey():bool{
 		return $this->hasColumnValue("subjectKey");
 	}
 
-	public function setSubjectKey(string $k): string
-	{
+	public function setSubjectKey(string $k): string{
 		return $this->setColumnValue('subjectKey', $k);
 	}
 
-	public function getSubjectKey()
-	{
+	public function getSubjectKey():string{
 		return $this->getColumnValue('subjectKey');
 	}
 

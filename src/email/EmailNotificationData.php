@@ -53,7 +53,6 @@ abstract class EmailNotificationData extends SpamEmail{
 	}
 	
 	protected final function getPlaintextPromptHyperlinks(){
-		$lang = $this->getRecipientLanguagePreference();
 		$string = "";
 		$prompts = $this->getActionURIPromptMap();
 		if (empty($prompts)) {
@@ -87,8 +86,8 @@ abstract class EmailNotificationData extends SpamEmail{
 		return $ret;
 	}
 	
-	public function send(){
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->send()";
+	public function send():int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($this->isOptional()) {

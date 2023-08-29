@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\logout;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
@@ -18,11 +19,9 @@ use JulianSeymour\PHPWebApplicationFramework\ui\WidgetContainer;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 
-class LogoutResponder extends Responder
-{
+class LogoutResponder extends Responder{
 
-	public static function pushWidgetCommands(XMLHttpResponse $response, UseCase $use_case)
-	{
+	public static function pushWidgetCommands(XMLHttpResponse $response, UseCase $use_case){
 		$f = __METHOD__;
 		$print = false;
 		$mode = ALLOCATION_MODE_LAZY;
@@ -39,10 +38,14 @@ class LogoutResponder extends Responder
 			$user = user();
 			foreach ($widgets as $widget_class) {
 				$container = new WidgetContainer($mode);
-				$container->setIterator($count ++);
+				$container->setIterator($count++);
 				$container->setWidgetClass($widget_class);
 				$container->bindContext($user);
+				$container->setStyleProperties([
+					'opacity' => '0'
+				]);
 				$update = $container->update()->optional();
+				$update->setEffect(EFFECT_NONE);
 				$wid = $widget_class::getWidgetLabelId();
 				$update->pushSubcommand(
 					CommandBuilder::if(
@@ -58,8 +61,7 @@ class LogoutResponder extends Responder
 		}
 	}
 
-	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case)
-	{
+	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case){
 		$f = __METHOD__;
 		try {
 			$print = false;

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -14,7 +15,6 @@ use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\account\UserNameKeyColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\account\UsernameData;
 use JulianSeymour\PHPWebApplicationFramework\account\avatar\ProfileImageData;
-use JulianSeymour\PHPWebApplicationFramework\account\login\FullAuthenticationData;
 use JulianSeymour\PHPWebApplicationFramework\account\login\LoginAttempt;
 use JulianSeymour\PHPWebApplicationFramework\app\workflow\Workflow;
 use JulianSeymour\PHPWebApplicationFramework\auth\mfa\InvalidatedOtp;
@@ -47,6 +47,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\OrderByClause;
 use JulianSeymour\PHPWebApplicationFramework\query\QueryBuilder;
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
+use JulianSeymour\PHPWebApplicationFramework\security\SecurityNotificationData;
 use JulianSeymour\PHPWebApplicationFramework\security\access\RequestEvent;
 use JulianSeymour\PHPWebApplicationFramework\security\firewall\ListedIpAddress;
 use JulianSeymour\PHPWebApplicationFramework\security\firewall\UnlistedIpAddressConfirmationCode;
@@ -235,7 +236,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 			}
 			if (cache()->enabled() && USER_CACHE_ENABLED) {
 				if ($print) {
-					Debug::print("{$f} redis cache is enabled");
+					Debug::print("{$f} cache is enabled");
 				}
 				$user_key = $this->getIdentifierValue();
 				$index = "ip_addresses_{$user_key}";
@@ -300,17 +301,17 @@ abstract class AuthenticatedUser extends PlayableUser{
 				$this->setForeignDataStructureListMember($phylum, $ip);
 				if (! cache()->enabled() || ! USER_CACHE_ENABLED) {
 					if ($print) {
-						Debug::print("{$f} redis cache is disabled, continuing");
+						Debug::print("{$f} cache is disabled, continuing");
 					}
 					continue;
 				}
-				$ip->configureArrayMembership("redis");
+				$ip->configureArrayMembership("cache");
 				$cache_me[$ip->getIdentifierValue()] = $ip->toArray();
 			}
 			if (cache()->enabled() && USER_CACHE_ENABLED) {
 				cache()->setAPCu($index, $cache_me, $this->getTimeToLive());
 			} elseif ($print) {
-				Debug::print("{$f} redis cache is disabled, skipping cache of listed IP addresses");
+				Debug::print("{$f} cache is disabled, skipping cache of listed IP addresses");
 			}
 			return $this->getForeignDataStructureList($phylum);
 		} catch (Exception $x) {
@@ -507,7 +508,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 			if (! isset($attempt)) {
 				Debug::error("{$f} request attempt object is undefined");
 			}
-			$reason = $attempt->getIpLogReason();
+			$reason = $attempt->getReasonLoggedStatic();
 			$listed_ip->setReasonLogged($reason);
 			if (! $attempt instanceof ReauthenticationEvent) {
 				$status = $attempt->getObjectStatus();
@@ -519,11 +520,9 @@ abstract class AuthenticatedUser extends PlayableUser{
 			}
 			$this->setForeignDataStructureListMember(ListedIpAddress::getPhylumName(), $listed_ip);
 			$user = $this;
-			$attempt->addEventListener(EVENT_AFTER_INSERT, function (AfterInsertEvent $event, RequestEvent $attempt) use ($user, $listed_ip) {
-				$f = __METHOD__; //"autoInsertCurrentIpAddress closure";
-				$print = false;
+			$attempt->addEventListener(EVENT_AFTER_INSERT, function (AfterInsertEvent $event, RequestEvent $attempt) use ($user, $listed_ip, $f, $print) {
 				$attempt->removeEventListener($event);
-				$mysqli = db()->getConnection(PublicWriteCredentials::class);
+				$mysqli = db()->reconnect(PublicWriteCredentials::class);
 				$status = $listed_ip->insert($mysqli);
 				if ($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
@@ -560,7 +559,8 @@ abstract class AuthenticatedUser extends PlayableUser{
 					Debug::warning("{$f} reloading listed IP address returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
-				if ($user->getEmailSecurityNotifications() || $user->getPushSecurityNotifications()) {
+				$type = SecurityNotificationData::getNotificationTypeStatic();
+				if ($user->getEmailNotificationStatus($type) || $user->getPushNotificationStatus($type)) {
 					$status = $user->notify($mysqli, $listed_ip);
 					if ($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
@@ -601,7 +601,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 		return $this->getColumnValue('hardResetCount');
 	}
 
-	public function hasMfaSeed(){
+	public function hasMfaSeed():bool{
 		return $this->hasColumnValue(MfaSeedDatum::getColumnNameStatic());
 	}
 
@@ -947,7 +947,6 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$email_note_bundle = new NotificationStatusDatumBundle("email");
 
 			$where = BinaryExpressionCommand::equals(new GetDeclaredVariableCommand("usernames_alias.uniqueKey"), new GetDeclaredVariableCommand("t0.userNameKey"));
-
 			$name = new NameDatum();
 			$name->setSubqueryClass(UsernameData::class);
 			$name->setSubqueryWhereCondition($where);
@@ -1051,22 +1050,6 @@ abstract class AuthenticatedUser extends PlayableUser{
 
 	public function getForgotUsernameEnabled():bool{
 		return $this->getColumnValue("forgotUsernameEnabled");
-	}
-
-	public function getPushSecurityNotifications():bool{
-		return $this->getColumnValue("pushSecurityNotifications");
-	}
-
-	public function setPushSecurityNotifications($status){
-		return $this->setColumnValue("pushSecurityNotifications", $status);
-	}
-
-	public function getEmailSecurityNotifications():bool{
-		return $this->getColumnValue("emailSecurityNotifications");
-	}
-
-	public function setEmailSecurityNotifications($status){
-		return $this->setColumnValue("emailSecurityNotifications", $status);
 	}
 
 	public function updateLogoutTimestamp(mysqli $mysqli, $timestamp){

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
@@ -14,92 +15,74 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\InteractiveUse
 use JulianSeymour\messenger\ui\AttachedFileElement;
 use mysqli;
 
-class PublicFilesUseCase extends InteractiveUseCase
-{
+class PublicFilesUseCase extends InteractiveUseCase{
 
-	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData
-	{
-		return config()->getAdministratorclass()::getAdministratorStatic($mysqli);
+	public function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData{
+		$ac = config()->getAdministratorclass();
+		$admin = new $ac();
+		$admin->load($mysqli, 'num', 1);
+		return $admin;
 	}
 
-	public function getProcessedDataListClasses(): ?array
-	{
+	public function getProcessedDataListClasses(): ?array{
 		return [
 			PublicFileData::class
 		];
 	}
 
-	public function getConditionalElementClasses(): ?array
-	{
-		$f = __METHOD__;
+	public function getConditionalElementClasses(): ?array{
 		return [DATATYPE_FILE => PublicFileUploadForm::class];
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/files";
 	}
 
-	public function getConditionalDataOperandClasses(): ?array
-	{
+	public function getConditionalDataOperandClasses(): ?array{
 		return [
 			DATATYPE_FILE_CLEARTEXT => PublicFileData::class
 		];
 	}
 
-	public function getConditionalProcessedFormClasses(): ?array
-	{
+	public function getConditionalProcessedFormClasses(): ?array{
 		return [
 			PublicFileUploadForm::class
 		];
 	}
 
-	public function getProcessedDataType(): ?string
-	{
+	public function getProcessedDataType(): ?string{
 		return DATATYPE_FILE_CLEARTEXT;
 	}
 
-	public function isCurrentUserDataOperand(): bool
-	{
+	public function isCurrentUserDataOperand(): bool{
 		return false;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_FILES;
-	}
-
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getDataOperandClass(): ?string
-	{
+	public function getDataOperandClass(): ?string{
 		return PublicFileData::class;
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return SUCCESS;
 	}
 
-	public function getResponder(): ?Responder
-	{
-		$status = $this->getObjectStatus();
+	public function getResponder(int $status): ?Responder{
 		if ($status !== SUCCESS) {
-			return parent::getResponder();
+			return parent::getResponder($status);
 		}
 		switch (directive()) {
 			case DIRECTIVE_INSERT:
 				return new InsertAfterResponder();
 			default:
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 
-	public function getPageContent(): ?array
-	{
+	public function getPageContent(): ?array{
 		$arr = [];
 		$user = user();
 		if ($user instanceof Administrator) {
@@ -114,8 +97,7 @@ class PublicFilesUseCase extends InteractiveUseCase
 		return $arr;
 	}
 
-	public static function allowFileUpload(): bool
-	{
+	public static function allowFileUpload(): bool{
 		return true;
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\firewall;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
@@ -6,53 +7,39 @@ use JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\ValidateAnonymous
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicReadCredentials;
 
-class ValidateUnlistedIpAddressCodeUseCase extends ValidateAnonymousConfirmationCodeUseCase
-{
+class ValidateUnlistedIpAddressCodeUseCase extends ValidateAnonymousConfirmationCodeUseCase{
 
-	public static function getBruteforceAttemptClass(): string
-	{
+	public static function getBruteforceAttemptClass(): string{
 		return ListIpAddressAttempt::class;
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return SUCCESS;
 	}
 
-	public static function getConfirmationCodeClass(): string
-	{
+	public static function getConfirmationCodeClass(): string{
 		return UnlistedIpAddressConfirmationCode::class;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_AUTHORIZE_UNLISTED_IP;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/authorize_ip";
 	}
 
-	public function getFormClass(): ?string
-	{
+	public function getFormClass(): ?string{
 		return ConfirmIpAddressListForm::class;
 	}
 
-	public function getDataOperandObject(): ?DataStructure
-	{
+	public function getDataOperandObject(): ?DataStructure{
 		$mysqli = db()->getConnection(PublicReadCredentials::class);
 		$ip = $this->acquireConfirmationCodeObject($mysqli)->getIpAddressObject();
 		return $ip;
 	}
 
-	public static function validateOnFormSubmission(): bool
-	{
+	public static function validateOnFormSubmission(): bool{
 		return true;
 	}
 
-	protected function initializeSwitchUseCases(): ?array
-	{
+	protected function initializeSwitchUseCases(): ?array{
 		return [
 			SUCCESS => ClassifyIpAddressUseCase::class
 		];

@@ -365,17 +365,15 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 		}
 	}
 
-	public function hasWhereConditionalRightHandSide(): bool
-	{
+	public function hasWhereConditionalRightHandSide(): bool{
 		if (! $this->hasRightHandSide()) {
 			return false;
 		}
 		return $this->getRightHandSide() instanceof WhereConditionalInterface;
 	}
 
-	public function getSuperflatWhereConditionArray(): ?array
-	{
-		$f = __METHOD__; //BinaryExpressionCommand::getShortClass()."(".static::getShortClass().")->getSuperflatWhereConditionArray()";
+	public function getSuperflatWhereConditionArray(): ?array{
+		$f = __METHOD__;
 		if (! $this->hasWhereConditionalRightHandSide()) {
 			$decl = $this->getDeclarationLine();
 			Debug::warning("{$f} right hand side is undefined; declared {$decl}");
@@ -384,9 +382,8 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 		return $this->getRightHandSide()->getSuperflatWhereConditionArray();
 	}
 
-	public function getConditionalColumnNames(): array
-	{
-		$f = __METHOD__; //BinaryExpressionCommand::getShortClass()."(".static::getShortClass().")->getConditionalColumnNames()";
+	public function getConditionalColumnNames(): array{
+		$f = __METHOD__;
 		if (! $this->hasWhereConditionalRightHandSide()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} right hand side is undefined; declared {$decl}");
@@ -394,9 +391,8 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 		return $this->getRightHandSide()->getConditionalColumnNames();
 	}
 
-	public function getFlatWhereConditionArray(): ?array
-	{
-		$f = __METHOD__; //BinaryExpressionCommand::getShortClass()."(".static::getShortClass().")->getFlatWhereConditionArray()";
+	public function getFlatWhereConditionArray(): ?array{
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasWhereConditionalRightHandSide()) {
 			if ($print) {
@@ -406,15 +402,5 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 			return null;
 		}
 		return $this->getRightHandSide()->getFlatWhereConditionArray();
-	}
-
-	public function audit(): int
-	{
-		$f = __METHOD__; //BinaryExpressionCommand::getShortClass()."(".static::getShortClass().")->audit()";
-		if (! $this->hasWhereConditionalRightHandSide()) {
-			$decl = $this->getDeclarationLine();
-			Debug::error("{$f} right hand side is undefined; declared {$decl}");
-		}
-		return $this->getRightHandSide()->audit();
 	}
 }

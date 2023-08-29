@@ -1,19 +1,18 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\is_abstract;
 use JulianSeymour\PHPWebApplicationFramework\core\ClassResolver;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 
-abstract class IntersectionTableResolver extends ClassResolver
-{
+abstract class IntersectionTableResolver extends ClassResolver{
 
 	public abstract static function getIntersections();
 
-	public static function resolveClass($datum)
-	{
+	public static function resolveClass($datum){
 		$f = __METHOD__;
 		$name = $datum->getColumnName();
 		$print = false;
@@ -39,12 +38,11 @@ abstract class IntersectionTableResolver extends ClassResolver
 		return static::resolveForeignDataStructureClass($type_hint, $subtype);
 	}
 
-	public static function resolveForeignDataStructureClass($type_hint, $subtype)
-	{
+	public static function resolveForeignDataStructureClass($type_hint, $subtype){
 		$f = __METHOD__;
 		$print = false;
 		if (empty($type_hint)) {
-			Debug::error("{$f} type hint is empty");
+			Debug::error("{$f} type hint is empty. This resolver's class is ".static::getShortClass());
 		}
 		$intersections = static::getIntersections();
 		if ($print) {
@@ -118,14 +116,6 @@ abstract class IntersectionTableResolver extends ClassResolver
 		$print = false;
 		$intersections = [];
 		foreach (static::getIntersections() as $type_hint => $arr) {
-			/*
-			 * if($datum->getDataStructure()->getDataType() === $type_hint){
-			 * if($print){
-			 * Debug::print("{$f} skipping data type \"{$type_hint}\"");
-			 * }
-			 * //continue;
-			 * }
-			 */
 			if (is_string($arr)) {
 				array_push($intersections, static::generateIntersectionData($type_hint, null, $datum));
 			} else

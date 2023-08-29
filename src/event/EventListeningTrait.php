@@ -1,18 +1,17 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\event;
 
 use JulianSeymour\PHPWebApplicationFramework\command\event\AddEventListenerCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 
-trait EventListeningTrait
-{
+trait EventListeningTrait{
 
 	protected $eventListeners;
 
-	public function addEventListener($event_str, $closure, $index = null)
-	{
-		$f = __METHOD__; //"EventListeningTrait(".static::getShortClass().")->addEventListener()";
+	public function addEventListener($event_str, $closure, $index = null){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (! is_string($event_str)) {
@@ -38,14 +37,12 @@ trait EventListeningTrait
 		}
 	}
 
-	public function addEventListenerCommand($type, $listener): AddEventListenerCommand
-	{
+	public function addEventListenerCommand($type, $listener): AddEventListenerCommand{
 		return new AddEventListenerCommand($this, $type, $listener);
 	}
 
-	public function dispatchEvent($event, ...$params)
-	{
-		$f = __METHOD__; //"EventListeningTrait(".static::getShortClass().")->dispatchEvent()";
+	public function dispatchEvent($event, ...$params){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (is_string($event)) {
@@ -86,9 +83,8 @@ trait EventListeningTrait
 		}
 	}
 
-	public function hasEventListener($event_str, $index)
-	{
-		$f = __METHOD__; //"EventListeningTrait(".static::getShortClass().")->hasEventListener()";
+	public function hasEventListener($event_str, $index){
+		$f = __METHOD__;
 		try {
 			if (! isset($this->eventListeners) || ! is_array($this->eventListeners) || empty($this->eventListeners)) {
 				return false;

@@ -1,13 +1,11 @@
 <?php
 namespace JulianSeymour\PHPWebApplicationFramework\image;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\request;
 use JulianSeymour\PHPWebApplicationFramework\app\Request;
 use JulianSeymour\PHPWebApplicationFramework\app\workflow\SimpleWorkflow;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
-use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
 class ImageNotFoundUseCase extends UseCase{
 
@@ -19,16 +17,11 @@ class ImageNotFoundUseCase extends UseCase{
 		return '/images';
 	}
 
-	public function getUseCaseId(){
-		return USE_CASE_IMAGE_404;
-	}
-
 	protected function getContentTypeString(){
 		$f = __METHOD__;
 		$request = request();
 		$segments = $request->getRequestURISegments();
 		$filename = $segments[count($segments) - 1];
-		// FileData::sendHeader($filename);
 		$splat = explode(".", $filename);
 		$extension = strtolower($splat[count($splat) - 1]);
 		switch ($extension) {

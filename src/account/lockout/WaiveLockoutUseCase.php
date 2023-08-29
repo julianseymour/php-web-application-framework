@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\lockout;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -16,26 +17,17 @@ use Exception;
  *
  * @author j
  */
-class WaiveLockoutUseCase extends ValidConfirmationCodeUseCase
-{
+class WaiveLockoutUseCase extends ValidConfirmationCodeUseCase{
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_LOCKOUT_WAIVER;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/unlock";
 	}
 
-	public function execute(): int
-	{
+	public function execute(): int{
 		$status = parent::execute();
 		if ($status === SUCCESS) {
 			return RESULT_BFP_WAIVER_SUCCESS;
@@ -43,8 +35,7 @@ class WaiveLockoutUseCase extends ValidConfirmationCodeUseCase
 		return $status;
 	}
 
-	public function getTransitionFromPermission(): Permission
-	{
+	public function getTransitionFromPermission(): Permission{
 		return new Permission(DIRECTIVE_TRANSITION_FROM, function (PlayableUser $user, UseCase $target, UseCase $predecessor) {
 			$f = __METHOD__; //"WaiveLockoutUseCase transition from permission closure";
 			try {

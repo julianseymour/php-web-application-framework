@@ -1,0 +1,2393 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"#-#-#-#-#  messages.po (PACKAGE VERSION)  #-#-#-#-#\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-08 17:12+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: julianseymour/php-web-application-framework/src/security/nonexistent_uris/NonexistentUriForm.php:63
+#: julianseymour/php-web-application-framework/src/security/firewall/CidrIpAddressForm.php:106
+#: julianseymour/php-web-application-framework/src/security/firewall/CidrIpAddressForm.php:119
+#: julianseymour/php-web-application-framework/src/security/firewall/ConfirmIpAddressListForm.php:54
+msgid "Ban"
+msgstr "Ban"
+
+#: julianseymour/php-web-application-framework/src/security/nonexistent_uris/NonexistentUriForm.php:66
+#: julianseymour/php-web-application-framework/src/security/firewall/CidrIpAddressForm.php:122
+#: julianseymour/php-web-application-framework/src/security/firewall/ConfirmIpAddressListForm.php:51
+msgid "Authorize"
+msgstr "Authorize"
+
+#: julianseymour/php-web-application-framework/src/security/xsrf/AntiXsrfTokenData.php:159
+#: julianseymour/php-web-application-framework/src/security/xsrf/AntiXsrfTokenData.php:163
+msgid "Anti-XSRF token"
+msgstr "Anti-XSRF token"
+
+#: julianseymour/php-web-application-framework/src/security/throttle/ThrottleMeterData.php:335
+msgid "Throttle settings"
+msgstr "Throttle settings"
+
+#: julianseymour/php-web-application-framework/src/security/StoredIpAddress.php:73
+#: julianseymour/php-web-application-framework/src/security/SecurityNotificationElement.php:41
+#: julianseymour/php-web-application-framework/src/security/firewall/CidrIpAddressForm.php:37
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:141
+#: julianseymour/php-web-application-framework/src/session/hijack/SessionHijackWarningUseCase.php:33
+msgid "IP address"
+msgstr "IP address"
+
+#: julianseymour/php-web-application-framework/src/security/StoredIpAddress.php:77
+msgid "IP addresses"
+msgstr "IP addresses"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:219
+msgid "User submitted"
+msgstr "User submitted"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:221
+msgid "Registration"
+msgstr "Registration"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:223
+#: julianseymour/php-web-application-framework/src/ui/FlipPanels.php:69
+#: julianseymour/php-web-application-framework/src/account/register/SuccessfulRegistrationNotice.php:33
+msgid "Login"
+msgstr "Login"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:225
+#: julianseymour/php-web-application-framework/src/account/login/LoginForm.php:216
+msgid "Forgot username"
+msgstr "Forgot username"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:227
+#: julianseymour/php-web-application-framework/src/account/login/LoginForm.php:233
+msgid "Forgot password"
+msgstr "Forgot password"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:229
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordEmail.php:15
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordAttempt.php:17
+msgid "Password reset"
+msgstr "Password reset"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:231
+msgid "Lockout waiver"
+msgstr "Lockout waiver"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:233
+msgid "IP address authorization"
+msgstr "IP address authorization"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:235
+msgid "IP address banishment"
+msgstr "IP address banishment"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:237
+msgid "Reauthentication"
+msgstr "Reauthentication"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:239
+msgid "Session timeout mid-purchase"
+msgstr "Session timeout mid-purchase"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:241
+msgid "Email address change"
+msgstr "Email address change"
+
+#: julianseymour/php-web-application-framework/src/security/access/UserFingerprint.php:244
+msgid "No reason"
+msgstr "No reason"
+
+#: julianseymour/php-web-application-framework/src/security/SecurityNotificationElement.php:48
+msgid "Security alert"
+msgstr "Security alert"
+
+#: julianseymour/php-web-application-framework/src/security/SecurityNotificationElement.php:60
+msgid "Unknown reason"
+msgstr "Unknown reason"
+
+#: julianseymour/php-web-application-framework/src/security/SecurityNotificationElement.php:61
+msgid "Unknown IP address"
+msgstr "Unknown IP address"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/CidrIpAddressForm.php:36
+msgid "CIDR notation"
+msgstr "CIDR notation"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/CidrIpAddressForm.php:128
+msgid "Deauthorize"
+msgstr "Deauthorize"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/CidrIpAddressForm.php:141
+msgid "Unban"
+msgstr "Unban"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/ListIpAddressAttempt.php:37
+msgid "IP address authorization attempt"
+msgstr "IP address authorization attempt"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/ListIpAddressAttempt.php:42
+msgid "IP address authorization attempts"
+msgstr "IP address authorization attempts"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/CidrIpAddressInput.php:13
+msgid "IP address/range"
+msgstr "IP address/range"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/ListedIpAddress.php:305
+msgid "Note"
+msgstr "Note"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/ListedIpAddress.php:553
+msgid "%1% from %2%"
+msgstr "%1% from %2%"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/UnlistedIpAddressEmail.php:19
+msgid "Access attempted from IP address %1%"
+msgstr "Access attempted from IP address %1%"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/UnlistedIpAddressEmail.php:40
+msgid "Authorize or ban this IP address"
+msgstr "Authorize or ban this IP address"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/FilterPolicyForm.php:78
+msgid "Update firewall settings"
+msgstr "Update firewall settings"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/FilterPolicyForm.php:83
+msgid "Allow"
+msgstr "Allow"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/FilterPolicyForm.php:86
+msgid "Block"
+msgstr "Block"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/FilterPolicyForm.php:91
+msgid "Set default security policy to '%1%'"
+msgstr "Set default security policy to '%1%'"
+
+#: julianseymour/php-web-application-framework/src/security/firewall/ConfirmIpAddressListForm.php:27
+msgid "Firewall settings for IP address %1%"
+msgstr "Firewall settings for IP address %1%"
+
+#: julianseymour/php-web-application-framework/src/security/AccessControlPanelElement.php:43
+msgid "Allow IP addresses"
+msgstr "Allow IP addresses"
+
+#: julianseymour/php-web-application-framework/src/security/AccessControlPanelElement.php:71
+msgid "Blocked IP addresses"
+msgstr "Blocked IP addresses"
+
+#: julianseymour/php-web-application-framework/src/security/AccessControlPanelElement.php:98
+msgid "Unauthorized IP addresses"
+msgstr "Unauthorized IP addresses"
+
+#: julianseymour/php-web-application-framework/src/security/SecurityNotificationData.php:79
+msgid "Security"
+msgstr "Security"
+
+#: julianseymour/php-web-application-framework/src/input/choice/ChoosableDataTrait.php:17
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1461
+msgid "Select %1%"
+msgstr "Select %1%"
+
+#: julianseymour/php-web-application-framework/src/input/choice/MultipleChoiceInput.php:583
+#: julianseymour/php-web-application-framework/src/auth/AuthenticatedUser.php:874
+#: julianseymour/php-web-application-framework/src/auth/AuthenticatedUser.php:880
+#: julianseymour/php-web-application-framework/src/notification/ui/NotificationsWidget.php:143
+#: julianseymour/php-web-application-framework/src/cache/server/ClearServerCacheForm.php:26
+msgid "All"
+msgstr "All"
+
+#: julianseymour/php-web-application-framework/src/input/choice/SelectInput.php:119
+msgid "Unavailable"
+msgstr "Unavailable"
+
+#: julianseymour/php-web-application-framework/src/input/KeypadInput.php:77
+msgid "Enter %1%"
+msgstr "Enter %1%"
+
+#: julianseymour/php-web-application-framework/src/auth/AuthenticatedUser.php:907
+msgid "Whitelist mode"
+msgstr "Whitelist mode"
+
+#: julianseymour/php-web-application-framework/src/auth/AuthenticatedUser.php:925
+msgid "Send authorization email"
+msgstr "Send authorization email"
+
+#: julianseymour/php-web-application-framework/src/auth/AuthenticatedUser.php:928
+msgid "Reset password with username"
+msgstr "Reset password with username"
+
+#: julianseymour/php-web-application-framework/src/auth/AuthenticatedUser.php:931
+msgid "Reset password with email address"
+msgstr "Reset password with email address"
+
+#: julianseymour/php-web-application-framework/src/auth/AuthenticatedUser.php:975
+msgid "Bind IP address"
+msgstr "Bind IP address"
+
+#: julianseymour/php-web-application-framework/src/auth/AuthenticatedUser.php:997
+msgid "Bind user agent"
+msgstr "Bind user agent"
+
+#: julianseymour/php-web-application-framework/src/auth/confirm_code/ConfirmationCode.php:651
+msgid "Confirmation code"
+msgstr "Confirmation code"
+
+#: julianseymour/php-web-application-framework/src/auth/confirm_code/ConfirmationCode.php:655
+msgid "Confirmation codes"
+msgstr "Confirmation codes"
+
+#: julianseymour/php-web-application-framework/src/auth/permit/GrantData.php:76
+msgid "Grant"
+msgstr "Grant"
+
+#: julianseymour/php-web-application-framework/src/auth/permit/GrantData.php:88
+msgid "Grants"
+msgstr "Grants"
+
+#: julianseymour/php-web-application-framework/src/auth/permit/AccessControlListData.php:35
+msgid "Access control list"
+msgstr "Access control list"
+
+#: julianseymour/php-web-application-framework/src/auth/permit/AccessControlListData.php:47
+msgid "Access control lists"
+msgstr "Access control lists"
+
+#: julianseymour/php-web-application-framework/src/auth/permit/PermissionData.php:31
+msgid "Permission"
+msgstr "Permission"
+
+#: julianseymour/php-web-application-framework/src/auth/permit/PermissionData.php:43
+msgid "Permissions"
+msgstr "Permissions"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaQrCodeElement.php:50
+msgid "Show"
+msgstr "Show"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaQrCodeElement.php:55
+msgid "Hide"
+msgstr "Hide"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaQrCodeElement.php:57
+msgid "QR code"
+msgstr "QR code"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:63
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:68
+msgid "Verification code %1%"
+msgstr "Verification code %1%"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:157
+#: julianseymour/php-web-application-framework/src/auth/password/PasswordData.php:41
+#: julianseymour/php-web-application-framework/src/account/register/RegistrationForm.php:124
+#: julianseymour/php-web-application-framework/src/account/login/LoginForm.php:228
+#: julianseymour/php-web-application-framework/src/account/PlayableUser.php:283
+#: julianseymour/php-web-application-framework/src/account/activate/ActivationForm.php:86
+msgid "Password"
+msgstr "Password"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:159
+#: julianseymour/php-web-application-framework/src/auth/password/change/ChangePasswordForm.php:81
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordForm.php:107
+#: julianseymour/php-web-application-framework/src/account/register/RegistrationForm.php:124
+#: julianseymour/php-web-application-framework/src/account/login/LoginForm.php:228
+#: julianseymour/php-web-application-framework/src/account/activate/ActivationForm.php:87
+msgid "%1%+ characters"
+msgstr "%1%+ characters"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:180
+msgid "Enter your password"
+msgstr "Enter your password"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:185
+msgid "Enter your password to reveal QR code and recovery seed"
+msgstr "Enter your password to reveal QR code and recovery seed"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:187
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:194
+msgid "Enter your password to generate a new QR code"
+msgstr "Enter your password to generate a new QR code"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:202
+msgid ""
+"Enter your password and two consecutive QR codes to enable multifactor "
+"authentication"
+msgstr ""
+"Enter your password and two consecutive QR codes to enable multifactor "
+"authentication"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:205
+msgid ""
+"Enter your password and two consecutive QR codes to disable multifactor "
+"authentication"
+msgstr ""
+"Enter your password and two consecutive QR codes to disable multifactor "
+"authentication"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:276
+msgid "Generate new QR code"
+msgstr "Generate new QR code"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:278
+msgid "Generate QR code"
+msgstr "Generate QR code"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:283
+msgid "Disable MFA"
+msgstr "Disable MFA"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:285
+msgid "Destroy QR code"
+msgstr "Destroy QR code"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:291
+msgid "Enable MFA"
+msgstr "Enable MFA"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/settings/MfaSettingsForm.php:296
+msgid "Reveal QR code"
+msgstr "Reveal QR code"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/InvalidatedOtp.php:100
+msgid "One-time password"
+msgstr "One-time password"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/InvalidatedOtp.php:105
+msgid "Used OTP"
+msgstr "Used OTP"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/InvalidatedOtp.php:109
+msgid "Used OTPs"
+msgstr "Used OTPs"
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/AbstractLoginMfaOtpForm.php:18
+msgid "Enter MFA OTP from your authenticator app."
+msgstr "Enter MFA OTP from your authenticator app."
+
+#: julianseymour/php-web-application-framework/src/auth/mfa/AbstractLoginMfaOtpForm.php:75
+msgid "Submit code"
+msgstr "Submit code"
+
+#: julianseymour/php-web-application-framework/src/auth/cookie/DeleteCookiesUseCase.php:64
+msgid "Cookies deleted"
+msgstr "Cookies deleted"
+
+#: julianseymour/php-web-application-framework/src/auth/cookie/DeleteCookiesForm.php:21
+msgid "Delete all cookies"
+msgstr "Delete all cookies"
+
+#: julianseymour/php-web-application-framework/src/auth/cookie/CookieData.php:15
+msgid "Cookie"
+msgstr "Cookie"
+
+#: julianseymour/php-web-application-framework/src/auth/cookie/CookieData.php:19
+msgid "Cookies"
+msgstr "Cookies"
+
+#: julianseymour/php-web-application-framework/src/auth/ReauthenticationEvent.php:60
+msgid "Reauthentication attempt"
+msgstr "Reauthentication attempt"
+
+#: julianseymour/php-web-application-framework/src/auth/ReauthenticationEvent.php:65
+msgid "Reauthentication attempts"
+msgstr "Reauthentication attempts"
+
+#: julianseymour/php-web-application-framework/src/auth/AuthenticationCookie.php:15
+msgid "Reauthentication cookie"
+msgstr "Reauthentication cookie"
+
+#: julianseymour/php-web-application-framework/src/auth/AuthenticationCookie.php:27
+msgid "Reauthentication cookies"
+msgstr "Reauthentication cookies"
+
+#: julianseymour/php-web-application-framework/src/auth/AuthenticationData.php:482
+msgid "Authentication data"
+msgstr "Authentication data"
+
+#: julianseymour/php-web-application-framework/src/auth/password/change/ChangePasswordForm.php:56
+msgid "Current password"
+msgstr "Current password"
+
+#: julianseymour/php-web-application-framework/src/auth/password/change/ChangePasswordForm.php:80
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordForm.php:106
+msgid "New password"
+msgstr "New password"
+
+#: julianseymour/php-web-application-framework/src/auth/password/change/ChangePasswordForm.php:141
+#: julianseymour/php-web-application-framework/src/auth/password/change/ChangePasswordForm.php:177
+msgid "Change password"
+msgstr "Change password"
+
+#: julianseymour/php-web-application-framework/src/auth/password/ServerConfirmPasswordValidator.php:45
+msgid "Confirm %1%"
+msgstr "Confirm %1%"
+
+#: julianseymour/php-web-application-framework/src/auth/password/PasswordData.php:53
+msgid "Passwords"
+msgstr "Passwords"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordEmail.php:29
+msgid "Report a fraudulent password reset attempt"
+msgstr "Report a fraudulent password reset attempt"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordEmail.php:34
+msgid "Reset your password"
+msgstr "Reset your password"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/PasswordResetOptionsForm.php:46
+msgid "Password reset options"
+msgstr "Password reset options"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/PasswordResetOptionsForm.php:77
+msgid "Save settings"
+msgstr "Save settings"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordForm.php:90
+msgid "Enter your account information to continue"
+msgstr "Enter your account information to continue"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordForm.php:100
+#: julianseymour/php-web-application-framework/src/account/register/RegistrationUsernameForm.php:24
+#: julianseymour/php-web-application-framework/src/account/login/LoginForm.php:212
+#: julianseymour/php-web-application-framework/src/account/activate/ActivationForm.php:83
+#: julianseymour/php-web-application-framework/src/account/UsernameData.php:54
+msgid "Username"
+msgstr "Username"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordForm.php:139
+#: julianseymour/php-web-application-framework/src/account/login/LoginForm.php:304
+msgid "Reset password"
+msgstr "Reset password"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordAttempt.php:19
+msgid "Failed reset password attempt"
+msgstr "Failed reset password attempt"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordAttempt.php:70
+msgid "Password reset attempt"
+msgstr "Password reset attempt"
+
+#: julianseymour/php-web-application-framework/src/auth/password/reset/ResetPasswordAttempt.php:74
+msgid "Password reset attempts"
+msgstr "Password reset attempts"
+
+#: julianseymour/php-web-application-framework/src/data/DeletedObject.php:21
+#: julianseymour/php-web-application-framework/src/admin/Administrator.php:38
+#: julianseymour/php-web-application-framework/src/account/PlayableUser.php:491
+msgid "New conversation"
+msgstr "New conversation"
+
+#: julianseymour/php-web-application-framework/src/data/DeletedObject.php:37
+msgid "Deleted"
+msgstr "Deleted"
+
+#: julianseymour/php-web-application-framework/src/data/IntersectionData.php:306
+#: julianseymour/php-web-application-framework/src/data/IntersectionData.php:319
+msgid "Intersection data"
+msgstr "Intersection data"
+
+#: julianseymour/php-web-application-framework/src/data/SharedStringData.php:65
+msgid "Shared string"
+msgstr "Shared string"
+
+#: julianseymour/php-web-application-framework/src/data/SharedStringData.php:70
+msgid "Shared strings"
+msgstr "Shared strings"
+
+#: julianseymour/php-web-application-framework/src/data/EmbeddedData.php:25
+msgid "Embedded data"
+msgstr "Embedded data"
+
+#: julianseymour/php-web-application-framework/src/data/DataStructure.php:4740
+msgid "Serial number"
+msgstr "Serial number"
+
+#: julianseymour/php-web-application-framework/src/data/DataStructure.php:4742
+msgid "Insert timestamp"
+msgstr "Insert timestamp"
+
+#: julianseymour/php-web-application-framework/src/data/DataStructure.php:4747
+msgid "Update timestamp"
+msgstr "Update timestamp"
+
+#: julianseymour/php-web-application-framework/src/data/columns/SortNameColumnTrait.php:14
+msgid "Invisible string for sorting"
+msgstr "Invisible string for sorting"
+
+#: julianseymour/php-web-application-framework/src/data/columns/EnabledTrait.php:19
+msgid "Enabled"
+msgstr "Enabled"
+
+#: julianseymour/php-web-application-framework/src/data/GenericData.php:44
+msgid "Generic data"
+msgstr "Generic data"
+
+#: julianseymour/php-web-application-framework/src/data/EventSourceData.php:149
+msgid "Event source"
+msgstr "Event source"
+
+#: julianseymour/php-web-application-framework/src/data/EventSourceData.php:159
+msgid "Event sources"
+msgstr "Event sources"
+
+#: julianseymour/php-web-application-framework/src/notification/dismiss/DismissNotificationForm.php:81
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:85
+msgid "Dismiss"
+msgstr "Dismiss"
+
+#: julianseymour/php-web-application-framework/src/notification/dismiss/DismissAllNotificationsForm.php:63
+msgid "Dismiss all"
+msgstr "Dismiss all"
+
+#: julianseymour/php-web-application-framework/src/notification/ui/NotificationsWidget.php:104
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:486
+msgid "Notifications"
+msgstr "Notifications"
+
+#: julianseymour/php-web-application-framework/src/notification/ui/NotificationOptionsElement.php:158
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:78
+msgid "Close"
+msgstr "Close"
+
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:284
+msgid "N/A"
+msgstr "N/A"
+
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:286
+msgid "Deleted correspondent"
+msgstr "Deleted correspondent"
+
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:310
+msgid "Security notification"
+msgstr "Security notification"
+
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:315
+msgid "Notification #%1%"
+msgstr "Notification #%1%"
+
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:331
+msgid "Notification type"
+msgstr "Notification type"
+
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:352
+msgid "Pinned timestamp"
+msgstr "Pinned timestamp"
+
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:398
+msgid "Unread"
+msgstr "Unread"
+
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:400
+msgid "Dismissed"
+msgstr "Dismissed"
+
+#: julianseymour/php-web-application-framework/src/notification/NotificationData.php:482
+msgid "Notification"
+msgstr "Notification"
+
+#: julianseymour/php-web-application-framework/src/notification/pin/UnpinNotificationForm.php:17
+msgid "Remove pin"
+msgstr "Remove pin"
+
+#: julianseymour/php-web-application-framework/src/notification/pin/PinNotificationForm.php:17
+msgid "Pin"
+msgstr "Pin"
+
+#: julianseymour/php-web-application-framework/src/notification/pin/RepinNotificationForm.php:12
+msgid "Move to top"
+msgstr "Move to top"
+
+#: julianseymour/php-web-application-framework/src/notification/push/PushNotificationSettingsForm.php:19
+msgid "Push notifications"
+msgstr "Push notifications"
+
+#: julianseymour/php-web-application-framework/src/notification/push/PushNotificationSettingsForm.php:75
+msgid "Save push notification settings"
+msgstr "Save push notification settings"
+
+#: julianseymour/php-web-application-framework/src/notification/push/PushSubscriptionData.php:220
+msgid "Push subscription"
+msgstr "Push subscription"
+
+#: julianseymour/php-web-application-framework/src/notification/push/PushSubscriptionData.php:224
+msgid "Push subscriptions"
+msgstr "Push subscriptions"
+
+#: julianseymour/php-web-application-framework/src/file/FileUploadForm.php:35
+#: julianseymour/php-web-application-framework/src/form/RepeatingFormTrait.php:92
+msgid "Delete"
+msgstr "Delete"
+
+#: julianseymour/php-web-application-framework/src/file/CleartextFileData.php:157
+#: julianseymour/php-web-application-framework/src/cache/server/ClearServerCacheForm.php:40
+msgid "File"
+msgstr "File"
+
+#: julianseymour/php-web-application-framework/src/file/CleartextFileData.php:165
+msgid "Files"
+msgstr "Files"
+
+#: julianseymour/php-web-application-framework/src/file/FilenameDatum.php:21
+msgid "Filename"
+msgstr "Filename"
+
+#: julianseymour/php-web-application-framework/src/file/compress/GZipFileData.php:14
+msgid "GZip file"
+msgstr "GZip file"
+
+#: julianseymour/php-web-application-framework/src/file/compress/GZipFileData.php:18
+msgid "GZip files"
+msgstr "GZip files"
+
+#: julianseymour/php-web-application-framework/src/file/compress/BZip2FileData.php:13
+msgid "BZip2 file"
+msgstr ""
+
+#: julianseymour/php-web-application-framework/src/file/compress/BZip2FileData.php:17
+msgid "BZip2 files"
+msgstr "BZip2 files"
+
+#: julianseymour/php-web-application-framework/src/file/compress/ZipFileData.php:13
+msgid "Zip file"
+msgstr "Zip file"
+
+#: julianseymour/php-web-application-framework/src/file/compress/ZipFileData.php:17
+msgid "Zip files"
+msgstr "Zip files"
+
+#: julianseymour/php-web-application-framework/src/file/compress/RarFileData.php:48
+msgid "RAR file"
+msgstr "RAR file"
+
+#: julianseymour/php-web-application-framework/src/file/compress/RarFileData.php:52
+msgid "RAR files"
+msgstr "RAR files"
+
+#: julianseymour/php-web-application-framework/src/file/FileData.php:321
+msgid "Original filename"
+msgstr "Original filename"
+
+#: julianseymour/php-web-application-framework/src/file/EncryptedFile.php:490
+msgid "Encrypted file"
+msgstr "Encrypted file"
+
+#: julianseymour/php-web-application-framework/src/file/EncryptedFile.php:494
+msgid "Encrypted files"
+msgstr "Encrypted files"
+
+#: julianseymour/php-web-application-framework/src/file/pdf/PDFData.php:41
+msgid "PDF"
+msgstr "PDF"
+
+#: julianseymour/php-web-application-framework/src/file/pdf/PDFData.php:46
+msgid "PDFs"
+msgstr "PDFs"
+
+#: julianseymour/php-web-application-framework/src/admin/Administrator.php:149
+#: julianseymour/php-web-application-framework/src/account/UserData.php:90
+msgid "Administrator"
+msgstr "Administrator"
+
+#: julianseymour/php-web-application-framework/src/admin/Administrator.php:153
+msgid "Administrators"
+msgstr "Administrators"
+
+#: julianseymour/php-web-application-framework/src/poll/UpdateCheckForm.php:121
+#: julianseymour/php-web-application-framework/src/poll/ShortPollForm.php:118
+msgid "Check for updates"
+msgstr "Check for updates"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1206
+msgid "URL"
+msgstr "URL"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1422
+msgid "Undefined"
+msgstr "Undefined"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1426
+msgid "Import CSV files"
+msgstr "Import CSV files"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1429
+msgid "Insert %1%"
+msgstr "Insert %1%"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1434
+msgid "Update %1%"
+msgstr "Update %1%"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1439
+msgid "Delete %1%"
+msgstr "Delete %1%"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1442
+msgid "Download %1%"
+msgstr "Download %1%"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1445
+msgid "Send confirmation code"
+msgstr "Send confirmation code"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1448
+msgid "Process %1%"
+msgstr "Process %1%"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1452
+msgid "Read %1%"
+msgstr "Read %1%"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1455
+msgid "Refresh session"
+msgstr "Refresh session"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1458
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:246
+msgid "Search"
+msgstr "Search"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1465
+msgid "Submit"
+msgstr "Submit"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1468
+msgid "Upload"
+msgstr "Upload"
+
+#: julianseymour/php-web-application-framework/src/form/AjaxForm.php:1471
+msgid "Validate"
+msgstr "Validate"
+
+#: julianseymour/php-web-application-framework/src/form/PersonalNoteForm.php:51
+msgid "Personal note"
+msgstr "Personal note"
+
+#: julianseymour/php-web-application-framework/src/form/PersonalNoteForm.php:52
+#: AddressForm.php:78 AddressForm.php:89 AddressForm.php:93
+msgid "Optional"
+msgstr "Optional"
+
+#: julianseymour/php-web-application-framework/src/form/PersonalNoteForm.php:66
+msgid "Save note"
+msgstr "Save note"
+
+#: julianseymour/php-web-application-framework/src/form/ExpandingEditForm.php:108
+msgid "Edit"
+msgstr "Edit"
+
+#: julianseymour/php-web-application-framework/src/form/ExpandingEditForm.php:109
+msgid "Cancel"
+msgstr "Cancel"
+
+#: julianseymour/php-web-application-framework/src/ui/ExpanderElement.php:107
+msgid "Expand"
+msgstr "Expand"
+
+#: julianseymour/php-web-application-framework/src/ui/ExpanderElement.php:125
+msgid "Collapse"
+msgstr "Collapse"
+
+#: julianseymour/php-web-application-framework/src/ui/FlipPanels.php:74
+msgid "Enter your credentials below"
+msgstr "Enter your credentials below"
+
+#: julianseymour/php-web-application-framework/src/ui/FlipPanels.php:87
+#: julianseymour/php-web-application-framework/src/ui/FlipPanels.php:126
+msgid "or"
+msgstr "or"
+
+#: julianseymour/php-web-application-framework/src/ui/FlipPanels.php:99
+#: julianseymour/php-web-application-framework/src/ui/FlipPanels.php:109
+#: julianseymour/php-web-application-framework/src/account/register/RegistrationForm.php:261
+msgid "Register"
+msgstr "Register"
+
+#: julianseymour/php-web-application-framework/src/ui/FlipPanels.php:138
+msgid "Sign in"
+msgstr "Sign in"
+
+#: julianseymour/php-web-application-framework/src/ui/YouAreLoggedInAsElement.php:22
+msgid "You are logged in as %1%"
+msgstr "You are logged in as %1%"
+
+#: julianseymour/php-web-application-framework/src/cache/server/ClearServerCacheForm.php:33
+msgid "APCu"
+msgstr "APCu"
+
+#: julianseymour/php-web-application-framework/src/cache/user/ClearUserCacheForm.php:20
+msgid "Clear cache"
+msgstr "Clear cache"
+
+#: julianseymour/php-web-application-framework/src/account/settings/display_name/DisplayNameInnerForm.php:17
+#: julianseymour/php-web-application-framework/src/account/settings/display_name/DisplayNameOuterForm.php:37
+msgid "Update display name"
+msgstr "Update display name"
+
+#: julianseymour/php-web-application-framework/src/account/settings/display_name/DisplayNameOuterForm.php:61
+#: julianseymour/php-web-application-framework/src/account/UserMetadataBundle.php:129
+msgid "Display name"
+msgstr "Display name"
+
+#: julianseymour/php-web-application-framework/src/account/settings/timezone/TimezoneSettingsForm.php:36
+msgid "Update timezone"
+msgstr "Update timezone"
+
+#: julianseymour/php-web-application-framework/src/account/settings/timezone/TimezoneSettingsForm.php:39
+msgid "Autodetect"
+msgstr "Autodetect"
+
+#: julianseymour/php-web-application-framework/src/account/settings/timezone/TimezoneSettingsForm.php:82
+msgid "Timezone"
+msgstr "Timezone"
+
+#: julianseymour/php-web-application-framework/src/account/settings/AccountSettingsElement.php:44
+msgid "Account firewall"
+msgstr "Account firewall"
+
+#: julianseymour/php-web-application-framework/src/account/settings/AccountSettingsElement.php:100
+#: julianseymour/php-web-application-framework/src/account/settings/AccountSettingsLabel.php:15
+msgid "Settings"
+msgstr "Settings"
+
+#: julianseymour/php-web-application-framework/src/account/UserData.php:88
+msgid "Error"
+msgstr "Error"
+
+#: julianseymour/php-web-application-framework/src/account/UserData.php:92
+msgid "Registered"
+msgstr "Registered"
+
+#: julianseymour/php-web-application-framework/src/account/UserData.php:94
+msgid "Guest"
+msgstr "Guest"
+
+#: julianseymour/php-web-application-framework/src/account/UserData.php:96
+msgid "Developer"
+msgstr "Developer"
+
+#: julianseymour/php-web-application-framework/src/account/UserData.php:98
+msgid "Translator"
+msgstr "Translator"
+
+#: julianseymour/php-web-application-framework/src/account/UserData.php:100
+msgid "Help desk"
+msgstr "Help desk"
+
+#: julianseymour/php-web-application-framework/src/account/UserData.php:102
+msgid "Shadow"
+msgstr "Shadow"
+
+#: julianseymour/php-web-application-framework/src/account/UserData.php:171
+msgid "Account type"
+msgstr "Account type"
+
+#: julianseymour/php-web-application-framework/src/account/UserData.php:179
+msgid "Language preference"
+msgstr "Language preference"
+
+#: julianseymour/php-web-application-framework/src/account/register/SuccessfulRegistrationNotice.php:27
+msgid "Contact us"
+msgstr "Contact us"
+
+#: julianseymour/php-web-application-framework/src/account/register/SuccessfulRegistrationNotice.php:28
+msgid ""
+"You are now registered. An email has been sent to %1% containing "
+"instructions on how to activate your account. If cannot find the email in "
+"your inbox, check your spam folder. If you cannot find it in your spam "
+"folder, please %2%"
+msgstr ""
+"You are now registered. An email has been sent to %1% containing "
+"instructions on how to activate your account. If cannot find the email in "
+"your inbox, check your spam folder. If you cannot find it in your spam "
+"folder, please %2%"
+
+#: julianseymour/php-web-application-framework/src/account/register/RegistrationForm.php:109
+#: julianseymour/php-web-application-framework/src/email/EmailAddressDatum.php:70
+msgid "Email address"
+msgstr "Email address"
+
+#: julianseymour/php-web-application-framework/src/account/register/RegistrationForm.php:196
+msgid "I agree to the %1%"
+msgstr "I agree to the %1%"
+
+#: julianseymour/php-web-application-framework/src/account/login/LoginAgreeTermsElement.php:24
+msgid "By signing in, you agree to our %1%"
+msgstr "By signing in, you agree to our %1%"
+
+#: julianseymour/php-web-application-framework/src/account/login/LoginAttempt.php:180
+msgid "Login attempt deleted"
+msgstr "Login attempt deleted"
+
+#: julianseymour/php-web-application-framework/src/account/login/LoginAttempt.php:185
+msgid "Successful login"
+msgstr "Successful login"
+
+#: julianseymour/php-web-application-framework/src/account/login/LoginAttempt.php:187
+msgid "Failed login"
+msgstr "Failed login"
+
+#: julianseymour/php-web-application-framework/src/account/login/LoginAttempt.php:514
+msgid "Login attempt"
+msgstr "Login attempt"
+
+#: julianseymour/php-web-application-framework/src/account/login/LoginAttempt.php:519
+msgid "Login attempts"
+msgstr "Login attempts"
+
+#: julianseymour/php-web-application-framework/src/account/login/LoginForm.php:70
+msgid "Back to login"
+msgstr "Back to login"
+
+#: julianseymour/php-web-application-framework/src/account/login/LoginForm.php:294
+msgid "Log in"
+msgstr "Log in"
+
+#: julianseymour/php-web-application-framework/src/account/login/FailedLoginEmail.php:12
+msgid "Failed login from %1%"
+msgstr "Failed login from %1%"
+
+#: julianseymour/php-web-application-framework/src/account/login/FailedLoginEmail.php:40
+msgid "Visit your account firewall"
+msgstr "Visit your account firewall"
+
+#: julianseymour/php-web-application-framework/src/account/avatar/ProfileImageThumbnailForm.php:16
+msgid "Profile image"
+msgstr "Profile image"
+
+#: julianseymour/php-web-application-framework/src/account/avatar/ProfileImageThumbnailForm.php:118
+msgid "Update profile image"
+msgstr "Update profile image"
+
+#: julianseymour/php-web-application-framework/src/account/avatar/ProfileImageThumbnailForm.php:123
+msgid "Delete profile image"
+msgstr "Delete profile image"
+
+#: julianseymour/php-web-application-framework/src/account/shadow/ShadowUser.php:53
+msgid "Shadow profile"
+msgstr "Shadow profile"
+
+#: julianseymour/php-web-application-framework/src/account/shadow/ShadowUser.php:73
+msgid "Shadow profiles"
+msgstr "Shadow profiles"
+
+#: julianseymour/php-web-application-framework/src/account/shadow/ShadowUser.php:115
+msgid "First name"
+msgstr "First name"
+
+#: julianseymour/php-web-application-framework/src/account/shadow/ShadowUser.php:118
+msgid "Last name"
+msgstr "Last name"
+
+#: julianseymour/php-web-application-framework/src/account/guest/AnonymousUser.php:96
+msgid "Anonymous"
+msgstr "Anonymous"
+
+#: julianseymour/php-web-application-framework/src/account/guest/AnonymousUser.php:416
+msgid "Anonymous user"
+msgstr "Anonymous user"
+
+#: julianseymour/php-web-application-framework/src/account/guest/AnonymousUser.php:424
+msgid "Anonymous users"
+msgstr "Anonymous users"
+
+#: julianseymour/php-web-application-framework/src/account/role/RoleDeclaration.php:50
+msgid "Role declaration"
+msgstr "Role declaration"
+
+#: julianseymour/php-web-application-framework/src/account/role/RoleDeclaration.php:65
+msgid "Role declarations"
+msgstr "Role declarations"
+
+#: julianseymour/php-web-application-framework/src/account/role/UserRoleData.php:35
+#: julianseymour/php-web-application-framework/src/query/role/DatabaseRoleData.php:104
+msgid "Role"
+msgstr "Role"
+
+#: julianseymour/php-web-application-framework/src/account/role/UserRoleData.php:40
+#: julianseymour/php-web-application-framework/src/query/role/DatabaseRoleData.php:129
+msgid "Roles"
+msgstr "Roles"
+
+#: julianseymour/php-web-application-framework/src/account/PlayableUser.php:316
+msgid "Notification delivery timestamp"
+msgstr "Notification delivery timestamp"
+
+#: julianseymour/php-web-application-framework/src/account/lockout/LockoutWaiverAttempt.php:88
+msgid "Lockout waiver attempt"
+msgstr "Lockout waiver attempt"
+
+#: julianseymour/php-web-application-framework/src/account/lockout/LockoutWaiverAttempt.php:92
+msgid "Lockout waiver attempts"
+msgstr "Lockout waiver attempts"
+
+#: julianseymour/php-web-application-framework/src/account/lockout/LockoutEmail.php:10
+msgid ""
+"Multiple failed attempts were made to access your %1% account using invalid "
+"credentials. To protect your account it has been temporarily locked out of "
+"authorizing logins from unapproved IP addresses; you can bypass this lockout "
+"by visiting the following link from the device with which you wish to access "
+"the site:"
+msgstr ""
+"Multiple failed attempts were made to access your %1% account using invalid "
+"credentials. To protect your account it has been temporarily locked out of "
+"authorizing logins from unapproved IP addresses; you can bypass this lockout "
+"by visiting the following link from the device with which you wish to access "
+"the site:"
+
+#: julianseymour/php-web-application-framework/src/account/lockout/LockoutEmail.php:14
+msgid "Login failure"
+msgstr "Login failure"
+
+#: julianseymour/php-web-application-framework/src/account/lockout/LockoutEmail.php:26
+msgid "Unlock your account"
+msgstr "Unlock your account"
+
+#: julianseymour/php-web-application-framework/src/account/NormalUser.php:125
+msgid "User"
+msgstr "User"
+
+#: julianseymour/php-web-application-framework/src/account/NormalUser.php:129
+msgid "Users"
+msgstr "Users"
+
+#: julianseymour/php-web-application-framework/src/account/activate/ActivationForm.php:121
+#: julianseymour/php-web-application-framework/src/account/activate/ActivationEmail.php:37
+msgid "Activate your account"
+msgstr "Activate your account"
+
+#: julianseymour/php-web-application-framework/src/account/activate/ResendActivationEmailForm.php:19
+msgid "Please activate your account"
+msgstr "Please activate your account"
+
+#: julianseymour/php-web-application-framework/src/account/activate/ResendActivationEmailForm.php:53
+msgid "Resend activation email"
+msgstr "Resend activation email"
+
+#: julianseymour/php-web-application-framework/src/account/activate/ActivationAttempt.php:60
+msgid "Account ativation attempt"
+msgstr "Account ativation attempt"
+
+#: julianseymour/php-web-application-framework/src/account/activate/ActivationAttempt.php:68
+msgid "Account activation attempts"
+msgstr "Account activation attempts"
+
+#: julianseymour/php-web-application-framework/src/account/activate/ActivationEmail.php:25
+msgid "Account confirmation required"
+msgstr "Account confirmation required"
+
+#: julianseymour/php-web-application-framework/src/account/online/UpdateOnlineStatusIndicatorCommand.php:128
+msgid "Offline"
+msgstr "Offline"
+
+#: julianseymour/php-web-application-framework/src/account/online/UpdateOnlineStatusIndicatorCommand.php:134
+msgid "Online"
+msgstr "Online"
+
+#: julianseymour/php-web-application-framework/src/account/online/UpdateOnlineStatusIndicatorCommand.php:140
+msgid "Invisible"
+msgstr "Invisible"
+
+#: julianseymour/php-web-application-framework/src/account/online/UpdateOnlineStatusIndicatorCommand.php:146
+msgid "Away"
+msgstr "Away"
+
+#: julianseymour/php-web-application-framework/src/account/online/UpdateOnlineStatusIndicatorCommand.php:152
+msgid "Busy"
+msgstr "Busy"
+
+#: julianseymour/php-web-application-framework/src/account/correspondent/UserCorrespondence.php:122
+msgid "Undefined correspondent name"
+msgstr "Undefined correspondent name"
+
+#: julianseymour/php-web-application-framework/src/account/group/CreateGroupForm.php:30
+msgid "Create group"
+msgstr "Create group"
+
+#: julianseymour/php-web-application-framework/src/account/group/GroupData.php:126
+msgid "Group"
+msgstr "Group"
+
+#: julianseymour/php-web-application-framework/src/account/group/GroupData.php:141
+msgid "Groups"
+msgstr "Groups"
+
+#: julianseymour/php-web-application-framework/src/account/group/ChannelData.php:43
+msgid "Channel"
+msgstr "Channel"
+
+#: julianseymour/php-web-application-framework/src/account/group/ChannelData.php:58
+msgid "Channels"
+msgstr "Channels"
+
+#: julianseymour/php-web-application-framework/src/account/group/GroupInvitation.php:37
+msgid "Invitation"
+msgstr "Invitation"
+
+#: julianseymour/php-web-application-framework/src/account/group/GroupInvitation.php:52
+msgid "Invitations"
+msgstr "Invitations"
+
+#: julianseymour/php-web-application-framework/src/account/UsernameData.php:64
+msgid "Usernames"
+msgstr "Usernames"
+
+#: julianseymour/php-web-application-framework/src/account/logout/LogoutForm.php:89
+#: julianseymour/php-web-application-framework/src/session/timeout/RefreshSessionForm.php:87
+msgid "Log out"
+msgstr "Log out"
+
+#: julianseymour/php-web-application-framework/src/language/settings/LanguageSettingsData.php:23
+msgid "Language selection"
+msgstr "Language selection"
+
+#: julianseymour/php-web-application-framework/src/language/MultilingualStringData.php:109
+msgid "Multilingual string"
+msgstr "Multilingual string"
+
+#: julianseymour/php-web-application-framework/src/language/DeletedStringData.php:12
+msgid "Deleted string"
+msgstr "Deleted string"
+
+#: julianseymour/php-web-application-framework/src/language/DeletedStringData.php:17
+msgid "Deleted strings"
+msgstr "Deleted strings"
+
+#: julianseymour/php-web-application-framework/src/language/MultilingualNameData.php:31
+msgid "Multilingual name"
+msgstr "Multilingual name"
+
+#: julianseymour/php-web-application-framework/src/language/MultilingualNameData.php:56
+msgid "Multilingual names"
+msgstr "Multilingual names"
+
+#: julianseymour/php-web-application-framework/src/search/SearchFieldsData.php:37
+msgid "Search fields"
+msgstr "Search fields"
+
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:76
+msgid "Search options"
+msgstr "Search options"
+
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:98
+#: julianseymour/php-web-application-framework/src/paginate/Paginator.php:36
+msgid "Sort by"
+msgstr "Sort by"
+
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:110
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:226
+msgid "Ascending"
+msgstr "Ascending"
+
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:111
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:227
+msgid "Descending"
+msgstr "Descending"
+
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:232
+msgid "Any terms"
+msgstr "Any terms"
+
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:233
+msgid "All terms"
+msgstr "All terms"
+
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:234
+msgid "Exact phrase"
+msgstr "Exact phrase"
+
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:254
+msgid "Enter search query"
+msgstr "Enter search query"
+
+#: julianseymour/php-web-application-framework/src/search/SearchForm.php:349
+msgid "Clear"
+msgstr "Clear"
+
+#: julianseymour/php-web-application-framework/src/search/SearchPaginator.php:48
+#: julianseymour/php-web-application-framework/src/search/SearchPaginator.php:77
+msgid "Search query"
+msgstr "Search query"
+
+#: julianseymour/php-web-application-framework/src/search/SearchPaginator.php:79
+msgid "Case sensitive"
+msgstr "Case sensitive"
+
+#: julianseymour/php-web-application-framework/src/search/SearchPaginator.php:90
+msgid "Automatic search"
+msgstr "Automatic search"
+
+#: julianseymour/php-web-application-framework/src/search/SearchPaginator.php:261
+msgid "Search queries"
+msgstr "Search queries"
+
+#: julianseymour/php-web-application-framework/src/search/SearchFieldDatum.php:56
+msgid "Search %1%"
+msgstr "Search %1%"
+
+#: julianseymour/php-web-application-framework/src/search/SearchTimestampDatum.php:48
+msgid "%1% to %2%"
+msgstr "%1% to %2%"
+
+#: julianseymour/php-web-application-framework/src/email/change/ChangeEmailAddressForm.php:39
+msgid "Change email address"
+msgstr "Change email address"
+
+#: julianseymour/php-web-application-framework/src/email/change/ChangeEmailAddressForm.php:96
+msgid "Save email address"
+msgstr "Save email address"
+
+#: julianseymour/php-web-application-framework/src/email/change/ChangeEmailAddressForm.php:113
+msgid "Enter email address"
+msgstr "Enter email address"
+
+#: julianseymour/php-web-application-framework/src/email/change/ChangeEmailAddressEmail.php:18
+msgid "Confirm email address"
+msgstr "Confirm email address"
+
+#: julianseymour/php-web-application-framework/src/email/change/ChangeEmailAddressEmail.php:30
+msgid "Change your email address"
+msgstr "Change your email address"
+
+#: julianseymour/php-web-application-framework/src/email/change/ConfirmEmailAttempt.php:74
+msgid "Email confirmation attempt"
+msgstr "Email confirmation attempt"
+
+#: julianseymour/php-web-application-framework/src/email/change/ConfirmEmailAttempt.php:79
+msgid "Email confirmation attempts"
+msgstr "Email confirmation attempts"
+
+#: julianseymour/php-web-application-framework/src/email/EmailNotificationSettingsForm.php:18
+msgid "Email notifications"
+msgstr "Email notifications"
+
+#: julianseymour/php-web-application-framework/src/email/EmailNotificationSettingsForm.php:74
+msgid "Email notification settings"
+msgstr "Email notification settings"
+
+#: julianseymour/php-web-application-framework/src/email/SpamEmail.php:446
+msgid "Email record"
+msgstr "Email record"
+
+#: julianseymour/php-web-application-framework/src/email/SpamEmail.php:461
+msgid "Email records"
+msgstr "Email records"
+
+#: julianseymour/php-web-application-framework/src/email/EmailNotificationData.php:64
+msgid "Visit the following link to %1%"
+msgstr "Visit the following link to %1%"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:154
+msgid "Monolithic"
+msgstr "Monolithic"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:155
+msgid "Backup"
+msgstr "Backup"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:156
+msgid "Database"
+msgstr "Database"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:157
+msgid "Email"
+msgstr "Email"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:158
+msgid "Hot wallet"
+msgstr "Hot wallet"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:159
+msgid "Web"
+msgstr "Web"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:169
+msgid "Server type"
+msgstr "Server type"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:172
+msgid "Is current server"
+msgstr "Is current server"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:174
+msgid "Domain"
+msgstr "Domain"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:215
+msgid "Server keypair"
+msgstr "Server keypair"
+
+#: julianseymour/php-web-application-framework/src/app/ServerKeypair.php:220
+msgid "Server keypairs"
+msgstr "Server keypairs"
+
+#: julianseymour/php-web-application-framework/src/image/ImageData.php:48
+msgid "Focal line ratio"
+msgstr "Focal line ratio"
+
+#: julianseymour/php-web-application-framework/src/image/ImageData.php:98
+msgid "Image"
+msgstr "Image"
+
+#: julianseymour/php-web-application-framework/src/image/ImageData.php:103
+msgid "Images"
+msgstr "Images"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:14
+msgid "January"
+msgstr "January"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:16
+msgid "February"
+msgstr "February"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:18
+msgid "March"
+msgstr "March"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:20
+msgid "April"
+msgstr "April"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:22
+msgid "May"
+msgstr "May"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:24
+msgid "June"
+msgstr "June"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:26
+msgid "July"
+msgstr "July"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:28
+msgid "August"
+msgstr "August"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:30
+msgid "September"
+msgstr "September"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:32
+msgid "October"
+msgstr "October"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:34
+msgid "November"
+msgstr "November"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:36
+msgid "December"
+msgstr "December"
+
+#: julianseymour/php-web-application-framework/src/etc/Month.php:38
+msgid "Invalid month"
+msgstr "Invalid month"
+
+#: julianseymour/php-web-application-framework/src/use_case/BlankUseCase.php:28
+msgid "This page intentionally left blank"
+msgstr "This page intentionally left blank"
+
+#: julianseymour/php-web-application-framework/src/paginate/Paginator.php:29
+#: julianseymour/php-web-application-framework/src/paginate/LimitItemsPerPageForm.php:42
+msgid "Limit"
+msgstr "Limit"
+
+#: julianseymour/php-web-application-framework/src/paginate/LimitItemsPerPageForm.php:52
+#: julianseymour/php-web-application-framework/src/paginate/LimitItemsPerPageForm.php:59
+msgid "Items"
+msgstr "Items"
+
+#: julianseymour/php-web-application-framework/src/paginate/LimitItemsPerPageForm.php:93
+msgid "Refresh"
+msgstr "Refresh"
+
+#: julianseymour/php-web-application-framework/src/paginate/JumpToPageForm.php:20
+msgid "Jump to page"
+msgstr "Jump to page"
+
+#: julianseymour/php-web-application-framework/src/paginate/JumpToPageForm.php:49
+msgid "Go to page"
+msgstr "Go to page"
+
+#: julianseymour/php-web-application-framework/src/datum/NameDatum.php:40
+#: AddressForm.php:78
+msgid "Name"
+msgstr "Name"
+
+#: julianseymour/php-web-application-framework/src/datum/MinuteDatum.php:45
+msgid "%1% days"
+msgstr "%1% days"
+
+#: julianseymour/php-web-application-framework/src/datum/MinuteDatum.php:48
+msgid "%1% hours"
+msgstr "%1% hours"
+
+#: julianseymour/php-web-application-framework/src/datum/MinuteDatum.php:51
+msgid "%1% minutes"
+msgstr "%1% minutes"
+
+#: julianseymour/php-web-application-framework/src/datum/MinuteDatum.php:54
+msgid "Timeframe unavailable"
+msgstr "Timeframe unavailable"
+
+#: julianseymour/php-web-application-framework/src/datum/TimestampDatum.php:104
+msgid "Timestamp"
+msgstr "Timestamp"
+
+#: julianseymour/php-web-application-framework/src/session/timeout/RefreshSessionForm.php:61
+msgid "Session timeout imminent"
+msgstr "Session timeout imminent"
+
+#: julianseymour/php-web-application-framework/src/session/timeout/RefreshSessionForm.php:84
+msgid "I'm still here"
+msgstr "I'm still here"
+
+#: julianseymour/php-web-application-framework/src/session/resume/SessionRecoveryData.php:35
+msgid "Session recovery data"
+msgstr "Session recovery data"
+
+#: julianseymour/php-web-application-framework/src/session/resume/SessionRecoverySettingsForm.php:64
+msgid "Stay logged in"
+msgstr "Stay logged in"
+
+#: julianseymour/php-web-application-framework/src/session/resume/SessionRecoverySettingsForm.php:89
+msgid "Forget me"
+msgstr "Forget me"
+
+#: julianseymour/php-web-application-framework/src/session/resume/SessionRecoverySettingsForm.php:94
+msgid "Remember me"
+msgstr "Remember me"
+
+#: julianseymour/php-web-application-framework/src/session/resume/SessionRecoverySettingsForm.php:99
+msgid "Delete all saved sessions"
+msgstr "Delete all saved sessions"
+
+#: julianseymour/php-web-application-framework/src/session/AbstractSessionForm.php:95
+msgid "Bind %1%"
+msgstr "Bind %1%"
+
+#: julianseymour/php-web-application-framework/src/session/hijack/SessionHijackWarningUseCase.php:31
+msgid "IP address and user agent string"
+msgstr "IP address and user agent string"
+
+#: julianseymour/php-web-application-framework/src/session/hijack/SessionHijackWarningUseCase.php:35
+msgid "User agent string"
+msgstr "User agent string"
+
+#: julianseymour/php-web-application-framework/src/session/hijack/SessionHijackPreventionSettingsForm.php:12
+msgid "Session hijack prevention data"
+msgstr "Session hijack prevention data"
+
+#: julianseymour/php-web-application-framework/src/session/hijack/SessionHijackPreventionSettingsForm.php:25
+msgid "Update"
+msgstr "Update"
+
+#: julianseymour/php-web-application-framework/src/db/credentials/DatabaseCredentials.php:72
+msgid "Database credentials"
+msgstr "Database credentials"
+
+msgid ""
+"An account has been registered at %1% for this email address. To activate "
+"your account, please visit the following URL:"
+msgstr ""
+"An account has been registered at %1% for this email address. To activate "
+"your account, please visit the following URL:"
+
+msgid ""
+"Someone attempted and failed to access your %1% account on %2% from a device "
+"with IP address %3% and user agent string \"%4%\"."
+msgstr ""
+"Someone attempted and failed to access your %1% account on %2% from a device "
+"with IP address %3% and user agent string \"%4%\"."
+
+msgid "Terms of service"
+msgstr "Terms of service"
+
+msgid ""
+"Your display name is optionally shown in communications and cannot be used "
+"for authentication."
+msgstr ""
+"Your display name is optionally shown in communications and cannot be used "
+"for authentication."
+
+msgid ""
+"Click \"Delete all cookies\" to remove all cookies placed on your device by "
+"this website. This will terminate your session."
+msgstr ""
+"Click \"Delete all cookies\" to remove all cookies placed on your device by "
+"this website. This will terminate your session."
+
+msgid ""
+"A password reset request for your account was submitted to %1%. To reset "
+"your password, visit the following URL:"
+msgstr ""
+"A password reset request for your account was submitted to %1%. To reset "
+"your password, visit the following URL:"
+
+msgid ""
+"This email was sent because your email adress was submitted to %1% as a new "
+"email address for an existing account. To confirm %2% as your new email "
+"address, visit the following link:"
+msgstr ""
+"This email was sent because your email adress was submitted to %1% as a new "
+"email address for an existing account. To confirm %2% as your new email "
+"address, visit the following link:"
+
+msgid "Copyright %1% %2%"
+msgstr "Copyright %1% %2%"
+
+msgid ""
+"With block policy enabled, unauthorized IP addresses will be unable to "
+"access your account until authorized via a link sent to your email address. "
+"This email can be disabled (this is not recommended)."
+msgstr ""
+"With block policy enabled, unauthorized IP addresses will be unable to "
+"access your account until authorized via a link sent to your email address. "
+"This email can be disabled (this is not recommended)."
+
+msgid ""
+"Someone attempted to access your account from unauthorized IP address %1% on "
+"a browser with user agent string \"%2%\". To authorize this IP address, "
+"please vist the following URL:"
+msgstr ""
+"Someone attempted to access your account from unauthorized IP address %1% on "
+"a browser with user agent string \"%2%\". To authorize this IP address, "
+"please vist the following URL:"
+
+msgid ""
+"Nothing here. This list will display IP addresses that attempt to access "
+"your account."
+msgstr ""
+"Nothing here. This list will display IP addresses that attempt to access "
+"your account."
+
+msgid ""
+"With this option enabled, your session will automatically terminate if your "
+"user agent string differs from what it was when you logged in. Your user "
+"agent string is \"%1%\""
+msgstr ""
+"With this option enabled, your session will automatically terminate if your "
+"user agent string differs from what it was when you logged in. Your user "
+"agent string is \"%1%\""
+
+msgid ""
+"With this option enabled, your session will automatically terminate if your "
+"IP address changes from what it was when you logged in. Your IP address is "
+"%1%"
+msgstr ""
+"With this option enabled, your session will automatically terminate if your "
+"IP address changes from what it was when you logged in. Your IP address is "
+"%1%"
+
+msgid "Sessions last %1% minutes or until you delete your cookies."
+msgstr "Sessions last %1% minutes or until you delete your cookies."
+
+msgid ""
+"This session has been terminated because it has been accessed by a device "
+"with an incorrect %1%, and you configured your account settings to do so "
+"under these circumstances."
+msgstr ""
+"This session has been terminated because it has been accessed by a device "
+"with an incorrect %1%, and you configured your account settings to do so "
+"under these circumstances."
+
+msgid ""
+"With this option selected, your session cookies will only be valid on the "
+"same browser used to create the cookie"
+msgstr ""
+"With this option selected, your session cookies will only be valid on the "
+"same browser used to create the cookie"
+
+msgid ""
+"Select this for additional security if you know your IP address will not "
+"change"
+msgstr ""
+"Select this for additional security if you know your IP address will not "
+"change"
+
+msgid ""
+"By choosing 'Remember Me', your session will automatically refresh upon "
+"expiration. You will remain logged in until you logout, terminate your saved "
+"session or delete this site's cookies from your device."
+msgstr ""
+"By choosing 'Remember Me', your session will automatically refresh upon "
+"expiration. You will remain logged in until you logout, terminate your saved "
+"session or delete this site's cookies from your device."
+
+msgid "Multifactor authentication"
+msgstr "Multifactor authentication"
+
+msgid "Online status"
+msgstr "Online status"
+
+msgid "Custom status string"
+msgstr "Custom status string"
+
+msgid "Appear offline"
+msgstr "Appear offline"
+
+msgid "Notification dismissal error"
+msgstr "Notification dismissal error"
+
+msgid "Passwords must match"
+msgstr "Passwords must match"
+
+#: ErrorMessage.php:50
+msgid "Missing variable."
+msgstr ""
+
+#: ErrorMessage.php:52
+msgid "MySQL query error."
+msgstr "MySQL query error."
+
+#: ErrorMessage.php:54
+msgid "MySQL fetch result error."
+msgstr "MySQL fetch result error."
+
+#: ErrorMessage.php:57
+msgid "Session expired."
+msgstr "Session expired."
+
+#: ErrorMessage.php:59
+msgid "MySQL execution error."
+msgstr "MySQL execution error."
+
+#: ErrorMessage.php:61
+msgid "MySQL bind parameters error."
+msgstr "MySQL bind parameters error."
+
+#: ErrorMessage.php:63
+msgid "MySQL prepared query statement error."
+msgstr "MySQL prepared query statement error."
+
+#: ErrorMessage.php:66
+msgid "MySQL connection error."
+msgstr "MySQL connection error."
+
+#: ErrorMessage.php:69
+msgid "Internal server error."
+msgstr "Internal server error."
+
+#: ErrorMessage.php:71
+msgid "Required input left blank."
+msgstr "Required input left blank."
+
+#: ErrorMessage.php:75
+msgid "Invalid credentials."
+msgstr "Invalid credentials."
+
+#: ErrorMessage.php:77
+msgid "Your account has already been activated."
+msgstr "Your account has already been activated."
+
+#: ErrorMessage.php:79
+msgid "Account inactive"
+msgstr "Account inactive"
+
+#: ErrorMessage.php:81
+msgid "You are already logged in."
+msgstr "You are already logged in."
+
+#: ErrorMessage.php:83
+msgid "You have been logged out."
+msgstr "You have been logged out."
+
+#: ErrorMessage.php:85
+msgid "Your request was processed successfully."
+msgstr "Your request was processed successfully."
+
+#: ErrorMessage.php:89
+msgid "An email has been sent to the address we have on file containing instructions on how to reset your password. If you do not receive an email check your spam folder. If the problem persists please contact us directly."
+msgstr "An email has been sent to the address we have on file containing instructions on how to reset your password. If you do not receive an email check your spam folder. If the problem persists please contact us directly."
+
+#: ErrorMessage.php:91
+msgid "Password reset."
+msgstr "Password reset."
+
+#: ErrorMessage.php:93
+msgid "Your password has been updated."
+msgstr "Your password has been updated."
+
+#: ErrorMessage.php:95
+msgid "Invalid password."
+msgstr "Invalid password."
+
+#: ErrorMessage.php:97
+msgid "IP address blocked by user."
+msgstr "IP address blocked by user."
+
+#: ErrorMessage.php:99
+msgid "This feature has not been implemented."
+msgstr "This feature has not been implemented."
+
+#: ErrorMessage.php:101
+msgid "Your email address has been updated."
+msgstr "Your email address has been updated."
+
+#: ErrorMessage.php:105
+msgid "The link you followed has expired."
+msgstr "The link you followed has expired."
+
+#: ErrorMessage.php:108
+msgid "IMEI mode undefined."
+msgstr "IMEI mode undefined."
+
+#: ErrorMessage.php:110
+msgid "Unauthorized transaction."
+msgstr "Unauthorized transaction."
+
+#: ErrorMessage.php:112
+msgid "Confirm transaction:"
+msgstr "Confirm transaction:"
+
+#: ErrorMessage.php:114
+msgid "Undefined base service key."
+msgstr "Undefined base service key."
+
+#: ErrorMessage.php:116 ErrorMessage.php:435
+msgid "Nothing to report."
+msgstr "Nothing to report."
+
+#: ErrorMessage.php:118
+msgid "Unidefined unique identifier."
+msgstr "Unidefined unique identifier."
+
+#: ErrorMessage.php:120
+msgid "You must login to access this feature."
+msgstr "You must login to access this feature."
+
+#: ErrorMessage.php:122
+msgid "Invalid datatype."
+msgstr "Invalid datatype."
+
+#: ErrorMessage.php:124
+msgid "Identical name."
+msgstr "Identical name."
+
+#: ErrorMessage.php:126
+msgid "Undefined parent key."
+msgstr "Undefined parent key."
+
+#: ErrorMessage.php:128
+msgid "Undefined description."
+msgstr "Undefined description."
+
+#: ErrorMessage.php:131
+msgid "File not found."
+msgstr "File not found."
+
+#: ErrorMessage.php:133
+msgid "Unregistered unique key."
+msgstr "Unregistered unique key."
+
+#: ErrorMessage.php:135
+msgid "Invalid username length."
+msgstr "Invalid username length."
+
+#: ErrorMessage.php:139
+msgid "Password confirmation required."
+msgstr "Password confirmation required."
+
+#: ErrorMessage.php:141
+msgid "Undefined password."
+msgstr "Undefined password."
+
+#: ErrorMessage.php:143
+msgid "Confirmation code validation failed."
+msgstr "Confirmation code validation failed."
+
+#: ErrorMessage.php:145
+msgid "Passwords do not match."
+msgstr "Passwords do not match."
+
+#: ErrorMessage.php:147
+msgid "Undefined name."
+msgstr "Undefined name."
+
+#: ErrorMessage.php:149
+msgid "Transaction rejected because it is a repeat purchase."
+msgstr "Transaction rejected because it is a repeat purchase."
+
+#: ErrorMessage.php:151
+msgid "You must specify a quantity to place this order."
+msgstr "You must specify a quantity to place this order."
+
+#: ErrorMessage.php:153
+msgid "You must select at least one item to place an order."
+msgstr "You must select at least one item to place an order."
+
+#: ErrorMessage.php:155
+msgid "Transaction blocked because the user tampered with POST."
+msgstr "Transaction blocked because the user tampered with POST."
+
+#: ErrorMessage.php:157
+msgid "Invalid item price."
+msgstr "Invalid item price."
+
+#: ErrorMessage.php:159
+msgid "Iterator is undefined."
+msgstr "Iterator is undefined."
+
+#: ErrorMessage.php:161
+msgid "Your account is not allowed to access this feature pending review by an administrator."
+msgstr "Your account is not allowed to access this feature pending review by an administrator."
+
+#: ErrorMessage.php:164
+msgid "IMEI is required for this purchase."
+msgstr "IMEI is required for this purchase."
+
+#: ErrorMessage.php:166
+msgid "Deletion successful."
+msgstr "Deletion successful."
+
+#: ErrorMessage.php:168
+msgid "Undefined service."
+msgstr "Undefined service."
+
+#: ErrorMessage.php:170
+msgid "Undefined implicit service."
+msgstr "Undefined implicit service."
+
+#: ErrorMessage.php:173
+msgid "Duplicate entry."
+msgstr "Duplicate entry."
+
+#: ErrorMessage.php:175
+msgid "Cycle detected."
+msgstr "Cycle detected."
+
+#: ErrorMessage.php:177
+msgid "Error updating transaction state."
+msgstr "Error updating transaction state."
+
+#: ErrorMessage.php:179
+msgid "Transaction update successful."
+msgstr "Transaction update successful."
+
+#: ErrorMessage.php:181
+msgid "Insufficient credit balance."
+msgstr "Insufficient credit balance."
+
+#: ErrorMessage.php:183
+msgid "Your settings have been updated."
+msgstr "Your settings have been updated."
+
+#: ErrorMessage.php:185
+msgid "Your account has been updated."
+msgstr "Your account has been updated."
+
+#: ErrorMessage.php:187
+msgid "Login error."
+msgstr "Login error."
+
+#: ErrorMessage.php:189
+msgid "Multifactor authentication is now enabled."
+msgstr "Multifactor authentication is now enabled."
+
+#: ErrorMessage.php:191
+msgid "Enter the code from your authenticator app."
+msgstr "Enter the code from your authenticator app."
+
+#: ErrorMessage.php:193
+msgid "Context is undefined."
+msgstr "Context is undefined."
+
+#: ErrorMessage.php:195
+msgid "Multifactor authentication is now disabled."
+msgstr "Multifactor authentication is now disabled."
+
+#: ErrorMessage.php:197
+msgid "Invalid verification code."
+msgstr "Invalid verification code."
+
+#: ErrorMessage.php:199
+msgid "Generated a new MFA seed."
+msgstr "Generated a new MFA seed."
+
+#: ErrorMessage.php:201
+msgid "Displaying MFA QR code."
+msgstr "Displaying MFA QR code."
+
+#: ErrorMessage.php:203
+msgid "Email addresses must match."
+msgstr "Email addresses must match."
+
+#: ErrorMessage.php:207
+msgid "The page you are attempting to access is no longer available."
+msgstr "The page you are attempting to access is no longer available."
+
+#: ErrorMessage.php:211
+msgid "Your IP address has been blocked due to excessive failed login attempts."
+msgstr "Your IP address has been blocked due to excessive failed login attempts."
+
+#: ErrorMessage.php:213
+msgid "Your purchase was successful but your session timed out while you were authorizing payment. Please login again."
+msgstr "Your purchase was successful but your session timed out while you were authorizing payment. Please login again."
+
+#: ErrorMessage.php:215
+msgid "Your IP address has already registered an account recently; your registration attempt has been filtered to protect the server from spam."
+msgstr ""
+
+#: ErrorMessage.php:217
+msgid "The hidden input for preventing repeat submissions was not submitted; tampering with POST won't accomplish anything."
+msgstr "The hidden input for preventing repeat submissions was not submitted; tampering with POST won't accomplish anything."
+
+#: ErrorMessage.php:219
+msgid "An email has been sent to your email address containing instructions on how to activate your account."
+msgstr "An email has been sent to your email address containing instructions on how to activate your account."
+
+#: ErrorMessage.php:221
+msgid "Order placement successful."
+msgstr "Order placement successful."
+
+#: ErrorMessage.php:223
+msgid "Login to activate your account."
+msgstr "Login to activate your account."
+
+#: ErrorMessage.php:225
+msgid "Decryption failed."
+msgstr "Decryption failed."
+
+#: ErrorMessage.php:227
+msgid "No new messages."
+msgstr "No new messages."
+
+#: ErrorMessage.php:229
+msgid "Undefined message ID."
+msgstr "Undefined message ID."
+
+#: ErrorMessage.php:231
+msgid "Undefined query statement."
+msgstr "Undefined query statement."
+
+#: ErrorMessage.php:233
+msgid "Undefined parent type."
+msgstr "Undefined parent type."
+
+#: ErrorMessage.php:235
+msgid "Timestamp is undefined."
+msgstr "Timestamp is undefined."
+
+#: ErrorMessage.php:237
+msgid "New message"
+msgstr "New message"
+
+#: ErrorMessage.php:239
+msgid "Sodium keysize error."
+msgstr "Sodium keysize error."
+
+#: ErrorMessage.php:241
+msgid "Undefined product key."
+msgstr "Undefined product key."
+
+#: ErrorMessage.php:243
+msgid "Undefined product."
+msgstr "Undefined product."
+
+#: ErrorMessage.php:245
+msgid "Error retrieving user data."
+msgstr "Error retrieving user data."
+
+#: ErrorMessage.php:247
+msgid "Nice try."
+msgstr "Nice try."
+
+#: ErrorMessage.php:249
+msgid "Illegal child load state."
+msgstr "Illegal child load state."
+
+#: ErrorMessage.php:251
+msgid "Parent class is undefined."
+msgstr "Parent class is undefined."
+
+#: ErrorMessage.php:253
+msgid "Error updating unique key."
+msgstr "Error updating unique key."
+
+#: ErrorMessage.php:257
+msgid "Unitialized data."
+msgstr "Unitialized data."
+
+#: ErrorMessage.php:259
+msgid "Undefined correspondent."
+msgstr "Undefined correspondent."
+
+#: ErrorMessage.php:261
+msgid "Invalid IMEI."
+msgstr "Invalid IMEI."
+
+#: ErrorMessage.php:263
+msgid "IMEI has not changed."
+msgstr "IMEI has not changed."
+
+#: ErrorMessage.php:265
+msgid "Note unchanged."
+msgstr "Note unchanged."
+
+#: ErrorMessage.php:267
+msgid "Empty string."
+msgstr "Empty string."
+
+#: ErrorMessage.php:269
+msgid "Note updated."
+msgstr "Note updated."
+
+#: ErrorMessage.php:271
+msgid "Public key is undefined."
+msgstr "Public key is undefined."
+
+#: ErrorMessage.php:273
+msgid "This object has already been deleted."
+msgstr "This object has already been deleted."
+
+#: ErrorMessage.php:275
+msgid "Null identifier."
+msgstr "Null identifier."
+
+#: ErrorMessage.php:277
+msgid "Node expansion failed."
+msgstr "Node expansion failed."
+
+#: ErrorMessage.php:279
+msgid "Order key undefined."
+msgstr "Order key undefined."
+
+#: ErrorMessage.php:281
+msgid "Employees only."
+msgstr "Employees only."
+
+#: ErrorMessage.php:283
+msgid "Article deleted."
+msgstr "Article deleted."
+
+#: ErrorMessage.php:285
+msgid "PayPal API error."
+msgstr "PayPal API error."
+
+#: ErrorMessage.php:289
+msgid "You may now sign in."
+msgstr "You may now sign in."
+
+#: ErrorMessage.php:291
+msgid "Your IP address has been temporarily banned due to an excess of failed login attempts. Please try again in 10 minutes."
+msgstr "Your IP address has been temporarily banned due to an excess of failed login attempts. Please try again in 10 minutes."
+
+#: ErrorMessage.php:293
+msgid "Digital signature verification failed."
+msgstr "Digital signature verification failed."
+
+#: ErrorMessage.php:295
+msgid "You cannot dismiss this notification."
+msgstr "You cannot dismiss this notification."
+
+#: ErrorMessage.php:297
+msgid "Invalid notification type."
+msgstr "Invalid notification type."
+
+#: ErrorMessage.php:299 ErrorMessage.php:373
+msgid "Your account is disabled."
+msgstr "Your account is disabled."
+
+#: ErrorMessage.php:303
+msgid "File size is too big."
+msgstr "File size is too big."
+
+#: ErrorMessage.php:305
+msgid "Impossible value."
+msgstr "Impossible value."
+
+#: ErrorMessage.php:307
+msgid "File upload failed."
+msgstr "File upload failed."
+
+#: ErrorMessage.php:309
+msgid "Illegal MIME type."
+msgstr "Illegal MIME type."
+
+#: ErrorMessage.php:311
+msgid "Invalid file parameters."
+msgstr "Invalid file parameters."
+
+#: ErrorMessage.php:313
+msgid "Undefined correspondent key."
+msgstr "Undefined correspondent key."
+
+#: ErrorMessage.php:315
+msgid "The email address you provided is unavailable for registration."
+msgstr "The email address you provided is unavailable for registration."
+
+#: ErrorMessage.php:317
+msgid "Critical data was not loaded."
+msgstr "Critical data was not loaded."
+
+#: ErrorMessage.php:319
+msgid "Undefined parent object."
+msgstr "Undefined parent object."
+
+#: ErrorMessage.php:321
+msgid "sendmail error."
+msgstr "sendmail error."
+
+#: ErrorMessage.php:323
+msgid "Undefined confirmation code."
+msgstr "Undefined confirmation code."
+
+#: ErrorMessage.php:325
+msgid "Signature verification failed."
+msgstr "Signature verification failed."
+
+#: ErrorMessage.php:327
+msgid "You already have a lockout waiver in effect for this IP address."
+msgstr "You already have a lockout waiver in effect for this IP address."
+
+#: ErrorMessage.php:329
+msgid "The confirmation code you submitted has already been used."
+msgstr "The confirmation code you submitted has already been used."
+
+#: ErrorMessage.php:331
+msgid "IPv6 is unsupported."
+msgstr "IPv6 is unsupported."
+
+#: ErrorMessage.php:333
+msgid "Undefined anti-XSRF token."
+msgstr "Undefined anti-XSRF token."
+
+#: ErrorMessage.php:335
+msgid "Your IP address is blocked."
+msgstr "Your IP address is blocked."
+
+#: ErrorMessage.php:337
+msgid "Failed to update firewall settings. You cannot lock yourself out of your account."
+msgstr "Failed to update firewall settings. You cannot lock yourself out of your account."
+
+#: ErrorMessage.php:339 ErrorMessage.php:460
+msgid "Your IP address is unauthorized."
+msgstr "Your IP address is unauthorized."
+
+#: ErrorMessage.php:341
+msgid "Your IP address is authorized."
+msgstr "Your IP address is authorized."
+
+#: ErrorMessage.php:343
+msgid "Access attempt is undefined."
+msgstr "Access attempt is undefined."
+
+#: ErrorMessage.php:345
+msgid "Invalid array encoding."
+msgstr "Invalid array encoding."
+
+#: ErrorMessage.php:347
+msgid "Server has already been initialized."
+msgstr "Server has already been initialized."
+
+#: ErrorMessage.php:349
+msgid "Please log in to use the messenger."
+msgstr "Please log in to use the messenger."
+
+#: ErrorMessage.php:351
+msgid "Use case is undefined."
+msgstr "Use case is undefined."
+
+#: ErrorMessage.php:353
+msgid "This feature is of no concern to administrators."
+msgstr "This feature is of no concern to administrators."
+
+#: ErrorMessage.php:355
+msgid "This feature is deprecated."
+msgstr "This feature is deprecated."
+
+#: ErrorMessage.php:357
+msgid "oth password fields were left empty."
+msgstr "oth password fields were left empty."
+
+#: ErrorMessage.php:359
+msgid "Null password hash."
+msgstr "Null password hash."
+
+#: ErrorMessage.php:361
+msgid "Nothing to see here."
+msgstr "Nothing to see here."
+
+#: ErrorMessage.php:363
+msgid "Undefined user key."
+msgstr "Undefined user key."
+
+#: ErrorMessage.php:365
+msgid "Enter billing information."
+msgstr "Enter billing information."
+
+#: ErrorMessage.php:367
+msgid "Try again."
+msgstr "Try again."
+
+#: ErrorMessage.php:369
+msgid "Undefined signatory."
+msgstr "Undefined signatory."
+
+#: ErrorMessage.php:371
+msgid "Null target object."
+msgstr "Null target object."
+
+#: ErrorMessage.php:375
+msgid "Your submission has been rejected because you have been flooding the server with requests."
+msgstr "Your submission has been rejected because you have been flooding the server with requests."
+
+#: ErrorMessage.php:377
+msgid "Your messenger privileges have been provoked."
+msgstr "Your messenger privileges have been provoked."
+
+#: ErrorMessage.php:379
+msgid "Integer out of bounds."
+msgstr "Integer out of bounds."
+
+#: ErrorMessage.php:381
+msgid "Submission accepted."
+msgstr "Submission accepted."
+
+#: ErrorMessage.php:383
+msgid "Successfully edited comment."
+msgstr "Successfully edited comment."
+
+#: ErrorMessage.php:385
+msgid "Undefined object number."
+msgstr "Undefined object number."
+
+#: ErrorMessage.php:387
+msgid "Push subscription is expired."
+msgstr "Push subscription is expired."
+
+#: ErrorMessage.php:390
+msgid "Undefined location key."
+msgstr "Undefined location key."
+
+#: ErrorMessage.php:392
+msgid "No addresses."
+msgstr "No addresses."
+
+#: ErrorMessage.php:394
+msgid "Attachments disabled."
+msgstr "Attachments disabled."
+
+#: ErrorMessage.php:396
+msgid "Language settings updated."
+msgstr "Language settings updated."
+
+#: ErrorMessage.php:399
+msgid "You must confirm must your new email address in order to finalize the changes to your account. Instructions on completing the process have been sent to %1%. If you cannot find the message in your inbox or spam folder please contact us directly."
+msgstr "You must confirm must your new email address in order to finalize the changes to your account. Instructions on completing the process have been sent to %1%. If you cannot find the message in your inbox or spam folder please contact us directly."
+
+#: ErrorMessage.php:403
+msgid "Activation prohibited: You are already logged in as %1%."
+msgstr "Activation prohibited: You are already logged in as %1%."
+
+#: ErrorMessage.php:408
+msgid "Your account has already been credited %1% credits."
+msgstr "Your account has already been credited %1% credits."
+
+#: ErrorMessage.php:411
+msgid "Successfully updated settings for user %1%."
+msgstr "Successfully updated settings for user %1%."
+
+#: ErrorMessage.php:413
+msgid "Your account has been credited %1% credits."
+msgstr "Your account has been credited %1% credits."
+
+#: ErrorMessage.php:415
+msgid "Invalid currency."
+msgstr "Invalid currency."
+
+#: ErrorMessage.php:417
+msgid "Invalid user role."
+msgstr "Invalid user role."
+
+#: ErrorMessage.php:419
+msgid "Invalid location key."
+msgstr "Invalid location key."
+
+#: ErrorMessage.php:421
+msgid "Invalid appointment type."
+msgstr "Invalid appointment type."
+
+#: ErrorMessage.php:423
+msgid "Purchase successful."
+msgstr "Purchase successful."
+
+#: ErrorMessage.php:425
+msgid "New parent key is identical to the old one."
+msgstr "New parent key is identical to the old one."
+
+#: ErrorMessage.php:427
+msgid "hCaptcha verification failed."
+msgstr "hCaptcha verification failed."
+
+#: ErrorMessage.php:429
+msgid "Submission accepted. You will be notified as soon as the administrator verifies payment."
+msgstr "Submission accepted. You will be notified as soon as the administrator verifies payment."
+
+#: ErrorMessage.php:431
+msgid "Invalid username."
+msgstr "Invalid username."
+
+#: ErrorMessage.php:433
+msgid "Rejection reason required."
+msgstr "Rejection reason required."
+
+#: ErrorMessage.php:437
+msgid "Invalid IP address."
+msgstr "Invalid IP address."
+
+#: ErrorMessage.php:441
+msgid "IP address banned."
+msgstr "IP address banned."
+
+#: ErrorMessage.php:443
+msgid "Successfully deleted saved sessions."
+msgstr "Successfully deleted saved sessions."
+
+#: ErrorMessage.php:445
+msgid "Invalid MFA OTP."
+msgstr "Invalid MFA OTP."
+
+#: ErrorMessage.php:447
+msgid "Undefined MFA seed."
+msgstr "Undefined MFA seed."
+
+#: ErrorMessage.php:455
+msgid "Guest users only."
+msgstr ""
+
+#: ErrorMessage.php:457
+msgid "No results."
+msgstr "No results."
+
+#: ErrorMessage.php:462
+msgid "Key collision error."
+msgstr "Key collision error."
+
+#: ErrorMessage.php:464
+msgid "Forbidden"
+msgstr "Forbidden"
+
+#: ErrorMessage.php:466
+msgid "Your account has been locked."
+msgstr "Your account has been locked."
+
+#: ErrorMessage.php:469
+msgid "Error code %1%."
+msgstr "Error code %1%."

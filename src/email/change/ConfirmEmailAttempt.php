@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\email\change;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -8,37 +9,26 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Exception;
 use mysqli;
 
-class ConfirmEmailAttempt extends CodeConfirmationAttempt
-{
+class ConfirmEmailAttempt extends CodeConfirmationAttempt{
 
-	/*
-	 * public static function getTableNameStatic():string{
-	 * return "confirm_email_attempts";
-	 * }
-	 */
-	public static function getConfirmationCodeClass(): string
-	{
+	public static function getConfirmationCodeClass(): string{
 		return ChangeEmailAddressConfirmationCode::class;
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "confirmEmailAttempts";
 	}
 
-	public static function getAccessTypeStatic(): string
-	{
+	public static function getAccessTypeStatic(): string{
 		return ACCESS_TYPE_CHANGE_EMAIL;
 	}
 
-	public static function getSuccessfulResultCode()
-	{
-		return RESULT_CHANGEMAIL_SUCCESS;
+	public static function getSuccessfulResultCode():int{
+		return SUCCESS;
 	}
 
-	protected function beforeInsertHook(mysqli $mysqli): int
-	{
-		$f = __METHOD__; //ConfirmEmailAttempt::getShortClass()."(".static::getShortClass().")->beforeInsertHook()";
+	protected function beforeInsertHook(mysqli $mysqli): int{
+		$f = __METHOD__;
 		try {
 			$status = $this->getObjectStatus();
 			if ($status === ERROR_LINK_EXPIRED) {
@@ -53,33 +43,27 @@ class ConfirmEmailAttempt extends CodeConfirmationAttempt
 		}
 	}
 
-	public function getReasonLogged()
-	{
+	public function getReasonLogged(){
 		return BECAUSE_CHANGE_EMAIL;
 	}
 
-	public function getName()
-	{
+	public function getName():string{
 		return $this->getUserName();
 	}
 
-	public function isSecurityNotificationWarranted()
-	{
+	public function isSecurityNotificationWarranted():bool{
 		return true;
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Email confirmation attempt");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Email confirmation attempts");
 	}
 
-	public static function getIpLogReason()
-	{
+	public static function getReasonLoggedStatic(){
 		return BECAUSE_CHANGE_EMAIL;
 	}
 }

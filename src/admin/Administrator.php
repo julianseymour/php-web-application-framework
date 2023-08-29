@@ -83,28 +83,6 @@ class Administrator extends AuthenticatedUser{
 		return "administrators";
 	}
 
-	/**
-	 *
-	 * @param mysqli $mysqli
-	 * @return Administrator
-	 */
-	public static function getAdministratorStatic(mysqli $mysqli): Administrator{
-		$f = __METHOD__;
-		try {
-			$class = static::class;
-			$admin = new $class();
-			$admin->setSerialNumber(1);
-			$status = $admin->load($mysqli, "num", 1);
-			if ($status !== SUCCESS) {
-				$err = ErrorMessage::getResultMessage($status);
-				Debug::error("{$f} failed to load admin #1: \"{$err}\"");
-			}
-			return $admin;
-		} catch (Exception $x) {
-			x($f, $x);
-		}
-	}
-
 	protected function beforeDeleteHook(mysqli $mysqli): int{
 		return $this->setObjectStatus(ERROR_INTERNAL);
 	}
@@ -117,24 +95,6 @@ class Administrator extends AuthenticatedUser{
 		return WEBSITE_URL;
 	}
 
-	public function writeUpdatedNotificationDeliveryTimestamp($mysqli): int{
-		$f = __METHOD__;
-		try {
-			$st = QueryBuilder::update(NormalUser::getDatabaseNameStatic(), NormalUser::getTableNameStatic())->set([
-				"notificationDeliveryTimestamp" => '?'
-			])->where(new WhereCondition(NormalUser::getIdentifierNameStatic(), OPERATOR_EQUALS))->prepareBindExecuteGetStatement($mysqli, 'is', $this->setNotificationDeliveryTimestamp(time()), $this->getIdentifierValue());
-			if ($st == null) {
-				$status = $this->getObjectStatus();
-				$err = ErrorMessage::getResultMessage($status);
-				Debug::warning("{$f} updating notification delivery timestamp returned error status \"{$err}\"");
-				return $this->getObjectStatus();
-			}
-			return $this->getObjectStatus();
-		} catch (Exception $x) {
-			x($f, $x);
-		}
-	}
-
 	public function isAdminStub(): bool{
 		return true;
 	}
@@ -143,11 +103,11 @@ class Administrator extends AuthenticatedUser{
 		return true;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Administrator");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Administrators");
 	}
 

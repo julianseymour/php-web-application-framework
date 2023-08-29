@@ -1,8 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\image;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\request;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -15,11 +16,9 @@ use JulianSeymour\PHPWebApplicationFramework\file\RetrospectiveEncryptedFile;
 use Exception;
 use mysqli;
 
-class EncryptedImageUseCase extends OpenFileUseCase
-{
+class EncryptedImageUseCase extends OpenFileUseCase{
 
-	public function acquireFileObject(mysqli $mysqli)
-	{
+	public function acquireFileObject(mysqli $mysqli){
 		$f = __METHOD__;
 		try {
 			$user = user();
@@ -69,8 +68,7 @@ class EncryptedImageUseCase extends OpenFileUseCase
 		}
 	}
 
-	public function echoResponse(): void
-	{
+	public function echoResponse(): void{
 		$f = __METHOD__;
 		try {
 			$user = user();
@@ -90,23 +88,15 @@ class EncryptedImageUseCase extends OpenFileUseCase
 		}
 	}
 
-	public static function getErrorImageContents()
-	{
+	public static function getErrorImageContents(){
 		return file_get_contents(IMAGE_ERROR_URI);
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_DECRYPT_IMAGE;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/image";
 	}
 }

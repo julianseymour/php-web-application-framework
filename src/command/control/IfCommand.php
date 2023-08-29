@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\control;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -17,21 +18,18 @@ use JulianSeymour\PHPWebApplicationFramework\json\Json;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 
 /**
  * if a condition is satisfied, invoke thenCommands; otherwise invoke elseCommands
  */
-class IfCommand extends ControlStatementCommand implements ParentScopeInterface, SQLInterface
-{
+class IfCommand extends ControlStatementCommand implements ParentScopeInterface, SQLInterface{
 
 	use ElseBlockTrait;
 	use ParentScopedTrait;
 
-	// protected $thenCommands;
-	// protected $elseCommands;
-	public function __construct($expr = null, $then = null, $else = null)
-	{
-		$f = __METHOD__; //IfCommand::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($expr = null, $then = null, $else = null){
+		$f = __METHOD__;
 		parent::__construct($expr);
 		if (! empty($then)) {
 			$this->setThenCommands($then);
@@ -41,36 +39,30 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 		}
 	}
 
-	public static function declareFlags(): array
-	{
+	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
 			"subsequent"
 		]);
 	}
 
-	public function setSubsequentFlag(bool $value): bool
-	{
+	public function setSubsequentFlag(bool $value): bool{
 		return $this->setFlag("subsequent", $value);
 	}
 
-	public function getSubsequentFlag(): bool
-	{
+	public function getSubsequentFlag(): bool{
 		return $this->getFlag("subsequent");
 	}
 
-	public static function hasForeignDataStructureList($context, string $phylum)
-	{
+	public static function hasForeignDataStructureList($context, string $phylum){
 		return static::if(new HasChildrenCommand($context, $phylum));
 	}
 
-	public static function hasForeignDataStructure($context, string $phylum)
-	{
+	public static function hasForeignDataStructure($context, string $phylum){
 		return static::if(new HasForeignDataStructureCommand($context, $phylum));
 	}
 
-	public static function hasColumnValue($context, string $index)
-	{
-		$f = __METHOD__; //IfCommand::getShortClass()."(".static::getShortClass().")::hasColumnValue()";
+	public static function hasColumnValue($context, string $index){
+		$f = __METHOD__;
 		if ($context instanceof DataStructure) {
 			$expr = new HasColumnValueCommand($context, $index); // ->hasColumnValueCommand($index);
 		} else {
@@ -79,38 +71,31 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 		return static::if($expr);
 	}
 
-	public static function equals($lhs, $rhs): IfCommand
-	{
+	public static function equals($lhs, $rhs): IfCommand{
 		return static::if(BinaryExpressionCommand::equals($lhs, $rhs));
 	}
 
-	public static function assign($lhs, $rhs): IfCommand
-	{
+	public static function assign($lhs, $rhs): IfCommand{
 		return static::if(BinaryExpressionCommand::assign($lhs, $rhs));
 	}
 
-	public static function lessThan($lhs, $rhs): IfCommand
-	{
+	public static function lessThan($lhs, $rhs): IfCommand{
 		return static::if(BinaryExpressionCommand::lessThan($lhs, $rhs));
 	}
 
-	public static function lessThanOrEquals($lhs, $rhs): IfCommand
-	{
+	public static function lessThanOrEquals($lhs, $rhs): IfCommand{
 		return static::if(BinaryExpressionCommand::lessThanOrEquals($lhs, $rhs));
 	}
 
-	public static function greaterThan($lhs, $rhs): IfCommand
-	{
+	public static function greaterThan($lhs, $rhs): IfCommand{
 		return static::if(BinaryExpressionCommand::greaterThan($lhs, $rhs));
 	}
 
-	public static function greaterThanOrEquals($lhs, $rhs): IfCommand
-	{
+	public static function greaterThanOrEquals($lhs, $rhs): IfCommand{
 		return static::if(BinaryExpressionCommand::greaterThanOrEquals($lhs, $rhs));
 	}
 
-	public static function notEquals($lhs, $rhs): IfCommand
-	{
+	public static function notEquals($lhs, $rhs): IfCommand{
 		return static::if(BinaryExpressionCommand::notEquals($lhs, $rhs));
 	}
 
@@ -131,29 +116,44 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 
 	public function getEvaluatedCommands(){
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
-		if ($this->getExpression()->evaluate()) {
-			if($print){
-				Debug::print("{$f} expressions was evaluated as true");
-			}
-			if ($this->hasThenCommands()) {
-				if ($print) {
-					Debug::print("{$f} expression evaluates to true and there are then commands");
+		try{
+			$print = $this->getDebugFlag();
+			$ex = $this->getExpression();
+			if($ex instanceof ValueReturningCommandInterface){
+				if($print){
+					$did = $ex->getDebugId();
+					$decl = $ex->getDeclarationLine();
+					Debug::print("{$f} about to evaluate expression with debug ID {$did} declared on {$decl}");
 				}
-				return $this->getThenCommands();
+				$evaluated = $ex->evaluate();
+			}else{
+				if($print){
+					Debug::print("{$f} expression is not a value-returning commandd interface");
+				}
+				$evaluated = $ex;
+			}
+			if ($evaluated) {
+				if ($this->hasThenCommands()) {
+					if ($print) {
+						Debug::print("{$f} expression evaluates to true and there are then commands");
+					}
+					return $this->getThenCommands();
+				} elseif ($print) {
+					Debug::print("{$f} expression evaluates to true and there are no then commands");
+				}
+			} elseif ($this->hasElseCommands()) {
+				if ($print) {
+					Debug::print("{$f} expression evaluates to false and there are else commands");
+				}
+				return $this->getElseCommands();
 			} elseif ($print) {
-				Debug::print("{$f} expression evaluates to true and there are no then commands");
+				$decl = $this->getDeclarationLine();
+				Debug::print("{$f} expression evaluates to false and there are no else commands. Declared {$decl}");
 			}
-		} elseif ($this->hasElseCommands()) {
-			if ($print) {
-				Debug::print("{$f} expression evaluates to false and there are else commands");
-			}
-			return $this->getElseCommands();
-		} elseif ($print) {
-			$decl = $this->getDeclarationLine();
-			Debug::print("{$f} expression evaluates to false and there are no else commands. Declared {$decl}");
+			return [];
+		}catch(Exception $x){
+			x($f, $x);
 		}
-		return [];
 	}
 
 	public function resolve(){
@@ -165,6 +165,12 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 			}
 			$commands = $this->getEvaluatedCommands();
 			foreach ($commands as $cmd) {
+				if($print){
+					$cc = $cmd->getShortClass();
+					$did = $cmd->getDebugId();
+					$decl = $cmd->getDeclarationLine();
+					Debug::print("{$f} about to call resolve() on a {$cc} with debug ID \"{$did}\", declared {$decl}");
+				}
 				$cmd->resolve();
 			}
 		} catch (Exception $x) {
@@ -172,8 +178,7 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 		}
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "if";
 	}
 
@@ -197,15 +202,14 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 					$then
 				];
 			}
-			// static::validateCommands($then);
-			return $this->setArrayPropertY("then", $then); // Commands = $then;
+			return $this->setArrayPropertY("then", $then);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function echoInnerJson(bool $destroy = false): void{
-		$f = __METHOD__; //IfCommand::getShortClass()."(".static::getShortClass().")->echoInnerJson()";
+		$f = __METHOD__;
 		if ($this->hasThenCommands()) {
 			Json::echoKeyValuePair('then', $this->getThenCommands(), $destroy);
 		}
@@ -216,7 +220,7 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 	}
 
 	public function evaluate(?array $params = null){
-		$f = __METHOD__; //IfCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
+		$f = __METHOD__;
 		$print = $this->getDebugFlag();
 		$result = $this->getExpression()->evaluate();
 		if ($print) {
@@ -246,7 +250,7 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 	}
 
 	public function toJavaScript(): string{
-		$f = __METHOD__; //IfCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$conditional = $this->getExpression();
@@ -307,9 +311,8 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 		}
 	}
 
-	public function toSQL(): string
-	{
-		$f = __METHOD__; //IfCommand::getShortClass()."(".static::getShortClass().")->toSQL()";
+	public function toSQL(): string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$conditional = $this->getExpression();
@@ -363,13 +366,11 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 		}
 	}
 
-	public static function and(...$conditions): IfCommand
-	{
+	public static function and(...$conditions): IfCommand{
 		return new IfCommand(new AndCommand(...$conditions));
 	}
 
-	public static function or(...$conditions): IfCommand
-	{
+	public static function or(...$conditions): IfCommand{
 		return new IfCommand(new OrCommand(...$conditions));
 	}
 }

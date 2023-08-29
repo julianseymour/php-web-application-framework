@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\join;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
@@ -16,8 +17,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\partition\MultiplePartitionNa
 use JulianSeymour\PHPWebApplicationFramework\query\table\TableNameTrait;
 use Exception;
 
-class TableFactor extends JoinExpression implements StaticPropertyTypeInterface, StringifiableInterface
-{
+class TableFactor extends JoinExpression implements StaticPropertyTypeInterface, StringifiableInterface{
 
 	use AliasTrait;
 	use DatabaseNameTrait;
@@ -29,61 +29,56 @@ class TableFactor extends JoinExpression implements StaticPropertyTypeInterface,
 
 	protected $tableSubquery;
 
-	/*
-	 * public function __construct(){
-	 * parent::__construct();
-	 * $this->requirePropertyType("columnNames", 's');
-	 * $this->requirePropertyType("indexHintList", IndexHint::class);
-	 * $this->requirePropertyType("joinExpressions", JoinExpression::class);
-	 * $this->requirePropertyType("partitionNames", "s");
-	 * }
-	 */
-	public static function create(): TableFactor
-	{
+	public function __construct($db=null, $table=null, $alias=null){
+		parent::__construct();
+		if($db !== null){
+			$this->setDatabaseName($db);
+			if($table !== null){
+				$this->setTableName($table);
+				if($alias !== null){
+					$this->setAlias($alias);
+				}
+			}
+		}
+	}
+	
+	public static function create(): TableFactor{
 		return new TableFactor();
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"lateral"
 		]);
 	}
 
-	public function setIndexHintList($indexHintList)
-	{
+	public function setIndexHintList($indexHintList){
 		return $this->setArrayProperty("indexHintList", $indexHintList);
 	}
 
-	public function hasIndexHintList()
-	{
+	public function hasIndexHintList(){
 		return $this->hasArrayProperty("indexHintList");
 	}
 
-	public function getIndexHintList()
-	{
+	public function getIndexHintList(){
 		return $this->getProperty("indexHintList");
 	}
 
-	public function partition($partitionNames)
-	{
+	public function partition($partitionNames){
 		$this->setPartitionNames($partitionNames);
 		return $this;
 	}
 
-	public function setLateralFlag($value = true)
-	{
+	public function setLateralFlag($value = true){
 		return $this->setFlag("lateral", true);
 	}
 
-	public function getLateralFlag()
-	{
+	public function getLateralFlag(){
 		return $this->getFlag("lateral");
 	}
 
-	public function setTableSubquery($subquery)
-	{
-		$f = __METHOD__; //TableFactor::getShortClass()."(".static::getShortClass().")->setTableSubquery()";
+	public function setTableSubquery($subquery){
+		$f = __METHOD__;
 		if ($subquery == null) {
 			unset($this->tableSubquery);
 			return null;
@@ -92,29 +87,25 @@ class TableFactor extends JoinExpression implements StaticPropertyTypeInterface,
 		return $this->tableSubquery = $subquery;
 	}
 
-	public function hasTableSubquery()
-	{
+	public function hasTableSubquery(){
 		return isset($this->tableSubquery);
 	}
 
-	public function getTableSubquery()
-	{
-		$f = __METHOD__; //TableFactor::getShortClass()."(".static::getShortClass().")->getTableSubquery()";
+	public function getTableSubquery(){
+		$f = __METHOD__;
 		if (! $this->hasTableSubquery()) {
 			Debug::error("{$f} table subquery is undefined");
 		}
 		return $this->tableSubquery;
 	}
 
-	public function withTableSubquery($subquery)
-	{
+	public function withTableSubquery($subquery){
 		$this->setTableSubquery($subquery);
 		return $this;
 	}
 
-	public function getTableReferenceString()
-	{
-		$f = __METHOD__; //TableFactor::getShortClass()."(".static::getShortClass().")->getTableReferenceString()";
+	public function getTableReferenceString(){
+		$f = __METHOD__;
 		try {
 			if ($this->hasTableName()) {
 				// tbl_name [PARTITION (partition_names)] [[AS] alias] [index_hint_list]
@@ -154,8 +145,7 @@ class TableFactor extends JoinExpression implements StaticPropertyTypeInterface,
 		}
 	}
 
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
 		return [
 			"columnNames" => 's',
 			"indexHintList" => IndexHint::class,
@@ -164,8 +154,7 @@ class TableFactor extends JoinExpression implements StaticPropertyTypeInterface,
 		];
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->alias);
 		unset($this->properties);
@@ -174,8 +163,7 @@ class TableFactor extends JoinExpression implements StaticPropertyTypeInterface,
 		unset($this->tableSubquery);
 	}
 
-	public function __toString(): string
-	{
+	public function __toString(): string{
 		return $this->toSQL();
 	}
 }

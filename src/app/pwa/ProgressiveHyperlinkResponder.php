@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\app\pwa;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\request;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;

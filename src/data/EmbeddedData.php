@@ -20,7 +20,7 @@ class EmbeddedData extends DataStructure{
 		static::pushTemporaryColumnsStatic($columns, $joinKey);
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Embedded data");
 	}
 
@@ -49,8 +49,8 @@ class EmbeddedData extends DataStructure{
 		return DATATYPE_EMBEDDED;
 	}
 
-	public static function getPrettyClassNames($lang = null): string{
-		return static::getPrettyClassName($lang);
+	public static function getPrettyClassNames(): string{
+		return static::getPrettyClassName();
 	}
 
 	public static function getPhylumName(): string{

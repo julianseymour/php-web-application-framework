@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\firewall;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
@@ -7,21 +8,19 @@ use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousUser;
-use JulianSeymour\PHPWebApplicationFramework\app\Request;
+use JulianSeymour\PHPWebApplicationFramework\app\Responder;
 use JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\ValidConfirmationCodeUseCase;
-use JulianSeymour\PHPWebApplicationFramework\command\element\UpdateElementCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Exception;
 
-class ClassifyIpAddressUseCase extends ValidConfirmationCodeUseCase
-{
+class ClassifyIpAddressUseCase extends ValidConfirmationCodeUseCase{
 
-	public function execute(): int
-	{
-		$f = __METHOD__; //ClassifyIpAddressUseCase::getShortClass()."(".static::getShortClass().")->execute()";
+	public function execute(): int{
+		$f = __METHOD__;
 		try {
+			$print = false;
 			$confirmation_code = $this->getPredecessor()->getConfirmationCodeObject();
 			if (! $confirmation_code->hasIpAddressObject()) {
 				Debug::error("{$f} confirmation code lacks a listed IP address object");
@@ -31,32 +30,36 @@ class ClassifyIpAddressUseCase extends ValidConfirmationCodeUseCase
 				Debug::error("{$f} invalid server command");
 			}
 			$listed_ip = $confirmation_code->getIpAddressObject();
-			$validate = getInputParameter(DIRECTIVE_VALIDATE);
+			$validate = getInputParameter("directive")[DIRECTIVE_VALIDATE]['list'];
 			switch ($validate) {
-				case 'authorize':
-					Debug::print("{$f} about to authorize IP address");
+				case POLICY_ALLOW:
+					if($print){
+						Debug::print("{$f} about to authorize IP address");
+					}
 					$list = POLICY_ALLOW;
 					break;
-				case 'ban':
-					Debug::print("{$f} about to ban IP address");
+				case POLICY_BLOCK:
+					if($print){
+						Debug::print("{$f} about to ban IP address");
+					}
 					$list = POLICY_BLOCK;
 					if (! user() instanceof AnonymousUser) {
 						$datum = $listed_ip->getColumn("list");
 						$backup_status = $datum->getObjectStatus();
 						$datum->setObjectStatus(SUCCESS);
 						$status = $datum->validate($list);
-						// $datum->getObjectStatus();
 						$datum->setObjectStatus($backup_status);
 						if ($status !== SUCCESS) {
 							$err = ErrorMessage::getResultMessage($status);
 							Debug::warning("{$f} datum->dispatchEvent() returned error status \"{$err}\"");
 							return $this->setObjectStatus($status);
+						}elseif($print){
+							Debug::print("{$f} list \"{$list}\" approved");
 						}
-						Debug::print("{$f} list \"{$list}\" approved");
 					}
 					break;
 				default:
-					Debug::printPost("{$f} nothing meaningful was posted");
+					Debug::error("{$f} invalid policy \"{$list}\"");
 					return $this->setObjectStatus(ERROR_DISPATCH_NOTHING);
 			}
 			$listed_ip->setList($list);
@@ -73,43 +76,37 @@ class ClassifyIpAddressUseCase extends ValidConfirmationCodeUseCase
 				return $this->setObjectStatus($status);
 			}
 			switch ($validate) {
-				case 'authorize':
+				case POLICY_ALLOW:
 					Debug::print("{$f} authorized IP address");
-					$status = $this->setObjectStatus(RESULT_IP_AUTHORIZED);
-					break;
-				case 'ban':
+					return $this->setObjectStatus(RESULT_IP_AUTHORIZED);
+				case POLICY_BLOCK:
 					Debug::print("{$f} banned IP address");
-					$status = $this->setObjectStatus(RESULT_IP_BANNED);
-					break;
+					return $this->setObjectStatus(RESULT_IP_BANNED);
 				default:
-					Debug::printPost("{$f} nothing meaningful was posted");
-					return $this->setObjectStatus(ERROR_DISPATCH_NOTHING);
 			}
-			if (Request::isXHREvent()) {
-				$updated_element = ErrorMessage::getVisualError($status);
-				$updated_element->setIdAttribute("confirm_ip_list_form");
-				$command = new UpdateElementCommand($updated_element);
-				$this->pushCommand($command);
-			}
-			Debug::print("{$f} returning normally");
-			return $this->setObjectStatus(SUCCESS);
+			Debug::printPost("{$f} nothing meaningful was posted");
+			return $this->setObjectStatus(ERROR_DISPATCH_NOTHING);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_AUTHORIZE_UNLISTED_IP;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/authorize_ip";
+	}
+	
+	public function getResponder(int $status):?Responder{
+		$f = __METHOD__;
+		switch($status){
+			case RESULT_IP_AUTHORIZED:
+			case RESULT_IP_BANNED:
+				return new ClassifyIpAddressResponder();
+			default:
+		}
+		return parent::getResponder($status);
 	}
 }

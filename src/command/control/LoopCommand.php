@@ -8,7 +8,7 @@ use JulianSeymour\PHPWebApplicationFramework\command\element\MultipleElementComm
 use JulianSeymour\PHPWebApplicationFramework\command\variable\ParentScopedTrait;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\ScopedCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\ScopedTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 

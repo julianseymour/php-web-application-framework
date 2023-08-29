@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\email\change;
 
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -12,48 +13,37 @@ use Exception;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 
-class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode
-{
+class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$newEmailAddress = new EmailAddressDatum("newEmailAddress");
 		$newEmailAddress->volatilize();
 		static::pushTemporaryColumnsStatic($columns, $newEmailAddress);
 	}
 
-	public static function getSentEmailStatus()
-	{
+	public static function getSentEmailStatus(){
 		return RESULT_CHANGEMAIL_SUBMIT;
 	}
 
-	public function setEmailAddress($email)
-	{
-		$f = __METHOD__; //ChangeEmailAddressConfirmationCode::getShortClass()."(".static::getShortClass().")->setEmailAddress()";
+	public function setEmailAddress(string $email):string{
 		return $this->setNewEmailAddress($email);
 	}
 
-	protected function getAdditionalDataArray(): array
-	{
+	protected function getAdditionalDataArray(): array{
 		$arr = parent::getAdditionalDataArray();
 		$arr['emailAddress'] = $this->getNewEmailAddress();
 		return $arr;
 	}
 
-	public function hasNewEmailAddress()
-	{
+	public function hasNewEmailAddress(){
 		return $this->hasColumnValue("newEmailAddress");
 	}
 
-	public function processDecryptedAdditionalDataArray($data_arr)
-	{
-		$f = __METHOD__; //ChangeEmailAddressConfirmationCode::getShortClass()."(".static::getShortClass().")->processAdditionalDataArray()";
+	public function processDecryptedAdditionalDataArray($data_arr){
+		$f = __METHOD__;
 		try {
 			parent::processDecryptedAdditionalDataArray($data_arr);
-			/*if (! $this->hasConfirmationCode()) {
-				Debug::error("{$f} confirmation code still missing");
-			} else*/
 			if (! array_key_exists("emailAddress", $data_arr)) {
 				Debug::error("{$f} email address is undefined");
 			}
@@ -65,10 +55,8 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode
 		}
 	}
 
-	public function setNewEmailAddress($email)
-	{
-		$f = __METHOD__; //ChangeEmailAddressConfirmationCode::getShortClass()."(".static::getShortClass().")->setNewEmailAddress()";
-		// Debug::printStackTraceNoExit("{$f} entered");
+	public function setNewEmailAddress(string $email):string{
+		$f = __METHOD__;
 		$print = false;
 		if ($email == null) {
 			Debug::error("{$f} email address is null");
@@ -80,7 +68,7 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode
 	}
 
 	protected function extractAdditionalDataFromUser($user){
-		$f = __METHOD__; //ChangeEmailAddressConfirmationCode::getShortClass()."(".static::getShortClass().")->extractAdditionalDataFromUser()";
+		$f = __METHOD__;
 		$print = false;
 		if(!hasInputParameter("emailAddress")){
 			Debug::printPost("{$f} no email address input parameter");
@@ -94,7 +82,7 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode
 	}
 
 	public function getNewEmailAddress(){
-		$f = __METHOD__; //ChangeEmailAddressConfirmationCode::getShortClass()."(".static::getShortClass().")->getNewEmailAddress()";
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if(!$this->hasNewEmailAddress()){
@@ -124,39 +112,31 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode
 	}
 
 	public function getEmailAddress():string{
-		$f = __METHOD__; //ChangeEmailAddressConfirmationCode::getShortClass()."(".static::getShortClass().")->getEmailAddress()";
-		$email = $this->getNewEmailAddress();
 		return $this->getNewEmailAddress();
 	}
 
-	public function isSecurityNotificationWarranted()
-	{
+	public function isSecurityNotificationWarranted():bool{
 		return false;
 	}
 
-	public static function getConfirmationUriStatic($suffix)
-	{
+	public static function getConfirmationUriStatic($suffix){
 		return WEBSITE_URL . "/confirm_email/{$suffix}";
 	}
 
-	public static function getEmailNotificationClass()
-	{
+	public static function getEmailNotificationClass():string{
 		return ChangeEmailAddressEmail::class;
 	}
 
-	public static function getConfirmationCodeTypeStatic()
-	{
+	public static function getConfirmationCodeTypeStatic(){
 		return ACCESS_TYPE_CHANGE_EMAIL;
 	}
 
-	public static function getIpLogReason()
-	{
+	public static function getReasonLoggedStatic(){
 		return BECAUSE_CHANGE_EMAIL;
 	}
 
-	protected function getConfirmationUriGetParameters(): array
-	{
-		$f = __METHOD__; //AuthenticatedConfirmationCode::getShortClass()."(".static::getShortClass().")->getConfirmationUriGetParameters()";
+	protected function getConfirmationUriGetParameters(): array{
+		$f = __METHOD__;
 		try {
 			$url_arr = parent::getConfirmationUriGetParameters();
 			$url_arr['emailAddress'] = $this->getNewEmailAddress(); // change email only

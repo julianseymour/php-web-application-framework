@@ -1,8 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\request;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -14,8 +15,7 @@ use Exception;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use mysqli;
 
-abstract class OpenFileUseCase extends UseCase
-{
+abstract class OpenFileUseCase extends UseCase{
 
 	protected $requiredMimeType;
 
@@ -40,10 +40,10 @@ abstract class OpenFileUseCase extends UseCase
 	public function sendHeaders(Request $request): bool{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			if($this->hasObjectStatus() && $this->getObjectStatus() !== SUCCESS){
 				if($print){
-					$err = ErrorMessage::getResultMessage($status);
+					$err = ErrorMessage::getResultMessage($this->getObjectStatus());
 					Debug::print("{$f} error status \"{$err}\". Returning parent function.");
 				}
 				return parent::sendHeaders($request);
@@ -70,8 +70,7 @@ abstract class OpenFileUseCase extends UseCase
 		}
 	}
 
-	public function echoResponse(): void
-	{
+	public function echoResponse(): void{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -110,8 +109,7 @@ abstract class OpenFileUseCase extends UseCase
 		}
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return SUCCESS;
 	}
 }

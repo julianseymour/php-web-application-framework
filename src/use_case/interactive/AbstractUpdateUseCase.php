@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\use_case\interactive;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
@@ -87,9 +87,8 @@ abstract class AbstractUpdateUseCase extends SubsequentUseCase{
 			} elseif ($print) {
 				Debug::print("{$f} data operand is not noteworthy");
 			}
-			// 8. media command
 			$backup->setObjectStatus($updated_object->getObjectStatus());
-			return SUCCESS; // $this->getSuccessfulUpdateStatus();
+			return SUCCESS;
 		} catch (Exception $x) {
 			x($f, $x);
 		}
@@ -142,7 +141,6 @@ abstract class AbstractUpdateUseCase extends SubsequentUseCase{
 					Debug::print("{$f} data operand does not have its send counterpart notification flag set, or counterpart does not accept notifications on status update");
 				}
 			} elseif ($updated_object instanceof FiniteStatefulNoteworthyInterface) {
-				// Debug::error("{$f} unimplemented: object has a notification recipient that varies depending on state");
 				// copied from above
 				$recipient = $updated_object->getUpdateNotificationRecipient();
 				if ($recipient instanceof PlayableUser) {

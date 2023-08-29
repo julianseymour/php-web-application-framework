@@ -56,7 +56,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 
 	public function getArrayMembershipConfiguration($config_id): ?array{
 		switch ($config_id) {
-			case 'redis':
+			case 'cache':
 				return [
 					'cidr' => true,
 					'list' => true

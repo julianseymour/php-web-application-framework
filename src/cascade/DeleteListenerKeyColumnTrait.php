@@ -1,11 +1,16 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\cascade;
 
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
 
-trait DeleteListenerKeyColumnTrait
-{
+/**
+ * A trait for DataStructure classes that listen for the deletion of a foreign data structure to which this object does not have a direct reference.
+ * @author j
+ *
+ */
+trait DeleteListenerKeyColumnTrait{
 
 	use MultipleColumnDefiningTrait;
 

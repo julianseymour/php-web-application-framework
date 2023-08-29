@@ -1,17 +1,16 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
-use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
+use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\BooleanDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\DatumBundle;
 
-class NotificationStatusDatumBundle extends DatumBundle
-{
+class NotificationStatusDatumBundle extends DatumBundle{
 
-	public function generateComponents(?DataStructure $ds = null): array
-	{
+	public function generateComponents(?DataStructure $ds = null): array{
 		$name = $this->getName();
 		$classes = mods()->getTypedNotificationClasses();
 		$components = [];
@@ -19,11 +18,17 @@ class NotificationStatusDatumBundle extends DatumBundle
 			if ($class::getNotificationTypeStatic() === NOTIFICATION_TYPE_TEST || ! $class::canDisable()) {
 				continue;
 			}
-			$t = $class::getNotificationTypeString(LANGUAGE_DEFAULT);
-			while ($t instanceof ValueReturningCommandInterface) {
-				$t = $t->evaluate();
+			switch($name){
+				case "push":
+					$t = $class::getPushStatusVariableName();
+					break;
+				case "email":
+					$t = $class::getEmailStatusVariableName();
+					break;
+				default:
+					Debug::error("{$f} invalid notification type \"{$name}\"");
 			}
-			$datum = new BooleanDatum("{$name}{$t}Notifications");
+			$datum = new BooleanDatum($t);
 			$datum->setDefaultValue(true);
 			$datum->setUserWritableFlag(true);
 			$datum->setSensitiveFlag(true);

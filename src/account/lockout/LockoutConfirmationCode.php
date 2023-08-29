@@ -27,7 +27,7 @@ class LockoutConfirmationCode extends AnonymousConfirmationCode
 	}
 
 	public static function getSentEmailStatus(){
-		$f = __METHOD__; //LockoutConfirmationCode::getShortClass()."(".static::getShortClass().")::getSentEmailStatus()";
+		$f = __METHOD__;
 		try {
 			return RESULT_BFP_USERNAME_LOCKOUT_START;
 		} catch (Exception $x) {
@@ -65,8 +65,7 @@ class LockoutConfirmationCode extends AnonymousConfirmationCode
 		return ACCESS_TYPE_LOCKOUT_WAIVER;
 	}
 
-	public static function getIpLogReason()
-	{
+	public static function getReasonLoggedStatic(){
 		return BECAUSE_LOCKOUT;
 	}
 }

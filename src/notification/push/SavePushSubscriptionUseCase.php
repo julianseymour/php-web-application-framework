@@ -3,7 +3,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\notification\push;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\db;
-use function JulianSeymour\PHPWebApplicationFramework\f;
+
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -133,45 +133,33 @@ class SavePushSubscriptionUseCase extends UseCase
 		}
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		return EnabledAccountTypePermission::class;
 	}
 
-	public function getDataOperandClass(): ?string
-	{
+	public function getDataOperandClass(): ?string{
 		return PushSubscriptionData::class;
 	}
 
-	public function getConditionalDataOperandClasses(): ?array
-	{
+	public function getConditionalDataOperandClasses(): ?array{
 		return [
 			$this->getProcessedDataType() => PushSubscriptionData::class
 		];
 	}
 
-	public function getProcessedDataType(): ?string
-	{
+	public function getProcessedDataType(): ?string{
 		return DATATYPE_PUSH_SUBSCRIPTION;
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return false;
 	}
 
-	public function getUseCaseId()
-	{
-		return USE_CASE_PUSH_SUBSCRIBE;
-	}
-
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return "/subscribe";
 	}
 
-	public function getExecutePermission()
-	{
+	public function getExecutePermission(){
 		return SUCCESS;
 	}
 }

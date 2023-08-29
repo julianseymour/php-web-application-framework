@@ -1,0 +1,3 @@
+.hcaptcha_transfer_button:not(:first-child){
+	display:none;
+}

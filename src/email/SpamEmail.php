@@ -1,6 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\email;
 
+use function JulianSeymour\PHPWebApplicationFramework\getlocale;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\account\UserMetadataBundle;
@@ -18,11 +20,16 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\file\CleartextFileData;
 use JulianSeymour\PHPWebApplicationFramework\image\ImageData;
 use Exception;
+use mysqli;
 
 abstract class SpamEmail extends DataStructure implements StaticElementClassInterface{
 	
 	protected $htmlContent;
 
+	public static function getDatabaseNameStatic():string{
+		return "user_content";
+	}
+	
 	public static function getElementClassStatic(?StaticElementClassInterface $that = null):string{
 		return SimpleEmailElement::class;
 	}
@@ -51,7 +58,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	}
 	
 	public function getRecipient():DataStructure{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->getRecipient()";
+		$f = __METHOD__;
 		if(!$this->hasRecipient()){
 			Debug::error("{$f} recipient is undefined");
 		}
@@ -64,7 +71,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	 * @return UserData
 	 */
 	public function setRecipient(UserData $user):UserData{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->setRecipient()";
+		$f = __METHOD__;
 		$print = false;
 		if(!$this->hasRecipientEmailAddress() && $user->hasEmailAddress()){
 			$email = $user->getEmailAddress();
@@ -83,7 +90,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	}
 	
 	public function getRecipientEmailAddress(){
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->getRecipientEmailAddress()";
+		$f = __METHOD__;
 		if (! $this->hasRecipientEmailAddress()) {
 			Debug::error("{$f} recipient email address is undefined");
 		}
@@ -91,7 +98,6 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	}
 	
 	public function setRecipientEmailAddress($email){
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->setRecipientEmailAddress()";
 		return $this->setColumnValue("recipientEmailAddress", $email);
 	}
 	
@@ -101,7 +107,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	}
 	
 	public function getSender():DataStructure{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->getSender()";
+		$f = __METHOD__;
 		if(!$this->hasSender()){
 			Debug::error("{$f} sender is undefined");
 		}
@@ -114,7 +120,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	 * @return USerData
 	 */
 	public function setSender(UserData $user):UserData{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->setSender()";
+		$f = __METHOD__;
 		$print = false;
 		if(!$this->hasSenderEmailAddress() && $user->hasEmailAddress()){
 			$email = $user->getEmailAddress();
@@ -133,7 +139,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	}
 	
 	public function getSenderEmailAddress(){
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->getSenderEmailAddress()";
+		$f = __METHOD__;
 		if (! $this->hasSenderEmailAddress()) {
 			Debug::error("{$f} sender email address is undefined");
 		}
@@ -141,7 +147,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	}
 	
 	public function setSenderEmailAddress(string $email):string{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->setSenderEmailAddress()";
+		$f = __METHOD__;
 		return $this->setColumnValue("senderEmailAddress", $email);
 	}
 
@@ -150,7 +156,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	}
 
 	public function embedImage($data){
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->embedImage()";
+		$f = __METHOD__;
 		if (is_string($data)) {
 			$data = new EmbeddedImageData($data);
 		} elseif (! $data instanceof ImageData) {
@@ -171,33 +177,28 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 		return $this->embedImage($data);
 	}
 
-	public function hasEmbeddedImages()
-	{
+	public function hasEmbeddedImages(){
 		return $this->hasForeignDataStructureList("embeddedImages");
 	}
 
-	public function getEmbeddedImages()
-	{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->getEmbeddedImages()";
+	public function getEmbeddedImages(){
+		$f = __METHOD__;
 		if (! $this->hasEmbeddedImages()) {
 			Debug::error("{$f} embedded images array is undefined");
 		}
 		return $this->getForeignDataStructureList("embeddedImages");
 	}
 
-	public final function getHTMLBody()
-	{
+	public final function getHTMLBody(){
 		return $this->getHTMLContent()->__toString();
 	}
 	
-	public function hasAttachments()
-	{
+	public function hasAttachments():bool{
 		return $this->hasForeignDataStructureList("attachments");
 	}
 
-	public function addAttachment($file)
-	{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->addAttachment()";
+	public function addAttachment($file){
+		$f = __METHOD__;
 		if (! $file instanceof CleartextFileData) {
 			Debug::error("{$f} please don't pass your garbage to this function");
 		}
@@ -208,31 +209,27 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	 *
 	 * @return CleartextFileData[]
 	 */
-	public function getAttachments()
-	{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->getAttachments()";
+	public function getAttachments(){
+		$f = __METHOD__;
 		if (! $this->hasAttachments()) {
 			Debug::error("{$f} attachments are undefined");
 		}
 		return $this->getForeignDataStructureList("attachments");
 	}
 
-	public function hasHTMLContent(): bool
-	{
+	public function hasHTMLContent(): bool{
 		return isset($this->htmlContent);
 	}
 
-	public function getHTMLContent()
-	{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->getHTMLContent()";
+	public function getHTMLContent(){
+		$f = __METHOD__;
 		if (! $this->hasHTMLContent()) {
 			Debug::error("{$f} html content is undefined");
 		}
 		return $this->htmlContent;
 	}
 
-	public function setHTMLContent($htmlContent)
-	{
+	public function setHTMLContent($htmlContent){
 		if ($htmlContent === null) {
 			unset($this->htmlContent);
 			return null;
@@ -240,14 +237,12 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 		return $this->htmlContent = $htmlContent;
 	}
 
-	public function hasPlaintextContent(): bool
-	{
+	public function hasPlaintextContent(): bool{
 		return true;
 	}
 	
-	public function buildContentNodes(?bool $mix = null, ?bool $alt = null)
-	{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->buildContentNodes()";
+	public function buildContentNodes(?bool $mix = null, ?bool $alt = null){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($mix === null) {
@@ -331,9 +326,8 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 		return $this->getPlaintextBody();
 	}
 	
-	public function sendAndInsert($mysqli)
-	{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->sendAndInsert()";
+	public function sendAndInsert(mysqli $mysqli){
+		$f = __METHOD__;
 		$print = false;
 		$status = $this->send();
 		if ($status !== SUCCESS) {
@@ -354,28 +348,20 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 		return SUCCESS;
 	}
 
-	public function send()
-	{
-		$f = __METHOD__; //SpamEmail::getShortClass()."(".static::getShortClass().")->send()";
+	public function send():int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$debug = false;
-			/*if ($this->isOptional()) {
-				if (! $this->isEmailNotificationWarranted()) {
-					Debug::error("{$f} the subject does not warrant an email notification");
-					return $this->setObjectStatus(SUCCESS);
-				} elseif (! $this->getRecipient()->getEmailNotificationStatus($this->getNotificationType())) {
-					if ($print) {
-						Debug::print("{$f} email notifications are disabled");
-					}
-					return $this->setObjectStatus(SUCCESS);
-				}elseif($print){
-					Debug::print("{$f} email notification is warranted, and this notification type is enabled");
-				}
-			}elseif($print){
-				Debug::print("{$f} this email is not optional");
-			}*/
 			// generate email body
+			$locale = getlocale(LC_MESSAGES);
+			$rls = $this->getRecipient()->getLocaleString();
+			$set = setlocale(LC_MESSAGES, $rls, "{$rls}.utf8", "{$rls}.UTF8");
+			if(false === $set){
+				Debug::error("{$f} setting locale failed");
+			}elseif($print){
+				Debug::print("{$f} successfully set locale to \"{$set}\"");
+			}
 			$ec = $this->getElementClass();
 			$element = new $ec(ALLOCATION_MODE_EMAIL);
 			$element->setEmbeddedImageCollector($this);
@@ -434,29 +420,31 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 				$status = ERROR_SENDMAIL;
 				$this->setAccepted(false);
 			}
+			$set = setlocale(LC_MESSAGES, $locale, "{$locale}.utf8", "{$locale}.UTF8");
+			if(false === $set){
+				Debug::error("{$f} restoring locale failed");
+			}elseif($print){
+				Debug::print("{$f} successfully restored locale to \"{$set}\"");
+			}
 			return $this->setObjectStatus($status);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Email record");
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "email_records";
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_EMAIL_RECORD;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Email records");
 	}
 }

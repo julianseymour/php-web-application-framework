@@ -3,6 +3,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\auth;
 
 use function JulianSeymour\PHPWebApplicationFramework\argon_hash;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
+use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
@@ -16,23 +17,30 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\Base64Datum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
+use function JulianSeymour\PHPWebApplicationFramework\getlocale;
 
 abstract class AuthenticationData extends DataStructure{
 
 	public abstract static function getAuthenticationType();
 
-	public abstract static function getReauthenticationHashColumnName();
+	public abstract static function getReauthenticationHashColumnName():string;
 
-	public abstract static function getReauthenticationNonceColumnName();
+	public abstract static function getReauthenticationNonceColumnName():string;
 
-	public abstract static function getDeterministicSecretKeyColumnName();
+	public abstract static function getDeterministicSecretKeyColumnName():string;
 
-	public abstract static function getSignatureColumnName();
+	public abstract static function getSignatureColumnName():string;
 
-	public abstract static function getUsernameColumnName();
+	public abstract static function getUsernameColumnName():string;
 
+	public static function getDatabaseNameStatic():string{
+		return "error";
+	}
+	
 	public static function getDefaultPersistenceModeStatic(): int{
 		return PERSISTENCE_MODE_SESSION;
 	}
@@ -424,6 +432,39 @@ abstract class AuthenticationData extends DataStructure{
 				$class = get_class($user);
 				Debug::print("{$f} handing session control to user \"{$name}\" of class \"{$class}\" with key \"{$key}\"");
 			}
+			$lang = $user->getLanguagePreference();
+			if(!$user->hasRegionCode()){
+				$decl = $user->getDeclarationLine();
+				Debug::error("{$f} user's country code is undefined. Instantiated {$decl}");
+			}
+			$region = $user->getRegionCode();
+			$lsd = new LanguageSettingsData();
+			if($lsd->getLanguageCode() !== $lang){
+				if($print){
+					Debug::print("{$f} user has a different language code from the one defined in language settings data");
+				}
+				$user_class = get_class($user);
+				$dummy = new $user_class(ALLOCATION_MODE_SUBJECTIVE);
+				foreach($dummy->getColumns() as $name => $column){
+					if($column->hasHumanReadableName()){
+						$user->getColumn($name)->setHumanReadableName($column->getHumanReadableName());
+					}
+				}
+			}elseif($print){
+				Debug::print("{$f} user has the same language code as defined in language settings data");
+			}
+			$lsd->setLanguageCode($lang);
+			$lsd->setRegionCode($region);
+			$locale = $user->getLocaleString();
+			if(!is_dir("/var/www/locale/{$locale}")){
+				$locale = Internationalization::getFallbackLocale($locale);
+			}
+			$set = setlocale(LC_MESSAGES, $locale, "{$locale}.utf8", "{$locale}.UTF8");
+			if(false === $set){
+				Debug::error("{$f} setting locale failed");
+			}elseif($print){
+				Debug::print("{$f} successfully set locale to \"".getlocale(LC_MESSAGES)."\"");
+			}
 			$this->setUserData($user);
 			if ($print) {
 				Debug::print("{$f} setting username to \"{$name}\"");
@@ -477,12 +518,12 @@ abstract class AuthenticationData extends DataStructure{
 		}
 	}
 
-	public static function getPrettyClassName(?string $lang = null):string{
+	public static function getPrettyClassName():string{
 		return _("Authentication data");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null):string{
-		return static::getPrettyClassName($lang);
+	public static function getPrettyClassNames():string{
+		return static::getPrettyClassName();
 	}
 
 	public static function getDataType(): string{

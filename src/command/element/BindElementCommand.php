@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\element;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -7,6 +8,7 @@ use JulianSeymour\PHPWebApplicationFramework\command\NodeBearingCommandInterface
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\control\IfCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\control\NodeBearingIfCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\data\GetForeignDataStructureCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\AllocationModeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\AllocationModeTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -65,7 +67,7 @@ class BindElementCommand extends ElementCommand implements AllocationModeInterfa
 	}
 
 	public static function bindSubordinateElement($mode, $ds, $class, $index){
-		return new BindElementCommand(new $class($mode), $ds->getForeignDataStructureCommand($index));
+		return new BindElementCommand(new $class($mode), new GetForeignDataStructureCommand($ds, $index));
 	}
 
 	public static function appendSubordinateElement($mode, $ds, $class, $index, $parent_node){

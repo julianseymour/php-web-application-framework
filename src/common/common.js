@@ -196,6 +196,7 @@ function hydrateElement(element_array, responseText){
 					console.log(f.concat(": Element has defined innerHTML"));
 				}
 				if(typeof element_array.innerHTML == "object"){
+					console.log(element_array.innerHTML);
 					window.alert(f+": element inner HTML is an object");
 				}else{
 					if(print){
@@ -609,10 +610,11 @@ function getEffectiveDisplay(root){
 	}
 }
 
+//XXX TODO this causes weird errors when you replace an invisible element with a fully opaque one
 function replaceNode(newNode, existingNode, effect=EFFECT_NONE, callback_success){
 	const f = "replaceNode()";
 	try{
-		let print = false; //existingNode.id === "login_replace";
+		let print = false;
 		if(print){
 			window.alert(f.concat(": entered, existing node's ID is ").concat(existingNode.id));
 		}
@@ -626,29 +628,22 @@ function replaceNode(newNode, existingNode, effect=EFFECT_NONE, callback_success
 		}
 		if(isset(existingNode.id)){
 			if(print){
-				window.alert(("Existing node's name is \"").concat(existingNode.id).concat("\""));
+				window.alert(("Existing node's id is \"").concat(existingNode.id).concat("\""));
 			}
 			existingNode.id = null;
 		}
 		if(print){
 			console.log(f+": existing node is defined, as is its parent node on line 609");
-		}
-		/*if(existingNode.parentNode.tag === "head"){
-			if(print){
-				console.log(f+": parent node is the head element");
+			if(isset(existingNode.style.opacity)){
+				window.alert("Existing node has opacity ".concat(existingNode.style.opacity).concat(" of type ").concat(typeof existingNode.style.opacity));
 			}
-			effect = EFFECT_NONE;
-		}else if(print){
-			console.log(f+": parent node is something other than the head");
-		}*/
-		
+		}
 		if(
 			existingNode.hasAttribute("hidden") || existingNode.classList.contains("hidden")
 			|| newNode.hasAttribute("hidden") || newNode.classList.contains("hidden")
 		){
 			effect = EFFECT_NONE;
 		}
-		
 		switch(effect){
 			case EFFECT_FADE:
 				if(print){
@@ -689,7 +684,7 @@ function replaceNode(newNode, existingNode, effect=EFFECT_NONE, callback_success
 				}
 				let old_opacity;
 				if(computed === ""){
-					console.error(f+": style/opacity is \""+existingNode.style.opacity+"\" for element with id \""+existingNode.id+"\"; don't call this on elements without defined opacity");
+					error(f, "style.opacity is \""+existingNode.style.opacity+"\" for element with id \""+existingNode.id+"\"; don't call this on elements without defined opacity");
 					return;
 					//old_opacity = 1;
 				}else if(computed == 0){
@@ -1693,8 +1688,6 @@ function callback_generic(response){
 	try{
 		switch(response.status){
 			case SUCCESS:
-			//case RESULT_REGISTER_SUCCESS:
-			//case RESULT_EDIT_COMMENT_SUCCESS:
 				if(response.hasCommands()){
 					response.processCommands();
 				}
@@ -1791,7 +1784,7 @@ function calculateEffectivePixelHeight(element){
 function bindElement(elementClass, context){
 	let f = "bindElement()";
 	try{
-		let print = true;
+		let print = false;
 		if(!isset(bindElementFunctions)){
 			return error(f, "bindElementFunctions is undefined");
 		}
@@ -1852,7 +1845,7 @@ function disable(element, temp_cursor=null){
 
 function disableWidgets(){
 	let f = "disableWidgets()";
-	let print = true;
+	let print = false;
 	for(let i of widgetLabelIds){
 		if(elementExists(i)){
 			disable(i);
@@ -1864,7 +1857,7 @@ function disableWidgets(){
 
 function enableWidgets(){
 	let f = "enableWidgets()";
-	let print = true;
+	let print = false;
 	for(let i of widgetLabelIds){
 		if(elementExists(i)){
 			enable(i);
@@ -1906,7 +1899,7 @@ function createPageLoadAnimationElement(){
 function loadHyperlink(event, link, delay=null){
 	let f = "loadHyperlink()";
 	try{
-		let print = true;
+		let print = false;
 		event.preventDefault();
 		if(print){
 			console.log(f+": entered");
@@ -2313,5 +2306,57 @@ function generateSelectOptions(parent, choices){
 		option.value = choice.key;
 		option.innerHTML = choice.value;
 		parent.appendChild(option)
+	}
+}
+
+function substitute(subject, substitutions){
+	let f = "substitute()";
+	try{
+		let print = false;
+		if(!empty(substitutions)){
+			if(print){
+				console.log(f+": about to print subsitutions array");
+				console.log(substitutions);
+			}
+			for(let sub in substitutions){
+				if(print){
+					console.log(f.concat(": substitution is \"").concat(sub).concat("\""));
+					let type = typeof sub;
+					console.log(f.concat(": subssitution index has type \"").concat(type).concat("\""));
+				}
+				let replacement;
+				if(typeof substitutions[sub] == "object"){
+					if(print){
+						console.log(f.concat(": substitution is an object"));
+						console.log(substitutions[sub]);
+					}
+					replacement = substitutions[sub].evaluate();
+				}else{
+					if(print){
+						console.log(f.concat(": substitution is NOT an object"));
+					}
+					replacement = substitutions[sub];
+				}
+				if(print){
+					console.log(f.concat(": replacement is \"").concat(replacement).concat("\""));
+				}
+				sub = parseInt(sub);
+				if(print){
+					console.log(f.concat(": before substitution, atring is now \"").concat(subject).concat("\""));
+				}
+				subject = str_replace('%'.concat(sub+1).concat('%'), replacement, subject);
+				if(print){
+					console.log(f.concat(": after substitution, atring is now \"").concat(subject).concat("\""));
+				}
+			}
+		}else if(print){
+			console.log(f+": substitutions array is empty");
+		}
+		if(print){
+			console.log(f.concat(": returning \"").concat(subject).concat("\""));
+		}
+		return subject;
+	}catch(x){
+		error(f, x);
 	}
 }

@@ -22,6 +22,11 @@ class MultipleElementCommand extends ElementCommand{
 							console.log(f.concat(": Element was already hydrated"));
 						}
 						element = dehydrated;
+					}else if(typeof dehydrated === typeof 'string'){
+						if(print){
+							console.log(f.concat(": element is the string \"").concat(dehydrated).concat("\""));
+						}
+						element = dehydrated;
 					}else{
 						if(print){
 							console.log(f.concat(": Assuming element is dehydrated"));

@@ -10,7 +10,7 @@ class MfaUseCase extends UseCase{
 					InfoBoxElement.resetInfoBox();
 					updatePageAfterLogin(response);
 					return;
-				case RESULT_BFP_MFA_FAILED:
+				case ERROR_INVALID_MFA_OTP:
 					console.error(f+": MFA login failed");
 					InfoBoxElement.showInfoBox(response.info);
 					return super.handleResponse(response);

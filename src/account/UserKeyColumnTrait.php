@@ -104,8 +104,8 @@ trait UserKeyColumnTrait{
 				$this->setUserAccountType($user->getUserAccountType());
 			}
 			if (! $user->isUninitialized()) {
-				$status = $user->getObjectStatus();
 				if ($print) {
+					$status = $user->getObjectStatus();
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::print("{$f} user data is not uninitialized; status is \"{$err}\"");
 				}

@@ -487,7 +487,7 @@ class AjaxForm extends Basic{
 	static initializeAllForms(){
 		let f = "initializeAllForms()";
 		try{
-			let print = true;
+			let print = false;
 			let forms = document.querySelectorAll("form.ajax_form");
 			if(print){
 				console.log(forms);

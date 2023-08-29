@@ -55,20 +55,18 @@ class ClearUserCacheUseCase extends UseCase{
 		return AdminOnlyAccountTypePermission::class;
 	}
 
-	public function getResponder(): ?Responder{
-		if (directive() === DIRECTIVE_DELETE) {
+	public function getResponder(int $status): ?Responder{
+		if($status !== SUCCESS){
+			return parent::getResponder($status);
+		}elseif (directive() === DIRECTIVE_DELETE) {
 			return new Responder();
 		}
-		return parent::getResponder();
+		return parent::getResponder($status);
 	}
 
 	public function getPageContent(): ?array{
 		return [
 			new ClearUserCacheForm(ALLOCATION_MODE_LAZY)
 		];
-	}
-
-	public function getUseCaseId(){
-		return USE_CASE_CLEAR_USER_CACHE;
 	}
 }

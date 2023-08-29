@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\confirm_code;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -8,17 +9,14 @@ use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
 use JulianSeymour\PHPWebApplicationFramework\input\HiddenInput;
 use Exception;
 
-abstract class ConfirmationCodeForm extends AjaxForm
-{
+abstract class ConfirmationCodeForm extends AjaxForm{
 
-	public static function getMethodAttributeStatic(): ?string
-	{
+	public static function getMethodAttributeStatic(): ?string{
 		return HTTP_REQUEST_METHOD_POST;
 	}
 
-	public function getAdHocInputs(): ?array
-	{
-		$f = __METHOD__; //ConfirmationCodeForm::getShortClass()."(".static::getShortClass().")->getAdHocInputs()";
+	public function getAdHocInputs(): ?array{
+		$f = __METHOD__;
 		try {
 			$mode = $this->getAllocationMode();
 			$x1i = new HiddenInput($mode);

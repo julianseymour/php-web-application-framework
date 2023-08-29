@@ -1,7 +1,7 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum\foreign;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\common\ElementBindableTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\HumanReadableNameTrait;
@@ -26,8 +26,7 @@ use mysqli;
  *
  * @author j
  */
-class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterface
-{
+class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterface{
 
 	use DataStructuralTrait;
 	use ElementBindableTrait;
@@ -42,14 +41,12 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 
 	protected $validDataTypes;
 
-	public function __construct($name, $ds)
-	{
+	public function __construct($name, $ds){
 		parent::__construct($name, $ds);
 		$this->setDataStructure($ds);
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			COLUMN_FILTER_ADD_TO_RESPONSE,
 			COLUMN_FILTER_AUTOLOAD,
@@ -61,84 +58,70 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 		]);
 	}
 
-	public function setHostKeyName($name)
-	{
+	public function setHostKeyName($name){
 		return $this->intersectionHostKeyName = $name;
 	}
 
-	public function hasIntersectionHostKeyName()
-	{
+	public function hasIntersectionHostKeyName(){
 		return isset($this->intersectionHostKeyName);
 	}
 
-	public function getIntersectionHostKeyName()
-	{
-		$f = __METHOD__; //ForeignMetadataBundle::getShortClass()."(".static::getShortClass().")->getIntersectionHostKeyName()";
+	public function getIntersectionHostKeyName(){
+		$f = __METHOD__;
 		if (! $this->hasIntersectionHostKeyName()) {
 			Debug::error("{$f} host key name is undefined");
 		}
 		return $this->intersectionHostKeyName;
 	}
 
-	public function setIntersectionForeignKeyName($name)
-	{
+	public function setIntersectionForeignKeyName(?string $name):?string{
 		return $this->intersectionForeignKeyName = $name;
 	}
 
-	public function hasIntersectionForeignKeyName()
-	{
+	public function hasIntersectionForeignKeyName():bool{
 		return isset($this->intersectionForeignKeyName);
 	}
 
-	public function getIntersectionForeignKeyName()
-	{
-		$f = __METHOD__; //ForeignMetadataBundle::getShortClass()."(".static::getShortClass().")->getIntersectionForeignKeyName()";
-		if (! $this->hasIntersectionForeignKeyName()) {
+	public function getIntersectionForeignKeyName():string{
+		$f = __METHOD__;if (! $this->hasIntersectionForeignKeyName()) {
 			Debug::error("{$f} foreign key name is undefined");
 		}
 		return $this->intersectionForeignKeyName;
 	}
 
-	public function hasDefaultDataType()
-	{
+	public function hasDefaultDataType():bool{
 		return isset($this->defaultDataType);
 	}
 
-	public function getDefaultDataType()
-	{
+	public function getDefaultDataType():string{
 		if ($this->hasDefaultDataType()) {
 			return $this->defaultDataType;
 		}
 		return DATATYPE_UNKNOWN;
 	}
 
-	public function setDefaultDataType($type)
-	{
+	public function setDefaultDataType(?string $type):?string{
 		return $this->defaultDataType = $type;
 	}
 
-	public function setValidDataTypes($types)
-	{
+	public function setValidDataTypes(?array $types):?array{
 		return $this->validDataTypes = $types;
 	}
 
-	public function hasValidDataTypes()
-	{
+	public function hasValidDataTypes():bool{
 		return isset($this->validDataTypes);
 	}
 
-	public function getValidDataTypes()
-	{
-		$f = __METHOD__; //ForeignMetadataBundle::getShortClass()."(".static::getShortClass().")->getValidDataypes()";
+	public function getValidDataTypes():array{
+		$f = __METHOD__;
 		if (! $this->hasValidDataTypes()) {
 			Debug::error("{$f} valid datatypes undefined");
 		}
 		return $this->validDataTypes;
 	}
 
-	protected function generateForeignKeyDatum()
-	{
-		$f = __METHOD__; //ForeignMetadataBundle::getShortClass()."(".static::getShortClass().")->generateForeignKeyDatum()";
+	protected function generateForeignKeyDatum(){
+		$f = __METHOD__;
 		try {
 			$name = $this->getName();
 			$foreignKeyName = "{$name}Key";
@@ -179,7 +162,7 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 			if ($this->hasEmbeddedName()) {
 				$foreign_key->embed($this->getEmbeddedName());
 			}
-			if ($this->getConstraintFlag()) { // XXX testing: this used to not be conditional; moved it from line 131
+			if ($this->getConstraintFlag() && !$this->hasForeignDataStructureClass()) { // XXX testing: this used to not be conditional; moved it from line 131
 				$foreign_key->setPersistenceMode(PERSISTENCE_MODE_INTERSECTION);
 				$foreign_key->setRetainOriginalValueFlag(true);
 			}
@@ -195,9 +178,8 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 		}
 	}
 
-	public function generateComponents(?DataStructure $ds = null): array
-	{
-		$f = __METHOD__; //ForeignMetadataBundle::getShortClass()."(".static::getShortClass().")->generateComponents()";
+	public function generateComponents(?DataStructure $ds = null): array{
+		$f = __METHOD__;
 		try {
 			$name = $this->getName();
 			$print = false;
@@ -223,11 +205,7 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 			if ($this->hasValidDataTypes()) {
 				$datatype->setValidEnumerationMap($this->getValidDataTypes());
 			}
-			// if($this->hasForeignDataTypeName()){
-			// $foreign_key->setForeignDataTypeName($this->getForeignDataTypeName());
-			// }else{
 			$foreign_key->setForeignDataTypeName($typehint_name);
-			// }
 			if ($this->hasOnDelete()) {
 				$foreign_key->setOnDelete($this->getOnDelete());
 			}

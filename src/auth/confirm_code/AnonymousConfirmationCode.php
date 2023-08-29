@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\confirm_code;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -6,22 +7,18 @@ use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 
-abstract class AnonymousConfirmationCode extends ConfirmationCode
-{
+abstract class AnonymousConfirmationCode extends ConfirmationCode{
 
-	public function getKeypair()
-	{
+	public function getKeypair(){
 		return app()->acquireCurrentServerKeypair(null);
 	}
 
-	public function getPublicKey()
-	{
+	public function getPublicKey(){
 		return app()->acquireCurrentServerKeypair()->getPublicKey();
 	}
 
-	protected function encrypt(string $data): ?string
-	{
-		$f = __METHOD__; //AnonymousConfirmationCode::getShortClass()."(".static::getShortClass().")->encrypt()";
+	protected function encrypt(string $data): ?string{
+		$f = __METHOD__;
 		try {
 			$keypair = app()->acquireCurrentServerKeypair(null);
 			if ($keypair == null) {

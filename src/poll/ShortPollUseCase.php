@@ -155,12 +155,12 @@ class ShortPollUseCase extends UseCase implements ClientUseCaseInterface{
 		return SUCCESS;
 	}
 
-	public function getResponder(): ?Responder{
+	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
 		$print = false;
-		if ($this->getObjectStatus() !== SUCCESS) {
+		if ($status !== SUCCESS) {
 			Debug::warning("{$f} returning parent function");
-			return parent::getResponder();
+			return parent::getResponder($status);
 		}
 		return new ShortPollResponder();
 	}

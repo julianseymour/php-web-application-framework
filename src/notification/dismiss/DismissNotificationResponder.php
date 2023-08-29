@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\dismiss;
 
 use JulianSeymour\PHPWebApplicationFramework\app\Responder;
@@ -6,13 +7,11 @@ use JulianSeymour\PHPWebApplicationFramework\app\XMLHttpResponse;
 use JulianSeymour\PHPWebApplicationFramework\command\element\DeleteElementCommand;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 
-class DismissNotificationResponder extends Responder
-{
+class DismissNotificationResponder extends Responder{
 
-	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case): void
-	{
+	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case): void{
 		parent::modifyResponse($response, $use_case);
-		if ($use_case->getObjectStatus() === SUCCESS) { // Request::isXHREvent()){
+		if ($use_case->getObjectStatus() === SUCCESS) {
 			$do = $use_case->getDataOperandObject();
 			$iec = $do->getElementClass();
 			$deleted_element = new $iec(ALLOCATION_MODE_NEVER);

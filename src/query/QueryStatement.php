@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
@@ -16,8 +17,7 @@ use mysqli_result;
 use mysqli_sql_exception;
 use mysqli_stmt;
 
-abstract class QueryStatement extends Basic implements SQLInterface, StringifiableInterface, TypeSpecificInterface
-{
+abstract class QueryStatement extends Basic implements SQLInterface, StringifiableInterface, TypeSpecificInterface{
 
 	use DatabaseVersionTrait;
 	use EscapeTypeTrait;
@@ -28,8 +28,7 @@ abstract class QueryStatement extends Basic implements SQLInterface, Stringifiab
 
 	public abstract function getQueryStatementString();
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->properties);
 		unset($this->propertyTypes);
@@ -38,8 +37,7 @@ abstract class QueryStatement extends Basic implements SQLInterface, Stringifiab
 		unset($this->whereCondition);
 	}
 
-	public final function __toString(): string
-	{
+	public final function __toString(): string{
 		return $this->toSQL();
 	}
 
@@ -50,9 +48,8 @@ abstract class QueryStatement extends Basic implements SQLInterface, Stringifiab
 	 * @param mixed[] $params
 	 * @return int
 	 */
-	public function prepareBindExecuteGetStatus($mysqli, $typedef, ...$params): int
-	{
-		$f = __METHOD__; //QueryStatement::getShortClass() . "(" . static::getShortClass() . ")->prepareBindExecuteGetStatement()";
+	public function prepareBindExecuteGetStatus(mysqli $mysqli, $typedef, ...$params): int{
+		$f = __METHOD__;
 		$print = false;
 		if (! is_string($typedef)) {
 			Debug::error("{$f} type specifier must be a string");
@@ -67,9 +64,8 @@ abstract class QueryStatement extends Basic implements SQLInterface, Stringifiab
 		return SUCCESS;
 	}
 
-	public function prepareBindExecuteGetStatement(mysqli $mysqli, string $typedef, ...$params): ?mysqli_stmt
-	{
-		$f = __METHOD__; //QueryStatement::getShortClass() . "(" . static::getShortClass() . ")->prepareBindExecuteGetStatement()";
+	public function prepareBindExecuteGetStatement(mysqli $mysqli, string $typedef, ...$params): ?mysqli_stmt{
+		$f = __METHOD__;
 		try {
 			$print = $this->getDebugFlag();
 			// error checking
@@ -170,9 +166,8 @@ abstract class QueryStatement extends Basic implements SQLInterface, Stringifiab
 		}
 	}
 
-	public function executeGetStatus($mysqli): int
-	{
-		$f = __METHOD__; //QueryStatement::getShortClass() . "(" . static::getShortClass() . ")->prepareExecuteGetStatus()";
+	public function executeGetStatus(mysqli $mysqli): int{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->hasTypeSpecifier()) {
 			return $this->prepareBindExecuteGetStatus($mysqli, $this->getTypeSpecifier(), ...$this->getParameters());
@@ -195,9 +190,8 @@ abstract class QueryStatement extends Basic implements SQLInterface, Stringifiab
 	 * @param string $query
 	 * @return mysqli_result
 	 */
-	public function executeGetResult($mysqli)
-	{
-		$f = __METHOD__; //QueryStatement::getShortClass() . "(" . static::getShortClass() . ")->executeGetResult()";
+	public function executeGetResult(mysqli $mysqli){
+		$f = __METHOD__;
 		try {
 			$print = $this->getDebugFlag();
 			if (! isset($mysqli)) {
@@ -241,15 +235,13 @@ abstract class QueryStatement extends Basic implements SQLInterface, Stringifiab
 		}
 	}
 
-	public function executeGetResultCount($mysqli): int
-	{
+	public function executeGetResultCount(mysqli $mysqli): int{
 		$result = $this->executeGetResult($mysqli);
 		return $result->num_rows;
 	}
 
-	public function setFallbackStatement($obj)
-	{
-		$f = __METHOD__; //QueryStatement::getShortClass() . "(" . static::getShortClass() . ")->setFallbackStatement()";
+	public function setFallbackStatement($obj){
+		$f = __METHOD__;
 		if ($obj == null) {
 			unset($this->fallbackStatement);
 			return null;
@@ -259,29 +251,25 @@ abstract class QueryStatement extends Basic implements SQLInterface, Stringifiab
 		return $this->fallbackStatement = $obj;
 	}
 
-	public function hasFallbackStatement()
-	{
+	public function hasFallbackStatement():bool{
 		return isset($this->fallbackStatement) && $this->fallbackStatement instanceof QueryStatement;
 	}
 
-	public function getFallbackStatement()
-	{
-		$f = __METHOD__; //QueryStatement::getShortClass() . "(" . static::getShortClass() . ")->getFallbackStatement()";
+	public function getFallbackStatement(){
+		$f = __METHOD__;
 		if (! $this->hasFallbackStatement()) {
 			Debug::error("{$f} fallback statement is undefined");
 		}
 		return $this->fallbackStatement;
 	}
 
-	public function withFallbackStatement($obj)
-	{
+	public function withFallbackStatement($obj){
 		$this->setFallbackStatement($obj);
 		return $this;
 	}
 
-	public final function toSQL(): string
-	{
-		$f = __METHOD__; //QueryStatement::getShortClass() . "(" . static::getShortClass() . ")->toSQL()";
+	public final function toSQL(): string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($this->hasRequiredMySQLVersion()) {

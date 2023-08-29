@@ -2,7 +2,6 @@
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use JulianSeymour\PHPWebApplicationFramework\common\StaticHumanReadableNameInterface;
-use JulianSeymour\PHPWebApplicationFramework\language\ProperNoun;
 
 class NameDatum extends TextDatum implements StaticHumanReadableNameInterface{
 
@@ -40,14 +39,6 @@ class NameDatum extends TextDatum implements StaticHumanReadableNameInterface{
 	}
 	
 	public function getHumanReadableValue(){
-		return new ProperNoun($this->getValue());
-	}
-	
-	public function setValue($v){
-		$f = __METHOD__;
-		if ($v instanceof ProperNoun) {
-			return parent::setValue($v->__toString());
-		}
-		return parent::setValue($v);
+		return $this->getValue();
 	}
 }

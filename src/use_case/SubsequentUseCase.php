@@ -12,19 +12,16 @@ use JulianSeymour\PHPWebApplicationFramework\db\load\LoadoutGenerator;
  *
  * @author j
  */
-abstract class SubsequentUseCase extends UseCase
-{
+abstract class SubsequentUseCase extends UseCase{
 
 	protected $transitionValidated;
 
-	public function __construct($predecessor = null, $segments = null)
-	{
+	public function __construct($predecessor = null, $segments = null){
 		$this->transitionValidated = false;
 		parent::__construct($predecessor, $segments);
 	}
 
-	public function getActionAttribute(): ?string
-	{
+	public function getActionAttribute(): ?string{
 		return $this->getPredecessor()->getActionAttribute();
 	}
 
@@ -36,29 +33,25 @@ abstract class SubsequentUseCase extends UseCase
 		return $this->getPredecessor()->getDataOperandClass();
 	}
 	
-	public function getExecutePermission()
-	{
+	public function getExecutePermission(){
 		if ($this->hasPredecessor()) {
 			return $this->getPredecessor()->getExecutePermission();
 		}
 		return parent::getExecutePermission();
 	}
 
-	protected function getExecutePermissionClass()
-	{
+	protected function getExecutePermissionClass(){
 		if ($this->hasPredecessor()) {
 			return $this->getPredecessor()->getExecutePermissionClass();
 		}
 		return parent::getExecutePermissionClass();
 	}
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return $this->getPredecessor()->isPageUpdatedAfterLogin();
 	}
 
-	public function getLoadoutGeneratorClass(?DataStructure $object = null): ?string
-	{
+	public function getLoadoutGeneratorClass(?DataStructure $object = null): ?string{
 		if ($this->hasPredecessor()) {
 			return $this->getPredecessor()->getLoadoutGeneratorClass($object);
 		}
@@ -66,7 +59,6 @@ abstract class SubsequentUseCase extends UseCase
 	}
 	
 	public function getLoadoutGenerator(?PlayableUser $user=null):?LoadoutGenerator{
-		$f = __METHOD__; //SubsequentUseCase::getShortClass()."(".static::getShortClass().")->getLoadoutGenerator()";
 		if($this->hasPredecessor()){
 			return $this->getPredecessor()->getLoadoutGenerator($user);
 		}
@@ -78,6 +70,9 @@ abstract class SubsequentUseCase extends UseCase
 	}
 	
 	public function hasImplicitParameter(string $name): bool{
+		/*if(!$this->hasPredecessor()){
+			return false;
+		}*/
 		return $this->getPredecessor()->hasImplicitParameter($name);
 	}
 	
@@ -86,6 +81,9 @@ abstract class SubsequentUseCase extends UseCase
 	}
 	
 	public function URISegmentParameterExists(string $name):bool{
+		/*if(!$this->hasPredecessor()){
+			return false;
+		}*/
 		return $this->getPredecessor()->URISegmentParameterExists($name);
 	}
 }

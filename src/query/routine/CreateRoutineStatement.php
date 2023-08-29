@@ -1,8 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\routine;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\Routine;
+use JulianSeymour\PHPWebApplicationFramework\common\DelimiterTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\ReturnTypeTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
@@ -11,61 +13,34 @@ use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\user\DefinerTrait;
 use Exception;
 
-class CreateRoutineStatement extends RoutineStatement implements StaticPropertyTypeInterface
-{
+class CreateRoutineStatement extends RoutineStatement implements StaticPropertyTypeInterface{
 
 	use DefinerTrait;
+	use DelimiterTrait;
 	use ReturnTypeTrait;
 	use StaticPropertyTypeTrait;
 
-	protected $delimiter;
-
 	protected $routine;
 
-	public function __construct(?Routine $routine = null)
-	{
+	public function __construct(?Routine $routine = null){
 		parent::__construct();
 		if ($routine !== null) {
 			$this->setRoutine($routine);
 		}
 	}
 
-	public function getDelimiter(): string
-	{
+	public function getDelimiter(): string{
 		if (! $this->hasDelimiter()) {
 			return "//";
 		}
 		return $this->delimiter;
 	}
 
-	public function hasDelimiter(): bool
-	{
-		return isset($this->delimiter) && is_string($this->delimiter) && ! empty($this->delimiter);
-	}
-
-	public function setDelimiter($delimiter): ?string
-	{
-		if ($delimiter == null) {
-			unset($this->delimiter);
-			return null;
-		}
-		return $this->delimiter = $delimiter;
-	}
-
-	public function delimit($delimiter): CreateRoutineStatement
-	{
-		$this->setDelimiter($delimiter);
-		return $this;
-	}
-
-	public function hasRoutine(): bool
-	{
+	public function hasRoutine(): bool{
 		return isset($this->routine);
 	}
 
-	public function setRoutine(?Routine $routine): ?Routine
-	{
-		// $f = __METHOD__; //CreateRoutineStatement::getShortClass()."(".static::getShortClass().")->setRoutine()";
+	public function setRoutine(?Routine $routine): ?Routine{
 		if ($routine == null) {
 			unset($this->routine);
 			return null;
@@ -81,17 +56,15 @@ class CreateRoutineStatement extends RoutineStatement implements StaticPropertyT
 		return $this->routine = $routine;
 	}
 
-	public function getRoutine()
-	{
-		$f = __METHOD__; //CreateRoutineStatement::getShortClass()."(".static::getShortClass().")->getRoutine()";
+	public function getRoutine(){
+		$f = __METHOD__;
 		if (! $this->hasRoutine()) {
 			Debug::error("{$f} routine body is undefined");
 		}
 		return $this->routine;
 	}
 
-	protected function getCharacteristics(): string
-	{
+	protected function getCharacteristics(): string{
 		$string = parent::getCharacteristics();
 		// [NOT] DETERMINISTIC
 		if (! $this->getDeterministicFlag()) {
@@ -101,9 +74,8 @@ class CreateRoutineStatement extends RoutineStatement implements StaticPropertyT
 		return $string;
 	}
 
-	public function getQueryStatementString()
-	{
-		$f = __METHOD__; //CreateRoutineStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
+	public function getQueryStatementString(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$string = "";

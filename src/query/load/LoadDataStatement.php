@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\load;
 
 use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
@@ -6,8 +7,7 @@ use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\partition\MultiplePartitionNamesTrait;
 
-class LoadDataStatement extends LoadStatement
-{
+class LoadDataStatement extends LoadStatement{
 
 	use ExportOptionsTrait;
 	use MultiplePartitionNamesTrait;
@@ -22,16 +22,14 @@ class LoadDataStatement extends LoadStatement
 
 	protected $lineTerminatorString;
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"optionallyEnclosed"
 		]);
 	}
 
-	public function setLineStart($s)
-	{
-		$f = __METHOD__; //LoadDataStatement::getShortClass()."(".static::getShortClass().")->setLineStart()";
+	public function setLineStart(?string $s):?string{
+		$f = __METHOD__;
 		if ($s == null) {
 			unset($this->lineStartString);
 			return null;
@@ -41,29 +39,25 @@ class LoadDataStatement extends LoadStatement
 		return $this->lineStartString = $s;
 	}
 
-	public function hasLineStart()
-	{
+	public function hasLineStart():bool{
 		return isset($this->lineStartString);
 	}
 
-	public function getLineStart()
-	{
-		$f = __METHOD__; //LoadDataStatement::getShortClass()."(".static::getShortClass().")->getLineStart()";
+	public function getLineStart():string{
+		$f = __METHOD__;
 		if (! $this->hasLineStart()) {
 			Debug::error("{$f} line start is undefined");
 		}
 		return $this->lineStartString;
 	}
 
-	public function linesStartingBy($s)
-	{
+	public function linesStartingBy(?string $s):LoadDataStatement{
 		$this->setLineStart($s);
 		return $this;
 	}
 
-	public function setLineTerminator($s)
-	{
-		$f = __METHOD__; //LoadDataStatement::getShortClass()."(".static::getShortClass().")->setLineTerminator()";
+	public function setLineTerminator(?string $s):?string{
+		$f = __METHOD__;
 		if ($s == null) {
 			unset($this->lineTerminatorString);
 			return null;
@@ -73,28 +67,24 @@ class LoadDataStatement extends LoadStatement
 		return $this->lineTerminatorString = $s;
 	}
 
-	public function hasLineTerminator()
-	{
+	public function hasLineTerminator():bool{
 		return isset($this->lineTerminatorString);
 	}
 
-	public function getLineTerminator()
-	{
-		$f = __METHOD__; //LoadDataStatement::getShortClass()."(".static::getShortClass().")->getLineTerminator()";
+	public function getLineTerminator():string{
+		$f = __METHOD__;
 		if (! $this->hasLineTerminator()) {
 			Debug::error("{$f} line start is undefined");
 		}
 		return $this->lineTerminatorString;
 	}
 
-	public function linesTerminatedBy($s)
-	{
+	public function linesTerminatedBy(?string $s):LoadDataStatement{
 		$this->setLineTerminator($s);
 		return $this;
 	}
 
-	public function getQueryStatementString()
-	{
+	public function getQueryStatementString():string{
 		// LOAD DATA
 		$string = "load data " . parent::getQueryStatementString();
 		// [PARTITION (partition_name [, partition_name] ...)]
@@ -137,8 +127,7 @@ class LoadDataStatement extends LoadStatement
 		return $string;
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->columnTerminatorString);
 		unset($this->enclosureCharacter);

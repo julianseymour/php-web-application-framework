@@ -2,7 +2,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 
 /**

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\register;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
@@ -13,17 +14,14 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\validate\AjaxValidatorInterface;
 use JulianSeymour\PHPWebApplicationFramework\validate\UniqueValidator;
 
-class RegistrationEmailAddressValidator extends UniqueValidator implements AjaxValidatorInterface
-{
+class RegistrationEmailAddressValidator extends UniqueValidator implements AjaxValidatorInterface{
 
-	public function __construct()
-	{
+	public function __construct(){
 		parent::__construct(config()->getNormalUserClass(), 's', "normalizedEmailAddress");
 		$this->setSpecialFailureStatus(ERROR_INVALID_EMAIL_ADDRESS);
 	}
 
-	public function getSuccessCommand()
-	{
+	public function getSuccessCommand(){
 		$element = new GetElementByIdCommand(getInputParameter("id"));
 		$notice = new GetElementByIdCommand("register_notice");
 		$command = (new SetAttributeCommand($element, [
@@ -35,8 +33,7 @@ class RegistrationEmailAddressValidator extends UniqueValidator implements AjaxV
 		return $command;
 	}
 
-	public function getFailureCommand()
-	{
+	public function getFailureCommand(){
 		$element = new GetElementByIdCommand(getInputParameter("id"));
 		$notice = new GetElementByIdCommand("register_notice");
 		$command = (new SetAttributeCommand($element, [
@@ -48,9 +45,9 @@ class RegistrationEmailAddressValidator extends UniqueValidator implements AjaxV
 		return $command;
 	}
 
-	protected function prevalidate(&$arr)
-	{
-		$f = __METHOD__; //RegistrationEmailAddressValidator::getShortClass()."(".static::getShortClass().")->prevalidate()";
+	protected function prevalidate(&$arr){
+		$f = __METHOD__;
+		
 		if (! array_key_exists('emailAddress', $arr)) {
 			Debug::warning("{$f} email address was not posted");
 			Debug::printArray($arr);

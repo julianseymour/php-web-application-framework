@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\confirm_code;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -11,44 +12,31 @@ use JulianSeymour\PHPWebApplicationFramework\security\access\AccessAttempt;
 use Exception;
 use mysqli;
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
+use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 
 abstract class CodeConfirmationAttempt extends AccessAttempt{
 
-	/**
-	 *
-	 * @return ConfirmationCode
-	 */
-	public abstract static function getConfirmationCodeClass();
+	public abstract static function getConfirmationCodeClass():string;
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
 		try {
 			parent::declareColumns($columns, $ds);
-			$ccc = static::getConfirmationCodeClass();
-			$confirmationCodeKey = new ForeignKeyDatum("confirmationCodeKey");
+			$confirmationCodeKey = new ForeignMetadataBundle("confirmationCode", $ds);
 			$confirmationCodeKey->setNullable(true);
 			$confirmationCodeKey->setDefaultValue(null);
-			$confirmationCodeKey->setForeignDataStructureClass($ccc);
+			$confirmationCodeKey->setForeignDataStructureClassResolver(ConfirmationCodeClassResolver::class);
 			$confirmationCodeKey->setConstraintFlag(true);
 			$confirmationCodeKey->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 			$confirmationCodeKey->setOnUpdate(REFERENCE_OPTION_CASCADE);
 			$confirmationCodeKey->setOnDelete(REFERENCE_OPTION_SET_NULL);
-			$confirmationCodeType = new StringEnumeratedDatum("confirmationCodeType");
-			$confirmationCodeType->setValidEnumerationMap([
-				ACCESS_TYPE_ACTIVATION,
-				ACCESS_TYPE_CHANGE_EMAIL,
-				ACCESS_TYPE_UNLISTED_IP_ADDRESS,
-				ACCESS_TYPE_RESET,
-				ACCESS_TYPE_LOCKOUT_WAIVER
-			]);
-			$confirmationCodeType->setValue($ccc::getConfirmationCodeTypeStatic());
-			static::pushTemporaryColumnsStatic($columns, $confirmationCodeKey, $confirmationCodeType);
+			static::pushTemporaryColumnsStatic($columns, $confirmationCodeKey);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public static function getConfirmationCodeAlreadyUsedStatus(){
+	public static function getConfirmationCodeAlreadyUsedStatus():int{
 		return ERROR_LINK_EXPIRED;
 	}
 
@@ -116,9 +104,6 @@ abstract class CodeConfirmationAttempt extends AccessAttempt{
 				if ($status === SUCCESS) {
 					$rk = $confirmation_code->getIdentifierValue();
 					$this->setConfirmationCodeKey($rk);
-				} elseif ($status === STATUS_INITIALIZATION_IN_PROGRESS) {
-					Debug::warning("{$f} confirmation code key is undefined");
-					// return $confirmation_code;
 				} else {
 					$status = $confirmation_code->getObjectStatus();
 					$err = ErrorMessage::getResultMessage($status);
@@ -152,7 +137,7 @@ abstract class CodeConfirmationAttempt extends AccessAttempt{
 		}
 	}
 
-	public static final function getTableNameStatic(): string{
+	public static function getTableNameStatic(): string{
 		return "code_confirmation_attempts";
 	}
 }

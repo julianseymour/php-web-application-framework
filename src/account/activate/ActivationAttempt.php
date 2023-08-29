@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\activate;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -13,15 +14,11 @@ class ActivationAttempt extends CodeConfirmationAttempt{
 		return "attempts";
 	}
 
-	public function getParentKey(){
-		return $this->getUserKey();
-	}
-
 	public static function getSuccessfulResultCode(){
-		return RESULT_ACTIVATE_SUCCESS;
+		return SUCCESS;
 	}
 
-	public function getName(){
+	public function getName():string{
 		return $this->getUserNormalizedName();
 	}
 
@@ -33,38 +30,19 @@ class ActivationAttempt extends CodeConfirmationAttempt{
 		return PreActivationConfirmationCode::class;
 	}
 
-	protected function checkUserMFAEnabled($user, $mysqli){
-		$f = __METHOD__;
-		try {
-			if ($user == null) {
-				Debug::error("{$f} user data returned null");
-				return $this->setLoginResult(ERROR_NULL_USER_OBJECT);
-			} elseif ($user instanceof AnonymousUser) {
-				Debug::error("{$f} user is anonymous");
-				return $this->setObjectStatus(ERROR_INTERNAL);
-			} elseif ($user->getMFAStatus() == MFA_STATUS_DISABLED) {
-				Debug::print("{$f} login successful; user does not have multifactor authentication enabled");
-				return $this->setLoginResult(SUCCESS);
-			}
-			return $this->setLoginResult(RESULT_ACTIVATE_SUCCESS_NOLOGIN);
-		} catch (Exception $x) {
-			x($f, $x);
-		}
-	}
-
-	public function isSecurityNotificationWarranted(){
+	public function isSecurityNotificationWarranted():bool{
 		return false;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Account ativation attempt");
 	}
 
-	public static function getIpLogReason(){
+	public static function getReasonLoggedStatic(){
 		return BECAUSE_ACTIVATION;
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Account activation attempts");
 	}
 }

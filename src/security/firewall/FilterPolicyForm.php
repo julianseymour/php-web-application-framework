@@ -89,7 +89,7 @@ class FilterPolicyForm extends AjaxForm{
 				$button2 = $this->generateGenericButton($name, $value);
 				$button2->setNameAttribute("directive[update][filterPolicy]");
 				$button2->setValueAttribute($value);
-				$button2->setInnerHTML(substitute(_("Set default security policy to '%1%'")), $policyname);
+				$button2->setInnerHTML(substitute(_("Set security policy to '%1%'"), $policyname));
 				return [
 					$button,
 					$button2

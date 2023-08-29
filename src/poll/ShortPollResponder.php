@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\poll;
 
 use JulianSeymour\PHPWebApplicationFramework\app\Responder;
@@ -6,12 +7,10 @@ use JulianSeymour\PHPWebApplicationFramework\app\XMLHttpResponse;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 
-class ShortPollResponder extends Responder
-{
+class ShortPollResponder extends Responder{
 
-	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case): void
-	{
-		$f = __METHOD__; //ShortPollResponder::getShortClass() . "(" . static::getShortClass() . ")->modifyResponse()";
+	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case): void{
+		$f = __METHOD__;
 		$print = false;
 		parent::modifyResponse($response, $use_case);
 		$use_cases = $use_case->getUseCases();
@@ -31,7 +30,8 @@ class ShortPollResponder extends Responder
 			} elseif ($print) {
 				Debug::print("{$f} about to get responder for {$ucc}");
 			}
-			$responder = $poller->getResponder();
+			$status = $use_case->getObjectStatus();
+			$responder = $poller->getResponder($status);
 			if ($print) {
 				$rc = get_class($responder);
 				Debug::print("{$f} about to push a {$rc}");

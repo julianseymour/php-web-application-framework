@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
@@ -15,59 +16,55 @@ use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 
-class SearchFieldsData extends DataStructure
-{
+class SearchFieldsData extends DataStructure{
 
 	use SearchClassTrait;
 
-	// protected $searchTableName;
 	protected $searchTemplateObject;
 
-	public function dispose(): void
-	{
+	public static function getDatabaseNameStatic():string{
+		return "error";
+	}
+	
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->searchClass);
-		// unset($this->searchTableName);
 		unset($this->searchTemplateObject);
 	}
-
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	
+	public static function getDefaultPersistenceModeStatic():int{
+		return PERSISTENCE_MODE_UNDEFINED;
+	}
+	
+	public static function getPrettyClassName():string{
 		return _("Search fields");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
-		return static::getPrettyClassName($lang);
+	public static function getPrettyClassNames():string{
+		return static::getPrettyClassName();
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "fields";
 	}
 
-	public static function getDataType(): string
-	{
+	public static function getDataType(): string{
 		return DATATYPE_SEARCH_FIELDS;
 	}
 
-	public static function getPhylumName(): string
-	{
+	public static function getPhylumName(): string{
 		return "searchFields";
 	}
 
-	public function setSearchPaginator($sqd)
-	{
+	public function setSearchPaginator($sqd){
 		return $this->setForeignDataStructure("searchQueryKey", $sqd);
 	}
 
-	public function hasSearchPaginator()
-	{
+	public function hasSearchPaginator(){
 		return $this->hasForeignDataStructure("searchQueryKey");
 	}
 
-	public function getSearchPaginator(): ?SearchPaginator
-	{
+	public function getSearchPaginator(): ?SearchPaginator{
 		$f = __METHOD__;
 		if (! $this->hasSearchPaginator()) {
 			Debug::error("{$f} search paginator is undefined");
@@ -75,8 +72,7 @@ class SearchFieldsData extends DataStructure
 		return $this->getForeignDataStructure("searchQueryKey");
 	}
 
-	public function getSearchFieldCount()
-	{
+	public function getSearchFieldCount(){
 		$f = __METHOD__;
 		$count = 0;
 		foreach ($this->getFilteredColumns(COLUMN_FILTER_VALUED, "!" . COLUMN_FILTER_VIRTUAL) as $column) {
@@ -93,22 +89,19 @@ class SearchFieldsData extends DataStructure
 		return $count;
 	}
 
-	public static function getKeyGenerationMode(): int
-	{
+	public static function getKeyGenerationMode(): int{
 		return KEY_GENERATION_MODE_NATURAL;
 	}
 
-	public static function getIdentifierNameStatic(): ?string
-	{
+	public static function getIdentifierNameStatic(): ?string{
 		return "fieldId";
 	}
 
-	public function generateSelectStatement(): ?SelectStatement
-	{
+	public function generateSelectStatement(): ?SelectStatement{
 		$f = __METHOD__;
 		try {
 			$print = false;
-			$query = $this->getSearchClass()::selectStatic(); // QueryBuilder::select()->from($this->getSearchTableName());
+			$query = $this->getSearchClass()::selectStatic();
 			$sqd = $this->getSearchPaginator();
 			$terms = $sqd->getSearchTerms();
 			if (empty($terms)) {
@@ -179,10 +172,8 @@ class SearchFieldsData extends DataStructure
 							if ($print) {
 								Debug::print("{$f} generated match condition \"{$match}\"");
 							}
-
 							$or->pushParameters($match);
 						}
-
 						if (! empty($aliases)) {
 							if ($print) {
 								$count = count($aliases);
@@ -204,13 +195,13 @@ class SearchFieldsData extends DataStructure
 					}
 					break;
 				/*
-				 * case SEARCH_MODE_EXACT:
-				 * foreach($this->getColumns() as $column){
-				 * $condition = new WhereCondition($terms[0], OPERATOR_CONTAINS);
-				 * array_push($conditions, $condition);
-				 * }
-				 * break;
-				 */
+				case SEARCH_MODE_EXACT:
+					foreach($this->getColumns() as $column){
+						$condition = new WhereCondition($terms[0], OPERATOR_CONTAINS);
+						array_push($conditions, $condition);
+					}
+					break;
+				*/
 				default:
 					$gottype = gettype($mode);
 					if ($gottype !== gettype(2)) {
@@ -228,15 +219,13 @@ class SearchFieldsData extends DataStructure
 		}
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$status = new VirtualDatum("status");
 		$fieldId = new VirtualDatum("fieldId");
 		static::pushTemporaryColumnsStatic($columns, $status, $fieldId);
 	}
 
-	public function getVirtualColumnValue(string $columnName)
-	{
+	public function getVirtualColumnValue(string $columnName){
 		switch ($columnName) {
 			case "fieldId":
 				return $this->getFieldId();
@@ -245,8 +234,7 @@ class SearchFieldsData extends DataStructure
 		}
 	}
 
-	public function hasVirtualColumnValue(string $columnName): bool
-	{
+	public function hasVirtualColumnValue(string $columnName): bool{
 		switch ($columnName) {
 			case "fieldId":
 				return $this->hasSearchClass();
@@ -255,14 +243,12 @@ class SearchFieldsData extends DataStructure
 		}
 	}
 
-	public function getFieldId()
-	{
+	public function getFieldId(){
 		$classname = $this->getSearchClass();
 		return "fields_".get_short_class($classname);
 	}
 
-	private function generateBooleanDatum($c)
-	{
+	private function generateBooleanDatum($c){
 		$f = __METHOD__;
 		$name = $c->getColumnName();
 		$datum = new SearchFieldDatum("search_{$name}");
@@ -278,18 +264,15 @@ class SearchFieldsData extends DataStructure
 		return $datum;
 	}
 
-	public function setSearchTemplateObject($o)
-	{
+	public function setSearchTemplateObject($o){
 		return $this->searchTemplateObject = $o;
 	}
 
-	public function hasSearchTemplateObject()
-	{
+	public function hasSearchTemplateObject():bool{
 		return isset($this->searchTemplateObject) && is_object($this->searchTemplateObject);
 	}
 
-	public function getSearchTemplateObject()
-	{
+	public function getSearchTemplateObject(){
 		$f = __METHOD__;
 		if (! $this->hasSearchTemplateObject()) {
 			Debug::error("{$f} search template object is undefined");
@@ -297,15 +280,13 @@ class SearchFieldsData extends DataStructure
 		return $this->searchTemplateObject;
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"translate"
 		]);
 	}
 
-	public function setSearchClass(?string $class): ?string
-	{
+	public function setSearchClass(?string $class): ?string{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -329,22 +310,13 @@ class SearchFieldsData extends DataStructure
 						continue;
 					} elseif ($c instanceof NameDatum && $c->isTranslatable()) {
 						$pref = $user->getLanguagePreference();
-						if ($pref !== LANGUAGE_DEFAULT) {
+						if($print){
 							Debug::print("{$f} user does not have default language preference");
-							if (array_key_exists($pref, $columns)) {
-								continue;
-							}
-							// $hrvn = $c->getHumanReadableName();
-							$c->setNameIndex($pref);
-							$c->setNormalizedIndex("{$pref}_normalized");
-							// $c->setVariableName("search_{$pref}");
-							// $c->setDataStructure(new MultilingualNameData());
-							// $c->setHumanReadableName($hrvn);
-							$this->setFlag("translate", true);
-							$this->getSearchPaginator()->setTranslateFlag(true);
-						} elseif ($print) {
-							Debug::print("{$f} has default language preference");
 						}
+						if (array_key_exists($pref, $columns)) {
+							continue;
+						}
+						$this->setFlag("translate", true);
 					} elseif ($print) {
 						Debug::print("{$f} variable \"{$vn}\" is not a search name datum, or not translatable");
 					}

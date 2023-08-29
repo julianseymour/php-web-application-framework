@@ -2,7 +2,6 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\validate;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\is_base64;
 use function JulianSeymour\PHPWebApplicationFramework\is_sha1;
 use function JulianSeymour\PHPWebApplicationFramework\starts_with;
@@ -16,16 +15,13 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Closure;
 use Exception;
 
-class TypeValidator extends Validator
-{
+class TypeValidator extends Validator{
 
-	public function evaluate(&$validate_me): int
-	{
+	public function evaluate(&$validate_me): int{
 		ErrorMessage::unimplemented(f(static::class));
 	}
 
-	public static function validateType($value, $check)
-	{
+	public static function validateType($value, $check){
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -94,15 +90,14 @@ class TypeValidator extends Validator
 					case "sha1":
 						return is_sha1($value) ? SUCCESS : FAILURE;
 					default:
-						if (class_exists($check)) {
+						if (class_exists($check) || interface_exists($check)) {
 							if ($print) {
+								$gottype = gettype($value);
 								Debug::print("{$f} check is a class name \"{$check}\"");
-							}
-							if ($print) {
 								if ($value instanceof $check) {
 									Debug::print("{$f} yes, value is an instanceof \"{$check}\"");
 								} else {
-									$gottype = gettype($value);
+									
 									Debug::print("{$f} no, {$gottype} value is not an instanceof \"{$check}\"");
 								}
 							}
@@ -110,8 +105,8 @@ class TypeValidator extends Validator
 								return $value instanceof $check ? SUCCESS : FAILURE;
 							} elseif (is_string($value)) {
 								return is_a($value, $check, true) ? SUCCESS : FAILURE;
-							} elseif ($print) {
-								Debug::print("{$f} value is neither an object nor a string");
+							}elseif ($print) {
+								Debug::print("{$f} value is a {$gottype}, and fails type check \"{$check}\'");
 							}
 							return FAILURE;
 						} else {
@@ -154,6 +149,22 @@ class TypeValidator extends Validator
 					$class = $check->getClass();
 					Debug::error("{$f} invalid class \"{$class}\"");
 				}
+			}elseif(is_array($check)){
+				if(!is_array($value)){
+					return FAILURE;
+				}
+				if(!empty($check)){
+					if(count($check) > 1){
+						Debug::error("{$f} if you want to validate an array of X, the array you pass for the filter ID must contain only one element");
+					}
+					$check = $check[0];
+					foreach($value as $sub){
+						if(static::validateType($sub, $check) !== SUCCESS){
+							return FAILURE;
+						}
+					}
+				}
+				return SUCCESS;
 			}
 			return FAILURE;
 		} catch (Exception $x) {

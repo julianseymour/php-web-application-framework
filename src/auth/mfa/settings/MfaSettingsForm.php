@@ -77,7 +77,6 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 								"position" => "relative"
 							])
 						);
-						$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
 						$input->configure($this);
 					}
 					return $inputs;
@@ -158,7 +157,6 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 						substitute(_("%1%+ characters"), 12), 
 						")"
 					);
-					$input->setPlaceholderMode(INPUT_PLACEHOLDER_MODE_SHRINK);
 					$input->setLabelString($placeholder);
 					$input->setWrapperElement(Document::createElement("div")->withStyleProperties([
 						"margin-top" => "1rem",

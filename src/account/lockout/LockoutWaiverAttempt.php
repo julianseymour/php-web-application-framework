@@ -28,7 +28,7 @@ class LockoutWaiverAttempt extends CodeConfirmationAttempt{
 		return $this->getUserKey();
 	}
 
-	public function getName(){
+	public function getName():string{
 		return $this->getUserNormalizedName();
 	}
 
@@ -84,15 +84,15 @@ class LockoutWaiverAttempt extends CodeConfirmationAttempt{
 		return true;
 	}
 
-	public static function getPrettyClassName(?string $lang = null){
+	public static function getPrettyClassName():string{
 		return _("Lockout waiver attempt");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null){
+	public static function getPrettyClassNames():string{
 		return _("Lockout waiver attempts");
 	}
 
-	public static function getIpLogReason(){
+	public static function getReasonLoggedStatic(){
 		return BECAUSE_WAIVER;
 	}
 

@@ -4,9 +4,9 @@ namespace JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\getCurrentUserKey;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
+use JulianSeymour\PHPWebApplicationFramework\command\MultipleCommandsTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
@@ -16,7 +16,6 @@ use JulianSeymour\PHPWebApplicationFramework\event\EventListeningTrait;
 use JulianSeymour\PHPWebApplicationFramework\json\EchoJsonInterface;
 use JulianSeymour\PHPWebApplicationFramework\json\EchoJsonTrait;
 use JulianSeymour\PHPWebApplicationFramework\json\Json;
-use Exception;
 
 /**
  * This class is used to generate the JSON response to an XMLHttpRequest
@@ -27,7 +26,7 @@ use Exception;
 class XMLHttpResponse extends Basic 
 implements EchoJsonInterface, StaticPropertyTypeInterface{
 
-	use ArrayPropertyTrait;
+	use MultipleCommandsTrait;
 	use EchoJsonTrait;
 	use EventListeningTrait;
 	use StaticPropertyTypeTrait;
@@ -38,10 +37,6 @@ implements EchoJsonInterface, StaticPropertyTypeInterface{
 		return [
 			"commands" => Command::class
 		];
-	}
-
-	public function hasCommands(){
-		return $this->hasArrayProperty("commands");
 	}
 
 	/**
@@ -209,32 +204,12 @@ implements EchoJsonInterface, StaticPropertyTypeInterface{
 		unset($this->dataStructures);
 	}
 
-	/**
-	 * return an array representing a list of commands to execute after returning from callbacks
-	 * executed with the automatic form submission system
-	 *
-	 * @return mixed[]
-	 */
-	public final function getCommands(){
-		return $this->getProperty("commands");
-	}
-
 	public function setRefuseCommandsFlag($value){
 		return $this->setFlag("refuseCommands", $value);
 	}
 
 	public function getRefuseCommandsFlag(){
 		return $this->getFlag("refuseCommands");
-	}
-
-	public function pushCommand(...$commands){
-		$f = __METHOD__;
-		$print = false;
-		if ($print) {
-			$count = count($commands);
-			Debug::print("{$f} pushing {$count} commands");
-		}
-		return $this->pushArrayProperty("commands", ...$commands);
 	}
 }
 

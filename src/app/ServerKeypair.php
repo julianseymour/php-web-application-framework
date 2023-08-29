@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\app;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -16,44 +17,22 @@ use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\UrlDatum;
 use Exception;
 
-class ServerKeypair extends SodiumKeypair
-{
+class ServerKeypair extends SodiumKeypair{
 
 	use KeypairColumnsTrait;
 	use NameColumnTrait;
 	use SignatureKeypairColumnsTrait;
 
-	public static function getServerTypeEnumerationFromName($name)
-	{
-		$f = __METHOD__; //ServerKeypair::getShortClass()."(".static::getShortClass().")::getServerTypeEnumerationFromName({$name})";
-		try {
-			switch ($name) {
-				case "DATABASE":
-					return SERVER_TYPE_DATABASE;
-				case "WEB":
-					return SERVER_TYPE_WEB;
-				case "BACKUP":
-					return SERVER_TYPE_BACKUP;
-				case "HOTWALLET":
-				case "ERROR":
-					Debug::error("{$f} invalid server type \"{$name}\"");
-				default:
-					Debug::error("{$f} default case");
-					return CONST_UNDEFINED;
-			}
-		} catch (Exception $x) {
-			x($f, $x);
-		}
+	public static function getDatabaseNameStatic():string{
+		return "data";
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "server_keys";
 	}
 
-	public function generateKeypairs(): int
-	{
-		$f = __METHOD__; //ServerKeypair::getShortClass()."(".static::getShortClass().")->generateKeypairs()";
+	public function generateKeypairs(): int{
+		$f = __METHOD__;
 		try {
 			$keypair = sodium_crypto_box_keypair();
 			$privateKey = sodium_crypto_box_secretkey($keypair);
@@ -71,9 +50,8 @@ class ServerKeypair extends SodiumKeypair
 		}
 	}
 
-	protected function beforeGenerateInitialValuesHook(): int
-	{
-		$f = __METHOD__; //ServerKeypair::getShortClass()."(".static::getShortClass().")->beforeGenerateInitialValuesHook()";
+	protected function beforeGenerateInitialValuesHook(): int{
+		$f = __METHOD__;
 		$print = false;
 		$ret = parent::beforeGenerateInitialValuesHook();
 		if ($this->getCurrentServer()) {
@@ -87,52 +65,24 @@ class ServerKeypair extends SodiumKeypair
 		return $ret;
 	}
 
-	/*
-	 * public static function generateKeypairStatic($server_name, $ip=null, $is_current=0){
-	 * $f = __METHOD__; //ServerKeypair::getShortClass()."(".static::getShortClass().")->generateCurrentServerKeypair()";
-	 * try{
-	 * Debug::print("{$f} entered");
-	 * $kp = new ServerKeypair();
-	 * $name = NameDatum::normalize($server_name); //_POST['server_name']);
-	 * $type = ServerKeypair::getServerTypeEnumerationFromName($name);
-	 * $kp->setServerName($name);
-	 * $kp->setServerType($type);
-	 * $kp->setCurrentServer($is_current);
-	 * if($ip === null){
-	 * $ip = $_SERVER['SERVER_ADDR'];
-	 * }
-	 * $kp->setIpAddress($ip);
-	 * $kp->generateKeypairs();
-	 * Debug::print("{$f} returning normally");
-	 * return $kp;
-	 * }catch(Exception $x){
-	 * x($f, $x);
-	 * }
-	 * }
-	 */
-	public static function generateCurrentServerKeypair($server_name)
-	{
+	public static function generateCurrentServerKeypair($server_name){
 		return static::generateKeypairStatic($server_name, $_SERVER['SERVER_ADDR'], 1);
 	}
 
-	public function getServerDomain()
-	{
+	public function getServerDomain(){
 		return $this->getColumnValue('serverDomain');
 	}
 
-	public function setServerDomain($value)
-	{
+	public function setServerDomain($value){
 		return $this->setColumnValue('serverDomain', $value);
 	}
 
-	public function loadForeignDataStructures($mysqli, $lazy = false, $recursion_depth = 0): int
-	{
+	public function loadForeignDataStructures($mysqli, $lazy = false, $recursion_depth = 0): int{
 		return SUCCESS;
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
-		$f = __METHOD__; //ServerKeypair::getShortClass()."(".static::getShortClass().")::declareColumns()";
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		$f = __METHOD__;
 		try {
 			parent::declareColumns($columns, $ds);
 			$ip = new IpAddressDatum("ipAddress");
@@ -178,65 +128,40 @@ class ServerKeypair extends SodiumKeypair
 		}
 	}
 
-	public function setCurrentServer($value)
-	{
+	public function setCurrentServer($value){
 		return $this->setColumnValue("isCurrentServer", $value);
 	}
 
-	public function getCurrentServer()
-	{
+	public function getCurrentServer():bool{
 		return $this->getColumnValue("isCurrentServer");
 	}
 
-	public function setServerType($value)
-	{
+	public function setServerType($value){
 		return $this->setColumnValue("serverType", $value);
 	}
 
-	public function getServerType()
-	{
+	public function getServerType(){
 		return $this->getColumnValue("serverType");
 	}
 
-	public function setIpAddress($ip)
-	{
+	public function setIpAddress(string $ip):string{
 		return $this->setColumnValue("ipAddress", $ip);
 	}
 
-	public function getIpAddress()
-	{
+	public function getIpAddress():string{
 		return $this->getColumnValue("ipAddress");
 	}
 
-	public static function getPrettyClassName(?string $lang = null)
-	{
+	public static function getPrettyClassName():string{
 		return _("Server keypair");
 	}
 
-	public static function getPrettyClassNames(?string $lang = null)
-	{
+	public static function getPrettyClassNames():string{
 		return _("Server keypairs");
 	}
 
-	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void
-	{
-		parent::reconfigureColumns($columns, $ds);
-		foreach ([
-			"userAccountType",
-			"userKey",
-			"userName",
-			"userNormalizedName",
-			"userDisplayName",
-			"userTemporaryRole",
-			"userNameKey"
-		] as $cn) {
-			$columns[$cn]->volatilize();
-		}
-	}
-
-	protected function nullPrivateKeyHook(): int
-	{
-		$f = __METHOD__; //ServerKeypair::getShortClass()."(".static::getShortClass().")->nullPrivateKeyHook()";
+	protected function nullPrivateKeyHook(): int{
+		$f = __METHOD__;
 		Debug::error("{$f} private key is null");
 		return FAILURE;
 	}

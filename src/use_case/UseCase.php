@@ -4,7 +4,6 @@ namespace JulianSeymour\PHPWebApplicationFramework\use_case;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\config;
-use function JulianSeymour\PHPWebApplicationFramework\getRequestURISegment;
 use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\request;
@@ -15,16 +14,18 @@ use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\account\correspondent\GetCorrespondentUseCase;
 use JulianSeymour\PHPWebApplicationFramework\app\Request;
 use JulianSeymour\PHPWebApplicationFramework\app\Responder;
+use JulianSeymour\PHPWebApplicationFramework\app\ResponseHooksTrait;
 use JulianSeymour\PHPWebApplicationFramework\app\pwa\ProgressiveHyperlinkResponder;
 use JulianSeymour\PHPWebApplicationFramework\auth\AfterAuthenticateEvent;
 use JulianSeymour\PHPWebApplicationFramework\auth\BeforeAuthenticateEvent;
 use JulianSeymour\PHPWebApplicationFramework\auth\permit\PermissiveTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\DisabledFlagTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\arr\ArrayPropertyTrait;
-use JulianSeymour\PHPWebApplicationFramework\core\Basic;
+use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\db\load\LoadoutGenerator;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessageTrait;
 use JulianSeymour\PHPWebApplicationFramework\error\FileNotFoundUseCase;
 use JulianSeymour\PHPWebApplicationFramework\error\InternalServerErrorUseCase;
 use JulianSeymour\PHPWebApplicationFramework\event\AfterExecuteEvent;
@@ -41,8 +42,6 @@ use JulianSeymour\PHPWebApplicationFramework\session\timeout\RefreshSessionTimeo
 use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\InteractiveUseCase;
 use Exception;
 use mysqli;
-use JulianSeymour\PHPWebApplicationFramework\db\load\LoadoutGenerator;
-use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 
 /**
  * Handles program flow control for a specific task.
@@ -50,15 +49,16 @@ use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
  *
  * @author j
  */
-abstract class UseCase extends Basic implements JavaScriptCounterpartInterface
-{
+abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCounterpartInterface{
 
 	use ArrayPropertyTrait;
 	use DisabledFlagTrait;
+	use ErrorMessageTrait;
 	use EventListeningTrait;
 	use JavaScriptCounterpartTrait;
 	use PermissiveTrait;
-
+	use ResponseHooksTrait;
+	
 	protected $bruteforceAttemptObject;
 
 	protected $dataOperandObject;
@@ -102,14 +102,6 @@ abstract class UseCase extends Basic implements JavaScriptCounterpartInterface
 
 	public function isPageUpdatedAfterLogin(): bool{
 		return true;
-	}
-
-	public function getInputParameter(string $name){
-		return request()->getInputParameter($name, $this);
-	}
-
-	public function hasInputParameter(string $name): bool{
-		return request()->hasInputParameter($name, $this);
 	}
 
 	public function setDataOperandObject($obj){
@@ -259,19 +251,6 @@ abstract class UseCase extends Basic implements JavaScriptCounterpartInterface
 		];
 	}
 
-	public final function getPageContentString(): ?string{
-		$content = $this->getPageContent();
-		$ret = "";
-		foreach ($content as $c) {
-			$ret .= $c;
-		}
-		return $ret;
-	}
-
-	public final function echoPageContent(): void{
-		echo $this->getPageContentString();
-	}
-
 	protected function getHTMLElementClass(): string{
 		return config()->getHTMLElementClass();
 	}
@@ -291,6 +270,7 @@ abstract class UseCase extends Basic implements JavaScriptCounterpartInterface
 			$use_case = $this->getPageContentGenerator();
 			$html_class = $this->getHTMLElementClass();
 			$document = new $html_class($mode, $use_case);
+			//app()->setDocumentRoot($document);
 			if ($print) {
 				$mem2 = memory_get_usage();
 				Debug::print("{$f} memory usage after HTMLElement binding and before echoElement: {$mem2}");
@@ -605,69 +585,6 @@ abstract class UseCase extends Basic implements JavaScriptCounterpartInterface
 	public static function isSiteMappable():bool{
 		return false;
 	}
-	
-	protected final function getUriSegmentParameterOffset(string $name){
-		$map = $this->getUriSegmentParameterMap();
-		if (! isset($map) || ! is_array($map)) {
-			return false;
-		}
-		return array_search($name, $this->getUriSegmentParameterMap());
-	}
-
-	public function getUriSegmentParameterMap(): ?array{
-		return [
-			0 => "action"
-		];
-	}
-
-	public function hasImplicitParameter(string $name): bool{
-		return false;
-	}
-
-	public function getImplicitParameter(string $name){
-		$f = __METHOD__;
-		Debug::error("{$f} undefined implicit parameter \"{$name}\"");
-	}
-
-	public function URISegmentParameterExists(string $name):bool{
-		$f = __METHOD__;
-		$print = false;
-		if ($this->hasImplicitParameter($name)) {
-			return $this->getImplicitParameter($name);
-		}
-		$map = $this->getUriSegmentParameterMap();
-		if (! isset($map) || ! is_array($map)) {
-			if ($print) {
-				Debug::print("{$f} no input parameters are mapped to URI segments");
-			}
-			return false;
-		}
-		$offset = $this->getUriSegmentParameterOffset($name);
-		if (false === $offset) {
-			if ($print) {
-				Debug::print("{$f} parameter \"{$name}\" is not mapped to a URI segment for use case of class ".get_short_class($this));
-			}
-			return false;
-		} elseif ($offset > request()->getRequestURISegmentCount() - 1) {
-			if ($print) {
-				Debug::print("{$f} offset {$offset} exceeds URI segment count");
-			}
-			return false;
-		}
-		$value = getRequestURISegment($offset);
-		if ($print) {
-			Debug::print("{$f} value at offset {$offset} is \"{$value}\"");
-		}
-		return $value !== null && $value !== "";
-	}
-
-	public function getURISegmentParameter($name){
-		$f = __METHOD__;
-		if (! $this->URISegmentParameterExists($name)) {
-			Debug::error("{$f} parameter \"{$name}\" does not mape to a URI segment");
-		}
-		return getRequestURISegment($this->getUriSegmentParameterOffset($name));
-	}
 
 	/**
 	 * validates that the use case is permitted to continue the execution chain handed off to it by its predecessor
@@ -723,10 +640,9 @@ abstract class UseCase extends Basic implements JavaScriptCounterpartInterface
 		return SUCCESS;
 	}
 
-	public function getResponder(): ?Responder{
+	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
 		$print = false;
-		$status = $this->getObjectStatus();
 		if ($status === SUCCESS && request()->getProgressiveHyperlinkFlag()) {
 			if ($print) {
 				Debug::print("{$f} returning ProgressiveHyperlinkResponder");
@@ -787,8 +703,7 @@ abstract class UseCase extends Basic implements JavaScriptCounterpartInterface
 		}
 	}
 
-	public static function getDefaultWorkflowClass(): string
-	{
+	public static function getDefaultWorkflowClass(): string{
 		return config()->getDefaultWorkflowClass();
 	}
 	
@@ -798,12 +713,21 @@ abstract class UseCase extends Basic implements JavaScriptCounterpartInterface
 	
 	public function getLoadoutGenerator(?PlayableUser $user=null):?LoadoutGenerator{
 		$f = __METHOD__;
+		$print = false;
 		if($this->hasLoadoutGenerator()){
+			if($print){
+				Debug::print("{$f} loadout was already generated");
+			}
 			return $this->loadoutGenerator;
 		}
 		$lgc = $this->getLoadoutGeneratorClass($user);
 		if($lgc){
+			if($print){
+				Debug::print("{$f} returning a new {$lgc}");
+			}
 			return $this->setLoadoutGenerator(new $lgc());
+		}elseif($print){
+			Debug::print("{$f} returning null");
 		}
 		return null;
 	}

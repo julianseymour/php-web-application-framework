@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -6,23 +7,20 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\LabelElement;
 use Exception;
 
-class MenuSlideLabel extends LabelElement
-{
+class MenuSlideLabel extends LabelElement{
 
-	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
-	{
+	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		parent::__construct($mode, $context);
 		$this->addClassAttribute("slide_menu_label");
 		$this->addClassAttribute("background_color_1");
 		$this->addClassAttribute("slide_select");
 	}
 
-	public function generateChildNodes(): ?array
-	{
-		$f = __METHOD__; //MenuSlideLabel::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
+	public function generateChildNodes(): ?array{
+		$f = __METHOD__;
 		try {
 			$context = $this->getContext();
-			$innerHTML = $context->getLocalizedName();
+			$innerHTML = $context->getName();
 			if (empty($innerHTML)) {
 				$context_class = $context->getClass();
 				$context_name = $context->getName();
@@ -35,9 +33,8 @@ class MenuSlideLabel extends LabelElement
 		}
 	}
 
-	public function bindContext($context)
-	{
-		$f = __METHOD__; //MenuSlideLabel::getShortClass()."(".static::getShortClass().")->bindContext()";
+	public function bindContext($context){
+		$f = __METHOD__;
 		try {
 			$key = $context->getIdentifierValue();
 			$this->setForAttribute("radio_menu-{$key}");
