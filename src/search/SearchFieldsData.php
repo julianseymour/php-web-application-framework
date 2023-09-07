@@ -21,10 +21,6 @@ class SearchFieldsData extends DataStructure{
 	use SearchClassTrait;
 
 	protected $searchTemplateObject;
-
-	public static function getDatabaseNameStatic():string{
-		return "error";
-	}
 	
 	public function dispose(): void{
 		parent::dispose();
@@ -42,10 +38,6 @@ class SearchFieldsData extends DataStructure{
 
 	public static function getPrettyClassNames():string{
 		return static::getPrettyClassName();
-	}
-
-	public static function getTableNameStatic(): string{
-		return "fields";
 	}
 
 	public static function getDataType(): string{
@@ -76,7 +68,7 @@ class SearchFieldsData extends DataStructure{
 		$f = __METHOD__;
 		$count = 0;
 		foreach ($this->getFilteredColumns(COLUMN_FILTER_VALUED, "!" . COLUMN_FILTER_VIRTUAL) as $column) {
-			$vn = $column->getColumnName();
+			$vn = $column->getName();
 			if (! $column instanceof SearchFieldDatum) {
 				Debug::error("{$f} column \"{$vn}\" is not a search field datum");
 			} elseif (! $column->getValue()) {
@@ -100,7 +92,7 @@ class SearchFieldsData extends DataStructure{
 	public function generateSelectStatement(): ?SelectStatement{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			$query = $this->getSearchClass()::selectStatic();
 			$sqd = $this->getSearchPaginator();
 			$terms = $sqd->getSearchTerms();
@@ -129,7 +121,7 @@ class SearchFieldsData extends DataStructure{
 						foreach ($this->getFilteredColumns(COLUMN_FILTER_VALUED, "!" . COLUMN_FILTER_VIRTUAL) as $column) {
 							$match = new MatchFunction();
 							$match->setParameterCount(1);
-							$vn = $column->getColumnName();
+							$vn = $column->getName();
 							if ($print) {
 								Debug::print("{$f} evaluating variable \"{$vn}\" for class \"{$this->searchClass}\"");
 							}
@@ -145,8 +137,8 @@ class SearchFieldsData extends DataStructure{
 							if ($print) {
 								Debug::print("{$f} column \"{$vn}\" is set");
 							}
-							$column_name = $datum->getColumnName();
-							if ($datum->getPersistenceMode() === PERSISTENCE_MODE_ALIAS) {
+							$column_name = $datum->getName();
+							if($datum->getPersistenceMode() === PERSISTENCE_MODE_ALIAS) {
 								if ($print) {
 									Debug::print("{$f} column \"{$column_name}\" is aliased");
 								}
@@ -174,7 +166,7 @@ class SearchFieldsData extends DataStructure{
 							}
 							$or->pushParameters($match);
 						}
-						if (! empty($aliases)) {
+						if(!empty($aliases)){
 							if ($print) {
 								$count = count($aliases);
 								Debug::print("{$f} we are searching {$count} aliased columns");
@@ -185,11 +177,10 @@ class SearchFieldsData extends DataStructure{
 								$or->pushParameters($where);
 							}
 							$aliases = [];
-						} elseif ($print) {
+						}elseif($print){
 							Debug::print("{$f} there are no aliases columns");
 						}
-
-						if ($match->getColumnNameCount() === 0) { // count($term_conditions) === 0){
+						if($match->getColumnNameCount() === 0){
 							Debug::printGet("{$f} 0 conditions");
 						}
 					}
@@ -222,7 +213,7 @@ class SearchFieldsData extends DataStructure{
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$status = new VirtualDatum("status");
 		$fieldId = new VirtualDatum("fieldId");
-		static::pushTemporaryColumnsStatic($columns, $status, $fieldId);
+		array_push($columns, $status, $fieldId);
 	}
 
 	public function getVirtualColumnValue(string $columnName){
@@ -250,7 +241,7 @@ class SearchFieldsData extends DataStructure{
 
 	private function generateBooleanDatum($c){
 		$f = __METHOD__;
-		$name = $c->getColumnName();
+		$name = $c->getName();
 		$datum = new SearchFieldDatum("search_{$name}");
 		$datum->setSearchClass($this->getSearchClass());
 		$datum->setFieldName($name);
@@ -300,7 +291,7 @@ class SearchFieldsData extends DataStructure{
 			$this->setSearchTemplateObject($object);
 			$columns = [];
 			foreach ($object->getFilteredColumns(COLUMN_FILTER_SEARCHABLE) as $column_name => $c) {
-				$vn = $c->getColumnName();
+				$vn = $c->getName();
 				if ($c->isSearchable()) {
 					if ($c instanceof TimestampDatum) {
 						if ($print) {
@@ -308,7 +299,7 @@ class SearchFieldsData extends DataStructure{
 						}
 						$this->getSearchPaginator()->reportSearchableTimestamp($c);
 						continue;
-					} elseif ($c instanceof NameDatum && $c->isTranslatable()) {
+					/*} elseif ($c instanceof NameDatum && $c->isTranslatable()) {
 						$pref = $user->getLanguagePreference();
 						if($print){
 							Debug::print("{$f} user does not have default language preference");
@@ -316,12 +307,12 @@ class SearchFieldsData extends DataStructure{
 						if (array_key_exists($pref, $columns)) {
 							continue;
 						}
-						$this->setFlag("translate", true);
+						$this->setFlag("translate", true);*/
 					} elseif ($print) {
 						Debug::print("{$f} variable \"{$vn}\" is not a search name datum, or not translatable");
 					}
 					$boolean = $this->generateBooleanDatum($c);
-					$cn2 = $boolean->getColumnName();
+					$cn2 = $boolean->getName();
 					$columns[$cn2] = $boolean;
 					if ($print) {
 						Debug::print("{$f} pushed column \"{$cn2}\"");

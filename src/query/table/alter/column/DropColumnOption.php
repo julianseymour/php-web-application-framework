@@ -1,11 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\table\alter\column;
 
-class DropColumnOption extends AlterColumnOption
-{
+class DropColumnOption extends AlterColumnOption{
 
-	public function toSQL(): string
-	{
+	public function toSQL(): string{
 		return "drop column " . $this->getColumnName();
 	}
 }

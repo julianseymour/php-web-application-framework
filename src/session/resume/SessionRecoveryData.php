@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\session\resume;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -12,6 +13,7 @@ use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\SessionRecoveryEncryp
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\Base64Datum;
 use JulianSeymour\PHPWebApplicationFramework\datum\BooleanDatum;
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\json\JsonDatum;
@@ -19,11 +21,14 @@ use JulianSeymour\PHPWebApplicationFramework\security\access\UserFingerprint;
 use JulianSeymour\PHPWebApplicationFramework\session\BindSessionColumnsTrait;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class SessionRecoveryData extends UserFingerprint{
+class SessionRecoveryData extends UserFingerprint implements StaticTableNameInterface{
 
 	use BindSessionColumnsTrait;
-
+	use StaticTableNameTrait;
+	
 	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
 			"cookieBaked"
@@ -199,7 +204,7 @@ class SessionRecoveryData extends UserFingerprint{
 		if (empty($cookie_secret)) {
 			Debug::error("{$f} cookie secret is empty");
 		}
-		$argon_nonce = $this->getColumnValue("recoveryKit_argonNonce");
+		$argon_nonce = $this->getColumnValue("recoveryKitArgonNonce");
 		if (empty($argon_nonce)) {
 			Debug::error("{$f} argon nonce is empty");
 		}
@@ -218,9 +223,9 @@ class SessionRecoveryData extends UserFingerprint{
 	protected function generateRecoveryKit(): int{
 		$f = __METHOD__;
 		$user = $this->getUserData();
-		$this->setColumnValue("recoveryKit_argonNonce", random_bytes(SODIUM_CRYPTO_PWHASH_SALTBYTES));
-		$this->setColumnValue("recoveryKit_serverSecret", random_bytes(strlen($this->getArgonHash())));
-		$this->setColumnValue("recoveryKit_aesNonce", random_bytes(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES));
+		$this->setColumnValue("recoveryKitArgonNonce", random_bytes(SODIUM_CRYPTO_PWHASH_SALTBYTES));
+		$this->setColumnValue("recoveryKitServerSecret", random_bytes(strlen($this->getArgonHash())));
+		$this->setColumnValue("recoveryKitAesNonce", random_bytes(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES));
 		$this->setRecoveryKit([
 			'deterministicSecretKey_64' => base64_encode($user->getDeterministicSecretKey(LOGIN_TYPE_FULL)),
 			"userAccountType" => $user->getAccountType(),
@@ -255,13 +260,24 @@ class SessionRecoveryData extends UserFingerprint{
 		return SUCCESS;
 	}
 
+	public static function reconfigureColumnEncryption(Datum $column):void{
+		switch($column->getName()){
+			case "insertIpAddress":
+				$column->setEncryptionScheme(AsymmetricEncryptionScheme::class);
+				break;
+			case "userAgent":
+				$column->setEncryptionScheme(AsymmetricEncryptionScheme::class);
+				break;
+			default:
+		}
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
 		try {
 			parent::declareColumns($columns, $ds);
 
-			$columns["insertIpAddress"]->setEncryptionScheme(AsymmetricEncryptionScheme::class);
-			$columns["userAgent"]->setEncryptionScheme(AsymmetricEncryptionScheme::class);
+			
 
 			$bind_ip = new BooleanDatum("bindIpAddress");
 			$bind_ip->setDefaultValue(false);
@@ -275,7 +291,7 @@ class SessionRecoveryData extends UserFingerprint{
 			$hashed_key = new ForeignKeyDatum("userKeyHash");
 			$hashed_key->setNullable(false);
 			$hashed_key->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
-			static::pushTemporaryColumnsStatic($columns, $bind_ip, $bind_ua, $recoveryKit, $hashed_key, $argon_hash);
+			array_push($columns, $bind_ip, $bind_ua, $recoveryKit, $hashed_key, $argon_hash);
 		} catch (Exception $x) {
 			x($f, $x);
 		}

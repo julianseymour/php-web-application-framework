@@ -4,6 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\cascade;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\data\IntersectionTableResolver;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 
 class CascadeDeletableClassResolver extends IntersectionTableResolver{
 	
@@ -12,7 +13,7 @@ class CascadeDeletableClassResolver extends IntersectionTableResolver{
 		foreach(mods()->getDataStructureClasses() as $dsc){
 			if(is_a($dsc, CascadeDeletableInterface::class, true)){
 				$type = $dsc::getDataType();
-				if($dsc::hasSubtypeStatic()){
+				if(is_a($dsc, StaticSubtypeInterface::class, true)){
 					if(!array_key_exists($type, $ret)){
 						$ret[$type] = [];
 					}

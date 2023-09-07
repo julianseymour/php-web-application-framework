@@ -15,18 +15,22 @@ use JulianSeymour\PHPWebApplicationFramework\datum\UnsignedIntegerDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\notification\NotificationSubjectClassResolver;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeTrait;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-abstract class EmailNotificationData extends SpamEmail{
+abstract class EmailNotificationData extends SpamEmail implements StaticSubtypeInterface, StaticTableNameInterface{
 	
 	use SubjectiveTrait;
+	use StaticSubtypeTrait;
+	use StaticTableNameTrait;
 	
-	public abstract function getSubjectLine();
+	public abstract function getSubjectLine():string;
 	
-	public abstract function getPlaintextBody();
+	public abstract function getPlaintextBody():string;
 	
-	public abstract function isOptional();
-	
-	public abstract static function getNotificationType();
+	public abstract function isOptional():bool;
 	
 	public abstract function getActionURIPromptMap();
 	
@@ -49,7 +53,30 @@ abstract class EmailNotificationData extends SpamEmail{
 		$subject->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 		$subjectNumber = new UnsignedIntegerDatum("subjectNumber", 64);
 		$subjectNumber->volatilize();
-		static::pushTemporaryColumnsStatic($columns, $recipientLanguagePreference, $subject, $subjectNumber);
+		array_push($columns, $recipientLanguagePreference, $subject, $subjectNumber);
+	}
+	
+	public function getVirtualColumnValue(string $column_name){
+		$f = __METHOD__;
+		try {
+			switch ($column_name) {
+				case 'subtype':
+					return $this->getSubtypeStatic();
+				default:
+					return parent::getVirtualColumnValue($column_name);
+			}
+		} catch (Exception $x) {
+			x($f, $x);
+		}
+	}
+	
+	public function hasVirtualColumnValue(string $column_name): bool{
+		switch ($column_name) {
+			case 'subtype':
+				return true;
+			default:
+				return parent::hasVirtualColumnValue($column_name);
+		}
 	}
 	
 	protected final function getPlaintextPromptHyperlinks(){
@@ -66,16 +93,18 @@ abstract class EmailNotificationData extends SpamEmail{
 		return $string;
 	}
 	
-	public function setSubjectNumber($num){
+	public function setSubjectNumber(int $num):int{
 		return $this->setColumnValue("subjectNumber", $num);
 	}
 	
 	public function setSubjectData($subject){
-		$this->setSubjectNumber($subject->getSerialNumber());
+		if($subject->hasSerialNumber()){
+			$this->setSubjectNumber($subject->getSerialNumber());
+		}
 		return $this->setForeignDataStructure("subjectKey", $subject);
 	}
 	
-	public function isEmailNotificationWarranted(){
+	public function isEmailNotificationWarranted():bool{
 		return $this->getSubjectData()->isEmailNotificationWarranted($this->getRecipient());
 	}
 	
@@ -144,7 +173,7 @@ abstract class EmailNotificationData extends SpamEmail{
 	 * @return UserData
 	 */
 	public function setRecipient(UserData $user):UserData{
-		$f = __METHOD__; //EmailNotificationData::getShortClass()."(".static::getShortClass().")->setRecipient()";
+		$f = __METHOD__;
 		$print = false;
 		if($user->hasLanguagePreference()){
 			$this->setRecipientLanguagePreference($user->getLanguagePreference());
@@ -154,5 +183,9 @@ abstract class EmailNotificationData extends SpamEmail{
 	
 	public static function getElementClassStatic(?StaticElementClassInterface $that = null):string{
 		return EmailNotificationElement::class;
+	}
+	
+	public function getNotificationType():string{
+		return $this->getSubtypeStatic();
 	}
 }

@@ -8,6 +8,7 @@ use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
+use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\account\owner\OwnerPermission;
 use JulianSeymour\PHPWebApplicationFramework\auth\permit\Permission;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -91,7 +92,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 		return false;
 	}
 
-	public static function getEmailNotificationClass(){
+	public static function getEmailNotificationClass():?string{
 		return ErrorMessage::unimplemented(__METHOD__);
 	}
 
@@ -107,12 +108,11 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 		return parent::afterGenerateInitialValuesHook();
 	}
 
-	public function getUpdateNotificationRecipient(){
+	public function getUpdateNotificationRecipient():UserData{
 		return $this->getUserData();
 	}
 
-	public static function getNotificationClass(): string
-	{
+	public static function getNotificationClass(): string{
 		return SecurityNotificationData::class;
 	}
 
@@ -271,7 +271,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 			$attempt_success->setNullable(true);
 			$attempt_success->setDefaultValue(null);
 			$cidr = new VirtualDatum("cidr");
-			static::pushTemporaryColumnsStatic(
+			array_push(
 				$columns, 
 				$mask, $list, $note, $attempted, $attempt_key, $attempt_result, $attempt_ts, $attempt_success, $cidr
 			);
@@ -291,68 +291,59 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 		return true;
 	}
 
-	public function setLastAttemptTimestamp($value){
+	public function setLastAttemptTimestamp(int $value):int{
 		return $this->setColumnValue("lastAttemptTimestamp", $value);
 	}
 
-	public function setLastAttemptResult($value){
+	public function setLastAttemptResult(int $value):int{
 		return $this->setColumnValue("lastAttemptResult", $value);
 	}
 
-	public function setLastAttemptSuccessful($value){
-		return $this->setColumnValue("lastAttemptResult", $value);
-	}
-
-	public function setLastAttemptKey($value){
+	public function setLastAttemptKey(string $value):string{
 		return $this->setColumnValue("lastAttemptKey", $value);
 	}
 
-	public function setAccessAttempted($value){
+	public function setAccessAttempted(bool $value):bool{
 		return $this->setColumnValue("wasAccessAttempted", $value);
 	}
 
-	public function setLastAttemptDataType($value){
+	public function setLastAttemptDataType(string $value):string{
 		return $this->setColumnValue("lastAttemptDataType", $value);
 	}
 
-	public function getLastAttemptTimestamp(){
+	public function getLastAttemptTimestamp():int{
 		return $this->getColumnValue("lastAttemptTimestamp");
 	}
 
-	public function getLastAttemptResult(){
+	public function getLastAttemptResult():int{
 		return $this->getColumnValue("lastAttemptResult");
 	}
 
-	public function getLastAttemptSuccessful(){
-		return $this->getColumnValue("lastAttemptResult");
-	}
-
-	public function getLastAttemptKey()
-	{
+	public function getLastAttemptKey():string{
 		return $this->getColumnValue("lastAttemptKey");
 	}
 
-	public function getAccessAttempted(){
+	public function getAccessAttempted():bool{
 		return $this->getColumnValue("wasAccessAttempted");
 	}
 
-	public function getLastAttemptDataType(){
+	public function getLastAttemptDataType():string{
 		return $this->getColumnValue("lastAttemptDataType");
 	}
 
-	public function getList(){
+	public function getList():string{
 		return $this->getColumnValue("list");
 	}
 
-	public function setList($list){
+	public function setList(string $list):string{
 		return $this->setColumnValue("list", $list);
 	}
 
-	public function getName(){
+	public function getName():string{
 		return $this->getCidrNotation();
 	}
 
-	public function getLastAttemptSubtype(){
+	public function getLastAttemptSubtype():string{
 		return $this->getColumnValue("lastAttemptSubtype");
 	}
 
@@ -364,7 +355,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 		return $this->hasColumnValue("lastAttemptSubtype");
 	}
 
-	public function setLastAttemptSubtype($value){
+	public function setLastAttemptSubtype(string $value):string{
 		return $this->setColumnValue("lastAttemptSubtype", $value);
 	}
 
@@ -380,7 +371,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 			Debug::print("{$f} setting last attempt object");
 		}
 		$this->setLastAttemptDataType($attempt->getDataType());
-		$this->setLastAttemptSubtype($attempt->getSubtypeValue());
+		$this->setLastAttemptSubtype($attempt->getSubtype());
 		if (! $attempt->hasIdentifierValue()) {
 			$ip_address = $this;
 			$index = sha1(random_bytes(32));
@@ -429,29 +420,24 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 		}
 	}
 
-	public function getMask(): int
-	{
+	public function getMask(): int{
 		return $this->getColumnValue('mask');
 	}
 
-	public function hasMask(): bool{
+	public function hasMask():bool{
 		return $this->hasColumnValue("mask");
 	}
 
-	public function getNote(){
+	public function getNote():string{
 		return $this->getColumnValue('note');
 	}
 
-	public function setNote($note){
+	public function setNote(string $note):string{
 		return $this->setColumnValue("note", $note);
 	}
 
 	public static function getPhylumName(): string{
 		return "listedIpAddresses";
-	}
-
-	public function getCommentRoot(){
-		return $this;
 	}
 
 	public static function getKeyGenerationMode(): int{
@@ -487,7 +473,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 		return $this;
 	}
 
-	protected function beforeInsertHook(mysqli $mysqli): int{
+	protected function beforeInsertHook(mysqli $mysqli):int{
 		$f = __METHOD__;
 		if ($this->getList() === POLICY_BLOCK) {
 			$user = user();
@@ -519,11 +505,11 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 		ErrorMessage::unimplemented(__METHOD__);
 	}
 
-	public function isEmailNotificationWarranted($recipient): bool{
+	public function isEmailNotificationWarranted(UserData $recipient): bool{
 		return false;
 	}
 
-	public static function getIpAddressTypeStatic(): string{
+	public static function getSubtypeStatic(): string{
 		return IP_ADDRESS_TYPE_LISTED;
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -20,9 +21,5 @@ class IpAddressDatum extends TextDatum{
 		} catch (Exception $x) {
 			x($f, $x);
 		}
-	}
-
-	public static function getColumnNameStatic(){
-		return "ipAddress";
 	}
 }

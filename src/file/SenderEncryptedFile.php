@@ -226,8 +226,6 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 			$aes_key = $this->getFileAesKey();
 			$nonce = $this->getFileAesNonce();
 			$file_cipher = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($file_zip, null, $nonce, $aes_key);
-			// $size = strlen($file_cipher);
-			// $this->setSize($size);
 			return $file_cipher;
 		} catch (Exception $x) {
 			x($f, $x);

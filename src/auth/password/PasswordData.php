@@ -22,10 +22,6 @@ use Exception;
 class PasswordData extends DataStructure{
 
 	use PasswordDerivedColumnsTrait;
-
-	public static function getDatabaseNameStatic():string{
-		return "error";
-	}
 	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$hash = new PasswordDatum("password");
@@ -37,15 +33,11 @@ class PasswordData extends DataStructure{
 		$public_sign = new Base64Datum("signaturePublicKey");
 		$encrypted_nonce = new NonceDatum("sessionRecoveryNonce");
 		$dsk = new BlobDatum("deterministicSecretKey");
-		static::pushTemporaryColumnsStatic($columns, $hash, $privateKey, $public, $keyGenerationNonce, $signaturePrivateKey, $signatureSeed, $encrypted_nonce, $public_sign, $dsk);
+		array_push($columns, $hash, $privateKey, $public, $keyGenerationNonce, $signaturePrivateKey, $signatureSeed, $encrypted_nonce, $public_sign, $dsk);
 	}
 
 	public static function getPrettyClassName():string{
 		return _("Password");
-	}
-
-	public static function getTableNameStatic(): string{
-		ErrorMessage::unimplemented(__METHOD__);
 	}
 
 	public static function getDataType(): string{

@@ -16,7 +16,7 @@ class ServiceWorkerBlobFileUseCase extends BundleUseCase{
 	}
 	
 	protected function getBundledFilenames(?string $filename = null):?array{
-		return mods()->getServiceWorkerDependencyFilenames();
+		return mods()->getServiceWorkerDependencyFilePaths();
 	}
 
 	public function getActionAttribute(): ?string{

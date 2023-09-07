@@ -14,7 +14,7 @@ class ListIpAddressAttempt extends CodeConfirmationAttempt{
 		return UnlistedIpAddressConfirmationCode::class;
 	}
 
-	public static function getSuccessfulResultCode(){
+	public static function getSuccessfulResultCode():int{
 		return RESULT_CODE_VALIDATED;
 	}
 
@@ -34,7 +34,7 @@ class ListIpAddressAttempt extends CodeConfirmationAttempt{
 		return BECAUSE_IPAUTH;
 	}
 
-	public static function getAccessTypeStatic(): string{
+	public static function getSubtypeStatic(): string{
 		return ACCESS_TYPE_UNLISTED_IP_ADDRESS;
 	}
 }

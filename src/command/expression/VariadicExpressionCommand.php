@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\expression;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
@@ -15,15 +16,13 @@ use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use JulianSeymour\PHPWebApplicationFramework\search\MatchFunction;
 use Exception;
 
-abstract class VariadicExpressionCommand extends ExpressionCommand implements JavaScriptInterface, SQLInterface, StringifiableInterface
-{
+abstract class VariadicExpressionCommand extends ExpressionCommand implements JavaScriptInterface, SQLInterface, StringifiableInterface{
 
 	use ComputerLanguageTrait;
 	use ParametricTrait;
 
-	public function __construct(...$parameters)
-	{
-		$f = __METHOD__; //VariadicExpressionCommand::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct(...$parameters){
+		$f = __METHOD__;
 		parent::__construct();
 		if (isset($parameters) && count($parameters) > 0) {
 			if (count($parameters) === 1 && is_array($parameters[0])) {
@@ -39,8 +38,7 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 		}
 	}
 
-	public function hasMatchFunction(): bool
-	{
+	public function hasMatchFunction(): bool{
 		foreach ($this->getFlatWhereConditionArray() as $wc) {
 			if ($wc instanceof MatchFunction) {
 				return true;
@@ -49,21 +47,18 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 		return false;
 	}
 
-	public function toSQL(): string
-	{
+	public function toSQL(): string{
 		$this->setComputerLanguage(COMPUTER_LANGUAGE_SQL);
 		return $this->__toString();
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		$this->setComputerLanguage(COMPUTER_LANGUAGE_JAVASCRIPT);
 		return $this->__toString();
 	}
 
-	public function __toString(): string
-	{
-		$f = __METHOD__; //VariadicExpressionCommand::getShortClass()."(".static::getShortClass().")->__toString()";
+	public function __toString(): string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$cl = $this->getComputerLanguage();
@@ -131,9 +126,8 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 		}
 	}
 
-	public function getFlatWhereConditionArray(): ?array
-	{
-		$f = __METHOD__; //VariadicExpressionCommand::getShortClass()."(".static::getShortClass().")->getFlatWhereConditionArray()";
+	public function getFlatWhereConditionArray(): ?array{
+		$f = __METHOD__;
 		$print = false;
 		$arr = [];
 		foreach ($this->getParameters() as $param) {
@@ -152,9 +146,8 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 		return $arr;
 	}
 
-	public function getSuperflatWhereConditionArray(): ?array
-	{
-		$f = __METHOD__; //VariadicExpressionCommand::getShortClass()."(".static::getShortClass().")->getSuperflatWhereConditionArray()";
+	public function getSuperflatWhereConditionArray(): ?array{
+		$f = __METHOD__;
 		$arr = [];
 		foreach ($this->getParameters() as $param) {
 			if ($param instanceof BinaryExpressionCommand) {
@@ -180,18 +173,7 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 		return $arr;
 	}
 
-	/*
-	 * public function mySQLFormat(){
-	 * foreach($this->getParameters() as $param){
-	 * if(!$param instanceof WhereConditionalInterface){
-	 * $param->mySQLFormat();
-	 * }
-	 * }
-	 * return SUCCESS;
-	 * }
-	 */
-	public function getConditionalColumnNames(): array
-	{
+	public function getConditionalColumnNames(): array{
 		$arr = [];
 		foreach ($this->getFlatWhereConditionArray() as $where) {
 			if ($where->inferParameterCount() === 1) {

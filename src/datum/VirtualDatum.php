@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use JulianSeymour\PHPWebApplicationFramework\common\ReturnTypeTrait;
@@ -13,8 +14,7 @@ use Closure;
  *
  * @author j
  */
-class VirtualDatum extends Datum implements StaticElementClassInterface
-{
+class VirtualDatum extends Datum implements StaticElementClassInterface{
 
 	use ReturnTypeTrait;
 
@@ -42,13 +42,11 @@ class VirtualDatum extends Datum implements StaticElementClassInterface
 	 */
 	protected $mutator;
 
-	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string
-	{
+	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string{
 		return GhostInput::class;
 	}
 
-	public function getHumanWritableValue()
-	{
+	public function getHumanWritableValue(){
 		return $this->getValue();
 	}
 
@@ -57,56 +55,46 @@ class VirtualDatum extends Datum implements StaticElementClassInterface
 	 * {@inheritdoc}
 	 * @see Datum::getPersistenceMode()
 	 */
-	public final function getPersistenceMode(): int
-	{
+	public final function getPersistenceMode(): int{
 		return PERSISTENCE_MODE_VOLATILE;
 	}
 
-	public function parseValueFromSuperglobalArray($value)
-	{
-		$f = __METHOD__; //VirtualDatum::getShortClass()."(".static::getShortClass().")->parseValueFromSuperglobalArray()";
+	public function parseValueFromSuperglobalArray($value){
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public static function getTypeSpecifier(): string
-	{
-		$f = __METHOD__; //VirtualDatum::getShortClass()."(".static::getShortClass().")::getTypeSpecifier()";
+	public static function getTypeSpecifier(): string{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function getHumanReadableValue()
-	{
+	public function getHumanReadableValue(){
 		return $this->getValue();
 	}
 
-	public static function parseString(string $string)
-	{
+	public static function parseString(string $string){
 		return $string;
 	}
 
-	public static function validateStatic($value): int
-	{
+	public static function validateStatic($value): int{
 		return SUCCESS;
 	}
 
-	public function getUrlEncodedValue(): string
-	{
+	public function getUrlEncodedValue(): string{
 		return urlencode($this->getValue());
 	}
 
-	public function parseValueFromQueryResult($raw)
-	{
-		$f = __METHOD__; //VirtualDatum::getShortClass()."(".static::getShortClass().")->parseValueFromQueryResult()";
+	public function parseValueFromQueryResult($raw){
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function hasAccessor(): bool
-	{
+	public function hasAccessor(): bool{
 		return isset($this->accessor);
 	}
 
-	public function setAccessor(?Closure $accessor): ?Closure
-	{
+	public function setAccessor(?Closure $accessor): ?Closure{
 		if ($accessor === null) {
 			unset($this->accessor);
 			return null;
@@ -114,22 +102,19 @@ class VirtualDatum extends Datum implements StaticElementClassInterface
 		return $this->accessor = $accessor;
 	}
 
-	public function getAccessor(): Closure
-	{
-		$f = __METHOD__; //VirtualDatum::getShortClass()."(".static::getShortClass().")->getAccessor()";
+	public function getAccessor(): Closure{
+		$f = __METHOD__;
 		if (! $this->hasAccessor()) {
 			Debug::error("{$f} accessor is undefined");
 		}
 		return $this->accessor;
 	}
 
-	public function hasExistencePredicate(): bool
-	{
+	public function hasExistencePredicate(): bool{
 		return isset($this->existencePredicate);
 	}
 
-	public function setExistencePredicate(?Closure $existencePredicate): ?Closure
-	{
+	public function setExistencePredicate(?Closure $existencePredicate): ?Closure{
 		if ($existencePredicate === null) {
 			unset($this->existencePredicate);
 			return null;
@@ -137,22 +122,19 @@ class VirtualDatum extends Datum implements StaticElementClassInterface
 		return $this->existencePredicate = $existencePredicate;
 	}
 
-	public function getExistencePredicate(): ?Closure
-	{
-		$f = __METHOD__; //VirtualDatum::getShortClass()."(".static::getShortClass().")->getExistencePredicate()";
+	public function getExistencePredicate(): ?Closure{
+		$f = __METHOD__;
 		if (! $this->hasExistencePredicate()) {
 			Debug::error("{$f} existencePredicate is undefined");
 		}
 		return $this->existencePredicate;
 	}
 
-	public function hasMutator(): bool
-	{
+	public function hasMutator(): bool{
 		return isset($this->mutator);
 	}
 
-	public function setMutator(?Closure $mutator): ?Closure
-	{
+	public function setMutator(?Closure $mutator): ?Closure{
 		if ($mutator === null) {
 			unset($this->mutator);
 			return null;
@@ -160,61 +142,42 @@ class VirtualDatum extends Datum implements StaticElementClassInterface
 		return $this->mutator = $mutator;
 	}
 
-	public function getMutator(): ?Closure
-	{
-		$f = __METHOD__; //VirtualDatum::getShortClass()."(".static::getShortClass().")->getMutator()";
+	public function getMutator(): ?Closure{
+		$f = __METHOD__;
 		if (! $this->hasExistencePredicate()) {
 			Debug::error("{$f} mutator is undefined");
 		}
 		return $this->mutator;
 	}
 
-	public function getValue()
-	{
-		/*
-		 * if($this->hasValue()){
-		 * return parent::getValue();
-		 * }else
-		 */
+	public function getValue(){
 		if ($this->hasAccessor()) {
 			$accessor = $this->getAccessor();
 			return $accessor($this);
-		} /*
-		   * elseif(parent::hasValue()){
-		   * return parent::getValue();
-		   * }
-		   */
-		return $this->getDataStructure()->getVirtualColumnValue($this->getColumnName());
+		}
+		return $this->getDataStructure()->getVirtualColumnValue($this->getName());
 	}
 
-	public function hasValue(): bool
-	{
+	public function hasValue(): bool{
 		if ($this->hasExistencePredicate()) {
 			$existencePredicate = $this->getExistencePredicate();
 			return $existencePredicate($this);
-		} /*
-		   * elseif(parent::hasValue()){
-		   * return true;
-		   * }
-		   */
-		return $this->getDataStructure()->hasVirtualColumnValue($this->getColumnName());
+		}
+		return $this->getDataStructure()->hasVirtualColumnValue($this->getName());
 	}
 
-	public function getConstructorParams(): array
-	{
+	public function getConstructorParams(): array{
 		return [
-			$this->getColumnName()
+			$this->getName()
 		];
 	}
 
-	public function getColumnTypeString(): string
-	{
-		$f = __METHOD__; //VirtualDatum::getShortClass()."(".static::getShortClass().")->getColumnTypeString()";
+	public function getColumnTypeString(): string{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->accessor);
 		unset($this->existencePredicate);

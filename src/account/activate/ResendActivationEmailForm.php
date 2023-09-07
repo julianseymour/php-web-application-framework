@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\activate;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;

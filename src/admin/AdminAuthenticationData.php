@@ -15,7 +15,7 @@ class AdminAuthenticationData extends FullAuthenticationData{
 		$full = new BooleanDatum("full_admin_login");
 		$admintime = new BooleanDatum("admintime");
 		parent::declareColumns($columns, $ds);
-		static::pushTemporaryColumnsStatic($columns, $full, $admintime);
+		array_push($columns, $full, $admintime);
 	}
 
 	public function getAdminSessionFlag(){

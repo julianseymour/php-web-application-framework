@@ -2,7 +2,6 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
-
 use function JulianSeymour\PHPWebApplicationFramework\is_abstract;
 use JulianSeymour\PHPWebApplicationFramework\core\ClassResolver;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -12,9 +11,9 @@ abstract class IntersectionTableResolver extends ClassResolver{
 
 	public abstract static function getIntersections();
 
-	public static function resolveClass($datum){
+	public static function resolveClass(Datum $datum):string{
 		$f = __METHOD__;
-		$name = $datum->getColumnName();
+		$name = $datum->getName();
 		$print = false;
 		if ($print) {
 			Debug::print("{$f} about to resolve foreign data structure class of column \"{$name}\"");
@@ -38,7 +37,7 @@ abstract class IntersectionTableResolver extends ClassResolver{
 		return static::resolveForeignDataStructureClass($type_hint, $subtype);
 	}
 
-	public static function resolveForeignDataStructureClass($type_hint, $subtype){
+	public static function resolveForeignDataStructureClass($type_hint, $subtype):string{
 		$f = __METHOD__;
 		$print = false;
 		if (empty($type_hint)) {
@@ -70,11 +69,10 @@ abstract class IntersectionTableResolver extends ClassResolver{
 		return $intersections[$type_hint][$subtype];
 	}
 
-	private static function generateIntersectionData($type_hint, $subtype, $datum)
-	{
+	private static function generateIntersectionData($type_hint, $subtype, $datum):IntersectionData{
 		$f = __METHOD__;
 		$print = false;
-		$name = $datum->getColumnName();
+		$name = $datum->getName();
 		$fdsc = static::resolveForeignDataStructureClass($type_hint, $subtype);
 		if (! class_exists($fdsc)) {
 			Debug::error("{$f} foreign class \"{$fdsc}\" does not exist");
@@ -91,12 +89,11 @@ abstract class IntersectionTableResolver extends ClassResolver{
 		} elseif ($print) {
 			Debug::print("{$f} about to create intersection data for column \"{$name}\" with host class \"{$hdsc}\" and foreign class \"{$fdsc}\"");
 		}
-		$intersection = new IntersectionData($hdsc, $fdsc, $name); // , $datum->getCriticalFlag());
+		$intersection = new IntersectionData($hdsc, $fdsc, $name);
 		return $intersection;
 	}
 
-	public static function getAllPossibleIntersectionClasses()
-	{
+	public static function getAllPossibleIntersectionClasses():?array{
 		$classes = [];
 		foreach (static::getIntersections() as $arr) {
 			if (is_string($arr)) {
@@ -110,8 +107,7 @@ abstract class IntersectionTableResolver extends ClassResolver{
 		return $classes;
 	}
 
-	public static function getAllPossibleIntersectionData(?Datum $datum = null)
-	{
+	public static function getAllPossibleIntersectionData(?Datum $datum = null):?array{
 		$f = __METHOD__;
 		$print = false;
 		$intersections = [];

@@ -1,23 +1,20 @@
 <?php
-namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
+namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 
-class DoubleDatum extends FloatingPointDatum
-{
+class DoubleDatum extends FloatingPointDatum{
 
-	public function getColumnTypeString(): string
-	{
+	public function getColumnTypeString(): string{
 		return "double";
 	}
 
-	public function cast($v)
-	{
-		$f = __METHOD__; //DoubleDatum::getShortClass()."(".static::getShortClass().")->cast()";
-		$cn = $this->getColumnName();
+	public function cast($v){
+		$f = __METHOD__;
+		$cn = $this->getName();
 		$print = false;
 		if (is_string($v) && $this->hasApoptoticSignal() && $this->getApoptoticSignal() === $v) {
 			if ($print) {
@@ -42,13 +39,11 @@ class DoubleDatum extends FloatingPointDatum
 		return doubleval($v);
 	}
 
-	public static function validateStatic($value): int
-	{
+	public static function validateStatic($value): int{
 		return is_float($value) || is_int($value) ? SUCCESS : FAILURE;
 	}
 
-	public function parseValueFromQueryResult($v)
-	{
+	public function parseValueFromQueryResult($v){
 		$f = __METHOD__;
 		try {
 			if ($v === null) {
@@ -60,8 +55,7 @@ class DoubleDatum extends FloatingPointDatum
 		}
 	}
 
-	public static function parseString(string $v)
-	{
+	public static function parseString(string $v){
 		return doubleval($v);
 	}
 }

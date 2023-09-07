@@ -13,9 +13,13 @@ use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentia
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\security\access\UserFingerprint;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class PushSubscriptionData extends UserFingerprint{
+class PushSubscriptionData extends UserFingerprint implements StaticTableNameInterface{
 
+	use StaticTableNameTrait;
+	
 	protected $minishlinkSubscription = null;
 
 	public function enqueueRemoteBackup($mysqli){
@@ -130,7 +134,7 @@ class PushSubscriptionData extends UserFingerprint{
 		$endpoint = new TextDatum("endpoint");
 		$p256dh = new TextDatum("p256dh");
 		$push_auth = new TextDatum("auth");
-		static::pushTemporaryColumnsStatic($columns, $endpoint, $p256dh, $push_auth);
+		array_push($columns, $endpoint, $p256dh, $push_auth);
 	}
 
 	public function sendPushNotification(string $json){

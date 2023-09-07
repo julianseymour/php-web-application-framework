@@ -16,10 +16,6 @@ class DeletedObject extends Basic{
 		return true;
 	}
 	
-	public static function getMessagePreview():string{
-		return _("New conversation");
-	}
-	
 	public function hasIdentifierValue(){
 		return false;
 	}

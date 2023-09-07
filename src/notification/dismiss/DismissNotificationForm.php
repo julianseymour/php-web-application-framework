@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\dismiss;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -11,41 +12,35 @@ use JulianSeymour\PHPWebApplicationFramework\notification\RetrospectiveNotificat
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateElementInterface;
 use Exception;
 
-class DismissNotificationForm extends AjaxForm implements TemplateElementInterface
-{
+class DismissNotificationForm extends AjaxForm implements TemplateElementInterface{
 
-	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
-	{
+	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		parent::__construct($mode, $context);
 		$this->addClassAttribute("notification_dismiss");
 	}
 
-	public static function isTemplateworthy(): bool
-	{
+	public static function isTemplateworthy(): bool{
 		return true;
 	}
 
-	public function bindContext($context)
-	{
-		$key = new GetColumnValueCommand($context, $context->getIdentifierName()); // $context->getIdentifierValueCommand();
+	public function bindContext($context){
+		$key = new GetColumnValueCommand($context, $context->getIdentifierName());
 		$this->setIdAttribute(new ConcatenateCommand("dismiss-", $key));
 		$this->setAttribute('uniqueKey', $key);
-		$this->setAttribute("note_type", new GetColumnValueCommand($context, "notificationType")); // $context->getColumnValueCommand("notificationType"));
+		$this->setAttribute("note_type", new GetColumnValueCommand($context, "subtype"));
 		$context = parent::bindContext($context);
 		return $context;
 	}
 
-	public static function getMethodAttributeStatic(): ?string
-	{
+	public static function getMethodAttributeStatic(): ?string{
 		return HTTP_REQUEST_METHOD_POST;
 	}
 
-	public function getFormDataIndices(): ?array
-	{
-		$f = __METHOD__; //DismissNotificationForm::getShortClass()."(".static::getShortClass().")->getFormDataIndices()";
+	public function getFormDataIndices(): ?array{
+		$f = __METHOD__;
 		try {
 			$indices = [
-				'notificationType' => HiddenInput::class,
+				'subtype' => HiddenInput::class,
 				NotificationData::getIdentifierNameStatic() => HiddenInput::class
 			];
 			$context = $this->getContext();
@@ -58,8 +53,7 @@ class DismissNotificationForm extends AjaxForm implements TemplateElementInterfa
 		}
 	}
 
-	public static function getErrorCallbackStatic(): ?string
-	{
+	public static function getErrorCallbackStatic(): ?string{
 		return "NotificationData.restoreDismissedNotification";
 	}
 

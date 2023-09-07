@@ -16,7 +16,7 @@ use Exception;
 
 class NormalUser extends AuthenticatedUser{
 
-	public static function getAccountTypeStatic(){
+	public static function getAccountTypeStatic():string{
 		return ACCOUNT_TYPE_USER;
 	}
 
@@ -91,7 +91,7 @@ class NormalUser extends AuthenticatedUser{
 				KYC_REVOKED
 			];
 			$kyc->setValidEnumerationMap($map);
-			static::pushTemporaryColumnsStatic($columns, $kyc, $active_t);
+			array_push($columns, $kyc, $active_t);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
@@ -103,13 +103,6 @@ class NormalUser extends AuthenticatedUser{
 
 	public function getAccountType():string{
 		return static::getAccountTypeStatic();
-		$f = __METHOD__;
-		$type = $this->getColumnValue("accountType");
-		if (! is_string($type)) {
-			$decl = $this->getDeclarationLine();
-			Debug::error("{$f} invalid non-string account type \"{$type}\"; this object was created on {$decl}");
-		}
-		return $this->getColumnValue("accountType");
 	}
 
 	public static function getPrettyClassName():string{

@@ -158,7 +158,7 @@ class FullAuthenticationData extends AuthenticationData{
 		$previousLoginMode = new UnsignedIntegerDatum("previousLoginMode", 8);
 		$previousLoginMode->volatilize();
 		parent::declareColumns($columns, $ds);
-		static::pushTemporaryColumnsStatic($columns, $full, $previousLoginMode);
+		array_push($columns, $full, $previousLoginMode);
 	}
 
 	public static function getSignatureColumnName():string{

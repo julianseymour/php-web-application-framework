@@ -30,7 +30,7 @@ abstract class CodeConfirmationAttempt extends AccessAttempt{
 			$confirmationCodeKey->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 			$confirmationCodeKey->setOnUpdate(REFERENCE_OPTION_CASCADE);
 			$confirmationCodeKey->setOnDelete(REFERENCE_OPTION_SET_NULL);
-			static::pushTemporaryColumnsStatic($columns, $confirmationCodeKey);
+			array_push($columns, $confirmationCodeKey);
 		} catch (Exception $x) {
 			x($f, $x);
 		}

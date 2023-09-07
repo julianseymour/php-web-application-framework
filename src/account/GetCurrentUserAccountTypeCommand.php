@@ -16,7 +16,7 @@ class GetCurrentUserAccountTypeCommand extends Command implements JavaScriptInte
 
 	public static function getCommandId(): string
 	{
-		return "accountType";
+		return "subtype";
 	}
 
 	public function evaluate(?array $params = null)

@@ -5,7 +5,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\script;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\DeclareVariableCommand;
 
-class JavaScriptConstantsUseCase extends JavaScriptFileUseCase{
+class JavaScriptConstantsUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
 		foreach(mods()->getClientConstants() as $name => $value){

@@ -1,6 +1,6 @@
 <?php
-namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
+namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -8,24 +8,27 @@ use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\query\OrderByClause;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateContextInterface;
 use Exception;
+use mysqli;
 
 class RetrospectiveNotificationData extends NotificationData implements StaticElementClassInterface, TemplateContextInterface{
+	
+	use SubtypeColumnTrait;
 	
 	public function getMessageBox(){
 		return $this->getSubjectData()->getMessageBox();
 	}
 
-	public function getSubjectClass(){
-		return $this->getColumn("subjectKey")->getForeignDataStructureClass(); // getTypedNotificationClass()::getSubjectClassStatic($this);
+	public function getSubjectClass():string{
+		return $this->getColumn("subjectKey")->getForeignDataStructureClass();
 	}
 
 	public function getArrayMembershipConfiguration($config_id): ?array{
-		// $f = __METHOD__; //RetrospectiveNotificationData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
 		$config = parent::getArrayMembershipConfiguration($config_id);
 		switch ($config_id) {
 			case "default":
@@ -39,15 +42,6 @@ class RetrospectiveNotificationData extends NotificationData implements StaticEl
 		}
 	}
 
-	public function hasSubtypeValue(): bool{
-		return true; // XXX TODO this is fucking up something in DataStructure::declareColumns
-		return $this->getNotificationType();
-	}
-
-	public function getSubtypeValue(): string{
-		return $this->getNotificationType();
-	}
-
 	public function getNotificationTypeString(){
 		return $this->getTypedNotificationClass()::getNotificationTypeString(null);
 	}
@@ -56,9 +50,8 @@ class RetrospectiveNotificationData extends NotificationData implements StaticEl
 		return NOTIFICATION_STATE_DISMISSED;
 	}
 
-	public function dismiss($mysqli)
-	{
-		$f = __METHOD__; //RetrospectiveNotificationData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function dismiss(mysqli $mysqli){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -80,14 +73,12 @@ class RetrospectiveNotificationData extends NotificationData implements StaticEl
 		}
 	}
 
-	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string
-	{
+	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string{
 		return $that->getTypedNotificationClass()::getElementClassStatic($that);
 	}
 
-	public function getTypedNotificationClass()
-	{
-		$f = __METHOD__; //RetrospectiveNotificationData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
+	public function getTypedNotificationClass():string{
+		$f = __METHOD__;
 		$type = $this->getNotificationType();
 		if (! is_string($type)) {
 			$key = $this->hasIdentifierValue() ? $this->getIdentifierValue() : "[undefined]";
@@ -97,14 +88,12 @@ class RetrospectiveNotificationData extends NotificationData implements StaticEl
 		return mods()->getTypedNotificationClass($type);
 	}
 
-	public static function getRecentNotificationSelectStatement()
-	{
+	public static function getRecentNotificationSelectStatement(){
 		return RetrospectiveNotificationData::selectStatic()->where(new AndCommand(RetrospectiveNotificationData::whereIntersectionalHostKey(user()->getClass(), "userKey"), new WhereCondition("updatedTimestamp", OPERATOR_GREATERTHAN)))
 			->orderBy(new OrderByClause("pinnedTimestamp", DIRECTION_DESCENDING), new OrderByClause("updatedTimestamp", DIRECTION_DESCENDING), new OrderByClause("insertTimestamp", DIRECTION_DESCENDING));
 	}
 
-	public function template()
-	{
+	public function template(){
 		$this->setNotificationType(NOTIFICATION_TYPE_TEMPLATE);
 	}
 }

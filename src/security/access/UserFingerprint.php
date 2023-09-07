@@ -198,7 +198,7 @@ abstract class UserFingerprint extends UserOwned
 			BECAUSE_REFUND
 		]);
 		$reasonLoggedString = new VirtualDatum("reasonLoggedString");
-		static::pushTemporaryColumnsStatic($columns, $user_agent, $reason, $reasonLoggedString);
+		array_push($columns, $user_agent, $reason, $reasonLoggedString);
 	}
 
 	public function getReasonLogged(){

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -7,20 +8,17 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
 use Exception;
 
-trait KeypairColumnsTrait
-{
+trait KeypairColumnsTrait{
 
 	use KeypairedTrait;
 	use MultipleColumnDefiningTrait;
 
-	public function hasPublicKey()
-	{
+	public function hasPublicKey():bool{
 		return $this->hasColumnValue("publicKey");
 	}
 
-	public function getPublicKey()
-	{
-		$f = __METHOD__; //"KeypairColumnsTrait(".static::getShortClass().")::getPublicKey()";
+	public function getPublicKey():string{
+		$f = __METHOD__;
 		try {
 			$pk = $this->getColumnValue('publicKey');
 			if (! isset($pk)) {
@@ -32,9 +30,8 @@ trait KeypairColumnsTrait
 		}
 	}
 
-	public function setPublicKey($key)
-	{
-		$f = __METHOD__; //"KeypairColumnsTrait(".static::getShortClass().")->setPublicKey()";
+	public function setPublicKey(string $key):string{
+		$f = __METHOD__;
 		try {
 			$status = SodiumCryptoBoxPublicKeyDatum::validateStatic($key);
 			if ($status !== SUCCESS) {
@@ -48,14 +45,12 @@ trait KeypairColumnsTrait
 		}
 	}
 
-	public function setPrivateKey($privateKey)
-	{
+	public function setPrivateKey(string $privateKey):string{
 		return $this->setColumnValue('privateKey', $privateKey);
 	}
 
-	public function getPrivateKey()
-	{
-		$f = __METHOD__; //"KeypairColumnsTrait(".static::getShortClass().")->getPrivateKey()";
+	public function getPrivateKey():?string{
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			$pk = $this->getColumnValue("privateKey");
@@ -67,8 +62,7 @@ trait KeypairColumnsTrait
 		return $this->getColumnValue("privateKey");
 	}
 
-	public function hasPrivateKey()
-	{
+	public function hasPrivateKey():bool{
 		return $this->hasColumnValue("privateKey");
 	}
 }

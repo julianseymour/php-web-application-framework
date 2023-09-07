@@ -22,10 +22,6 @@ use Exception;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 
 class SessionRecoveryCookie extends DataStructure{
-
-	public static function getDatabaseNameStatic():string{
-		return "user_content";
-	}
 	
 	public static function getDataType(): string{
 		return DATATYPE_UNKNOWN;
@@ -107,7 +103,7 @@ class SessionRecoveryCookie extends DataStructure{
 	public function recoverSession():?PlayableUser{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			if (! isset($mysqli)) {
 				$err = ErrorMessage::getResultMessage(ERROR_MYSQL_CONNECT);
@@ -142,6 +138,8 @@ class SessionRecoveryCookie extends DataStructure{
 				$result->free_result();
 				Debug::warning("{$f} {$user_class} with key \"{$user_key}\" count is {$count}");
 				return null;
+			}elseif($print){
+				Debug::print("{$f} successfully loded user with key {$user_key}");
 			}
 			$results = $result->fetch_all(MYSQLI_ASSOC)[0];
 			$result->free_result();
@@ -159,6 +157,9 @@ class SessionRecoveryCookie extends DataStructure{
 				$user->setObjectStatus($status);
 				return null;
 			} elseif (cache()->enabled() && USER_CACHE_ENABLED) {
+				if($print){
+					Debug::print("{$f} user cache is enabled, setting user cache value now");
+				}
 				$columns = $user->getFilteredColumns(COLUMN_FILTER_DIRTY_CACHE);
 				if (! empty($columns)) {
 					foreach ($columns as $column_name => $column) {
@@ -223,20 +224,18 @@ class SessionRecoveryCookie extends DataStructure{
 		}
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$cookie_secret = new Base64Datum(static::getCookieSecretColumnName());
 		$cookie_secret->setNullable(true);
 		$recovery_key = new ForeignKeyDatum(static::getRecoveryKeyColumnName());
 		$recovery_key->setNullable(true);
 		$recovery_key->setForeignDataStructureClass(SessionRecoveryData::class);
 		$recovery_key->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_ONE);
-		static::pushTemporaryColumnsStatic($columns, $cookie_secret, $recovery_key);
+		array_push($columns, $cookie_secret, $recovery_key);
 	}
 
-	public function deleteSession()
-	{
-		$f = __METHOD__; //SessionRecoveryCookie::getShortClass()."(".static::getShortClass().")->deleteSession()";
+	public function deleteSession(){
+		$f = __METHOD__;
 		$recovery_key = $this->getRecoveryKey();
 		$recovery_data = new SessionRecoveryData();
 		$recovery_data->setSessionRecoveryCookie($this);
@@ -272,11 +271,6 @@ class SessionRecoveryCookie extends DataStructure{
 		$this->ejectColumnValue($this->getRecoveryKeyColumnName());
 		$this->ejectColumnValue($this->getCookieSecretColumnName());
 		return SUCCESS;
-	}
-
-	public static function getTableNameStatic(): string{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
 	}
 
 	public static function getPhylumName(): string{

@@ -86,7 +86,7 @@ class MfaOtpValidator extends Validator{
 				return $this->getSpecialFailureStatus();
 			}
 			// $mfa_seed = $user->getMfaSeed();
-			$verify = $user->getColumn("mfaSeed")->verifyOTP($otp);
+			$verify = $user->getColumn("MFASeed")->verifyOTP($otp);
 			if ($verify) {
 				if ($print) {
 					Debug::print("{$f} MFA OTP verification successful");

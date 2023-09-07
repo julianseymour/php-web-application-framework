@@ -1,31 +1,26 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
-class UnsignedIntegerDatum extends IntegerDatum
-{
+class UnsignedIntegerDatum extends IntegerDatum{
 
-	public static function validateStatic($value): int
-	{
+	public static function validateStatic($value): int{
 		return parent::validateStatic($value) === SUCCESS ? ($value >= 0 ? SUCCESS : FAILURE) : FAILURE;
 	}
 
-	public function isUnsigned()
-	{
+	public function isUnsigned():bool{
 		return true;
 	}
 
-	public function setUnsigned($value)
-	{
+	public function setUnsigned(bool $value=true):bool{
 		return $value;
 	}
 
-	public function hasMinimumValue()
-	{
+	public function hasMinimumValue():bool{
 		return true;
 	}
 
-	public function getMinimumValue()
-	{
+	public function getMinimumValue():int{
 		if (! isset($this->minimumValue)) {
 			return 0;
 		}

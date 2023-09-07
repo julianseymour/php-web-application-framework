@@ -156,6 +156,6 @@ abstract class UserCorrespondence extends UserFingerprint implements JavaScriptC
 		$bundle->constrain();
 		// $bundle->setAutoloadFlag(true);
 		$recent = new VirtualDatum("recent");
-		static::pushTemporaryColumnsStatic($columns, $bundle, $recent);
+		array_push($columns, $bundle, $recent);
 	}
 }

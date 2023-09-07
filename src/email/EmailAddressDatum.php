@@ -9,14 +9,8 @@ use Exception;
 
 class EmailAddressDatum extends TextDatum implements StaticHumanReadableNameInterface{
 
-	public static function getColumnNameStatic(){
-		return "emailAddress";
-	}
 
-	public function __construct($name = null){
-		if (empty($name)) {
-			$name = static::getColumnNameStatic();
-		}
+	public function __construct(string $name){
 		parent::__construct($name);
 		$this->setRegularExpression(REGEX_EMAIL_ADDRESS);
 		$this->setMaximumLength(254);

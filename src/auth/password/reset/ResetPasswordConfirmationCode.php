@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password\reset;
 
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
@@ -10,18 +11,15 @@ use JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\AnonymousConfirma
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 
-class ResetPasswordConfirmationCode extends AnonymousConfirmationCode
-{
+class ResetPasswordConfirmationCode extends AnonymousConfirmationCode{
 
 	protected static $requestTimeoutDuration = 300;
 
-	public function setName($name)
-	{
+	public function setName(string $name):string{
 		return $name;
 	}
 
-	public static function getSentEmailStatus()
-	{
+	public static function getSentEmailStatus():int{
 		return RESULT_RESET_SUBMIT;
 	}
 
@@ -58,7 +56,7 @@ class ResetPasswordConfirmationCode extends AnonymousConfirmationCode
 		}
 	}
 
-	public function setEmailAddress($email){
+	public function setEmailAddress(string $email):string{
 		return $email;
 	}
 
@@ -66,20 +64,19 @@ class ResetPasswordConfirmationCode extends AnonymousConfirmationCode
 		return true;
 	}
 
-	public static function getConfirmationUriStatic($suffix)
-	{
+	public static function getConfirmationUriStatic(string $suffix):string{
 		return WEBSITE_URL . "/reset/{$suffix}";
 	}
 
-	public static function getEmailNotificationClass():string{
+	public static function getEmailNotificationClass():?string{
 		return ResetPasswordEmail::class;
 	}
 
-	public static function getConfirmationCodeTypeStatic(){
+	public static function getSubtypeStatic():string{
 		return ACCESS_TYPE_RESET;
 	}
 
-	public static function getReasonLoggedStatic(){
+	public static function getReasonLoggedStatic():string{
 		return BECAUSE_RESET;
 	}
 

@@ -9,13 +9,16 @@ use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\SignedIntegerDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\KeyListDatum;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class AccessControlListData extends DataStructure{
+class AccessControlListData extends DataStructure implements StaticTableNameInterface{
 
 	use NameColumnTrait;
 	use ParentKeyColumnTrait;
 	use PriorityColumnTrait;
-
+	use StaticTableNameTrait;
+	
 	public static function getDatabaseNameStatic():string{
 		return "security";
 	}
@@ -31,7 +34,7 @@ class AccessControlListData extends DataStructure{
 		$parent = new ForeignKeyDatum("parentKey");
 		$parent->setForeignDataStructureClass(static::class);
 		$parent->setNullable(true);
-		static::pushTemporaryColumnsStatic($columns, $name, $parent, $priority, $permissions);
+		array_push($columns, $name, $parent, $priority, $permissions);
 	}
 
 	public static function getPrettyClassName():string{

@@ -1,7 +1,7 @@
 class NotificationData extends UserCorrespondence{
 	
 	getNotificationType(){
-		return this.notificationType;
+		return this.subtype;
 	}
 	
 	hasPinnedTimestamp(){
@@ -309,7 +309,7 @@ class NotificationData extends UserCorrespondence{
 		try{
 			note_data.setColumnValue("widget", "notifications");
 			return getApplicationClass()
-			.getTypedNotificationClass(note_data.notificationType)
+			.getTypedNotificationClass(note_data.subtype)
 			.bindNotificationElement(note_data);
 		}catch(x){
 			return error(f, x);

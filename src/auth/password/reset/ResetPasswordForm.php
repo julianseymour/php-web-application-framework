@@ -25,6 +25,9 @@ class ResetPasswordForm extends ConfirmationCodeForm implements PasswordGenerati
 
 	protected function attachInputValidators(InputInterface $input): InputInterface{
 		$f = __METHOD__;
+		if(!$input->hasColumnName()){
+			return $input;
+		}
 		$cn = $input->getColumnName();
 		switch ($cn) {
 			case "name":

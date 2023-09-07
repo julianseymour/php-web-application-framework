@@ -19,10 +19,10 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 		parent::declareColumns($columns, $ds);
 		$newEmailAddress = new EmailAddressDatum("newEmailAddress");
 		$newEmailAddress->volatilize();
-		static::pushTemporaryColumnsStatic($columns, $newEmailAddress);
+		array_push($columns, $newEmailAddress);
 	}
 
-	public static function getSentEmailStatus(){
+	public static function getSentEmailStatus():int{
 		return RESULT_CHANGEMAIL_SUBMIT;
 	}
 
@@ -36,7 +36,7 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 		return $arr;
 	}
 
-	public function hasNewEmailAddress(){
+	public function hasNewEmailAddress():bool{
 		return $this->hasColumnValue("newEmailAddress");
 	}
 
@@ -119,19 +119,19 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 		return false;
 	}
 
-	public static function getConfirmationUriStatic($suffix){
+	public static function getConfirmationUriStatic(string $suffix):string{
 		return WEBSITE_URL . "/confirm_email/{$suffix}";
 	}
 
-	public static function getEmailNotificationClass():string{
+	public static function getEmailNotificationClass():?string{
 		return ChangeEmailAddressEmail::class;
 	}
 
-	public static function getConfirmationCodeTypeStatic(){
+	public static function getSubtypeStatic():string{
 		return ACCESS_TYPE_CHANGE_EMAIL;
 	}
 
-	public static function getReasonLoggedStatic(){
+	public static function getReasonLoggedStatic():string{
 		return BECAUSE_CHANGE_EMAIL;
 	}
 

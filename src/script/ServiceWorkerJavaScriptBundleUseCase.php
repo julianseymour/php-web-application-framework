@@ -2,7 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\script;
 
-class ServiceWorkerJavaScriptBundleUseCase extends JavaScriptFileUseCase{
+class ServiceWorkerJavaScriptBundleUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
 		$files = [

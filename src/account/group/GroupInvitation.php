@@ -9,12 +9,15 @@ use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\AsymmetricEncryptionS
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\BlobDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class GroupInvitation extends UserOwned{
+class GroupInvitation extends UserOwned implements StaticTableNameInterface{
 
 	use GroupKeyColumnTrait;
 	use KeypairColumnsTrait;
-
+	use StaticTableNameTrait;
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$group = new ForeignMetadataBundle("group", $ds);
@@ -27,8 +30,7 @@ class GroupInvitation extends UserOwned{
 		$groupPrivateKey->setSensitiveFlag(true);
 		$groupPrivateKey->setNeverLeaveServer(true);
 		$groupPrivateKey->setNullable(true); // false);
-
-		static::pushTemporaryColumnsStatic($columns, $group, $groupPrivateKey);
+		array_push($columns, $group, $groupPrivateKey);
 	}
 
 	public static function getPrettyClassName():string{

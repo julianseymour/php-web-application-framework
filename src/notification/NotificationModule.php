@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
@@ -6,18 +7,15 @@ use JulianSeymour\PHPWebApplicationFramework\app\EmptyModule;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use JulianSeymour\PHPWebApplicationFramework\notification\ui\NotificationsWidget;
 
-class NotificationModule extends EmptyModule
-{
+class NotificationModule extends EmptyModule{
 
-	public function getWidgetClasses(): ?array
-	{
+	public function getWidgetClasses(): ?array{
 		return [
 			\JulianSeymour\PHPWebApplicationFramework\notification\ui\NotificationsWidget::class
 		];
 	}
 
-	public function getClientRenderedFormClasses(): ?array
-	{
+	public function getClientRenderedFormClasses(): ?array{
 		return [
 			\JulianSeymour\PHPWebApplicationFramework\notification\dismiss\DismissNotificationForm::class,
 			\JulianSeymour\PHPWebApplicationFramework\notification\pin\PinNotificationForm::class,
@@ -25,8 +23,7 @@ class NotificationModule extends EmptyModule
 		];
 	}
 
-	public function getTemplateElementClasses(): ?array
-	{
+	public function getTemplateElementClasses(): ?array{
 		return [
 			\JulianSeymour\PHPWebApplicationFramework\notification\dismiss\DismissNotificationForm::class,
 			\JulianSeymour\PHPWebApplicationFramework\notification\ui\NotificationOptionsElement::class,
@@ -36,15 +33,13 @@ class NotificationModule extends EmptyModule
 		];
 	}
 
-	public function getFormDataSubmissionClasses(): ?array
-	{
+	public function getFormDataSubmissionClasses(): ?array{
 		return [
 			\JulianSeymour\PHPWebApplicationFramework\notification\dismiss\DismissNotificationForm::class
 		];
 	}
 
-	public function getUseCaseDictionary(): ?array
-	{
+	public function getUseCaseDictionary(): ?array{
 		return [
 			"dismiss" => \JulianSeymour\PHPWebApplicationFramework\notification\dismiss\DismissNotificationUseCase::class,
 			"dismiss_all" => \JulianSeymour\PHPWebApplicationFramework\notification\dismiss\DismissAllNotificationsUseCase::class,
@@ -57,8 +52,7 @@ class NotificationModule extends EmptyModule
 		];
 	}
 
-	public function getJavaScriptFilePaths(): ?array
-	{
+	public function getJavaScriptFilePaths(): ?array{
 		return [
 			FRAMEWORK_INSTALL_DIRECTORY . "/notification/ui/NotificationsWidget.js",
 			//FRAMEWORK_INSTALL_DIRECTORY . "/notification/push/push.js",
@@ -67,24 +61,21 @@ class NotificationModule extends EmptyModule
 		];
 	}
 
-	public function getClientUseCaseDictionary(): ?array
-	{
+	public function getClientUseCaseDictionary(): ?array{
 		return [
 			"dismiss_all" => "DismissAllNotificationsUseCase",
 			"notifications" => "NotificationsUseCase"
 		];
 	}
 
-	public function getInvokeableJavaScriptFunctions(): ?array
-	{
+	public function getInvokeableJavaScriptFunctions(): ?array{
 		return [
 			"beep" => "playNotificationSound",
 			"playNotificationSound" => "playNotificationSound"
 		];
 	}
 
-	public function getMessageEventHandlerCases(): ?array
-	{
+	public function getMessageEventHandlerCases(): ?array{
 		$break = CommandBuilder::break();
 		// $info = new JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand("response.info");
 		return [
@@ -95,18 +86,20 @@ class NotificationModule extends EmptyModule
 		];
 	}
 
-	public function getPollingUseCaseClasses(): ?array
-	{
+	public function getPollingUseCaseClasses(): ?array{
 		return [
 			\JulianSeymour\PHPWebApplicationFramework\notification\recent\RecentNotificationsUseCase::class
 		];
 	}
 	
-	public function getCascadingStyleSheetFilePaths(): ?array
-	{
+	public function getCascadingStyleSheetFilePaths(): ?array{
 		return [
 			FRAMEWORK_INSTALL_DIRECTORY . "/notification/style-notif.css",
 			\JulianSeymour\PHPWebApplicationFramework\notification\ui\NotificationsWidget::getStyleSheetPath()
 		];
+	}
+	
+	public function getEmbedName():string{
+		return "notification";
 	}
 }

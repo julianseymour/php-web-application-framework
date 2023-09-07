@@ -15,7 +15,8 @@ define("DATATYPE_SEARCH_QUERY", "searchQuery");
 define("DATATYPE_LINKCOUNTER", "throttleMeter"); // stores custom thresholds for throttling end users' access to database
 define("DATATYPE_1ST_PARTY_SERVER_KEYPAIR", "1stPartyServer"); // public key for communicating between web and backup servers
 define("DATATYPE_ADDRESS", "address");
-define("DATATYPE_STRING", "string");
+define("DATATYPE_STRING_MULTILINGUAL", "multilingualString");
+define("DATATYPE_STRING_TRANSLATED", "string");
 define("DATATYPE_SEARCH_FIELDS", "searchFields");
 define("DATATYPE_INTERSECTION", "intersection");
 define("DATATYPE_DATABASE_USER_ROLE", "databaseUserOrRole");

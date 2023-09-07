@@ -7,9 +7,13 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\DoubleDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TimestampDatum;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateContextInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameTrait;
 
-class GeolocationPositionData extends UserOwned implements TemplateContextInterface{
+class GeolocationPositionData extends UserOwned implements StaticTableNameInterface, TemplateContextInterface{
 
+	use StaticDatabaseNameTrait;
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$accuracy = new DoubleDatum("accuracy");
@@ -20,7 +24,7 @@ class GeolocationPositionData extends UserOwned implements TemplateContextInterf
 		$longitude = new DoubleDatum("longitude");
 		$speed = new DoubleDatum("speed");
 		$timestamp = new TimestampDatum("timestamp");
-		static::pushTemporaryColumnsStatic(
+		array_push(
 			$columns, 
 			$accuracy, 
 			$altitude, 

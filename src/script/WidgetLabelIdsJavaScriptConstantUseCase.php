@@ -7,7 +7,7 @@ use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use Exception;
 
-class WidgetLabelIdsJavaScriptConstantUseCase extends JavaScriptFileUseCase{
+class WidgetLabelIdsJavaScriptConstantUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
 		$f = __METHOD__;

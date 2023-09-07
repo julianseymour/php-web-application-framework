@@ -1,13 +1,11 @@
 <?php
-namespace JulianSeymour\PHPWebApplicationFramework\common;
 
+namespace JulianSeymour\PHPWebApplicationFramework\common;
 
 use function JulianSeymour\PHPWebApplicationFramework\is_associative;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
-use JulianSeymour\PHPWebApplicationFramework\image\ImageData;
 
-trait FlagBearingTrait
-{
+trait FlagBearingTrait{
 
 	/**
 	 * variable for packing binary flags into a single integer to save space
@@ -30,9 +28,8 @@ trait FlagBearingTrait
 	 */
 	public abstract static function declareFlags();
 
-	private static function getBinaryFlag(string $name)
-	{
-		$f = __METHOD__; //"FlagBearingTrait(".static::getShortClass().")::getBinaryFlag()";
+	private static function getBinaryFlag(string $name){
+		$f = __METHOD__;
 		$print = false;
 		$declarations = static::declareFlags();
 		$exp = array_search($name, $declarations);
@@ -48,9 +45,8 @@ trait FlagBearingTrait
 		return pow(2, $exp);
 	}
 
-	public function clearFlags()
-	{
-		$f = __METHOD__; //f(FlagBearingTrait::class);
+	public function clearFlags(){
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			foreach (static::declareFlags() as $flag) {
@@ -149,7 +145,7 @@ trait FlagBearingTrait
 		if ($binary < 0) {
 			return $this->setUndeclaredFlag($name, $value);
 		}
-		if (! isset($this->flags) || ! is_int($this->flags)) {
+		if(! isset($this->flags) || ! is_int($this->flags)){
 			$this->flags = 0;
 		}
 		if ($print) {
@@ -165,24 +161,21 @@ trait FlagBearingTrait
 			}
 			return true;
 		}
-		$this->flags = $this->flags & ~ $binary;
+		$this->flags = $this->flags & ~$binary;
 		return false;
 	}
 
-	public function hasFlags(): bool
-	{
+	public function hasFlags(): bool{
 		return isset($this->flags) && is_int($this->flags) && $this->flags > 0;
 	}
 
-	public function withFlag(string $name, bool $value = true): object
-	{
+	public function withFlag(string $name, bool $value = true): object{
 		$this->setFlag($name, $value);
 		return $this;
 	}
 
-	public function withFlags(array $keyvalues): object
-	{
-		$f = __METHOD__; //"FlagBearingTrait(".static::getShortClass().")->withFlags()";
+	public function withFlags(array $keyvalues): object{
+		$f = __METHOD__;
 		if (is_array($keyvalues) && ! empty($keyvalues) && is_associative($keyvalues)) {
 			foreach ($keyvalues as $key => $value) {
 				$this->setFlag($key, $value);

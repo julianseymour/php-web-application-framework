@@ -173,9 +173,9 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 	public static function getHoneypotCountArray(): ?array{
 		return null;
 		return [
-			EmailAddressDatum::getColumnNameStatic() => 3
-			// NameDatum::getColumnNameStatic() => 3,
-			// PasswordDatum::getColumnNameStatic() => 3,
+			'emailAddress' => 3
+			// 'name' => 3,
+			// 'password' => 3,
 		];
 	}
 
@@ -214,7 +214,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 			switch ($vn) {
 				case "emailAddress":
 					$ret = parent::reconfigureInput($input);
-					$input->getWrapperElement()->setIdAttribute("login_email_container");
+					$input->getWrapperElement()->getWrapperElement()->setIdAttribute("login_email_container");
 					$input->getWrapperElement()->setStyleProperties([
 						"margin-bottom" => "2.5rem"
 					]);
@@ -274,9 +274,9 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 	public function getFormDataIndices(): ?array
 	{
 		return [
-			EmailAddressDatum::getColumnNameStatic() => EmailInput::class,
-			NameDatum::getColumnNameStatic() => TextInput::class,
-			PasswordDatum::getColumnNameStatic() => PasswordInput::class
+			'emailAddress' => EmailInput::class,
+			'name' => TextInput::class,
+			'password' => PasswordInput::class
 		];
 	}
 

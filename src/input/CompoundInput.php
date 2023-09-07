@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -11,8 +12,7 @@ use JulianSeymour\PHPWebApplicationFramework\form\FormTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnNameTrait;
 use JulianSeymour\PHPWebApplicationFramework\validate\MultipleValidatorsTrait;
 
-abstract class CompoundInput extends CompoundElement implements InputInterface
-{
+abstract class CompoundInput extends CompoundElement implements InputInterface{
 
 	use ColumnNameTrait;
 	use FormTrait;
@@ -24,8 +24,7 @@ abstract class CompoundInput extends CompoundElement implements InputInterface
 		return SUCCESS;
 	}
 
-	public function subindexNameAttribute($super_index)
-	{
+	public function subindexNameAttribute($super_index){
 		$f = __METHOD__;
 		$print = false;
 		$components = $this->getComponents();
@@ -44,8 +43,7 @@ abstract class CompoundInput extends CompoundElement implements InputInterface
 		}
 	}
 
-	public function processArray(array $arr): int
-	{
+	public function processArray(array $arr): int{
 		$f = __METHOD__;
 		$print = false;
 		// Debug::printArray($arr);
@@ -60,18 +58,16 @@ abstract class CompoundInput extends CompoundElement implements InputInterface
 		return SUCCESS;
 	}
 
-	public function negotiateValue(Datum $column)
-	{
+	public function negotiateValue(Datum $column){
 		return $this->getValueAttribute();
 	}
 
-	public function bindContext($context)
-	{
+	public function bindContext($context){
 		$f = __METHOD__;
 		$print = false;
 		$ret = parent::bindContext($context);
 		if ($context instanceof Datum) {
-			$cn = $context->getColumnName();
+			$cn = $context->getName();
 			if ($print) {
 				Debug::print("{$f} setting column name to \"{$cn}\"");
 			}

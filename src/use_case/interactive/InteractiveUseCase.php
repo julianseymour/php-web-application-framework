@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\use_case\interactive;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -27,8 +28,7 @@ use JulianSeymour\PHPWebApplicationFramework\validate\ValidatorTrait;
 use Exception;
 use mysqli;
 
-abstract class InteractiveUseCase extends UseCase
-{
+abstract class InteractiveUseCase extends UseCase{
 
 	use ValidatorTrait;
 
@@ -40,17 +40,17 @@ abstract class InteractiveUseCase extends UseCase
 
 	protected $validator;
 
-	public abstract function getDataOperandClass(): ?string;
+	public abstract function getDataOperandClass():?string;
 
-	public abstract function getProcessedDataType(): ?string;
+	public abstract function getProcessedDataType():?string;
 
-	public abstract function getConditionalDataOperandClasses(): ?array;
+	public abstract function getConditionalDataOperandClasses():?array;
 
-	public abstract function getConditionalProcessedFormClasses(): ?array;
+	public abstract function getConditionalProcessedFormClasses():?array;
 
-	public abstract function getConditionalElementClasses(): ?array;
+	public abstract function getConditionalElementClasses():?array;
 
-	public abstract function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object): ?UserData;
+	public abstract function acquireDataOperandOwner(mysqli $mysqli, UserOwned $owned_object):?UserData;
 
 	/**
 	 * mechanism to prevent users from tampering with forms that update their own settings by changing key
@@ -59,14 +59,12 @@ abstract class InteractiveUseCase extends UseCase
 	 */
 	public abstract function isCurrentUserDataOperand(): bool;
 
-	public function hasOriginalOperand(): bool
-	{
+	public function hasOriginalOperand(): bool{
 		return isset($this->originalOperand);
 	}
 
-	public function setOriginalOperand(?DataStructure $struct): ?DataStructure
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->setOriginalDataOperand()";
+	public function setOriginalOperand(?DataStructure $struct): ?DataStructure{
+		$f = __METHOD__;
 		if ($struct === null) {
 			unset($this->originalOperand);
 			return null;
@@ -74,9 +72,8 @@ abstract class InteractiveUseCase extends UseCase
 		return $this->originalOperand = $struct;
 	}
 
-	public function getOriginalOperand(): DataStructure
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getOriginalOperand()";
+	public function getOriginalOperand(): DataStructure{
+		$f = __METHOD__;
 		if (! $this->hasOriginalOperand()) {
 			Debug::error("{$f} original operand is undefined");
 		}
@@ -91,7 +88,7 @@ abstract class InteractiveUseCase extends UseCase
 
 	public function getProcessedFormClass(): ?string{
 		$f = __METHOD__;
-		$print = false;
+		$print = $this->getDebugFlag();
 		$classes = $this->getConditionalProcessedFormClasses();
 		if (empty($classes)) {
 			if ($print) {
@@ -129,14 +126,12 @@ abstract class InteractiveUseCase extends UseCase
 		return $this->processedFormObject = $form;
 	}
 
-	public function hasProcessedFormObject(): bool
-	{
+	public function hasProcessedFormObject(): bool{
 		return ! empty($this->processedFormObject) && $this->processedFormObject instanceof AjaxForm;
 	}
 
-	public function getProcessedFormObject(): AjaxForm
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getProcessedFormObject()";
+	public function getProcessedFormObject(): AjaxForm{
+		$f = __METHOD__;
 		if (! $this->hasProcessedFormObject()) {
 			if ($this->hasPredecessor()) {
 				$predecessor = $this->getPredecessor();
@@ -149,9 +144,8 @@ abstract class InteractiveUseCase extends UseCase
 		return $this->processedFormObject;
 	}
 
-	public function getConditionalDataOperandClass(string $type): string
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getConditionalDataOperandClass()";
+	public function getConditionalDataOperandClass(string $type): string{
+		$f = __METHOD__;
 		try {
 			$classes = $this->getConditionalDataOperandClasses();
 			if (false === array_key_exists($type, $classes)) {
@@ -167,9 +161,8 @@ abstract class InteractiveUseCase extends UseCase
 		return true;
 	}
 
-	public function getConditionalElementClass(string $type): string
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getConditionalElementClass()";
+	public function getConditionalElementClass(string $type): string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -198,7 +191,7 @@ abstract class InteractiveUseCase extends UseCase
 	public function acquireDataOperandObject(mysqli $mysqli): ?DataStructure{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			if ($print) {
 				Debug::print("{$f} entered");
 			}
@@ -246,6 +239,13 @@ abstract class InteractiveUseCase extends UseCase
 							Debug::printArray($_POST);
 						}
 						$ds = new $doc();
+						/*if ($ds instanceof UserOwned) {
+							if ($print) {
+								Debug::print("{$f} {$doc} has a user data");
+							}
+							$owner = $this->acquireDataOperandOwner($mysqli, $ds);
+							$ds->setUserData($owner);
+						}*/
 						$this->reconfigureDataOperand($mysqli, $ds);
 						return $ds;
 					}elseif($print){
@@ -323,14 +323,12 @@ abstract class InteractiveUseCase extends UseCase
 		}
 	}
 
-	protected function reconfigureDataOperand(mysqli $mysqli, DataStructure &$ds): int
-	{
+	protected function reconfigureDataOperand(mysqli $mysqli, DataStructure &$ds): int{
 		return SUCCESS;
 	}
 
-	public function getValidator(): ?Validator
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getValidator()";
+	public function getValidator(): ?Validator{
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasValidator()) {
 			if ($print) {
@@ -365,8 +363,7 @@ abstract class InteractiveUseCase extends UseCase
 		return $this->validator;
 	}
 
-	public function getElementForInsertion(?DataStructure $ds): Element
-	{
+	public function getElementForInsertion(?DataStructure $ds): Element{
 		$datatype = $ds->getDataType();
 		$ciec = $this->getConditionalElementClass($datatype);
 		$ds_element = new $ciec(ALLOCATION_MODE_LAZY);
@@ -374,9 +371,8 @@ abstract class InteractiveUseCase extends UseCase
 		return $ds_element;
 	}
 
-	public function getInsertHereElement(?DataStructure $ds = null)
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getInsertHereElement()";
+	public function getInsertHereElement(?DataStructure $ds = null){
+		$f = __METHOD__;
 		try {
 			$new_object = $this->createDataOperandObject($this);
 			if (isset($ds)) {
@@ -406,7 +402,7 @@ abstract class InteractiveUseCase extends UseCase
 	}
 
 	public function getElementForUpdate(?DataStructure $backup){
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getElementForUpdate()";
+		$f = __METHOD__;
 		$print = false;
 		$updated_object = $this->getDataOperandObject();
 		$type = $updated_object->getDataType();
@@ -435,6 +431,7 @@ abstract class InteractiveUseCase extends UseCase
 	 */
 	protected function generateProcessedForm(): ?AjaxForm{
 		$f = __METHOD__;
+		$print = $this->getDebugFlag();
 		$form_class = $this->getProcessedFormClass();
 		if (empty($form_class)) {
 			Debug::warning("{$f} getProcessedFormClass returned empty string");
@@ -442,6 +439,8 @@ abstract class InteractiveUseCase extends UseCase
 		} elseif (! class_exists($form_class)) {
 			Debug::error("{$f} class \"{$form_class}\" does not exist");
 			return null;
+		}elseif($print){
+			Debug::print("{$f} processed form class is \"{$form_class}\"");
 		}
 		$form = new $form_class(ALLOCATION_MODE_FORM);
 		$form->disableRendering();
@@ -515,7 +514,7 @@ abstract class InteractiveUseCase extends UseCase
 	public function execute(): int{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			if (SearchUseCase::isSearchEvent()) {
 				if($print){
 					Debug::print("{$f} this is a search event");
@@ -543,25 +542,31 @@ abstract class InteractiveUseCase extends UseCase
 				$key = $ds->hasIdentifierValue() ? $ds->getIdentifierValue() : "[undefined]";
 				Debug::print("{$f} data operand has key \"{$key}\"");
 			}
-			$form = $this->generateProcessedForm();
-			if ($form !== null) {
-				$form->submitHook();
-				if ($ds == null) {
-					if ($print) {
-						Debug::print("{$f} acquireDataOperandObject returned null");
+			$directive = directive();
+			if($directive !== DIRECTIVE_NONE){
+				$form = $this->generateProcessedForm();
+				if ($form !== null) {
+					if($print){
+						Debug::print("{$f} form is not null");
 					}
-				} else {
-					if ($print && $ds->isUninitialized()) {
-						Debug::print("{$f} binding form to an uninitialized context");
+					$form->submitHook();
+					if ($ds == null) {
+						if ($print) {
+							Debug::print("{$f} acquireDataOperandObject returned null");
+						}
+					} else {
+						if ($print && $ds->isUninitialized()) {
+							Debug::print("{$f} binding form to an uninitialized context");
+						}
+						$form->bindContext($ds);
 					}
-					$form->bindContext($ds);
+					if ($print && ! $form->hasActionAttribute()) {
+						Debug::warning("{$f} form lacks an action attribute after binding");
+					}
+					$this->setProcessedFormObject($form);
+				} elseif ($print) {
+					Debug::print("{$f} processed form is null");
 				}
-				if ($print && ! $form->hasActionAttribute()) {
-					Debug::warning("{$f} form lacks an action attribute after binding");
-				}
-				$this->setProcessedFormObject($form);
-			} elseif ($print) {
-				Debug::print("{$f} processed form is null");
 			}
 			$interactor_class = $this->getInteractorClass();
 			if ($interactor_class === null) {
@@ -601,36 +606,31 @@ abstract class InteractiveUseCase extends UseCase
 		}
 	}
 
-	public function hasSearchUseCase(): bool
-	{
+	public function hasSearchUseCase():bool{
 		return isset($this->searchUseCase) && $this->searchUseCase instanceof SearchUseCase;
 	}
 
-	public function hasSearchResults(): bool
-	{
+	public function hasSearchResults():bool{
 		return $this->hasSearchUseCase() && $this->getSearchUseCase()->getSearchResults();
 	}
 
-	public function getSearchUseCase(): SearchUseCase
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getSearchUseCase()";
+	public function getSearchUseCase(): SearchUseCase{
+		$f = __METHOD__;
 		if (! $this->hasSearchUseCase()) {
 			Debug::error("{$f} search use case is undefined");
 		}
 		return $this->searchUseCase;
 	}
 
-	public function getSearchResults(): ?array
-	{
-		$f = __METHOD__; //InteractiveUseCase::getShortClass() . "(" . static::getShortClass(). ")->getSearchResults()";
+	public function getSearchResults(): ?array{
+		$f = __METHOD__;
 		if (! $this->hasSearchUseCase()) {
 			Debug::error("{$f} search use case is undefined");
 		}
 		return $this->getSearchUseCase()->getSearchResults();
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->processedFormObject);
 		unset($this->validator);

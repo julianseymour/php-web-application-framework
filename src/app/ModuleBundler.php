@@ -2,16 +2,17 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\app;
 
+use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
-use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\is_associative;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
-use function JulianSeymour\PHPWebApplicationFramework\app;
 
 class ModuleBundler extends Basic{
 
@@ -126,24 +127,6 @@ class ModuleBundler extends Basic{
 		return $this->bundle("getSpecialTemplateClasses");
 	}
 
-	public function getForeignDataStructureSharingClasses(string $shared_class):?array{
-		$f = __METHOD__;
-		Debug::error("{$f} redeclare this please");
-	}
-
-	public final function getJavaScriptFilenames(): ?array{
-		return $this->getJavaScriptFilePaths();
-	}
-
-	public final function getDebugJavaScriptFilenames(): ?array{
-		return $this->getDebugJavaScriptFilePaths();
-	}
-
-	public final function getServiceWorkerDependencyFilenames(): ?array
-	{
-		return $this->getServiceWorkerDependencyFilePaths();
-	}
-
 	public final function getModuleCount(): int{
 		return $this->hasModules() ? count($this->modules) : 0;
 	}
@@ -168,7 +151,7 @@ class ModuleBundler extends Basic{
 	public final function getTypeSortedDataStructureClasses(): ?array{
 		$f = __METHOD__;
 		try{
-			$print = false;
+			$print = $this->getDebugFlag();
 			$cache = false;
 			$key = "getTypeSortedDataStructureClasses";
 			if (cache()->enabled() && !app()->getFlag("install")) {
@@ -184,7 +167,7 @@ class ModuleBundler extends Basic{
 			}elseif($print){
 				Debug::print("{$f} cache is disabled");
 			}
-			$dsc = [];
+			$ret = [];
 			$mods = $this->getModules();
 			if(empty($mods)){
 				if($print){
@@ -200,30 +183,39 @@ class ModuleBundler extends Basic{
 					}
 					continue;
 				}
-				foreach ($dscdm as $value) {
+				foreach($dscdm as $value){
 					if(!class_exists($value)){
 						Debug::error("{$f} class \"{$value}\" does not exist");
 					}elseif($print){
 						//Debug::print("{$f} class \"{$value}\"");
 					}
-					if ($value::hasSubtypeStatic()) {
-						$type = $value::getDataType();
-						if(!array_key_exists($type, $dsc)){
-							$dsc[$type] = [];
+					$type = $value::getDataType();
+					if(is_a($value, StaticSubtypeInterface::class, true)){
+						if(!array_key_exists($type, $ret)){
+							$ret[$type] = [];
+						}elseif(!is_array($ret[$type])){
+							if(is_string($type)){
+								Debug::error("{$f} return value at index {$type} is the string {$ret[$type]}");
+							}
+							Debug::error("{$f} retuirn value at index {$type} is neither array nor string");
 						}
-						$dsc[$type][$value::getSubtypeStatic()] = $value;
-					} else {
-						$dsc[$value::getDataType()] = $value;
+						$subtype = $value::getSubtypeStatic();
+						if($print){
+							Debug::print("{$f} type \"{$type}\", subtype \"{$subtype}\"");
+						}
+						$ret[$type][$subtype] = $value;
+					}else{
+						$ret[$type] = $value;
 					}
 				}
 			}
-			if ($cache) {
-				cache()->setAPCu($key, $dsc, time() + 30 * 60);
+			if($cache){
+				cache()->setAPCu($key, $ret, time() + 30 * 60);
 				if(!cache()->hasAPCu($key)){
 					Debug::warning("{$f} cache is busted");
 				}
 			}
-			return $dsc;
+			return $ret;
 		}catch(Exception $x){
 			x($f, $x);
 		}
@@ -501,6 +493,49 @@ class ModuleBundler extends Basic{
 			return false;
 		}
 		return false !== array_search($name, $names, true);
+	}
+	
+	public function getModuleSpecificColumns(?DataStructure $ds):?array{
+		$f = __METHOD__;
+		$print = false;
+		$ret = [];
+		$mods = $this->getModules();
+		foreach($mods as $mod){
+			$columns = $mod->getModuleSpecificColumns($ds);
+			if(empty($columns)){
+				if($print){
+					Debug::print("{$f} there are no embedded columns for module ".$mod->getShortClass());
+				}
+				continue;
+			}
+			foreach($columns as $column){
+				if($column->hasEncryptionScheme()){
+					if($print){
+						Debug::print("{$f} column \"".$column->getName()."\" has encryption scheme \"".$column->getEncryptionScheme()."\"");
+					}
+					continue;
+				}
+				$pm = $column->hasPersistenceMode() ? $column->getPersistenceMode() : $ds->getDefaultPersistenceMode();
+				switch($pm){
+					case PERSISTENCE_MODE_DATABASE:
+					case PERSISTENCE_MODE_EMBEDDED:
+						if($print){
+							Debug::print("{$f} embedding column \"".$column->getName()."\" from module \"".$mod->getShortClass()."\"");
+						}
+						$column->embed($mod->getEmbedName());
+					case PERSISTENCE_MODE_ALIAS:
+					case PERSISTENCE_MODE_COOKIE:
+					case PERSISTENCE_MODE_ENCRYPTED:
+					case PERSISTENCE_MODE_INTERSECTION:
+					case PERSISTENCE_MODE_SESSION:
+					case PERSISTENCE_MODE_UNDEFINED:
+					case PERSISTENCE_MODE_VOLATILE:
+					default:
+				}
+			}
+			array_push($ret, ...$columns);
+		}
+		return $ret;
 	}
 	
 	public function getLegalBundleNames(): ?array{

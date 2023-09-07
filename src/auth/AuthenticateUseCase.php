@@ -277,11 +277,6 @@ class AuthenticateUseCase extends UseCase
 						Debug::warning("{$f} mysqli connection returned null");
 						$user->stubbify();
 						$user->setObjectStatus(SUCCESS);
-					} elseif (false && ! QueryBuilder::tableExists($mysqli, $guest_class::getDatabaseNameStatic(), $guest_class::getTableNameStatic())) {
-						Debug::warning("{$f} guest user table has not been created yet");
-						$user->stubbify();
-						$user->setObjectStatus(SUCCESS);
-						// return $user;
 					} else {
 						if ($print) {
 							Debug::print("{$f} about to load user with key \"{$key}\"");

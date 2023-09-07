@@ -16,16 +16,14 @@ class UploadedFile implements \Psr\Http\Message\UploadedFileInterface
 
 	private $size;
 
-	public function __construct($array = null)
-	{
+	public function __construct($array = null){
 		if ($array !== null) {
 			$this->setArray($array);
 		}
 	}
 
-	public function setArray(array $array)
-	{
-		$f = __METHOD__; //UploadedFile::getShortClass()."(".static::getShortClass().")->setArray()";
+	public function setArray(array $array):array{
+		$f = __METHOD__;
 		$print = false;
 		if (! array_keys_exist($array, "error", "size", "name", "tmp_name")) {
 			Debug::error("{$f} missing one or more array indices");
@@ -39,61 +37,50 @@ class UploadedFile implements \Psr\Http\Message\UploadedFileInterface
 		return $array;
 	}
 
-	public function getError():int
-	{
+	public function getError():int{
 		return $this->error;
 	}
 
-	public function getSize():?int
-	{
+	public function getSize():?int{
 		return $this->size;
 	}
 
-	public function getClientFilename():?string
-	{
+	public function getClientFilename():?string{
 		return $this->name;
 	}
 
-	public function setError($error)
-	{
+	public function setError(?int $error):?int{
 		return $this->error = $error;
 	}
 
-	public function setSize($size)
-	{
+	public function setSize(int $size):int{
 		return $this->size = $size;
 	}
 
-	public function setClientFilename($name)
-	{
+	public function setClientFilename(?string $name):?string{
 		return $this->name = $name;
 	}
 
-	public function getStream():\Psr\Http\Message\StreamInterface
-	{
-		$f = __METHOD__; //UploadedFile::getShortClass()."(".static::getShortClass().")->getStream()";
+	public function getStream():\Psr\Http\Message\StreamInterface{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function getClientMediaType():?string
-	{
-		$f = __METHOD__; //UploadedFile::getShortClass()."(".static::getShortClass().")->getClientMediaType()";
+	public function getClientMediaType():?string{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function moveTo(string $targetPath):void
-	{
-		$f = __METHOD__; //UploadedFile::getClass() . "(" . static::class . ")->moveTo()";
+	public function moveTo(string $targetPath):void{
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function getTempName()
-	{
+	public function getTempName():string{
 		return $this->tmp_name;
 	}
 
-	public function setTempName($tmp_name)
-	{
+	public function setTempName(?string $tmp_name):?string{
 		return $this->tmp_name = $tmp_name;
 	}
 }

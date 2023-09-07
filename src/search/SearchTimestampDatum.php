@@ -27,7 +27,7 @@ class SearchTimestampDatum extends CompoundDatum{
 
 	public function generateComponents(){
 		$f = __METHOD__;
-		$vn = $this->getColumnName();
+		$vn = $this->getName();
 		$start = TimestampDatum::generateComponent("start", $vn);
 		$end = TimestampDatum::generateComponent("end", $vn);
 		return [

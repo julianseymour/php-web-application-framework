@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\db\credentials;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -7,22 +8,23 @@ use JulianSeymour\PHPWebApplicationFramework\crypt\SecretKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\AsymmetricEncryptionScheme;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class EncryptedDatabaseCredentials extends DatabaseCredentials
-{
+class EncryptedDatabaseCredentials extends DatabaseCredentials implements StaticTableNameInterface{
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
-		$f = __METHOD__; //EncryptedDatabaseCredentials::getShortClass()."(".static::getShortClass().")::declareColumns()";
+	use StaticTableNameTrait;
+	
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		$f = __METHOD__;
 		parent::declareColumns($columns, $ds);
 		$secret_key = new SecretKeyDatum("password");
 		$secret_key->setEncryptionScheme(AsymmetricEncryptionScheme::class);
-		static::pushTemporaryColumnsStatic($columns, $secret_key);
+		array_push($columns, $secret_key);
 	}
 
-	public static function validateMysqlPassword($secret_key)
-	{
-		$f = __METHOD__; //static::class . "::validateMysqlPassword()";
+	public static function validateMysqlPassword($secret_key){
+		$f = __METHOD__;
 		try {
 			if (! preg_match("#[a-z]+#", $secret_key)) {
 				Debug::warning("{$f} Password has no lower case letters");
@@ -41,19 +43,16 @@ class EncryptedDatabaseCredentials extends DatabaseCredentials
 		}
 	}
 
-	public function getPassword()
-	{
+	public function getPassword(){
 		return $this->getColumnValue("password");
 	}
 
-	public function hasPassword()
-	{
+	public function hasPassword():bool{
 		return $this->hasColumnValue("password");
 	}
 
-	public static function generateMysqlPassword()
-	{
-		$f = __METHOD__; //EncryptedDatabaseCredentials::getShortClass()."(".static::getShortClass().")::generateMysqlPassword()";
+	public static function generateMysqlPassword(){
+		$f = __METHOD__;
 		try {
 			$secret_key = substr(base64_encode(random_bytes(32)), 0, 32);
 			if (static::validateMysqlPassword($secret_key)) {
@@ -73,18 +72,15 @@ class EncryptedDatabaseCredentials extends DatabaseCredentials
 		}
 	}
 
-	public function setPassword($password)
-	{
+	public function setPassword($password){
 		return $this->setColumnValue("password", $password);
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "encrypted_database_credentials";
 	}
 
-	public static final function getDataType(): string
-	{
+	public static final function getDataType(): string{
 		return DATATYPE_ENCRYPTED_DATABASE_CREDENTIALS;
 	}
 }

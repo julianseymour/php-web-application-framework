@@ -21,10 +21,12 @@ use JulianSeymour\PHPWebApplicationFramework\query\index\KeyPart;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\FullTableNameTrait;
 
 class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 
 	use ForeignKeyDatumTrait;
+	use FullTableNameTrait;
 	
 	public function __construct(string $name, ?int $relationship_type = null){
 		parent::__construct($name);
@@ -36,11 +38,11 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 	public function getConstructorParams(): ?array{
 		if($this->hasRelationshipType()){
 			return [
-				$this->getColumnName(),
+				$this->getName(),
 				$this->getRelationshipType()
 			];
 		}
-		return [$this->getColumnName()];
+		return [$this->getName()];
 	}
 	
 	public static function declareFlags(): ?array{
@@ -91,7 +93,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 	public function generateIndexDefinition(){
 		$f = __METHOD__;
 		$print = false;
-		$cn = $this->getColumnName();
+		$cn = $this->getName();
 		if ($this->getConstraintFlag()) {
 			if ($print) {
 				Debug::print("{$f} column \"{$cn}\" is constrained");
@@ -108,7 +110,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 		$v = $input->getValueAttribute();
 		$ret = parent::processInput($input);
 		$ds = $this->getDataStructure();
-		$index = $this->getColumnName();
+		$index = $this->getName();
 		if($v == null) {
 			$ds->ejectForeignDataStructure($index);
 		} elseif ($v !== $this->getValue()) {
@@ -127,7 +129,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 			$print = false;
 			$fdsc = $this->getForeignDataStructureClass();
 			$hdsc = $this->getDataStructureClass();
-			$intersection = new IntersectionData($hdsc, $fdsc, $this->getColumnName());
+			$intersection = new IntersectionData($hdsc, $fdsc, $this->getName());
 			$ds = $this->getDataStructure();
 			if ($ds->hasIdentifierValue()) {
 				$hk = $this->getDataStructureKey();
@@ -164,7 +166,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 	public function configureArrayMembership($value){
 		$f = __METHOD__;
 		$print = false;
-		$column_name = $this->getColumnName();
+		$column_name = $this->getName();
 		if (is_bool($value)) {
 			if ($print) {
 				Debug::print("{$f} received a boolean value for column \"{$column_name}\"");
@@ -175,7 +177,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 		}
 		parent::configureArrayMembership(true);
 		$this->setAddToResponseFlag(true);
-		return $this->getDataStructure()->getForeignDataStructure($this->getColumnName())->configureArrayMembership($value);
+		return $this->getDataStructure()->getForeignDataStructure($this->getName())->configureArrayMembership($value);
 	}
 
 	private function getOriginalForeignDataType(){
@@ -191,7 +193,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 
 	private function hasIntersectionTableChanged(){
 		$f = __METHOD__;
-		$vn = $this->getColumnName();
+		$vn = $this->getName();
 		$print = false;
 		if ($this->hasForeignDataType()) {
 			$old_type = $new_type = $this->getForeignDataType();
@@ -216,7 +218,13 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 		}
 
 		$old_class = $resolver::resolveForeignDataStructureClass($old_type, $old_subtype);
+		if(!method_exists($old_class, 'getTableNameStatic')){
+			Debug::error("{$f} table name cannot be determined statically for old class \"{$old_class}\"");
+		}
 		$new_class = $resolver::resolveForeignDataStructureClass($new_type, $new_subtype);
+		if(!method_exists($new_class, 'getTableNameStatic')){
+			Debug::error("{$f} table name cannot be determined statically for new class \"{$new_class}\"");
+		}
 		if ($print) {
 			Debug::print("{$f} old type \"{$old_type}\", old subtype \"{$old_subtype}\", new type \"{$new_type}\", new subtype \"{$new_subtype}\"");
 		}
@@ -240,7 +248,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 				}
 				return FAILURE;
 			}
-			$column_name = $this->getColumnName();
+			$column_name = $this->getName();
 			$fds = $ds->getForeignDataStructure($column_name);
 			return $fds->getAssociationDistance($column_name, $value) < 0;
 		} catch (Exception $x) {
@@ -259,7 +267,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 	public function hasPotentialValue(){
 		$f = __METHOD__;
 		try {
-			$name = $this->getColumnName();
+			$name = $this->getName();
 			$print = false;
 			if ($this->getPersistenceMode() !== PERSISTENCE_MODE_INTERSECTION) {
 				if ($print) {
@@ -304,18 +312,24 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 			}
 			return false;
 		} catch (Exception $x) {
-			x($f, $X);
+			x($f, $x);
 		}
 	}
 
 	private function deleteOriginalIntersectionData($mysqli){
 		$f = __METHOD__;
-		$rel = $this->getColumnName(); // $intersection->getRelationship();
+		$rel = $this->getName();
 		$intersection = new IntersectionData($this->getDataStructureClass(), $this->getForeignDataStructureClassResolver()::resolveForeignDataStructureClass($this->getOriginalForeignDataType(), $this->getOriginalForeignDataSubtype()), $rel);
-		$del = QueryBuilder::delete()->from($intersection->getDatabaseName(), $intersection->getTableName())
-			->where(new AndCommand(new WhereCondition("hostKey", OPERATOR_EQUALS), new WhereCondition("relationship", OPERATOR_EQUALS)))
-			->prepareBindExecuteGetStatus($mysqli, 'ss', $this->getDataStructure()
-			->getIdentifierValue(), $rel);
+		$del = QueryBuilder::delete()->from(
+			$intersection->getDatabaseName(), $intersection->getTableName()
+		)->where(
+			new AndCommand(
+				new WhereCondition("hostKey", OPERATOR_EQUALS), 
+				new WhereCondition("relationship", OPERATOR_EQUALS)
+			)
+		)->prepareBindExecuteGetStatus(
+			$mysqli, 'ss', $this->getDataStructure()->getIdentifierValue(), $rel
+		);
 		if ($del !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($del);
 			Debug::error("{$f} deleting intersection data returned error status \"{$err}\"");
@@ -367,7 +381,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 	public function updateIntersectionTables(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try {
-			$vn = $this->getColumnName();
+			$vn = $this->getName();
 			$print = false;
 			if ($print) {
 				$dsc = $this->getDataStructureClass();
@@ -468,7 +482,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 			$idn = $fdsc::getIdentifierNameStatic();
 			$hostType = $this->getDataStructureClass()::getDataType();
 			$foreignType = $fdsc::getDataType();
-			$cn = $this->getColumnName();
+			$cn = $this->getName();
 			$index_name = "{$foreignType}_{$idn}_index";
 			if ($hostType !== $foreignType) {
 				$index_name = "{$hostType}_{$index_name}";
@@ -483,12 +497,18 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 					if ($print) {
 						Debug::print("{$f} data structure does not have a foreign relationship \"{$cn}\"");
 					}
+					if(!method_exists($fdsc, 'getTableNameStatic')){
+						Debug::error("{$f} table name cannot be determined statically for foreign data structure class \"{$fdsc}\"");
+					}
 					$db = $fdsc::getDatabaseNameStatic();
 					$table_name = $fdsc::getTableNameStatic();
 				}
 			} else {
 				if ($print) {
 					Debug::print("{$f} this column does not have a data structure");
+				}
+				if(!method_exists($fdsc, 'getTableNameStatic')){
+					Debug::error("{$f} table name cannot be determined statically for foreign data structure class \"{$fdsc}\"");
 				}
 				$db = $fdsc::getDatabaseNameStatic();
 				$table_name = $fdsc::getTableNameStatic();
@@ -498,7 +518,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 				null,
 				$index_name, 
 				[
-					$this->getColumnName()
+					$this->getName()
 				], 
 				$db, 
 				$table_name, 
@@ -522,7 +542,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 		$f = __METHOD__;
 		try {
 			$print = false;
-			$name = $this->getColumnName();
+			$name = $this->getName();
 			$intersection = $this->generateIntersectionData();
 			// error checking
 			$count = $intersection->getFilteredColumnCount(COLUMN_FILTER_DATABASE);
@@ -576,7 +596,7 @@ class ForeignKeyDatum extends Sha1HashDatum implements ForeignKeyDatumInterface{
 		$f = __METHOD__;
 		try {
 			$print = false;
-			$cn = $this->getColumnName();
+			$cn = $this->getName();
 			$fk = $this->getValue();
 			$ds = $this->getDataStructure();
 			if($print){

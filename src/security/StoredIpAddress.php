@@ -1,25 +1,25 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security;
 
 use function JulianSeymour\PHPWebApplicationFramework\ip_version;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\UnsignedIntegerDatum;
 use JulianSeymour\PHPWebApplicationFramework\security\access\UserFingerprint;
 use JulianSeymour\PHPWebApplicationFramework\security\firewall\CidrIpAddressDatum;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class StoredIpAddress extends UserFingerprint{
-
-	public static function hasSubtypeStatic():bool{
-		return true;
-	}
+abstract class StoredIpAddress extends UserFingerprint implements StaticSubtypeInterface, StaticTableNameInterface{
 	
-	public static function getIPAddressTypeStatic(): string{
-		return CONST_UNDEFINED;
-	}
-
-	public static function getSubtypeStatic(): string{
-		return static::getIPAddressTypeStatic();
+	use StaticSubtypeTrait;
+	use StaticTableNameTrait;
+	
+	public static function getIpAddressTypeStatic(): string{
+		return static::getSubtypeStatic();
 	}
 
 	public function hasIpAddress(): bool{
@@ -38,10 +38,6 @@ class StoredIpAddress extends UserFingerprint{
 		return DATATYPE_IP_ADDRESS;
 	}
 
-	public final function hasSubtypeValue(): bool{
-		return true;
-	}
-
 	public function setIpVersion(int $v):int{
 		$f = __METHOD__;
 		if ($v !== 4 && $v !== 6) {
@@ -50,24 +46,27 @@ class StoredIpAddress extends UserFingerprint{
 		return $this->setColumnValue("ipVersion", $v);
 	}
 
-	public function getIpVersion(){
+	public function getIpVersion():int{
 		return $this->getColumnValue('ipVersion');
 	}
 
-	public final function getSubtypeValue(): string{
-		return $this->getIPAddressTypeStatic();
+	public function getSubtype():string{
+		if($this->hasColumnValue('subtype')) {
+			return $this->getColumnValue('subtype');
+		}
+		return $this->setSubtype(static::getSubypeStatic());
 	}
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
+		parent::declareColumns($columns, $ds);
 		$ip = new CidrIpAddressDatum("ipAddress");
 		$ip->setUserWritableFlag(true);
 		$ipv = new UnsignedIntegerDatum("ipVersion", 8);
-		parent::declareColumns($columns, $ds);
-		static::pushTemporaryColumnsStatic($columns, $ip, $ipv);
+		array_push($columns, $ip, $ipv);
 	}
 
-	public function getName(){
+	public function getName():string{
 		return $this->getIPAddress();
 	}
 

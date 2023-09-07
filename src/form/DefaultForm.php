@@ -51,11 +51,6 @@ class DefaultForm extends AjaxForm{
 		return parent::bindContext($context);
 	}
 
-	public function setUseCase($use_case){
-		$this->setActionAttribute($use_case->getActionAttribute());
-		return parent::setUseCase($use_case);
-	}
-
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
 		try {

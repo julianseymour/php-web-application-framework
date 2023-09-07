@@ -1,14 +1,18 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
 use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
+use JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameTrait;
 
-class EmbeddedData extends DataStructure{
+class EmbeddedData extends DataStructure implements StaticDatabaseNameInterface{
 
 	use NamedTrait;
-
+	use StaticDatabaseNameTrait;
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$joinKey = new ForeignKeyDatum("joinKey");
 		$joinKey->setNullable(false);
@@ -17,7 +21,7 @@ class EmbeddedData extends DataStructure{
 		$joinKey->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 		$joinKey->constrain();
 		$joinKey->setIndexFlag(true);
-		static::pushTemporaryColumnsStatic($columns, $joinKey);
+		array_push($columns, $joinKey);
 	}
 
 	public static function getPrettyClassName():string{
@@ -38,11 +42,6 @@ class EmbeddedData extends DataStructure{
 
 	public static function isRegistrableStatic(): bool{
 		return false;
-	}
-
-	public static function getTableNameStatic(): string{
-		$f = __METHOD__;
-		Debug::error("{$f} EmbeddedData does not have a static table name");
 	}
 
 	public static function getDataType(): string{

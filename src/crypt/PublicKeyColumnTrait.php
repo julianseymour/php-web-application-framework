@@ -1,25 +1,22 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt;
 
 use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
 
-trait PublicKeyColumnTrait
-{
+trait PublicKeyColumnTrait{
 
 	use MultipleColumnDefiningTrait;
 
-	public function setPublicKey($value)
-	{
+	public function setPublicKey(STRING $value):STRING{
 		return $this->setColumnValue("publicKey", $value);
 	}
 
-	public function getPublicKey()
-	{
+	public function getPublicKey():string{
 		return $this->getColumnValue("publicKey");
 	}
 
-	public function hasPublicKey()
-	{
+	public function hasPublicKey():BOOL{
 		return $this->hasColumnValue("publicKey");
 	}
 }

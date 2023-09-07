@@ -13,7 +13,7 @@ abstract class AnonymousConfirmationCode extends ConfirmationCode{
 		return app()->acquireCurrentServerKeypair(null);
 	}
 
-	public function getPublicKey(){
+	public function getPublicKey():string{
 		return app()->acquireCurrentServerKeypair()->getPublicKey();
 	}
 

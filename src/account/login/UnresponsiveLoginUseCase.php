@@ -110,10 +110,10 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 					Debug::print("{$f} failed bruteforce protection, checking lockout waiver");
 				}
 				$select = LockoutWaiverAttempt::selectStatic(
-					null, "uniqueKey", "confirmationCodeType", "loginSuccessful", "insertTimestamp"
+					null, "uniqueKey", "subtype", "loginSuccessful", "insertTimestamp"
 				)->where(
 					new AndCommand(
-						new WhereCondition("confirmationCodeType", OPERATOR_EQUALS),
+						new WhereCondition("subtype", OPERATOR_EQUALS),
 						LockoutWaiverAttempt::whereIntersectionalHostKey(
 							$user->getClass(), 
 							"userKey"

@@ -9,7 +9,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateContextInterface;
 use Exception;
 
-class FormDataJavaScriptFunctionsUseCase extends JavaScriptFileUseCase{
+class FormDataJavaScriptFunctionsUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
 		$f = __METHOD__;

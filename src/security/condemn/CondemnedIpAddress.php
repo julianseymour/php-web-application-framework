@@ -17,7 +17,7 @@ class CondemnedIpAddress extends StoredIpAddress{
 		return "condemned_ip_addresses";
 	}
 
-	public static function getIpAddressTypeStatic(): string{
+	public static function getSubtypeStatic(): string{
 		return IP_ADDRESS_TYPE_CONDEMNED;
 	}
 
@@ -59,30 +59,26 @@ class CondemnedIpAddress extends StoredIpAddress{
 		parent::declareColumns($columns, $ds);
 		$action = new TextDatum("action");
 		$action->setNullable(false);
-		static::pushTemporaryColumnsStatic($columns, $action);
+		array_push($columns, $action);
 	}
 
-	public function setUri($action)
-	{
+	public function setUri($action){
 		return $this->setColumnValue("action", $action);
 	}
 
-	public function hasURI()
-	{
+	public function hasURI(){
 		return $this->hasColumnValue("action");
 	}
 
-	public function getUri()
-	{
-		$f = __METHOD__; //CondemnedIpAddress::getShortClass()."(".static::getShortClass().")->getUri()";
+	public function getUri(){
+		$f = __METHOD__;
 		if (! $this->hasURI()) {
 			Debug::error("{$f} action is undefined");
 		}
 		return $this->getColumnValue("action");
 	}
 
-	public static function getPermissionStatic(string $name, $data)
-	{
+	public static function getPermissionStatic(string $name, $data){
 		switch ($name) {
 			case DIRECTIVE_INSERT:
 				return SUCCESS;

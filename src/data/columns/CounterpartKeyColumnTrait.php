@@ -1,6 +1,6 @@
 <?php
-namespace JulianSeymour\PHPWebApplicationFramework\data\columns;
 
+namespace JulianSeymour\PHPWebApplicationFramework\data\columns;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -8,8 +8,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use Exception;
 use mysqli;
 
-trait CounterpartKeyColumnTrait
-{
+trait CounterpartKeyColumnTrait{
 
 	protected $roleAsCounterpart;
 
@@ -17,21 +16,18 @@ trait CounterpartKeyColumnTrait
 
 	public abstract function getRoleAsCounterpart();
 
-	public abstract function getSubtypeValue();
+	public abstract function getSubtype():string;
 
-	public function setRoleAsCounterpart($role)
-	{
+	public function setRoleAsCounterpart($role){
 		return $this->roleAsCounterpart = $role;
 	}
 
-	public function acquireCounterpartObject($mysqli)
-	{
+	public function acquireCounterpartObject($mysqli){
 		return $this->loadForeignDataStructure($mysqli, 'counterpartKey', false, 3);
 	}
 
-	public static function getOppositeRoleStatic($role)
-	{
-		$f = __METHOD__; //f(CounterpartKeyColumnTrait::class);
+	public static function getOppositeRoleStatic($role){
+		$f = __METHOD__;
 		if (! isset($role)) {
 			Debug::error("{$f} role is undefined");
 		}
@@ -54,8 +50,7 @@ trait CounterpartKeyColumnTrait
 		}
 	}
 
-	public function ejectCounterpartKey()
-	{
+	public function ejectCounterpartKey(){
 		return $this->ejectColumnValue("counterpartKey");
 	}
 

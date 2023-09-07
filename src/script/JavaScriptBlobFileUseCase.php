@@ -19,7 +19,7 @@ class JavaScriptBlobFileUseCase extends BundleUseCase{
 	protected function getBundledFilenames(?string $filename = null):?array{
 		$f = __METHOD__;
 		$print = false;
-		$ret =  mods()->getJavaScriptFilenames();
+		$ret =  mods()->getJavaScriptFilePaths();
 		if($print){
 			Debug::print("{$f} returning the following:");
 			Debug::printArray($ret);

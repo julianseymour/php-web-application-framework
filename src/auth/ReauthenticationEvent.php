@@ -4,16 +4,20 @@ namespace JulianSeymour\PHPWebApplicationFramework\auth;
 
 use JulianSeymour\PHPWebApplicationFramework\security\access\AccessAttempt;
 use JulianSeymour\PHPWebApplicationFramework\security\firewall\UnlistedIpAddressEmail;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class ReauthenticationEvent extends AccessAttempt{
+class ReauthenticationEvent extends AccessAttempt implements StaticTableNameInterface{
 
+	use StaticTableNameTrait;
+	
 	protected $loginSuccessful;
 
 	public function getLoginSuccessful(){
 		return $this->loginSuccessful;
 	}
 
-	public static function getAccessTypeStatic(): string{
+	public static function getSubtypeStatic(): string{
 		return ACCESS_TYPE_REAUTHENTICATION;
 	}
 
@@ -21,7 +25,7 @@ class ReauthenticationEvent extends AccessAttempt{
 		return false;
 	}
 
-	public static function getEmailNotificationClass(){
+	public static function getEmailNotificationClass():?string{
 		return UnlistedIpAddressEmail::class;
 	}
 

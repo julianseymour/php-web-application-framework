@@ -2,7 +2,6 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\security\captcha;
 
-use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\curl_post;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;

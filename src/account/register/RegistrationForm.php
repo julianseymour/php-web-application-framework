@@ -61,6 +61,9 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 	protected function attachInputValidators(InputInterface $input): InputInterface{
 		$f = __METHOD__;
 		$print = false;
+		if(!$input->hasColumnName()){
+			return $input;
+		}
 		$vn = $input->getColumnName();
 		if($print){
 			Debug::print("{$f} variable name is \"{$vn}\"");
@@ -225,7 +228,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 		// XXX problem -- in order for this system to work against a simple bot that works by getting the ID attribute, the IDs of each input must be randomized too -- but that will break client side interactivity e.g. content validation pre-registration
 		return [
 			"name" => 3,
-			EmailAddressDatum::getColumnNameStatic() => 3,
+			'emailAddress' => 3,
 			"password" => 3
 		];
 	}

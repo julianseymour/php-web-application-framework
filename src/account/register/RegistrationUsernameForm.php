@@ -45,6 +45,9 @@ class RegistrationUsernameForm extends AjaxForm{
 	protected function attachInputValidators(InputInterface $input): InputInterface{
 		$f = __METHOD__;
 		$print = false;
+		if(!$input->hasColumnName()){
+			return $input;
+		}
 		$vn = $input->getColumnName();
 		if ($print) {
 			Debug::print("{$f} variable name is \"{$vn}\"");

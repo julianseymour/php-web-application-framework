@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
@@ -9,12 +10,10 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-abstract class ColumnValueCommand extends DataStructureCommand implements ValueReturningCommandInterface
-{
+abstract class ColumnValueCommand extends DataStructureCommand implements ValueReturningCommandInterface{
 
-	public function __construct($context, $vn)
-	{
-		$f = __METHOD__; //ColumnValueCommand::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($context, $vn){
+		$f = __METHOD__;
 		parent::__construct($context);
 		if ($context instanceof DataStructure) {
 			$this->setIdCommand(new GetDeclaredVariableCommand("context"));
@@ -28,9 +27,8 @@ abstract class ColumnValueCommand extends DataStructureCommand implements ValueR
 		}
 	}
 
-	public function toJavaScript(): string
-	{
-		$f = __METHOD__; //ColumnValueCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
+	public function toJavaScript(): string{
+		$f = __METHOD__;
 		$e = $this->getIdCommandString();
 		if ($e instanceof JavaScriptInterface) {
 			$e = $e->toJavaScript();

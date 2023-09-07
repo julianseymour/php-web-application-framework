@@ -41,7 +41,7 @@ class Paginator extends DataStructure{
 		]);
 		$orderDirection->setNullable(true);
 		// $orderDirection->setChoiceGenerator(static::class);
-		static::pushTemporaryColumnsStatic($columns, $limit, $total, $display_pg, $orderBy, $orderDirection, $tic);
+		array_push($columns, $limit, $total, $display_pg, $orderBy, $orderDirection, $tic);
 		foreach ($columns as $column) {
 			$column->setFlag("paginator", true);
 		}
@@ -142,14 +142,13 @@ class Paginator extends DataStructure{
 		$orderBy = [
 			new OrderByClause($term, $orderDirection)
 		];
-		if ($orderBy[0]->getColumnName() !== "num") {
+		if($orderBy[0]->getColumnName() !== "num") {
 			array_push($orderBy, new OrderByClause("num", $orderBy[0]->getDirectionality()));
 		}
 		return $orderBy;
 	}
 
-	public function setOrderBy($orderBy)
-	{
+	public function setOrderBy($orderBy){
 		return $this->setColumnValue("orderBy", $orderBy);
 	}
 
@@ -691,11 +690,11 @@ class Paginator extends DataStructure{
 		}
 	}
 
-	public function getLastPage(){
+	public function getLastPage():int{
 		return $this->getTotalPageCount() - 1;
 	}
 
-	public function getPreviousPage(){
+	public function getPreviousPage():int{
 		return $this->getDisplayPage() - 1;
 	}
 
@@ -719,11 +718,6 @@ class Paginator extends DataStructure{
 		return static::class;
 	}
 
-	public static function getTableNameStatic(): string{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
-	}
-
 	public static function getDataType(): string{
 		return DATATYPE_UNKNOWN;
 	}
@@ -733,7 +727,7 @@ class Paginator extends DataStructure{
 	}
 
 	public static function getPrettyClassNames():string{
-		return static::getPrettyClassName() . "s";
+		return _("Paginators");
 	}
 
 	public function getPageLinkHTTPQueryParameters($pg){

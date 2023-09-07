@@ -74,7 +74,7 @@ class ShortPollForm extends AjaxForm{
 				case 'uniqueKey':
 					$input->setIdAttribute("user_key");
 					return SUCCESS;
-				case "accountType":
+				case "subtype":
 					$input->setIdAttribute("account_type");
 					return SUCCESS;
 				default:
@@ -88,7 +88,7 @@ class ShortPollForm extends AjaxForm{
 	public function getFormDataIndices(): ?array{
 		return [
 			'notificationDeliveryTimestamp' => HiddenInput::class,
-			"accountType" => HiddenInput::class
+			"subtype" => HiddenInput::class
 			// 'uniqueKey' => HiddenInput::class
 		];
 	}

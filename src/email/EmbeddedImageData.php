@@ -80,7 +80,7 @@ class EmbeddedImageData extends ImageData
 		return $this->webFileDirectory = $dir;
 	}
 
-	public static function getImageTypeStatic(){
+	public static function getSubtypeStatic():string{
 		return IMAGE_TYPE_EMBEDDED;
 	}
 

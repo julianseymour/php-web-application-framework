@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\db\load;
 
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
@@ -9,8 +10,7 @@ use JulianSeymour\PHPWebApplicationFramework\paginate\Paginator;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 
-abstract class LoadoutGenerator extends Basic
-{
+abstract class LoadoutGenerator extends Basic{
 
 	use ArrayPropertyTrait;
 	
@@ -65,9 +65,8 @@ abstract class LoadoutGenerator extends Basic
 		return null;
 	}
 
-	public function generateRootLoadout(?PlayableUser $ds = null, ?UseCase $use_case = null): ?Loadout
-	{
-		$f = __METHOD__; //LoadoutGenerator::getShortClass()."(".static::getShortClass().")->generateRootLoadout()";
+	public function generateRootLoadout(?PlayableUser $ds = null, ?UseCase $use_case = null): ?Loadout{
+		$f = __METHOD__;
 		$print = false;
 		$dependencies = $this->getRootNodeTreeSelectStatements($ds, $use_case);
 		if ($dependencies) {

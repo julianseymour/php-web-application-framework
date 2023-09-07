@@ -4,6 +4,8 @@ namespace JulianSeymour\PHPWebApplicationFramework\language;
 
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
+ErrorMessage::deprecated(__FILE__);
+
 class DeletedStringData extends MultilingualStringData{
 
 	public static function getPrettyClassName():string{
@@ -14,21 +16,12 @@ class DeletedStringData extends MultilingualStringData{
 		return _("Deleted strings");
 	}
 
-	public static function getPhylumName(): string{
-		return "strings";
-	}
-
 	public function getStringIdentifier(){
 		return "deleted";
 	}
 
 	public static function getDataType(): string{
-		return DATATYPE_STRING;
-	}
-
-	public static function getTableNameStatic(): string{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
+		return DATATYPE_STRING_MULTILINGUAL;
 	}
 
 	public static function getStringTypeStatic(): string{

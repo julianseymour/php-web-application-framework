@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
 use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
@@ -14,8 +15,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnNamesTra
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereConditionalInterface;
 use Exception;
 
-class MatchFunction extends ExpressionCommand implements StringifiableInterface, WhereConditionalInterface
-{
+class MatchFunction extends ExpressionCommand implements StringifiableInterface, WhereConditionalInterface{
 
 	use ExpressionalTrait;
 	use MultipleColumnNamesTrait;
@@ -23,9 +23,8 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 
 	protected $searchModifier;
 
-	public function setSearchModifier($sm)
-	{
-		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->setSearchModifier()";
+	public function setSearchModifier($sm){
+		$f = __METHOD__;
 		if ($sm == null) {
 			unset($this->searchModifier);
 			return null;
@@ -47,29 +46,25 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 		return $this->searchModifier = $sm;
 	}
 
-	public function hasSearchModifier()
-	{
+	public function hasSearchModifier():bool{
 		return isset($this->searchModifier) && is_string($this->searchModifier) && ! empty($this->searchModifier);
 	}
 
-	public function getSearchModifier()
-	{
-		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->getSearchModifier()";
+	public function getSearchModifier(){
+		$f = __METHOD__;
 		if (! $this->hasSearchModifier()) {
 			Debug::error("{$f} search modifier is undefined");
 		}
 		return $this->searchModifier;
 	}
 
-	public function withSearchModifier($sm): MatchFunction
-	{
+	public function withSearchModifier($sm): MatchFunction{
 		$this->setSearchModifier($sm);
 		return $this;
 	}
 
-	public function getExpression()
-	{
-		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->getExpression()";
+	public function getExpression(){
+		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasExpression()) {
 			if (! $this->hasParameterCount()) {
@@ -96,9 +91,8 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 		return $this->expression;
 	}
 
-	public function toSQL(): string
-	{
-		$f = __METHOD__; //MatchFunction::getShortClass()."(".static::getShortClass().")->toSQL()";
+	public function toSQL(): string{
+		$f = __METHOD__;
 		try {
 			// MATCH (col1,col2,...)
 			$string = "match (" . implode_back_quotes(',', $this->getColumnNames()) . ") ";

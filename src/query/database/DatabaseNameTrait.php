@@ -1,16 +1,15 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\database;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait DatabaseNameTrait
-{
+trait DatabaseNameTrait{
 
 	protected $databaseName;
 
-	public function setDatabaseName($db)
-	{
-		$f = __METHOD__; //"DatabaseNameTrait(".static::getShortClass().")->setDatabaseName()";
+	public function setDatabaseName(?string $db):?string{
+		$f = __METHOD__;
 		if ($db == null) {
 			unset($this->databaseName);
 			return null;
@@ -20,23 +19,20 @@ trait DatabaseNameTrait
 		return $this->databaseName = $db;
 	}
 
-	public function hasDatabaseName()
-	{
-		return ! empty($this->databaseName);
+	public function hasDatabaseName():bool{
+		return !empty($this->databaseName);
 	}
 
-	public function getDatabaseName(): string
-	{
-		$f = __METHOD__; //"DatabaseNameTrait(".static::getShortClass().")->getDatabaseName()";
-		if (! $this->hasDatabaseName()) {
+	public function getDatabaseName():string{
+		$f = __METHOD__;
+		if(!$this->hasDatabaseName()){
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} database name is undefined. Declared {$decl}");
 		}
 		return $this->databaseName;
 	}
 
-	public function withDatabaseName($name)
-	{
+	public function withDatabaseName(?string $name):object{
 		$this->setDatabaseName($name);
 		return $this;
 	}

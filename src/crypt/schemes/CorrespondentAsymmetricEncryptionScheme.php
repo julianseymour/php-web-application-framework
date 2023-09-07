@@ -1,14 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt\schemes;
 
-class CorrespondentAsymmetricEncryptionScheme extends AsymmetricEncryptionScheme
-{
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 
-	protected function extractPublicKey($datum)
-	{
-		return $datum->getDataStructure()
-			->getUserData()
-			->getCorrespondentObject()
-			->getPublicKey();
+class CorrespondentAsymmetricEncryptionScheme extends AsymmetricEncryptionScheme{
+
+	protected function extractPublicKey(Datum $datum):string{
+		return $datum->getDataStructure()->getUserData()->getCorrespondentObject()->getPublicKey();
 	}
 }

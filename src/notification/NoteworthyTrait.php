@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -13,8 +14,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 use mysqli;
 
-trait NoteworthyTrait
-{
+trait NoteworthyTrait{
 
 	use FlagBearingTrait;
 
@@ -30,35 +30,30 @@ trait NoteworthyTrait
 
 	public abstract function getNotificationPreview();
 
-	public abstract function getSubtypeValue();
+	public abstract function getSubtype():string;
 
-	public abstract function hasSubtypeValue(): bool;
+	public abstract function hasSubtype(): bool;
 
 	public abstract function isNotificationDataWarranted(): bool;
 
-	public function getDismissNotificationFlag()
-	{
+	public function getDismissNotificationFlag():bool{
 		return $this->getFlag("dismissNotification");
 	}
 
-	public function disableNotifications(bool $value = true)
-	{
+	public function disableNotifications(bool $value = true):bool{
 		$this->setDisableNotificationsFlag($value);
 		return $this;
 	}
 
-	public function setDisableNotificationsFlag(bool $value = true): bool
-	{
+	public function setDisableNotificationsFlag(bool $value = true): bool{
 		return $this->setFlag("disableNotifications");
 	}
 
-	public function getDisableNotificationsFlag()
-	{
+	public function getDisableNotificationsFlag():bool{
 		return $this->getFlag("disableNotifications");
 	}
 
-	public function getSendCounterpartNotificationFlag()
-	{
+	public function getSendCounterpartNotificationFlag():bool{
 		$f = __METHOD__; //"NoteworthyTrait(".static::getShortClass().")->getSendCounterpartNotificationFlag()";
 		$flag = $this->getFlag("sendCounterpartNotification");
 		$key = $this->getIdentifierValue();
@@ -71,14 +66,12 @@ trait NoteworthyTrait
 		return $this->getFlag("sendCounterpartNotification");
 	}
 
-	public function setDismissNotificationFlag($value)
-	{
+	public function setDismissNotificationFlag(bool $value=true):bool{
 		return $this->setFlag("dismissNotification", $value);
 	}
 
-	public function setSendCounterpartNotificationFlag($value)
-	{
-		$f = __METHOD__; //"NoteworthyTrait(".static::getShortClass().")->setSendCounterpartNotificationFlag()";
+	public function setSendCounterpartNotificationFlag($value){
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			$key = $this->getIdentifierValue();
@@ -98,9 +91,8 @@ trait NoteworthyTrait
 	 * @param mysqli $mysqli
 	 * @return string
 	 */
-	public function dismissYourNotification($mysqli)
-	{
-		$f = __METHOD__; //"NoteworthyTrait(".static::getShortClass().")->dismissYourNotification()";
+	public function dismissYourNotification($mysqli){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$note_class = $this->getNotificationClass();
@@ -110,7 +102,7 @@ trait NoteworthyTrait
 
 			$st = QueryBuilder::select("hostKey")->from($intersection->getDatabaseName(), $intersection->getTableName())
 				->where(new AndCommand(new WhereCondition("foreignKey", OPERATOR_EQUALS, 's'), new WhereCondition("relationship", OPERATOR_EQUALS, 's')));
-			$query = RetrospectiveNotificationData::selectStatic()->where(new AndCommand(new WhereCondition("notificationType", OPERATOR_EQUALS), new WhereCondition($idn, OPERATOR_IN, $this->getColumnTypeSpecifier($idn), $st)));
+			$query = RetrospectiveNotificationData::selectStatic()->where(new AndCommand(new WhereCondition("subtype", OPERATOR_EQUALS), new WhereCondition($idn, OPERATOR_IN, $this->getColumnTypeSpecifier($idn), $st)));
 			$operand_notes = RetrospectiveNotificationData::loadMultiple($mysqli, $query, 'sss', $note_type, $this->getIdentifierValue(), "subjectKey");
 			if (empty($operand_notes)) {
 				if ($print) {

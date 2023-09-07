@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account;
 
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -9,37 +10,24 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\security\access\UserFingerprint;
 use Exception;
 
-abstract class UserSigned extends UserFingerprint
-{
+abstract class UserSigned extends UserFingerprint{
 
-	public function isSignatureRequired()
-	{
+	public function isSignatureRequired():bool{
 		return true;
 	}
 
-	public function getSignableMessage()
-	{
+	public function getSignableMessage(){
 		return json_encode($this->toArray("sign"));
 	}
 
-	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void
-	{
+	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::reconfigureColumns($columns, $ds);
 		$columns['signatoryName']->volatilize();
 	}
 
-	protected function afterGenerateInitialValuesHook(): int
-	{
-		$f = __METHOD__; //UserSigned::getShortClass()."(".static::getShortClass().")->afterGenerateKeyHook()";
+	protected function afterGenerateInitialValuesHook(): int{
+		$f = __METHOD__;
 		try {
-			/*
-			 * $print = false;
-			 * if(!$this->hasColumn("signature")){
-			 * Debug::error("{$f} signature datum does not exist");
-			 * }elseif(!app()->hasUserData()){
-			 * Debug::warning("{$f} current user data is undefined; let's see what happens anyways");
-			 * }
-			 */
 			if (! $this->hasSignature()) {
 				$this->generateSignature();
 			}
@@ -52,14 +40,12 @@ abstract class UserSigned extends UserFingerprint
 		}
 	}
 
-	public function hasSignatoryData()
-	{
+	public function hasSignatoryData():bool{
 		return $this->hasForeignDataStructure("signatoryKey");
 	}
 
-	public function setSignatoryData($signatory)
-	{
-		$f = __METHOD__; //UserSigned::getShortClass()."(".static::getShortClass().")->setSignatoryData()";
+	public function setSignatoryData($signatory){
+		$f = __METHOD__;
 		if (! isset($signatory)) {
 			Debug::error("{$f} received null parameter");
 		}
@@ -67,82 +53,44 @@ abstract class UserSigned extends UserFingerprint
 		return $this->setForeignDataStructure("signatoryKey", $signatory);
 	}
 
-	public function getSignatoryData()
-	{
+	public function getSignatoryData(){
 		return $this->getForeignDataStructure("signatoryKey");
 	}
 
-	public function hasSignatoryKey()
-	{
+	public function hasSignatoryKey():bool{
 		return $this->hasColumnValue("signatoryKey");
 	}
 
-	public function getSignatoryKey()
-	{
+	public function getSignatoryKey(){
 		return $this->getColumnValue("signatoryKey");
 	}
 
-	public function getSignatoryUsername()
-	{
+	public function getSignatoryUsername(){
 		return $this->getSignatoryData()->getName();
 	}
 
-	public function setSignatoryUserKey($key)
-	{
+	public function setSignatoryUserKey($key){
 		return $this->setColumnValue("signatoryKey", $key);
 	}
 
-	public function hasSignatoryAccountType()
-	{
+	public function hasSignatoryAccountType():bool{
 		return $this->hasColumnValue("signatoryAccountType");
 	}
 
-	public function getSignatoryAccountType()
-	{
+	public function getSignatoryAccountType(){
 		return $this->getColumnValue("signatoryAccountType");
 	}
 
-	public function setSignatoryAccountType($value)
-	{
+	public function setSignatoryAccountType($value){
 		return $this->setColumnValue("signatoryAccountType", $value);
 	}
 
-	public static function skipRemoteBackup()
-	{
+	public static function skipRemoteBackup():bool{
 		return false;
 	}
 
-	/*
-	 * protected function afterInsertHook(mysqli $mysqli):int{
-	 * $f = __METHOD__; //UserSigned::getShortClass()."(".static::getShortClass().")->afterInsertHook()";
-	 * try{
-	 * $status = parent::afterInsertHook($mysqli);
-	 * //Debug::print("{$f} returned parent function");
-	 * if($status !== SUCCESS){
-	 * $err = ErrorMessage::getResultMessage($status);
-	 * Debug::warning("{$f} parent function returned error status \"{$err}\"");
-	 * return $this->setObjectStatus($status);
-	 * }
-	 * //Debug::print("{$f} parent function executed successfully");
-	 * //Debug::print("{$f} about to enqueue remote backup");
-	 * if(!$this->skipRemoteBackup()){
-	 * $status = $this->enqueueRemoteBackup($mysqli);
-	 * if($status !== SUCCESS){
-	 * $err = ErrorMessage::getResultMessage($status);
-	 * Debug::error("{$f} enqueue remote backup returned error status \"{$err}\"");
-	 * return $this->setObjectStatus($status);
-	 * }
-	 * }
-	 * //Debug::print("{$f} returning successfully");
-	 * return SUCCESS;
-	 * }catch(Exception $x){
-	 * x($f, $x);
-	 * }
-	 * }
-	 */
-	public function setSignature($signature)
-	{
-		$f = __METHOD__; //UserSigned::getShortClass()."(".static::getShortClass().")->setSignature()";
+	public function setSignature($signature){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$len = strlen(($signature));
@@ -158,9 +106,8 @@ abstract class UserSigned extends UserFingerprint
 		}
 	}
 
-	public function generateSignature()
-	{
-		$f = __METHOD__; //UserSigned::getShortClass()."(".static::getShortClass().")->generateSignature()";
+	public function generateSignature(){
+		$f = __METHOD__;
 		$print = false;
 		$signable = $this->getSignableMessage();
 		if (empty($signable)) {
@@ -180,14 +127,12 @@ abstract class UserSigned extends UserFingerprint
 		return $this->setSignature($signature);
 	}
 
-	public function hasSignature()
-	{
+	public function hasSignature():bool{
 		return $this->hasColumnValue("signature");
 	}
 
-	public function getSignature()
-	{
-		$f = __METHOD__; //UserSigned::getShortClass()."(".static::getShortClass().")->getSignature()";
+	public function getSignature(){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($this->hasSignature()) {
@@ -201,9 +146,8 @@ abstract class UserSigned extends UserFingerprint
 		}
 	}
 
-	public function signMessage($message)
-	{
-		$f = __METHOD__; //UserSigned::getShortClass()."(".static::getShortClass().")->signMessage()";
+	public function signMessage($message){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (! $this->hasSignatoryData()) {
@@ -225,9 +169,8 @@ abstract class UserSigned extends UserFingerprint
 		}
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
-		$f = __METHOD__; //UserSigned::getShortClass()."(".static::getShortClass().")::declareColumns()";
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		$f = __METHOD__;
 		parent::declareColumns($columns, $ds);
 		$signature = new SodiumCryptoSignatureDatum();
 		$signatory = new UserMetadataBundle("signatory", $ds);
@@ -236,6 +179,6 @@ abstract class UserSigned extends UserFingerprint
 			$signatory->setNullable(true);
 			$signature->setNullable(true);
 		}
-		static::pushTemporaryColumnsStatic($columns, $signature, $signatory);
+		array_push($columns, $signature, $signatory);
 	}
 }

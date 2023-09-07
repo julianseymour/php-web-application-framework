@@ -8,14 +8,15 @@ use JulianSeymour\PHPWebApplicationFramework\command\expression\BinaryExpression
 use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\ElementBindableTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
+use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\DatumBundle;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\event\AfterSetForeignDataStructureEvent;
-use JulianSeymour\PHPWebApplicationFramework\input\TextInput;
-use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnAlias;
-use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnAliasExpression;
+use JulianSeymour\PHPWebApplicationFramework\query\QueryBuilder;
+use JulianSeymour\PHPWebApplicationFramework\query\join\TableFactor;
+use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 
 class MultilingualStringDatumBundle extends DatumBundle implements StaticElementClassInterface{
 	
@@ -26,7 +27,7 @@ class MultilingualStringDatumBundle extends DatumBundle implements StaticElement
 	}
 	
 	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string{
-		return TextInput::class;
+		return MultilingualTextForm::class;
 	}
 	
 	public function generateTranslatedStringKeyDatum():ForeignKeyDatum{
@@ -46,41 +47,70 @@ class MultilingualStringDatumBundle extends DatumBundle implements StaticElement
 	}
 	
 	public function generateTranslatedStringValueDatum():TextDatum{
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
 		$column_name = $this->getName();
 		$datum_class = static::getStringDatumClassStatic();
 		$localized = new $datum_class($column_name);
 		if($this->hasHumanReadableName()){
 			$localized->setHumanReadableName($this->getHumanReadableName());
 		}
+		$localized->setSearchable(true);
 		$lang = app()->hasUserData() ? user()->getLanguagePreference() : LANGUAGE_DEFAULT;
-		$localized->setSubqueryClass(MultilingualStringData::class);
-		/*$localized->setSubqueryExpression(
-			new ColumnAlias(
-				new ColumnAliasExpression("strings_alias", $lang),
-				$column_name
-			)
-		);*/
-		$localized->setSubqueryColumnName($lang);
+		$localized->setSubqueryClass(TranslatedStringData::class);
+		$localized->setSubqueryColumnName("value");
+		$localized->setSubqueryDatabaseName(TranslatedStringData::getDatabaseNameStatic());
+		$localized->setSubqueryTableName($lang);
 		$alias = $localized->getSubqueryTableAlias();
 		$idn = $localized->getSubqueryClass()::getIdentifierNameStatic();
 		$rcn = $localized->setReferenceColumnName("{$column_name}Key");
+		/*$idn2 = new GetDeclaredVariableCommand(
+			"multilingual_alias.".MultilingualStringData::getIdentifierNameStatic()
+		);
+		$where = new WhereCondition(
+			new GetDeclaredVariableCommand("{$alias}.{$idn}"),
+			OPERATOR_EQUALS,
+			null,
+			QueryBuilder::select($idn2)->from(
+				new TableFactor(
+					MultilingualStringData::getDatabaseNameStatic(),
+					MultilingualStringData::getTableNameStatic(),
+					"multilingual_alias"
+				)
+			)->where(
+				BinaryExpressionCommand::equals(
+					$idn2,
+					new GetDeclaredVariableCommand("t0.{$rcn}")
+				)
+			)
+		);*/
 		$where = BinaryExpressionCommand::equals(
 			new GetDeclaredVariableCommand("{$alias}.{$idn}"),
 			new GetDeclaredVariableCommand("t0.{$rcn}")
 		);
 		$localized->setSubqueryWhereCondition($where);
+		if($print){
+			Debug::print("{$f} subquery \"".$where->toSQL()."\"");
+		}
 		return $localized;
 	}
 	
-	public function generateComponents(?DataStructure $ds = null): array{
+	/**
+	 * XXX TODO I forgot why the event handler is necessary
+	 * {@inheritDoc}
+	 * @see \JulianSeymour\PHPWebApplicationFramework\datum\DatumBundle::generateComponents()
+	 */
+	public function generateComponents(?DataStructure $ds = null):array{
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
 		$column_name = $this->getName();
 		//foreign key for selecting name data structure
 			$translatedStringKey = $this->generateTranslatedStringKeyDatum();
 		//aliased coolumn for automatically loading the correct localized string
 			$localized = $this->generateTranslatedStringValueDatum();
 		//updates the aliased column when the foreign data structure is set
-			$closure = function(AfterSetForeignDataStructureEvent $event, DataStructure $target) 
-			use ($column_name){
+			$closure1 = function(AfterSetForeignDataStructureEvent $event, DataStructure $target) 
+			use ($column_name, $f, $print){
 				$cn = $event->getColumnName();
 				if($cn !== "{$column_name}Key"){
 					return SUCCESS;
@@ -88,12 +118,39 @@ class MultilingualStringDatumBundle extends DatumBundle implements StaticElement
 				$user = user();
 				$lang = $user->hasLanguagePreference() ? $user->getLanguagePreference() : LANGUAGE_DEFAULT;
 				$struct = $event->getForeignDataStructure();
-				if($struct->hasColumnValue($lang)){
-					$target->setColumnValue($column_name, $struct->getColumnValue($lang));
+				if($struct->hasForeignDataStructure($lang)){
+					$target->setColumnValue(
+						$column_name, 
+						$struct->getForeignDataStructure($lang)->getColumnValue('value')
+					);
+				}else{
+					if($print){
+						$did = $struct->getDebugId();
+						//Debug::print("{$f} multilingual string data with debug ID {$did} does not have a link to its translated string data  \"{$lang}\"");
+					}
+					$closure2 = function(AfterSetForeignDataStructureEvent $event, MultilingualStringData $msd) use ($target, $column_name, $lang, $f, $print, $did){
+						if($event->getColumnName() !== $lang){
+							return SUCCESS;
+						}
+						$tsd = $event->getForeignDataStructure();
+						if(!$tsd->hasColumnValue('value')){
+							if($print){
+								Debug::print("{$f} translated string data doesn't have its value yet");
+							}
+							return SUCCESS;
+						}
+						$msd->removeEventListener($event);
+						$target->setColumnValue($column_name, $tsd->getColumnValue('value'));
+						if($print){
+							Debug::print("{$f} successfully set string value with nested AfterSetForeignDataStructureEvent for MultilingualStringData with debug ID {$did}");
+						}
+						return SUCCESS;
+					};
+					$struct->addEventListener(EVENT_AFTER_SET_FOREIGN, $closure2);
 				}
 				return SUCCESS;
 			};
-			$ds->addEventListener(EVENT_AFTER_SET_FOREIGN, $closure);
+			$ds->addEventListener(EVENT_AFTER_SET_FOREIGN, $closure1);
 		return [$translatedStringKey, $localized];
 	}
 }

@@ -6,7 +6,7 @@ use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\DeclareVariableCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
 
-class InvokeableFunctionsJavaScriptConstantUseCase extends JavaScriptFileUseCase{
+class InvokeableFunctionsJavaScriptConstantUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
 		$f = __METHOD__;

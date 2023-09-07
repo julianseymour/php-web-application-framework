@@ -11,7 +11,7 @@ trait ParametricTrait{
 
 	use ArrayPropertyTrait;
 
-	public function hasParameters(){
+	public function hasParameters():bool{
 		return $this->hasArrayProperty("parameters");
 	}
 
@@ -41,8 +41,11 @@ trait ParametricTrait{
 
 	public function getParameterString(bool $js = false): ?string{
 		$f = __METHOD__;
-		$print = false;
+		$print = $this->getDebugFlag();
 		if (! $this->hasParameters()) {
+			if($print){
+				Debug::print("{$f} no parameters");
+			}
 			return null;
 		}
 		$string = "";
@@ -70,6 +73,9 @@ trait ParametricTrait{
 			}else{
 				$string .= $p;
 			}
+		}
+		if($print){
+			Debug::print("{$f} returning \"{$string}\"");
 		}
 		return $string;
 	}

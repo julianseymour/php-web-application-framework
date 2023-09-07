@@ -36,7 +36,7 @@ abstract class CompressedFileData extends CleartextFileData{
 		return $tempfilenames;
 	}
 
-	public final function getSubtypeValue(): string{
+	public final function getSubtype(): string{
 		return $this->getExtensionStatic();
 	}
 
@@ -45,10 +45,6 @@ abstract class CompressedFileData extends CleartextFileData{
 	}
 
 	public function getFileToWrite(){
-		ErrorMessage::unimplemented(__METHOD__);
-	}
-
-	public static function getTableNameStatic(): string{
 		ErrorMessage::unimplemented(__METHOD__);
 	}
 }

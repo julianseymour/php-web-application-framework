@@ -15,14 +15,17 @@ use JulianSeymour\PHPWebApplicationFramework\datum\IpAddressDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\UrlDatum;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 use Exception;
 
-class ServerKeypair extends SodiumKeypair{
+class ServerKeypair extends SodiumKeypair implements StaticTableNameInterface{
 
 	use KeypairColumnsTrait;
 	use NameColumnTrait;
 	use SignatureKeypairColumnsTrait;
-
+	use StaticTableNameTrait;
+		
 	public static function getDatabaseNameStatic():string{
 		return "data";
 	}
@@ -122,7 +125,7 @@ class ServerKeypair extends SodiumKeypair{
 			$server_domain->setHumanReadableName(_("Domain"));
 			$name = new NameDatum("name");
 			// $name->setUniqueFlag(true);
-			static::pushTemporaryColumnsStatic($columns, $ip, $publicKey, $signaturePublicKey, $privateKey, $signaturePrivateKey, $server_type, $is_current, $server_domain, $name);
+			array_push($columns, $ip, $publicKey, $signaturePublicKey, $privateKey, $signaturePrivateKey, $server_type, $is_current, $server_domain, $name);
 		} catch (Exception $x) {
 			x($f, $x);
 		}

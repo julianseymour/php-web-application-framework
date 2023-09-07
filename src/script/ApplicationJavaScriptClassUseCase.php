@@ -8,7 +8,7 @@ use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\app\generator\ApplicationJavaScriptGenerator;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 
-class ApplicationJavaScriptClassUseCase extends JavaScriptFileUseCase{
+class ApplicationJavaScriptClassUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
 		echo CommandBuilder::const('APPLICATION_CONFIG_CLASS_NAME', get_short_class(config()))->toJavaScript() . ";\n";

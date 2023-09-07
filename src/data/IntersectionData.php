@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
@@ -13,9 +14,13 @@ use JulianSeymour\PHPWebApplicationFramework\query\QueryBuilder;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameTrait;
 
-class IntersectionData extends DataStructure{
+class IntersectionData extends DataStructure implements StaticDatabaseNameInterface{
 
+	use StaticDatabaseNameTrait;
+	
 	protected $foreignDataStructureClass;
 
 	protected $hostDataStructureClass;
@@ -59,7 +64,7 @@ class IntersectionData extends DataStructure{
 			$foreignKey->setOnDelete(REFERENCE_OPTION_CASCADE); // );
 			$foreignKey->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 			$relationship = new TextDatum("relationship");
-			static::pushTemporaryColumnsStatic($columns, $hostKey, $foreignKey, $relationship);
+			array_push($columns, $hostKey, $foreignKey, $relationship);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
@@ -92,7 +97,7 @@ class IntersectionData extends DataStructure{
 		];
 	}
 
-	public function setForeignDataStructureClass($fdsc){
+	public function setForeignDataStructureClass(string $fdsc):string{
 		$f = __METHOD__;
 		if (is_object($fdsc)) {
 			$fdsc = $fdsc->getClass();
@@ -109,7 +114,7 @@ class IntersectionData extends DataStructure{
 		return $this->foreignDataStructureClass = $foreign_key->setForeignDataStructureClass($fdsc);
 	}
 
-	public function hasForeignDataStructureClass(){
+	public function hasForeignDataStructureClass():bool{
 		return isset($this->foreignDataStructureClass);
 	}
 
@@ -117,7 +122,11 @@ class IntersectionData extends DataStructure{
 		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasTableName()) {
-			$foreign = $this->getForeignDataStructureClass()::getTableNameStatic();
+			$fdsc = $this->getForeignDataStructureClass();
+			if(!method_exists($fdsc, 'getTableNameStatic')){
+				Debug::error("{$f} table name cannot be determined statically for foreign data structure class \"{$fdsc}\"");
+			}
+			$foreign = $fdsc::getTableNameStatic();
 			$hdsc = $this->getHostDataStructureClass();
 			$rel = $this->getRelationship();
 			if ($this->hasHostDataStructure()) {
@@ -129,6 +138,9 @@ class IntersectionData extends DataStructure{
 			if ($this->hasHostDataStructure()) {
 				$htn = $hds->getTableName();
 			} else {
+				if(!method_exists($hdsc, 'getTableNameStatic')){
+					Debug::error("{$f} table name cannot be determined statically for host data structure class \"{$hdsc}\"");
+				}
 				$htn = $hdsc::getTableNameStatic();
 			}
 			if ($column->hasEmbeddedName()) {
@@ -182,7 +194,7 @@ class IntersectionData extends DataStructure{
 		return $this->getForeignDataStructure("hostKey");
 	}
 
-	public function setHostDataStructureClass($hdsc){
+	public function setHostDataStructureClass(string $hdsc):string{
 		$f = __METHOD__;
 		if (is_object($hdsc)) {
 			$hdsc = $hdsc->getClass();
@@ -201,11 +213,11 @@ class IntersectionData extends DataStructure{
 		return $this->hostDataStructureClass = $host_key->setForeignDataStructureClass($hdsc);
 	}
 
-	public function hasHostDataStructureClass(){
+	public function hasHostDataStructureClass():bool{
 		return isset($this->hostDataStructureClass);
 	}
 
-	public function getHostDataStructureClass(){
+	public function getHostDataStructureClass():string{
 		$f = __METHOD__;
 		if (! $this->hasHostDataStructureClass()) {
 			if ($this->hasHostDataStructure()) {
@@ -216,15 +228,15 @@ class IntersectionData extends DataStructure{
 		return $this->hostDataStructureClass;
 	}
 
-	public function setRelationship($value){
+	public function setRelationship(string $value):string{
 		return $this->setColumnValue("relationship", $value);
 	}
 
-	public function hasRelationship(){
+	public function hasRelationship():bool{
 		return $this->hasColumnValue("relationship");
 	}
 
-	public function getRelationship(){
+	public function getRelationship():string{
 		$f = __METHOD__;
 		if (! $this->hasRelationship()) {
 			Debug::error("{$f} foreign key name is undefined");
@@ -232,15 +244,15 @@ class IntersectionData extends DataStructure{
 		return $this->getColumnValue("relationship");
 	}
 
-	public function setHostKey($value){
+	public function setHostKey(string $value):string{
 		return $this->setColumnValue("hostKey", $value);
 	}
 
-	public function hasHostKey(){
+	public function hasHostKey():bool{
 		return $this->hasColumnValue("hostKey");
 	}
 
-	public function getHostKey(){
+	public function getHostKey():string{
 		$f = __METHOD__;
 		if (! $this->hasHostKey()) {
 			Debug::error("{$f} host key is undefined");
@@ -248,15 +260,15 @@ class IntersectionData extends DataStructure{
 		return $this->getColumnValue("hostKey");
 	}
 
-	public function setForeignKey($value){
+	public function setForeignKey(string $value):string{
 		return $this->setColumnValue("foreignKey", $value);
 	}
 
-	public function hasForeignKey(){
+	public function hasForeignKey():bool{
 		return $this->hasColumnValue("foreignKey");
 	}
 
-	public function getForeignKey(){
+	public function getForeignKey():string{
 		$f = __METHOD__;
 		if (! $this->hasForeignKey()) {
 			Debug::error("{$f} foreign key is undefined");
@@ -269,10 +281,13 @@ class IntersectionData extends DataStructure{
 		if (! $this->hasForeignKey()) {
 			Debug::error("{$f} foreign key is undefined");
 		}elseif(!is_a($this->getHostDataStructureClass(), EventSourceData::class, true)){
-			if(
+			$hdsc = $this->getHostDataStructureClass();
+			if(!method_exists($hdsc, 'getTableNameStatic')){
+				Debug::error("{$f} table name cannot be determined statically for host data structure class \"{$hdsc}\"");
+			}elseif(
 				QueryBuilder::select()->from(
-					$this->getHostDataStructureClass()::getDatabaseNameStatic(), 
-					$this->getHostDataStructureClass()::getTableNameStatic()
+					$hdsc::getDatabaseNameStatic(), 
+					$hdsc::getTableNameStatic()
 				)->where(
 					new WhereCondition(
 						$this->getHostDataStructureClass()::getIdentifierNameStatic(), 
@@ -283,18 +298,23 @@ class IntersectionData extends DataStructure{
 				)->withTypeSpecifier('s')->executeGetResultCount($mysqli) !== 1
 			){
 				Debug::error("{$f} host data structure of class ".get_short_class($this->getHostDataStructureClass())." with key ".$this->getHostKey()." does not exist");
-			}elseif(
-				QueryBuilder::select()->from(
-					$this->getForeignDataStructureClass()::getDatabaseNameStatic(),
-					$this->getForeignDataStructureClass()::getTableNameStatic()
-				)->where(
-					new WhereCondition(
-						$this->getForeignDataStructureClass()::getIdentifierNameStatic(),
-						OPERATOR_EQUALS
-					)
-				)->withParameters($this->getForeignKey())->withTypeSpecifier('s')->executeGetResultCount($mysqli) !== 1
-			){
-				Debug::error("{$f} foreign data structure of class ".get_short_class($this->getForeignDataStructureClass())." with key ".$this->getForeignKey()." and relationship ".$this->getRelationship()." does not exist in the database. Host data structure has class ".$this->getHostDataStructureClass()." and key ".$this->getHostKey().". Foreign data structure was instantiated ".registry()->get($this->getForeignKey())->getDeclarationLine());
+			}else{
+				$fdsc = $this->getForeignDataStructureClass();
+				if(!method_exists($fdsc, 'getTableNameStatic')){
+					Debug::error("{$f} table name cannot be determined statically for foreign data structure class \"{$fdsc}\"");
+				}elseif(
+					QueryBuilder::select()->from(
+						$fdsc::getDatabaseNameStatic(),
+						$fdsc::getTableNameStatic()
+					)->where(
+						new WhereCondition(
+							$this->getForeignDataStructureClass()::getIdentifierNameStatic(),
+							OPERATOR_EQUALS
+						)
+					)->withParameters($this->getForeignKey())->withTypeSpecifier('s')->executeGetResultCount($mysqli) !== 1
+				){
+					Debug::error("{$f} foreign data structure of class ".get_short_class($fdsc)." with key ".$this->getForeignKey()." and relationship ".$this->getRelationship()." does not exist in the database. Host data structure has class ".$hdsc::getShortClass()." and key ".$this->getHostKey().". Foreign data structure was instantiated ".registry()->get($this->getForeignKey())->getDeclarationLine());
+				}
 			}
 		}
 		
@@ -303,11 +323,6 @@ class IntersectionData extends DataStructure{
 
 	public static function getPrettyClassName():string{
 		return _("Intersection data");
-	}
-
-	public static function getTableNameStatic(): string{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
 	}
 
 	public static function getDataType(): string{

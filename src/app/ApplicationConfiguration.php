@@ -110,17 +110,6 @@ abstract class ApplicationConfiguration extends Basic
 		return $obj->getFilteredColumnNames(COLUMN_FILTER_TRIMMABLE, "!" . COLUMN_FILTER_ENCRYPTED, "!" . COLUMN_FILTER_DEFAULT, "!" . COLUMN_FILTER_FOREIGN, "!" . COLUMN_FILTER_VIRTUAL, "!" . COLUMN_FILTER_VALUED);
 	}
 
-	/**
-	 * Override this to extend the column list of vanilla or modile-created DataStructures.
-	 * This gets called in DataStructure::declareColumns()
-	 *
-	 * @param DataStructure $ds
-	 * @return NULL
-	 */
-	public function getApplicationSpecificColumns(DataStructure $ds): ?array{
-		return null;
-	}
-
 	public function beforeInstallHook(): int{
 		$f = __METHOD__;
 		foreach (mods()->getModules() as $mod) {

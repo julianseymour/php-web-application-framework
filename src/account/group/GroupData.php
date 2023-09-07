@@ -17,7 +17,10 @@ use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\KeyListDatum;
+use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
 /**
  * defines a user-created group
@@ -25,13 +28,15 @@ use mysqli;
  * @author j
  *        
  */
-class GroupData extends DataStructure{
+class GroupData extends DataStructure implements StaticTableNameInterface{
 
 	use KeypairedTrait;
 	use KeypairColumnsTrait;
 	use NameColumnTrait;
 	use ParentKeyColumnTrait;
-
+	use StaticTableNameTrait;
+	use SubtypeColumnTrait;
+	
 	public static function getDatabaseNameStatic():string{
 		return "user_content";
 	}
@@ -49,7 +54,7 @@ class GroupData extends DataStructure{
 		// user who founded the group
 		$founder = new UserMetadataBundle("founder", $ds);
 		// group type
-		$type = new StringEnumeratedDatum("groupType");
+		$type = new StringEnumeratedDatum("subtype");
 		$type->setNullable(true);
 		
 		// group public key
@@ -63,42 +68,23 @@ class GroupData extends DataStructure{
 		$role_declarations->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_MANY);
 		$role_declarations->volatilize();
 		$role_declarations->setForeignDataStructureClass(RoleDeclaration::class);
-		static::pushTemporaryColumnsStatic($columns, $name, $pk, $founder, $type, $public, $role_declarations);
+		array_push($columns, $name, $pk, $founder, $type, $public, $role_declarations);
 	}
 
-	public function hasSubtypeValue(): bool
-	{
-		return $this->hasGroupType();
+	public function hasGroupType():bool{
+		return $this->hasSubtype();
 	}
 
-	public function getSubtypeValue()
-	{
-		return $this->getGroupType();
+	public function getGroupType():string{
+		return $this->getSubtype();
 	}
 
-	public function hasGroupType()
-	{
-		return $this->hasColumnValue("groupType");
+	public function setGroupType(string $value):string{
+		return $this->setSubtype($value);
 	}
 
-	public function getGroupType()
-	{
-		return $this->getColumnValue("groupType");
-	}
-
-	public function setGroupType($value)
-	{
-		return $this->setColumnValue("groupType", $value);
-	}
-
-	public function setSubtype($value)
-	{
-		return $this->setGroupType($value);
-	}
-
-	public function getUserRoles(mysqli $mysqli, UserData $user): ?array
-	{
-		$f = __METHOD__; //GroupData::getShortClass()."(".static::getShortClass().")->getUserRoles()";
+	public function getUserRoles(mysqli $mysqli, UserData $user): ?array{
+		$f = __METHOD__;
 		$roles = parent::getUserRoles($mysqli, $user);
 		$r2 = $user->getGroupRoles($mysqli, $this);
 		if (! empty(array_intersect($r2, array_keys(mods()->getUserClasses())))) {

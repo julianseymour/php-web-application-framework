@@ -32,7 +32,7 @@ class ProfileImageData extends ImageData implements TemplateContextInterface{
 		}
 	}
 
-	public static function getImageTypeStatic(){
+	public static function getSubtypeStatic():string{
 		return IMAGE_TYPE_PROFILE;
 	}
 

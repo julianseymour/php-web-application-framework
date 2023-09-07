@@ -19,10 +19,6 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Exception;
 
 class LanguageSettingsData extends DataStructure{
-
-	public static function getDatabaseNameStatic():string{
-		return "error";
-	}
 	
 	public static function getPrettyClassName():string{
 		return _("Language selection");
@@ -127,17 +123,13 @@ class LanguageSettingsData extends DataStructure{
 		$region_cookie = new StringEnumeratedDatum("cookieRegionCode");
 		$region_cookie->setNullable(true);
 		$region_cookie->setPersistenceMode(PERSISTENCE_MODE_COOKIE);
-		static::pushTemporaryColumnsStatic(
+		array_push(
 			$columns, 
 			$language_session,
 			$language_cookie,
 			$region_session,
 			$region_cookie
 		);
-	}
-
-	public static function getTableNameStatic(): string{
-		ErrorMessage::unimplemented(__METHOD__);
 	}
 
 	public static function getDataType(): string{

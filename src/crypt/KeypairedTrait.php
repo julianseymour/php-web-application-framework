@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -6,18 +7,16 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\AsymmetricEncryptionScheme;
 use Exception;
 
-trait KeypairedTrait
-{
+trait KeypairedTrait{
 
-	public abstract function getPublicKey();
+	public abstract function getPublicKey():string;
 
-	public abstract function getPrivateKey();
+	public abstract function getPrivateKey():?string;
 
 	protected abstract function nullPrivateKeyHook(): int;
 
-	public function encrypt($encrypt_me)
-	{
-		$f = __METHOD__; //"KeypairedTrait(".static::getShortClass().")->encrypt()";
+	public function encrypt(string $encrypt_me):string{
+		$f = __METHOD__;
 		$print = false;
 		$scheme = new AsymmetricEncryptionScheme();
 		$pk = $this->getPublicKey();
@@ -38,9 +37,8 @@ trait KeypairedTrait
 		return $cipher;
 	}
 
-	public function decrypt($encrypted)
-	{
-		$f = __METHOD__; //"KeypairedTrait(".static::getShortClass().")->decrypt()";
+	public function decrypt(string $encrypted):?string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$privateKey = $this->getPrivateKey();
@@ -86,9 +84,8 @@ trait KeypairedTrait
 		}
 	}
 
-	public function getKeypair()
-	{
-		$f = __METHOD__; //"KeypairedTrait(".static::getShortClass().")->getKeypair()";
+	public function getKeypair():string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($print) {
@@ -96,6 +93,7 @@ trait KeypairedTrait
 			}
 			$priv = $this->getPrivateKey();
 			if ($priv == null) {
+				session_destroy();
 				Debug::error("{$f} private key is null");
 				$this->nullPrivateKeyHook();
 			}

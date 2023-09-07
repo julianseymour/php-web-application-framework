@@ -1,12 +1,3 @@
-	/*self.importScripts('/script/'.concat(LOCALE).concat('/sw_bundle.js'));
-	
-	const serviceWorkerCacheName = 'swcache';
-	
-	const serviceWorkerCacheContent = [
-		'/style/bundle.css',
-		'/script/'.concat(LOCALE).'/bundle.js'
-	];*/
-	
 	//self.clients.matchAll().then(function(clients){
 		//clients.forEach(function(client){
 			//console.log(client);
@@ -466,5 +457,4 @@
 			console.error(err);
 		}
 	});*/
-	
 	//service workers suck

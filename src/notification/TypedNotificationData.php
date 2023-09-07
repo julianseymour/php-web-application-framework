@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
 use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
@@ -7,15 +8,18 @@ use function JulianSeymour\PHPWebApplicationFramework\push;
 use function JulianSeymour\PHPWebApplicationFramework\starts_with;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
-use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateContextInterface;
 use Exception;
 use mysqli;
 
-abstract class TypedNotificationData extends NotificationData implements TemplateContextInterface{
+abstract class TypedNotificationData extends NotificationData implements StaticSubtypeInterface, TemplateContextInterface{
 
+	use StaticSubtypeTrait;
+	
 	public abstract static function getNotificationLinkUriStatic($that);
 
 	public abstract static function getNotificationTypeStatic();
@@ -40,7 +44,7 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 	}
 
 	public static function getJavaScriptClassPath():?string{
-		$f = __METHOD__; //TypedNotificationData::getShortClass()."(".static::getShortClass().")::getJavaScriptClassPath()";
+		$f = __METHOD__;
 		$print = false;
 		$fn = get_class_filename(static::class);
 		$ret = substr($fn, 0, strlen($fn) - 3) . "js";
@@ -50,32 +54,31 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 		return $ret;
 	}
 	
-	public static function dismissalRequiresCorrespondentKey($context){
+	public static function getSubtypeStatic():string{
+		return static::getNotificationTypeStatic();
+	}
+	
+	public static function dismissalRequiresCorrespondentKey($context):bool{
 		return false;
 	}
 
-	public function hasElementClass(){
+	public function hasElementClass():bool{
 		return true;
 	}
 
-	public function getSubjectClass(){
+	public function getSubjectClass():string{
 		if ($this->hasSubjectData()) {
 			return parent::getSubjectClass();
 		}
 		return static::getSubjectClassStatic($this);
 	}
 
-	public function hasSubtypeValue(): bool
-	{
-		return true;
-	}
-
 	public static function getJavaScriptClassIdentifier(): string{
 		return static::getNotificationTypeStatic();
 	}
 
-	public function getSubjectDataType(){
-		$f = __METHOD__; //TypedNotificationData::getShortClass()."(".static::getShortClass().")->getSubjectDataType()";
+	public function getSubjectDataType():string{
+		$f = __METHOD__;
 		$type = $this->getColumnValue('subjectDataType');
 		if (isset($type) && $type != "") {
 			return $type;
@@ -89,20 +92,22 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 		return $this->setSubjectDataType($type);
 	}
 
-	public final function getTypedNotificationClass(){
+	public final function getTypedNotificationClass():string{
 		return static::class;
 	}
 
-	public function getNotificationType(){
-		$f = __METHOD__;
-		$type = $this->getColumnValue('notificationType');
-		if (isset($type)) {
-			return $type;
+	public function getSubtype():string{
+		if($this->hasColumnValue('subtype')) {
+			return $this->getColumnValue('subtype');
 		}
-		return $this->setNotificationType(static::getNotificationTypeStatic());
+		return $this->setSubtype(static::getSubypeStatic());
+	}
+	
+	public function getNotificationType():string{
+		return $this->getSubtype();
 	}
 
-	public static function getPushStatusVariableName(){
+	public static function getPushStatusVariableName():string{
 		$f = __METHOD__;
 		$t = static::getNotificationTypeStatic();
 		/*while ($t instanceof ValueReturningCommandInterface) {
@@ -117,7 +122,7 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 		return $vn;
 	}
 
-	public static function getEmailStatusVariableName(){
+	public static function getEmailStatusVariableName():string{
 		$f = __METHOD__;
 		$t = static::getNotificationTypeStatic();
 		/*while ($t instanceof ValueReturningCommandInterface) {
@@ -227,7 +232,7 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 				if ($print) {
 					Debug::print("{$f} yes, push notifications are enabled");
 				}
-				if ($subject->isPushNotificationWarranted($user)) {
+				if($subject->isPushNotificationWarranted($user)){
 					if ($print) {
 						Debug::print("{$f} the object says it warrants a push notification");
 					}
@@ -235,8 +240,7 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 					if ($print) {
 						Debug::print("{$f} enqueued push notification");
 					}
-				} elseif ($print) {
-					
+				}elseif($print){
 					Debug::print("{$f} push notifications are enabled, but object of class \"{$subject_class}\" says it is unwarranted");
 				}
 			} elseif ($print) {
@@ -252,6 +256,8 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 		switch ($column_name) {
 			case "actions":
 				return true;
+			case 'subtype':
+				RETURN true;
 			case "title":
 				return true;
 			default:
@@ -259,6 +265,20 @@ abstract class TypedNotificationData extends NotificationData implements Templat
 		}
 	}
 
+	public function getVirtualColumnValue(string $column_name){
+		$f = __METHOD__;
+		try {
+			switch ($column_name) {
+				case 'subtype':
+					return $this->getSubtypeStatic();
+				default:
+					return parent::getVirtualColumnValue($column_name);
+			}
+		} catch (Exception $x) {
+			x($f, $x);
+		}
+	}
+	
 	public function template(){
 		return;
 	}

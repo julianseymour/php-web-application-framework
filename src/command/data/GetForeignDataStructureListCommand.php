@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
@@ -8,22 +9,18 @@ use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use Exception;
 
-class GetForeignDataStructureListCommand extends ForeignDataStructureCommand implements ValueReturningCommandInterface
-{
+class GetForeignDataStructureListCommand extends ForeignDataStructureCommand implements ValueReturningCommandInterface{
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "getForeignDataStructureList";
 	}
 
-	public function evaluate(?array $params = null)
-	{
+	public function evaluate(?array $params = null){
 		return $this->getDataStructure()->getForeignDataStructureList($this->getColumnName());
 	}
 
-	public function toJavaScript(): string
-	{
-		$f = __METHOD__; //GetForeignDataStructureListCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
+	public function toJavaScript(): string{
+		$f = __METHOD__;
 		try {
 			$idcs = $this->getIdCommandString();
 			if ($idcs instanceof JavaScriptInterface) {

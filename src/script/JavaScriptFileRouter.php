@@ -42,8 +42,6 @@ class JavaScriptFileRouter extends Router{
 				return new TypedNotificationJavaScriptClassesUseCase();
 			case "observers.js":
 				return new LegalIntersetionObserversJavaScriptConstantUseCase();
-			case "service-worker.js":
-				return new LocalizedServiceWorkerUseCase();
 			case "sw_blob.js":
 				return new ServiceWorkerBlobFileUseCase();
 			case "sw_bundle.js":

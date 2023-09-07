@@ -19,7 +19,7 @@ class ConfirmEmailAttempt extends CodeConfirmationAttempt{
 		return "confirmEmailAttempts";
 	}
 
-	public static function getAccessTypeStatic(): string{
+	public static function getSubtypeStatic(): string{
 		return ACCESS_TYPE_CHANGE_EMAIL;
 	}
 

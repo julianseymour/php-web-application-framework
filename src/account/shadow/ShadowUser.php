@@ -27,7 +27,7 @@ class ShadowUser extends UserData{
 		return false;
 	}
 
-	public static function getAccountTypeStatic(){
+	public static function getAccountTypeStatic():string{
 		return ACCOUNT_TYPE_SHADOW;
 	}
 
@@ -41,10 +41,6 @@ class ShadowUser extends UserData{
 
 	public function filterIpAddress(mysqli $mysqli, ?string $ip_address = null, bool $skip_insert = false): int{
 		return SUCCESS;
-	}
-
-	public function getAttachmentsEnabled(): bool{
-		return false;
 	}
 
 	public static function getTableNameStatic(): string{
@@ -100,11 +96,10 @@ class ShadowUser extends UserData{
 		$email->setEncryptionScheme(MessageEncryptionScheme::class);
 		$name = new VirtualDatum("name");
 		// $normalizedName = new VirtualDatum("normalizedName");
-		static::pushTemporaryColumnsStatic($columns, $first, $last, $full, $email, $name);
+		array_push($columns, $first, $last, $full, $email, $name);
 	}
 
-	public function getFullName()
-	{
+	public function getFullName():string{
 		$first = $this->getFirstName();
 		if (! $this->hasLastName()) {
 			return $first;
@@ -115,8 +110,7 @@ class ShadowUser extends UserData{
 		return Internationalization::lastNameFirst($lang) ? "{$last} {$first}" : "{$first} {$last}";
 	}
 
-	public function getVirtualColumnValue(string $column_name)
-	{
+	public function getVirtualColumnValue(string $column_name){
 		switch ($column_name) {
 			case "fullName":
 			case "name":
@@ -128,8 +122,7 @@ class ShadowUser extends UserData{
 		}
 	}
 
-	public function hasVirtualColumnValue(string $column_name): bool
-	{
+	public function hasVirtualColumnValue(string $column_name): bool{
 		switch ($column_name) {
 			case "fullName":
 			case "name":
@@ -138,5 +131,10 @@ class ShadowUser extends UserData{
 			default:
 				return parent::hasVirtualColumnValue($column_name);
 		}
+	}
+	
+	public static function reconfigureColumns(array &$columns, ?DataStructure $ds=null):void{
+		parent::reconfigureColumns($columns, $ds);
+		$columns['regionCode']->setNullable(true);
 	}
 }

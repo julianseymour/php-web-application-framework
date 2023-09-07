@@ -15,15 +15,11 @@ use Exception;
  * @author j
  */
 class SessionTimestampData extends DataStructure{
-
-	public static function getDatabaseNameStatic():string{
-		return "error";
-	}
 	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$lastActive = new TimestampDatum("lastActiveTimestamp");
 		$regen = new TimestampDatum("regenerationTimestamp");
-		static::pushTemporaryColumnsStatic($columns, $lastActive, $regen);
+		array_push($columns, $lastActive, $regen);
 	}
 
 	public function setRegnerationTimestamp($value){
@@ -87,11 +83,6 @@ class SessionTimestampData extends DataStructure{
 	}
 
 	public static function getPrettyClassName():string{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
-	}
-
-	public static function getTableNameStatic(): string{
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}

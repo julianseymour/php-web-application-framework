@@ -10,7 +10,7 @@ trait EventListeningTrait{
 
 	protected $eventListeners;
 
-	public function addEventListener($event_str, $closure, $index = null){
+	public function addEventListener(string $event_str, $closure, string $index = null){
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -83,7 +83,7 @@ trait EventListeningTrait{
 		}
 	}
 
-	public function hasEventListener($event_str, $index){
+	public function hasEventListener(string $event_str, string $index):bool{
 		$f = __METHOD__;
 		try {
 			if (! isset($this->eventListeners) || ! is_array($this->eventListeners) || empty($this->eventListeners)) {
@@ -99,9 +99,8 @@ trait EventListeningTrait{
 		}
 	}
 
-	public function removeEventListener($event_str, $index = null)
-	{
-		$f = __METHOD__; //"EventListeningTrait(".static::getShortClass().")->removeEventListener()";
+	public function removeEventListener($event_str, ?string $index = null){
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (! is_array($this->eventListeners)) {

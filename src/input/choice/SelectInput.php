@@ -82,7 +82,7 @@ class SelectInput extends InputElement
 					if (is_object($context)) {
 						$cc = $context->getClass();
 						if ($context instanceof Datum) {
-							$cn = $context->getColumnName();
+							$cn = $context->getName();
 							Debug::print("{$f} context is a {$cc} named \"{$cn}\"");
 						} else {
 							Debug::print("{$f} context is an object of class \"{$cc}\"");

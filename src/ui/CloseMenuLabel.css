@@ -23,3 +23,36 @@
 	margin: auto;
 	margin-top:15.75px;
 }*/
+
+.close_menu_line1, .close_menu_line2 {
+	max-width: 24px;
+}
+
+.close_menu_line3, .close_menu_line4 {
+	max-width: 12px;
+}
+
+.close_menu_line1 {
+	transform: rotate(45deg) translate(7px, 7px);
+}
+
+.close_menu_line2 {
+	transform: rotate(-45deg) translate(-7px, 7px);
+}
+
+div[class^="close_menu_line"] {
+	width: 100%;
+	height: 2px;
+	position: absolute;
+	border-radius: 0.25rem;
+	background-color: #0065d1;
+	transition: transform 0.5s, max-width 0.5s, opacity 0.5s;
+}
+
+.close_menu_line3 {
+	transform: translate(6px, 15px) rotate(-27.5deg);
+}
+
+.close_menu_line4 {
+	transform: translate(6px, 20px) rotate(27.5deg);
+}

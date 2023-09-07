@@ -6,6 +6,8 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\UniversalDataClassResolver;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
 /**
  * This class is used to automatically delete data structures when another data structure that they are dependent on is deleted, but not directly referenced. 
@@ -13,8 +15,10 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
  * @author j
  *
  */
-class CascadeDeleteTriggerData extends DataStructure{
+class CascadeDeleteTriggerData extends DataStructure implements StaticTableNameInterface{
 
+	use StaticTableNameTrait;
+	
 	public static function getDatabaseNameStatic():string{
 		return "cascading";
 	}
@@ -25,7 +29,7 @@ class CascadeDeleteTriggerData extends DataStructure{
 		$instigator->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_ONE);
 		$instigator->setForeignDataStructureClassResolver(CascadeDeletableClassResolver::class);
 		$instigator->constrain();
-		static::pushTemporaryColumnsStatic($columns, $instigator);
+		array_push($columns, $instigator);
 	}
 
 	public static function getPrettyClassName():string{

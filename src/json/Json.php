@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\json;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -8,8 +9,7 @@ use JulianSeymour\PHPWebApplicationFramework\common\DisposableInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 
-abstract class Json
-{
+abstract class Json{
 
 	/**
 	 * Equivalent to echo(json_encode($value)) but saves memory with EchoJsonInterface
@@ -19,7 +19,7 @@ abstract class Json
 	 * @param bool $comma
 	 */
 	public static function echo($value, bool $destroy = false, bool $comma = true){
-		$f = __METHOD__; //"Json::echo()";
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (is_object($value)) {
@@ -122,7 +122,7 @@ abstract class Json
 	 * @param bool $comma
 	 */
 	public static function echoKeyValuePair($key, $value, bool $destroy = false, bool $comma = true){
-		$f = __METHOD__; //"Json::echoKeyValuePair()";
+		$f = __METHOD__;
 		try {
 			if(is_array($value) && empty($value)){
 				Debug::warning("{$f} empty array received for key \"{$key}\"");
@@ -154,7 +154,7 @@ abstract class Json
 	 *        	: if true, echo a trailing comma afterward
 	 */
 	public static function echoArray(array $arr, bool $destroy = false, bool $comma = true){
-		$f = __METHOD__; //"Json::echoArray()";
+		$f = __METHOD__;
 		try {
 			Debug::error("{$f} disabled to reduce execution depth");
 			$i = 0;

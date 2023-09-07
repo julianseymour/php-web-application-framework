@@ -3,6 +3,10 @@ class NotificationsWidget extends WidgetIcon{
 	static initializeNotificationsWidget(){
 		let f = "initializeNotificationsWidget()";
 		try{
+			let print = false;
+			if(print){
+				window.alert(f.concat(": entered"));
+			}
 			let action = "/notifications/";
 			let params = {}; //js:1};
 			let id = "notifications_widget_icon";

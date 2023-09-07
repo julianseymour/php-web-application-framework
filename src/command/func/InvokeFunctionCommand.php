@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\func;
 
 use function JulianSeymour\PHPWebApplicationFramework\escape_quotes;
@@ -10,15 +11,13 @@ use JulianSeymour\PHPWebApplicationFramework\element\Element;
 use JulianSeymour\PHPWebApplicationFramework\json\Json;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-abstract class InvokeFunctionCommand extends Command implements JavaScriptInterface
-{
+abstract class InvokeFunctionCommand extends Command implements JavaScriptInterface{
 
 	use NamedTrait;
 	use ParametricTrait;
 
-	public function __construct($name, ...$params)
-	{
-		$f = __METHOD__; //InvokeFunctionCommand::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($name, ...$params){
+		$f = __METHOD__;
 		$print = false;
 		parent::__construct();
 		$this->setName($name);
@@ -31,8 +30,7 @@ abstract class InvokeFunctionCommand extends Command implements JavaScriptInterf
 		}
 	}
 
-	public function echoJson(bool $destroy = false): void
-	{
+	public function echoJson(bool $destroy = false): void{
 		if ($this->getEscapeType() == ESCAPE_TYPE_STRING || $this->getEscapeType() == ESCAPE_TYPE_FUNCTION) {
 			Json::echo($this->toJavaScript());
 		} else {
@@ -40,8 +38,7 @@ abstract class InvokeFunctionCommand extends Command implements JavaScriptInterf
 		}
 	}
 
-	public function echoInnerJson(bool $destroy = false): void
-	{
+	public function echoInnerJson(bool $destroy = false): void{
 		Json::echoKeyValuePair('name', $this->getName(), $destroy);
 		if ($this->hasParameters()) {
 			$param_array = [];
@@ -56,15 +53,14 @@ abstract class InvokeFunctionCommand extends Command implements JavaScriptInterf
 		parent::echoInnerJson($destroy);
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->name);
 		unset($this->parameters);
 	}
 
 	public function toJavaScript():string{
-		$f = __METHOD__; //InvokeFunctionCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
+		$f = __METHOD__;
 		$print = false;
 		$fn = $this->getName();
 		if ($fn instanceof JavaScriptInterface) {
@@ -85,10 +81,4 @@ abstract class InvokeFunctionCommand extends Command implements JavaScriptInterf
 		}
 		return $string;
 	}
-
-	/*
-	 * public function evaluate(?array $params=null){
-	 * return $this->toJavaScript();
-	 * }
-	 */
 }

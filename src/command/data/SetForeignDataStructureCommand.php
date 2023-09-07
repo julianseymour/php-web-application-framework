@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
@@ -8,41 +9,35 @@ use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-class SetForeignDataStructureCommand extends ForeignDataStructureCommand implements ServerExecutableCommandInterface
-{
+class SetForeignDataStructureCommand extends ForeignDataStructureCommand implements ServerExecutableCommandInterface{
 
 	protected $foreignDataStructure;
 
-	public function __construct($context, $cn, $fds = null)
-	{
+	public function __construct($context, $cn, $fds = null){
 		parent::__construct($context, $cn);
 		if (isset($fds)) {
 			$this->setForeignDataStructure($fds);
 		}
 	}
 
-	public function setForeignDataStructure($fds)
-	{
+	public function setForeignDataStructure($fds){
 		return $this->foreignDataStructure = $fds;
 	}
 
-	public function hasForeignDataStructure()
-	{
+	public function hasForeignDataStructure():bool{
 		return isset($this->foreignDataStructure);
 	}
 
-	public function getForeignDataStructure()
-	{
-		$f = __METHOD__; //SetForeignDataStructureCommand::getShortClass()."(".static::getShortClass().")->getForeignDataStructure()";
+	public function getForeignDataStructure(){
+		$f = __METHOD__;
 		if (! $this->hasForeignDataStructure()) {
 			Debug::error("{$f} foreign data structure is undefined");
 		}
 		return $this->foreignDataStructure;
 	}
 
-	public function toJavaScript(): string
-	{
-		$f = __METHOD__; //SetForeignDataStructureCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
+	public function toJavaScript(): string{
+		$f = __METHOD__;
 		$idcs = $this->getIdCommandString();
 		if ($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
@@ -63,13 +58,11 @@ class SetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 		return "{$idcs}.{$cs}({$cn}, {$fds})";
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "setForeignDataStructure";
 	}
 
-	public function resolve()
-	{
+	public function resolve(){
 		$context = $this->getDataStructure();
 		while ($context instanceof ValueReturningCommandInterface) {
 			$context = $context->evaluate();

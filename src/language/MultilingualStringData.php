@@ -7,14 +7,17 @@ use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\common\ElementBindableTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
-use JulianSeymour\PHPWebApplicationFramework\data\Datastructure;
-use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
+use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 use mysqli;
 
-class MultilingualStringData extends DataStructure implements StaticElementClassInterface{
+class MultilingualStringData extends DataStructure implements StaticElementClassInterface, StaticTableNameInterface{
 
 	use ElementBindableTrait;
+	use StaticTableNameTrait;
 	
 	public static function getDatabaseNameStatic():string{
 		return "strings";
@@ -101,14 +104,18 @@ class MultilingualStringData extends DataStructure implements StaticElementClass
 		$components = [];
 		$supported = config()->getSupportedLanguages();
 		foreach ($supported as $language) {
-			$content = new TextDatum($language, $language);
-			//$content->setBBCodeFlag(true);
-			$content->setFulltextFlag(true);
+			$string = new ForeignKeyDatum($language, RELATIONSHIP_TYPE_ONE_TO_ONE);
 			$hrvn = Internationalization::getLanguageNameFromCode($language);
-			$content->setHumanReadableName($hrvn);
-			$content->setAdminInterfaceFlag(true);
-			$content->setNullable(true);
-			array_push($components, $content);
+			$string->setHumanReadableName($hrvn);
+			$string->setAdminInterfaceFlag(true);
+			$string->setNullable(true);
+			$string->setForeignDataStructureClass(TranslatedStringData::class);
+			$string->setDatabaseName(TranslatedStringData::getDatabaseNameStatic());
+			$string->setTableName($language);
+			$string->setConverseRelationshipKeyName("multilingualStringKey");
+			$string->volatilize();
+			$string->autoload();
+			array_push($components, $string);
 		}
 		$foreign_bundle = new ForeignMetadataBundle("translatedObject", $ds);
 		$foreign_bundle->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_ONE);
@@ -116,32 +123,26 @@ class MultilingualStringData extends DataStructure implements StaticElementClass
 		$foreign_bundle->setOnUpdate($foreign_bundle->setOnDelete(REFERENCE_OPTION_CASCADE));
 		$foreign_bundle->constrain();
 		$foreign_bundle->setNullable(true);
-		static::pushTemporaryColumnsStatic($columns, $foreign_bundle, ...$components);
+		array_push($columns, $foreign_bundle, ...$components);
 	}
 	
 	public static function getDataType(): string{
-		return DATATYPE_STRING;
+		return DATATYPE_STRING_MULTILINGUAL;
 	}
 	
-	public static function getDeledObjectClass(){
-		return DeletedStringData::class;
+	public static function getTableNameStatic():string{
+		return "multilingual";
 	}
 	
-	protected function beforeInsertHook(mysqli $mysqli): int{
+	protected function afterSetForeignDataStructureHook(string $column_name, DataStructure $struct):int{
 		$f = __METHOD__;
-		$english = $this->getColumnValue(LANGUAGE_DEFAULT);
-		if (empty($english)) {
-			Debug::warning("{$f} nothing to insert");
-			return $this->setObjectStatus(ERROR_NULL_STRING);
+		$print = $this->getDebugFlag();
+		if($struct->hasColumn('multilingualStringKey')){
+			if($print){
+				Debug::print("{$f} setting converse relationship key name to \"{$column_name}\"");
+			}
+			$struct->getColumn('multilingualStringKey')->setConverseRelationshipKeyName($column_name);
 		}
-		return parent::beforeInsertHook($mysqli);
-	}
-	
-	public static function getPhylumName(): string{
-		return "strings";
-	}
-	
-	public static function getTableNameStatic(): string{
-		return "strings";
+		return parent::afterSetForeignDataStructureHook($column_name, $struct);
 	}
 }

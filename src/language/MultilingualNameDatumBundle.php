@@ -16,11 +16,4 @@ class MultilingualNameDatumBundle extends MultilingualStringDatumBundle{
 	public static function getStringDatumClassStatic():string{
 		return NameDatum::class;
 	}
-	
-	public function generateTranslatedStringValueDatum():TextDatum{
-		$localized = parent::generateTranslatedStringValueDatum();
-		$localized->setSearchable(true);
-		$localized->setTranslatable(true);
-		return $localized;
-	}
 }

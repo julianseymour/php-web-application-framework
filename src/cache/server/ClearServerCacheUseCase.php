@@ -9,6 +9,8 @@ use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use JulianSeymour\PHPWebApplicationFramework\admin\AdminOnlyAccountTypePermission;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
+use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
 class ClearServerCacheUseCase extends UseCase{
 
@@ -59,8 +61,12 @@ class ClearServerCacheUseCase extends UseCase{
 		return SUCCESS;
 	}
 
-	public function getPageContent(): ?array
-	{
+	public function getPageContent(): ?array{
+		if(!user() instanceof Administrator){
+			return [
+				ErrorMessage::getVisualError(ERROR_EMPLOYEES_ONLY)
+			];
+		}
 		return [
 			new ClearServerCacheForm(ALLOCATION_MODE_LAZY)
 		];

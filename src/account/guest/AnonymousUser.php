@@ -37,15 +37,15 @@ class AnonymousUser extends PlayableUser{
 		return base64_encode(random_bytes(32));
 	}
 
-	public static function getAccountTypeStatic(){
+	public static function getAccountTypeStatic():string{
 		return ACCOUNT_TYPE_GUEST;
 	}
 
-	public function getEmailNotificationStatus($type){
+	public function getEmailNotificationStatus(string $type):bool{
 		return false;
 	}
 
-	public function getPushNotificationStatus($type){
+	public function getPushNotificationStatus(string $type):bool{
 		return true;
 	}
 
@@ -132,7 +132,7 @@ class AnonymousUser extends PlayableUser{
 			// Debug::print("{$f} entered");
 			parent::reconfigureColumns($columns, $ds);
 			$indices = [
-				'accountType'
+				'subtype'
 			];
 			foreach ($indices as $index) {
 				$columns[$index]->volatilize();
@@ -185,7 +185,7 @@ class AnonymousUser extends PlayableUser{
 		$ever->setDefaultValue(false);
 		$name = new VirtualDatum("name");
 		$emailAddress = new VirtualDatum("emailAddress");
-		static::pushTemporaryColumnsStatic($columns, $ever, $name, $emailAddress);
+		array_push($columns, $ever, $name, $emailAddress);
 	}
 
 	public static function declareFlags(): ?array{
@@ -266,11 +266,6 @@ class AnonymousUser extends PlayableUser{
 				$this->setEnabled(false);
 				$session->handSessionToUser($this, LOGIN_TYPE_UNDEFINED);
 				return SUCCESS;
-			} elseif (hasInputParameter('curl')) {
-				Debug::warning("{$f} this is the backup server, skipping anonymous sessions write");
-				// app()->setUserData($this);
-				// $session->ejectDeterministicSecretKey();
-				// $session->handSessionToUser($this, LOGIN_TYPE_UNDEFINED);
 			} else {
 				$this->generateKey();
 				$this->setNotificationDeliveryTimestamp($this->generateInsertTimestamp());

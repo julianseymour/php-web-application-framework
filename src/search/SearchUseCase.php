@@ -4,7 +4,6 @@ namespace JulianSeymour\PHPWebApplicationFramework\search;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
-
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\getTypeSpecifier;
 use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
@@ -23,7 +22,6 @@ use JulianSeymour\PHPWebApplicationFramework\db\load\Loadout;
 use JulianSeymour\PHPWebApplicationFramework\db\load\LoadoutGenerator;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
-use JulianSeymour\PHPWebApplicationFramework\language\MultilingualStringData;
 use JulianSeymour\PHPWebApplicationFramework\use_case\ClientUseCaseInterface;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
@@ -32,16 +30,16 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 
 	use MultipleSearchClassesTrait;
 	
-	public static function getJavaScriptClassPath(): ?string{
+	public static function getJavaScriptClassPath():?string{
 		$fn = get_class_filename(SearchUseCase::class);
 		return substr($fn, 0, strlen($fn) - 3) . "js";
 	}
 
-	public function isPageUpdatedAfterLogin(): bool{
+	public function isPageUpdatedAfterLogin():bool{
 		return true;
 	}
 
-	public function getActionAttribute(): ?string{
+	public function getActionAttribute():?string{
 		return "/search";
 	}
 
@@ -177,7 +175,7 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 			$objects = [];
 			foreach ($queries as $classname => $query) {
 				if (! $query->hasTableName() && ! $query->hasJoinExpressions()) {
-					$query->setTableName("undefined.undefined");
+					$query->setTableName("undefined");
 					Debug::error("{$f} query \"{$query}\" for class \"{$classname}\" lacks a table name");
 				} elseif (! $query->hasMatchFunction()) {
 					Debug::error("{$f} query statement lacks a match function");

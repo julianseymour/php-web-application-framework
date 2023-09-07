@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\security\firewall;
 
+use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\AnonymousConfirmationCode;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
@@ -21,7 +22,7 @@ class UnlistedIpAddressConfirmationCode extends AnonymousConfirmationCode{
 		return $this->getForeignDataStructure("ipAddressKey");
 	}
 
-	public function getSubtypeValue(): string{
+	public function getSubtype(): string{
 		return ACCESS_TYPE_UNLISTED_IP_ADDRESS;
 	}
 
@@ -75,23 +76,23 @@ class UnlistedIpAddressConfirmationCode extends AnonymousConfirmationCode{
 		return false;
 	}
 
-	public static function getSentEmailStatus(){
+	public static function getSentEmailStatus():int{
 		return RESULT_CIDR_UNMATCHED;
 	}
 
-	public static function getConfirmationUriStatic($suffix){
+	public static function getConfirmationUriStatic(string $suffix):string{
 		return WEBSITE_URL . "/authorize_ip/{$suffix}";
 	}
 
-	public static function getEmailNotificationClass(){
+	public static function getEmailNotificationClass():?string{
 		return UnlistedIpAddressEmail::class;
 	}
 
-	public static function getConfirmationCodeTypeStatic(){
+	public static function getSubtypeStatic():string{
 		return ACCESS_TYPE_UNLISTED_IP_ADDRESS;
 	}
 
-	public static function getReasonLoggedStatic(){
+	public static function getReasonLoggedStatic():string{
 		return BECAUSE_UNLISTED_IP;
 	}
 
@@ -100,17 +101,17 @@ class UnlistedIpAddressConfirmationCode extends AnonymousConfirmationCode{
 	}
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
-		$f = __METHOD__; //UnlistedIpAddressConfirmationCode::getShortClass()."(".static::getShortClass().")::declareColumns()";
+		$f = __METHOD__;
 		parent::declareColumns($columns, $ds);
 		$ip_address_key = new ForeignKeyDatum('ipAddressKey');
 		$ip_address_key->setForeignDataStructureClass(ListedIpAddress::class);
 		$ip_address_key->setAutoloadFlag(true);
 		$ip_address_key->setOnUpdate($ip_address_key->setOnDelete(REFERENCE_OPTION_CASCADE));
 		$ip_address_key->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
-		static::pushTemporaryColumnsStatic($columns, $ip_address_key);
+		array_push($columns, $ip_address_key);
 	}
 
-	public function isEmailNotificationWarranted($recipient): bool{
+	public function isEmailNotificationWarranted(UserData $recipient): bool{
 		return $recipient->getAuthLinkEnabled();
 	}
 }

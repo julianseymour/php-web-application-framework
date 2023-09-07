@@ -8,33 +8,45 @@ use JulianSeymour\PHPWebApplicationFramework\element\LabelElement;
 use Exception;
 use JulianSeymour\PHPWebApplicationFramework\style\StyleSheetPathTrait;
 
-class CloseMenuLabel extends LabelElement
-{
-
-	use StyleSheetPathTrait;
+class CloseMenuLabel extends LabelElement{
 	
-	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
-	{
-		$f = __METHOD__; //CloseMenuLabel::getShortClass()."(".static::getShortClass().")->__construct()";
+	use StyleSheetPathTrait;
+		
+	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		parent::__construct($mode, $context);
 		$this->addClassAttribute("close_menu_label");
 	}
 
-	public function generateChildNodes(): ?array
-	{
-		$f = __METHOD__; //CloseMenuLabel::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
+	public function hasLineClassAttributes():bool{
+		return $this->hasArrayProperty('lineClassAttributes');
+	}
+	
+	public function setLineClassAttributes($values):?array{
+		return $this->setArrayProperty('lineClassAttributes', $values);
+	}
+	
+	public function getLineClassAttributes(){
+		return $this->getProperty("lineClassAttributes");
+	}
+	
+	public function generateChildNodes(): ?array{
+		$f = __METHOD__;
 		try {
 			$close_menu_label = new DivElement();
 			$close_menu_label->addClassAttribute("hamburger");
 			$div = new DivElement();
-			$messenger_fake_line1 = new DivElement();
-			$messenger_fake_line1->addClassAttribute("messenger_fake_line1");
-			$messenger_fake_line1->setAllowEmptyInnerHTML(true);
-			$div->appendChild($messenger_fake_line1);
-			$messenger_fake_line2 = new DivElement();
-			$messenger_fake_line2->addClassAttribute("messenger_fake_line2");
-			$messenger_fake_line2->setAllowEmptyInnerHTML(true);
-			$div->appendChild($messenger_fake_line2);
+			$close_menu_line1 = new DivElement();
+			$close_menu_line1->addClassAttribute("close_menu_line1");
+			$close_menu_line1->setAllowEmptyInnerHTML(true);
+			$div->appendChild($close_menu_line1);
+			$close_menu_line2 = new DivElement();
+			$close_menu_line2->addClassAttribute("close_menu_line2");
+			if($this->hasLineClassAttributes()){
+				$close_menu_line1->addClassAttribute(...$this->getLineClassAttributes());
+				$close_menu_line2->addClassAttribute(...$this->getLineClassAttributes());
+			}
+			$close_menu_line2->setAllowEmptyInnerHTML(true);
+			$div->appendChild($close_menu_line2);
 			$close_menu_label->appendChild($div);
 			$this->appendChild($close_menu_label);
 			return [

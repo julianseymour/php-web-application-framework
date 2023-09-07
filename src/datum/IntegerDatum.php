@@ -1,98 +1,84 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 
-abstract class IntegerDatum extends AbstractNumericDatum
-{
+abstract class IntegerDatum extends AbstractNumericDatum{
 
 	protected $bitCount;
 
-	public function __construct($name, $bit_count)
-	{
+	public function __construct($name, $bit_count){
 		parent::__construct($name);
 		$this->setUnsigned(false);
 		$this->setBitCount($bit_count);
 	}
 
-	public function cast($v)
-	{
+	public function cast($v){
 		if (is_string($v) && $this->hasApoptoticSignal() && $this->getApoptoticSignal() === $v) {
 			return $v;
 		}
 		return intval($v);
 	}
 
-	public function getConstructorParams(): ?array
-	{
+	public function getConstructorParams(): ?array{
 		return [
-			$this->getColumnName(),
+			$this->getName(),
 			$this->getBitCount()
 		];
 	}
 
-	public function getUrlEncodedValue()
-	{
+	public function getUrlEncodedValue(){
 		return $this->getValue();
 	}
 
-	public function setBitCount($bits)
-	{
-		$f = __METHOD__; //IntegerDatum::getShortClass()."(".static::getShortClass().")->setBitCount()";
+	public function setBitCount(?int $bits):?int{
+		$f = __METHOD__;
 		if (! is_int($bits)) {
 			Debug::error("{$f} received a non-integer value");
 		}
 		return $this->bitCount = $bits;
 	}
 
-	public function hasBitCount()
-	{
+	public function hasBitCount():bool{
 		return isset($this->bitCount) && is_int($this->bitCount);
 	}
 
-	public function getHumanReadableValue()
-	{
+	public function getHumanReadableValue(){
 		return $this->getValue();
 	}
 
-	public function setUnsigned($unsigned)
-	{
+	public function setUnsigned(bool $unsigned=true):bool{
 		return $this->setFlag('unsigned', $unsigned);
 	}
 
-	public function isUnsigned()
-	{
+	public function isUnsigned():bool{
 		return $this->getFlag('unsigned');
 	}
 
-	public function getHumanWritableValue()
-	{
+	public function getHumanWritableValue(){
 		return $this->getValue();
 	}
 
-	public function setAutoIncrement($auto)
-	{
+	public function setAutoIncrement(bool $auto=true):bool{
 		return $this->setFlag('autoIncrement', $auto);
 	}
 
-	public function getAutoIncrementFlag()
-	{
+	public function getAutoIncrementFlag():bool{
 		return $this->getFlag("autoIncrement");
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"autoIncrement",
 			"unsigned"
 		]);
 	}
 
-	public function parseValueFromSuperglobalArray($value)
-	{
-		$f = __METHOD__; //IntegerDatum::getShortClass()."(".static::getShortClass().")->parseValueFromSuperglobalArray()";
+	public function parseValueFromSuperglobalArray($value){
+		$f = __METHOD__;
 		try {
 			if ($value === null) {
 				if ($this->isNullable()) {
@@ -106,30 +92,26 @@ abstract class IntegerDatum extends AbstractNumericDatum
 		}
 	}
 
-	public static function validateStatic($value): int
-	{
+	public static function validateStatic($value): int{
 		if (! is_int($value)) {
 			return FAILURE;
 		}
 		return SUCCESS;
 	}
 
-	public static function getTypeSpecifier()
-	{
+	public static function getTypeSpecifier():string{
 		return 'i';
 	}
 
-	public function getBitCount()
-	{
+	public function getBitCount():int{
 		if (! $this->hasBitCount()) {
-			return 4;
+			return 32;
 		}
 		return $this->bitCount;
 	}
 
-	public function getColumnTypeString(): string
-	{
-		$f = __METHOD__; //IntegerDatum::getShortClass()."(".static::getShortClass().")->getColumnTypeString()";
+	public function getColumnTypeString(): string{
+		$f = __METHOD__;
 		$suffix = "";
 		$prefix = "";
 		$bit_count = $this->getBitCount();
@@ -154,7 +136,7 @@ abstract class IntegerDatum extends AbstractNumericDatum
 					$prefix = "BIG";
 					break;
 				default:
-					$name = $this->getColumnName();
+					$name = $this->getName();
 					Debug::error("{$f} invalid byte count \"{$byte_count}\" for datum \"{$name}\"");
 					break;
 			}
@@ -162,43 +144,8 @@ abstract class IntegerDatum extends AbstractNumericDatum
 		return "{$prefix}INT{$suffix}";
 	}
 
-	/*
-	 * public function getColumnDeclarationString(){
-	 * $f = __METHOD__; //IntegerDatum::getShortClass()."(".static::getShortClass().")->getColumnDeclarationString()";
-	 * try{
-	 * $ret = parent::getColumnDeclarationString();
-	 * if($this->isUnsigned()){
-	 * $ret .= " unsigned";
-	 * }
-	 * if(!$this->isNullable()){
-	 * $ret .= " not null";
-	 * }
-	 * if($this->isPrimaryKey()){
-	 * $ret .= " primary key";
-	 * if($this instanceof SerialNumberDatum){
-	 * $ret .= " auto_increment";
-	 * }
-	 * }
-	 * if($this->hasDefaultValue()){
-	 * $default = $this->getDefaultValue();
-	 * if($default === null){
-	 * $default = "NULL";
-	 * }elseif($default === false){
-	 * $default = 0;
-	 * }elseif($default === true){
-	 * $default = 1;
-	 * }
-	 * $ret .= " default {$default}";
-	 * }
-	 * return $ret;
-	 * }catch(Exception $x){
-	 * x($f, $x);
-	 * }
-	 * }
-	 */
-	public function parseValueFromQueryResult($v)
-	{
-		$f = __METHOD__; //IntegerDatum::getShortClass()."(".static::getShortClass().")->parseValueFromQueryResult()";
+	public function parseValueFromQueryResult($v){
+		$f = __METHOD__;
 		try {
 			if ($v === null) {
 				return $this->isNullable() ? null : 0;
@@ -209,13 +156,11 @@ abstract class IntegerDatum extends AbstractNumericDatum
 		}
 	}
 
-	public static function parseString(string $v)
-	{
+	public static function parseString(string $v){
 		return intval($v);
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->bitCount);
 	}

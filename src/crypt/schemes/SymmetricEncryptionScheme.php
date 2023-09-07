@@ -1,24 +1,24 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt\schemes;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\CipherDatum;
 use JulianSeymour\PHPWebApplicationFramework\crypt\NonceDatum;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 
-class SymmetricEncryptionScheme extends EncryptionScheme
-{
+class SymmetricEncryptionScheme extends EncryptionScheme{
 
-	public function generateComponents(?DataStructure $ds = null): array
-	{
+	public function generateComponents(?DataStructure $ds = null): array{
 		$datum = $this->getColumn();
-		$vn = $datum->getColumnName();
-		$cipher = new CipherDatum("{$vn}_cipher");
+		$vn = $datum->getName();
+		$cipher = new CipherDatum("{$vn}Cipher");
 		// cipher->setEncryptionComponent(ENCRYPTION_COMPONENT_SYMMETRIC_CIPHER);
 		$cipher->setSensitiveFlag($datum->getSensitiveFlag());
 		$cipher->setOriginalDatumClass($datum->getClass());
 		$cipher->setEncryptionScheme(static::class);
-		$nonce = new NonceDatum("{$vn}_aesNonce");
+		$nonce = new NonceDatum("{$vn}AesNonce");
 		// $nonce->setEncryptionComponent(ENCRYPTION_COMPONENT_AES_NONCE);
 		return [
 			$cipher,
@@ -26,9 +26,8 @@ class SymmetricEncryptionScheme extends EncryptionScheme
 		];
 	}
 
-	public static function encrypt($value, $key, $nonce = null)
-	{
-		$f = __METHOD__; //SymmetricEncryptionScheme::getShortClass()."(".static::getShortClass().")->encrypt()";
+	public static function encrypt(string $value, string $key, ?string $nonce = null):string{
+		$f = __METHOD__;
 		$print = false;
 		if (! is_string($value)) {
 			$typeof = gettype($value);
@@ -40,11 +39,6 @@ class SymmetricEncryptionScheme extends EncryptionScheme
 		if ($length !== $proper) {
 			Debug::error("{$f} nonce is incorrect length ({$length}, should be {$proper})");
 		} elseif ($print) {
-			/*
-			 * if(!app()->getFlag("debugEncrypt")){
-			 * app()->validateDeterministicSecretKey($key);
-			 * }
-			 */
 			Debug::print("{$f} encrypting value with hash " . sha1($value));
 			Debug::print("{$f} ... using key with hash " . sha1($key));
 			if ($nonce !== null) {
@@ -62,28 +56,23 @@ class SymmetricEncryptionScheme extends EncryptionScheme
 		return $cipher;
 	}
 
-	public function generateEncryptionKey($datum)
-	{
+	public function generateEncryptionKey(Datum $datum):string{
 		return $this->extractTranscryptionKey($datum);
-		// $ds = $datum->getDataStructure();
-		// return $ds->extractTranscryptionKey($datum->getColumnName());
 	}
 
-	public function extractNonce($datum)
-	{ // XXX need to generate nonce for insertions
+	public function extractNonce(Datum $datum):?string{
 		$ds = $datum->getDataStructure();
-		$vn = $datum->getColumnName();
-		$index = "{$vn}_aesNonce";
+		$vn = $datum->getName();
+		$index = "{$vn}AesNonce";
 		return $ds->getColumnValue($index);
 	}
 
-	public function generateNonce($datum)
-	{
-		$f = __METHOD__; //SymmetricEncryptionScheme::getShortClass()."(".static::getShortClass().")->generateNonce()";
+	public function generateNonce(Datum $datum):?string{
+		$f = __METHOD__;
 		$print = false;
-		$vn = $datum->getColumnName();
+		$vn = $datum->getName();
 		$ds = $datum->getDataStructure();
-		$index = "{$vn}_aesNonce";
+		$index = "{$vn}AesNonce";
 		$proper = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES;
 		if ($ds->hasColumnValue($index)) {
 			if ($print) {
@@ -105,44 +94,39 @@ class SymmetricEncryptionScheme extends EncryptionScheme
 		return $nonce;
 	}
 
-	protected function extractTranscryptionKey($datum)
-	{
-		$f = __METHOD__; //SymmetricEncryptionScheme::getShortClass()."(".static::getShortClass().")->extractTranscryptionKey()";
+	protected function extractTranscryptionKey(Datum $datum):?string{
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
-			$vn = $datum->getColumnName();
+			$vn = $datum->getName();
 			Debug::print("{$f} about to extract transcryption key for datum \"{$vn}\"");
 		}
 		$ds = $datum->getDataStructure();
 		$tkn = $datum->getTranscryptionKeyName();
 		if ($print) {
-			$cn = $datum->getColumnName();
+			$cn = $datum->getName();
 			$dsc = $ds->getClass();
 			$dsk = $ds->getIdentifierValue();
 			$did = $ds->getDebugId();
 			Debug::print("{$f} about to extract transcryption key \"{$tkn}\" for column \"{$cn}\" of data structure of class \"{$dsc}\" with key \"{$dsk}\" and debug Id \"{$did}\"");
 		}
 		return $ds->getColumnValue($tkn);
-		// return $ds->extractTranscryptionKey($vn);
 	}
 
-	public function extractEncryptionKey($datum)
-	{
+	public function extractEncryptionKey(Datum $datum):?string{
 		return $this->extractTranscryptionKey($datum);
 	}
 
-	public function extractDecryptionKey($datum)
-	{
-		$f = __METHOD__; //SymmetricEncryptionScheme::getShortClass()."(".static::getShortClass().")->exctractDecryptionKey()";
+	public function extractDecryptionKey(Datum $datum):?string{
+		$f = __METHOD__;
 		if (! $datum->hasDataStructure()) {
 			Debug::error("{$f} we are being asked to extract a transcryption key from an orphaned datum");
 		}
 		return $this->extractTranscryptionKey($datum);
 	}
 
-	public static function decrypt($cipher, $key, $nonce = null)
-	{
-		$f = __METHOD__; //SymmetricEncryptionScheme::getShortClass()."(".static::getShortClass().")::decrypt()";
+	public static function decrypt(string $cipher, string $key, ?string $nonce = null):?string{
+		$f = __METHOD__;
 		$print = false;
 		if (empty($cipher)) {
 			Debug::error("{$f} cipher is undefined");

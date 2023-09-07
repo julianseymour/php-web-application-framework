@@ -16,7 +16,7 @@ class LockoutWaiverAttempt extends CodeConfirmationAttempt{
 
 	protected static $confirmationCodeAlreadyUsedStatus = ERROR_ALREADY_WAIVED;
 
-	public static function getSuccessfulResultCode(){
+	public static function getSuccessfulResultCode():int{
 		return RESULT_BFP_WAIVER_SUCCESS;
 	}
 
@@ -32,7 +32,7 @@ class LockoutWaiverAttempt extends CodeConfirmationAttempt{
 		return $this->getUserNormalizedName();
 	}
 
-	public static function getAccessTypeStatic(): string{
+	public static function getSubtypeStatic(): string{
 		return ACCESS_TYPE_LOCKOUT_WAIVER;
 	}
 

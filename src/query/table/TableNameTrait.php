@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\table;
 
 use function JulianSeymour\PHPWebApplicationFramework\validateTableName;
@@ -6,14 +7,12 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\CommonTableExpression;
 use JulianSeymour\PHPWebApplicationFramework\query\join\TableFactor;
 
-trait TableNameTrait
-{
+trait TableNameTrait{
 
 	protected $tableName;
 
-	public function setTableName($tableName)
-	{
-		$f = __METHOD__; //"TableNameTrait(".static::getShortClass().")->setTableName()";
+	public function setTableName(?string $tableName):?string{
+		$f = __METHOD__;
 		$print = false;
 		if ($tableName instanceof TableFactor) {
 			if ($print) {
@@ -29,22 +28,19 @@ trait TableNameTrait
 		return $this->tableName = $tableName;
 	}
 
-	public function hasTableName()
-	{
-		return ! empty($this->tableName);
+	public function hasTableName():bool{
+		return !empty($this->tableName);
 	}
 
-	public function getTableName(): string
-	{
-		$f = __METHOD__; //"TableNameTrait(".static::getShortClass().")->getTableName()";
+	public function getTableName(): string{
+		$f = __METHOD__;
 		if (! $this->hasTableName()) {
 			Debug::error("{$f} full table name is undefined");
 		}
 		return $this->tableName;
 	}
 
-	public function withTableName($tableName)
-	{
+	public function withTableName(?string $tableName):object{
 		$this->setTableName($tableName);
 		return $this;
 	}

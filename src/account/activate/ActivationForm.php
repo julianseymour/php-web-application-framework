@@ -81,10 +81,10 @@ class ActivationForm extends AjaxForm{
 		try {
 			$vn = $input->getColumnName();
 			switch ($vn) {
-				case NameDatum::getColumnNameStatic():
+				case 'name':
 					$input->setLabelString(_("Username"));
 					break;
-				case PasswordDatum::getColumnNameStatic():
+				case 'password':
 					$password = _("Password");
 					$twelve = substitute(_("%1%+ characters"), 12);
 					$placeholder = "{$password} ({$twelve})";
@@ -102,8 +102,8 @@ class ActivationForm extends AjaxForm{
 
 	public function getFormDataIndices(): ?array{
 		return [
-			NameDatum::getColumnNameStatic() => TextInput::class,
-			PasswordDatum::getColumnNameStatic() => PasswordInput::class
+			'name' => TextInput::class,
+			'password' => PasswordInput::class
 		];
 	}
 

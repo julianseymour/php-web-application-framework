@@ -11,14 +11,14 @@ class ContactUsEmail extends SpamEmail{
 		parent::declareColumns($columns, $ds);
 		$body = new TextDatum("plaintextBody");
 		$body->volatilize();
-		static::pushTemporaryColumnsStatic($columns, $body);
+		array_push($columns, $body);
 	}
 	
 	public function getPlaintextBody(){
 		return $this->getColumnValue("plaintextBody");
 	}
 	
-	public function getSubjectLine(){
+	public function getSubjectLine():string{
 		return "Question/comment from ".$this->getSenderEmailAddress();
 	}
 }

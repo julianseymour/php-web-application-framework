@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\push;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -16,23 +17,12 @@ use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 
-class SavePushSubscriptionUseCase extends UseCase
-{
+class SavePushSubscriptionUseCase extends UseCase{
 
-	/**
-	 *
-	 * @return PushSubscriptionData
-	 */
-	public static function createPushSubscriptionObject()
-	{
-		return new PushSubscriptionData();
-	}
-
-	public function execute(): int
-	{
+	public function execute(): int{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			if ($print) {
 				Debug::print("{$f} entered");
 			}
@@ -41,7 +31,7 @@ class SavePushSubscriptionUseCase extends UseCase
 				Debug::error("{$f} user data returned null");
 				return $this->setObjectStatus(ERROR_NULL_USER_OBJECT);
 			}
-			$sub = static::createPushSubscriptionObject();
+			$sub = new PushSubscriptionData();
 			$sub->setUserData($user);
 			// $sub->setSignatoryData($user);
 			$arr = getInputParameters();
@@ -76,11 +66,7 @@ class SavePushSubscriptionUseCase extends UseCase
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} updating subscription client data returned error status \"{$err}\"");
 				}
-				if ($user->select()
-					->where(new WhereCondition($user->getIdentifierName(), OPERATOR_EQUALS))
-					->withTypeSpecifier('s')
-					->withParameters($user->getIdentifierValue())
-					->executeGetResultCount($mysqli) === 1) {
+				if ($user->select()->where(new WhereCondition($user->getIdentifierName(), OPERATOR_EQUALS))->withTypeSpecifier('s')->withParameters($user->getIdentifierValue())->executeGetResultCount($mysqli) === 1) {
 					if ($print) {
 						Debug::print("{$f} yes, this user exists");
 					}
@@ -103,20 +89,14 @@ class SavePushSubscriptionUseCase extends UseCase
 			} elseif ($print) {
 				Debug::print("{$f} about to write to database");
 			}
-
-			if (! $sub->hasUserKey()) {
+			if(!$sub->hasUserKey()) {
 				Debug::error("{$f} user key is undefined");
 			} elseif ($print) {
 				Debug::print("{$f} user key is \"" . $sub->getUserKey() . "\"");
-				if (QueryBuilder::select()->from(user()->getTableNameStatic())
-					->where(new WhereCondition(user()->getIdentifierName(), OPERATOR_EQUALS))
-					->withParameters(user()->getIdentifierValue())
-					->withTypeSpecifier('s')
-					->executeGetResultCount($mysqli) !== 1) {
+				if (QueryBuilder::select()->from($user->getDatabaseName(), $user->getTableName())->where(new WhereCondition($user->getIdentifierName(), OPERATOR_EQUALS))->withParameters($user->getIdentifierValue())->withTypeSpecifier('s')->executeGetResultCount($mysqli) !== 1) {
 					Debug::error("{$f} user does not have an entry in the database");
 				}
 			}
-
 			$status = $sub->insert($mysqli);
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);

@@ -926,7 +926,7 @@ ScopedCommandInterface{
 					if (is_object($context)) {
 						$cc = $context->getClass();
 						if ($context instanceof Datum) {
-							$cn = $context->getColumnName();
+							$cn = $context->getName();
 							Debug::print("{$f} context is a {$cc} named \"{$cn}\"");
 						} else {
 							Debug::print("{$f} context is an object of class \"{$cc}\"");
@@ -2258,7 +2258,6 @@ ScopedCommandInterface{
 	}
 
 	public function setDeleteSuccessorsFlag(bool $value = true): bool{
-		$f = __METHOD__;
 		return $this->setFlag("deleteSuccessors", $value);
 	}
 
@@ -2579,7 +2578,7 @@ ScopedCommandInterface{
 					if (is_object($context)) {
 						$cc = $context->getClass();
 						if ($context instanceof Datum) {
-							$cn = $context->getColumnName();
+							$cn = $context->getName();
 							Debug::print("{$f} context is a {$cc} named \"{$cn}\"");
 						} else {
 							Debug::print("{$f} context is an object of class \"{$cc}\"");
@@ -3187,9 +3186,6 @@ ScopedCommandInterface{
 			foreach ($commands as $command) {
 				if (is_array($command)) {
 					Debug::error("{$f} command is an array");
-				}
-				if($this->getDebugFlag()){
-					$command->debug();
 				}
 				if ($command instanceof DeclareVariableCommand) { // variable declarations go at the top
 					if ($print) {

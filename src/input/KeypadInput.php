@@ -24,26 +24,33 @@ abstract class KeypadInput extends InputElement{
 
 	public function configure(AjaxForm $form): int{
 		$f = __METHOD__;
-		$print = false;
+		$print = $this->getDebugFlag();
 		if($print){
 			$did = $this->getDebugId();
 			$decl = $this->getDeclarationLine();
-			if($this->getFlag("configured")){
-				Debug::error("{$f} gotcha. Debug ID is {$did}. Instantiated {$decl}");
-			}else{
-				Debug::printStackTraceNoExit("{$f} entered. Debug ID is {$did}. Instantiated {$decl}");
-				$this->setFlag("configured", true);
+		}
+		if($this->getFlag("configured")){
+			if($print){
+				Debug::print("{$f} configured flag is already set. Debug ID is {$did}. Instantiated {$decl}");
 			}
+			return SUCCESS;
+		}else{
+			if($print){
+				Debug::print("{$f} entered. Debug ID is {$did}. Instantiated {$decl}");
+			}
+			$this->setFlag("configured", true);
 		}
 		$ret = parent::configure($form);
-		$print = $this->getDebugFlag();
 		if ($this->hasContext()) {
 			$datum = $this->getContext();
-			$cn = $datum->getColumnName();
+			$cn = $datum->getName();
 		} else {
 			$cn = "[undefined]";
 		}
 		if(!$this->hasLabelString() && $this->hasContext()){
+			if($print){
+				Debug::print("{$f} label string is undefined, and context is defined");
+			}
 			$context = $this->getContext();
 			if($context instanceof Datum && $context->hasHumanReadableName()){
 				if($print){
@@ -53,7 +60,16 @@ abstract class KeypadInput extends InputElement{
 				$this->setLabelString(substitute(_("Enter %1%"), $hrvn));
 			}
 		}elseif($print){
-			Debug::print("{$f} context is undefined, or label string is already set");
+			if($this->hasContext()){
+				$ls = $this->getLabelString();
+				if(is_string($ls)){
+					Debug::print("{$f} label string is already set to \"{$ls}\"");
+				}else{
+					Debug::print("{$f} label string is set to something other than a string");
+				}
+			}else{
+				Debug::print("{$f} context is undefined");
+			}
 		}
 		if($this->hasLabelString()){
 			if ($print) {
@@ -61,9 +77,13 @@ abstract class KeypadInput extends InputElement{
 			}
 			$hrvn = $this->getLabelString();
 			if (
-				$this->hasPlaceholderMode() && 
-				$this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK || 
-				config()->getDefaultPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK
+				!$this instanceof TextareaInput &&
+				(
+					(
+						$this->hasPlaceholderMode() && 
+						$this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK
+					) || config()->getDefaultPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK
+				)
 			){
 				if ($print) {
 					Debug::print("{$f} placeholder mode is \"shrink\"");
@@ -77,9 +97,19 @@ abstract class KeypadInput extends InputElement{
 						if ($print) {
 							Debug::print("{$f} input does not already have a wrapper");
 						}
-						$div = new DivElement();
-						$div->addClassAttribute("thumbsize", "relative", "block");
-						$this->setWrapperElement($div);
+						$div1 = new DivElement();
+						$div1->setStyleProperties([
+							"position" => "relative",
+							"display" => "inline-block",
+							"width" => "100%"
+						]);
+						$div2 = new DivElement();
+						$div2->setStyleProperties([
+							"position" => "relative",
+							"display" => ($this instanceof TextareaInput ? "inline-block" : "block")
+						]);
+						$div1->setWrapperElement($div2);
+						$this->setWrapperElement($div1);
 					} elseif ($print) {
 						Debug::print("{$f} input already has a wrapper");
 					}
@@ -90,7 +120,7 @@ abstract class KeypadInput extends InputElement{
 				} elseif ($print) {
 					Debug::print("{$f} this is a range input");
 				}
-			} elseif($this->hasPlaceholderMode() && $this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL || config()->getDefaultPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL){
+			} elseif(!$this->hasPlaceholderMode() || $this->hasPlaceholderMode() && $this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL || config()->getDefaultPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL){
 				if ($print) {
 					Debug::print("{$f} normal placeholders");
 				}
@@ -99,6 +129,17 @@ abstract class KeypadInput extends InputElement{
 				} elseif ($print) {
 					Debug::print("{$f} placeholder attribute is already defined");
 				}
+				if(!$this->hasWrapperElement()){
+					$div = new DivElement();
+					$div->setStyleProperties([
+						"position" => "relative",
+						"display" => "block",
+						"width" => "100%"
+					]);
+					$this->setWrapperElement($div);
+				}
+			}elseif($print){
+				Debug::print("{$f} none of the above");
 			}
 		} elseif ($print) {
 			Debug::print("{$f} input for column \"{$cn}\" does not have a label string");

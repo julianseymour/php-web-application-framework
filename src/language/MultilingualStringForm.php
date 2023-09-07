@@ -1,16 +1,16 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\language;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
-use JulianSeymour\PHPWebApplicationFramework\input\TextareaInput;
-ErrorMessage::deprecated(__FILE__);
 
-class MultilingualStringForm extends AjaxForm{
+abstract class MultilingualStringForm extends AjaxForm{
 
+	public abstract static function getNestedFormClass():string;
+	
 	public static function getFormDispatchIdStatic(): ?string{
-		$f = __METHOD__;
 		return "multilingual_string";
 	}
 
@@ -19,25 +19,22 @@ class MultilingualStringForm extends AjaxForm{
 	}
 
 	public function generateButtons(string $name): ?array{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 
 	public function getFormDataIndices(): ?array{
 		$ret = [];
 		foreach (config()->getSupportedLanguages() as $lang) {
-			$ret[$lang] = TextareaInput::class;
+			$ret[$lang] = $this->getNestedFormClass();;
 		}
 		return $ret;
 	}
 
 	public function getDirectives(): ?array{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 
 	public static function getActionAttributeStatic(): ?string{
-		$f = __METHOD__;
 		return null;
 	}
 

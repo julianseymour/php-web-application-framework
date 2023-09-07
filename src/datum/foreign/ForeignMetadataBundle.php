@@ -2,9 +2,11 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\datum\foreign;
 
+use function JulianSeymour\PHPWebApplicationFramework\f;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\common\ElementBindableTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\HumanReadableNameTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructuralTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
@@ -288,8 +290,8 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 						Debug::print("{$f} column name is \"{$columnName}\"; about to set subtype");
 					}
 					$struct = $event->getProperty("data");
-					if ($struct->hasSubtypeValue()) {
-						$subtype = $struct->getSubtypeValue();
+					if ($struct->hasColumnValue('subtype') || $struct instanceof StaticSubtypeInterface) {
+						$subtype = $struct->getSubtype();
 						if ($print) {
 							$class = $target->getClass();
 							Debug::print("About to call {$class}->setColumnValue('{$subtype_name}', '{$subtype}')");

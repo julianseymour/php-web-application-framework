@@ -64,7 +64,7 @@ abstract class DatabaseCredentials extends UserOwned{
 		$name = new NameDatum("name");
 		$host = new TextDatum("host");
 		$host->setDefaultValue("host");
-		static::pushTemporaryColumnsStatic($columns, $name, $host);
+		array_push($columns, $name, $host);
 	}
 
 	public static function getPrettyClassName():string{

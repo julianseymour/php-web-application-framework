@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\session\hijack;
 
 use JulianSeymour\PHPWebApplicationFramework\account\login\FullAuthenticationData;
@@ -20,10 +21,6 @@ use JulianSeymour\PHPWebApplicationFramework\account\UserData;
  *        
  */
 class AntiHijackSessionData extends DataStructure{
-
-	public static function getDatabaseNameStatic():string{
-		return "error";
-	}
 	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$boundIpAddress = new IpAddressDatum("boundIpAddress");
@@ -34,7 +31,7 @@ class AntiHijackSessionData extends DataStructure{
 		$ipAddressChanged->setDefaultValue(false);
 		$userAgentChanged = new BooleanDatum("userAgentChanged");
 		$userAgentChanged->setDefaultValue(false);
-		static::pushTemporaryColumnsStatic($columns, $boundIpAddress, $boundUserAgent, $ipAddressChanged, $userAgentChanged);
+		array_push($columns, $boundIpAddress, $boundUserAgent, $ipAddressChanged, $userAgentChanged);
 	}
 
 	public static function getDefaultPersistenceModeStatic(): int{
@@ -74,11 +71,6 @@ class AntiHijackSessionData extends DataStructure{
 	}
 
 	public static function getPrettyClassName():string{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
-	}
-
-	public static function getTableNameStatic(): string{
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}

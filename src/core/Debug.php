@@ -81,8 +81,7 @@ abstract class Debug extends Basic{
 		exit();
 	}
 
-	public static function requireCacheKey($key = null)
-	{
+	public static function requireCacheKey($key = null){
 		$f = __METHOD__; //Debug::getShortClass() . "::requireCacheKey()";
 		if ($key === null) {
 			if (isset($_SESSION) && is_array($_SESSION) && array_key_exists($key, $_SESSION)) {
@@ -98,20 +97,17 @@ abstract class Debug extends Basic{
 		Debug::print("{$f} key \"{$key}\" is cached by APCu");
 	}
 
-	public static function setRequiredCacheKey($key)
-	{
+	public static function setRequiredCacheKey($key){
 		// $f = __METHOD__; //Debug::getShortClass()."::setRequiredCacheKey()";
 		return $_SESSION['requiredCacheKey'] = $key;
 	}
 
-	public static function getFunctionNestingLevel()
-	{
+	public static function getFunctionNestingLevel(){
 		return count(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 254)) - 1;
 	}
 
-	public static function checkForbiddenString($string)
-	{
-		$f = __METHOD__; //Debug::getShortClass() . "::checkForbiddenString()";
+	public static function checkForbiddenString($string){
+		$f = __METHOD__;
 		if (! is_string($string)) {
 			Debug::error("checkForbiddenString received something that is not a string");
 		}
@@ -124,8 +120,7 @@ abstract class Debug extends Basic{
 		return $string;
 	}
 
-	public static function printStackTraceNoExit($msg = null)
-	{
+	public static function printStackTraceNoExit($msg = null){
 		if (! empty($msg)) {
 			Debug::print($msg);
 		}
@@ -136,14 +131,12 @@ abstract class Debug extends Basic{
 		}
 	}
 
-	public static function forbidString($string)
-	{
+	public static function forbidString(?string $string):?string{
 		return $_SESSION['forbidden'] = $string;
 	}
 
-	public static function armTrap()
-	{
-		$f = __METHOD__; //Debug::getShortClass() . "::" . __METHOD__ . "()";
+	public static function armTrap():void{
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			Debug::print("{$f} trap armed");
@@ -152,20 +145,17 @@ abstract class Debug extends Basic{
 		$_SESSION['trap'] = 1;
 	}
 
-	public static function disarmTrap()
-	{
+	public static function disarmTrap():void{
 		if (array_key_exists('trap', $_SESSION)) {
 			unset($_SESSION['trap']);
 		}
 	}
 
-	public static function isTrapArmed()
-	{
+	public static function isTrapArmed():bool{
 		return isset($_SESSION) && is_array($_SESSION) && array_key_exists('trap', $_SESSION) && $_SESSION['trap'] === 1;
 	}
 
-	public static function printPost($msg = null)
-	{
+	public static function printPost($msg = null){
 		if (isset($msg) && is_string($msg) && $msg != "") {
 			Debug::print($msg);
 		}
@@ -173,8 +163,7 @@ abstract class Debug extends Basic{
 		Debug::printStackTrace();
 	}
 
-	public static function printGet($msg = null)
-	{
+	public static function printGet($msg = null){
 		if (isset($msg) && is_string($msg) && $msg != "") {
 			Debug::print($msg);
 		}
@@ -182,16 +171,14 @@ abstract class Debug extends Basic{
 		Debug::printStackTrace();
 	}
 
-	public static function debugPhpClassDeclaration($class)
-	{
+	public static function debugPhpClassDeclaration($class){
 		$reflector = new ReflectionClass($class);
 		$file = $reflector->getFileName();
 		$line = $reflector->getStartLine();
 		return "{$file}, line {$line}";
 	}
 
-	public static function printArray($arr, ?int $depth = null)
-	{
+	public static function printArray($arr, ?int $depth = null):void{
 		$f = __METHOD__; //Debug::getShortClass() . "::printArray()";
 		try {
 			if (! is_array($arr)) {
@@ -234,8 +221,7 @@ abstract class Debug extends Basic{
 		}
 	}
 
-	public static function printArrayHorizontal($arr): void
-	{
+	public static function printArrayHorizontal($arr): void{
 		$f = __METHOD__; //Debug::getShortClass() . "::printArrayHorizontal()";
 		try {
 			if (! is_array($arr)) {
@@ -259,14 +245,12 @@ abstract class Debug extends Basic{
 		}
 	}
 
-	public static function fatal($f, $whut)
-	{
+	public static function fatal($f, $whut){
 		Debug::print($f, "\033[31mFatal error: \"{$whut}\" in {$f}\033[0m");
 		exit();
 	}
 
-	public static function info($what)
-	{
+	public static function info($what){
 		Debug::print($what);
 	}
 

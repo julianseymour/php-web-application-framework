@@ -62,25 +62,21 @@ class FloatingPointDatum extends AbstractNumericDatum
 		return doubleval($value);
 	}
 
-	public function getHumanReadableValue()
-	{
+	public function getHumanReadableValue(){
 		return $this->getValue();
 	}
 
-	public function getHumanWritableValue()
-	{
+	public function getHumanWritableValue(){
 		return $this->getValue();
 	}
 
-	public function getConstructorParams(): ?array
-	{
+	public function getConstructorParams(): ?array{
 		return [
-			$this->getColumnName()
+			$this->getName()
 		];
 	}
 
-	public static function getTypeSpecifier()
-	{
+	public static function getTypeSpecifier():string{
 		return "d";
 	}
 
@@ -96,23 +92,19 @@ class FloatingPointDatum extends AbstractNumericDatum
 		return FAILURE;
 	}
 
-	public function parseValueFromQueryResult($raw)
-	{
+	public function parseValueFromQueryResult($raw){
 		return floatval($raw);
 	}
 
-	public static function parseString(string $string)
-	{
+	public static function parseString(string $string){
 		return floatval($string);
 	}
 
-	public function getUrlEncodedValue()
-	{
+	public function getUrlEncodedValue(){
 		return $this->getValue();
 	}
 
-	public function getColumnTypeString(): string
-	{
+	public function getColumnTypeString(): string{
 		if ($this->hasPrecision() && $this->getPrecision() > 24) {
 			$string = "double";
 		} else {

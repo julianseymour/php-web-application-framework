@@ -55,7 +55,7 @@ class DateInput extends ChronometricInput implements StaticValueNegotiationInter
 				$v = $datetime->getTimestamp();
 			} else {
 				$dc = get_short_class($column);
-				$cn = $column->getColumnName();
+				$cn = $column->getName();
 				Debug::error("{$f} column {$cn} should always be a timestamp, but it is a {$dc}");
 			}
 			if ($print) {

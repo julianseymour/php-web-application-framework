@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\app;
 
 use JulianSeymour\PHPWebApplicationFramework\app\workflow\SimpleWorkflow;
@@ -6,11 +7,9 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 
 ErrorMessage::deprecated(__FILE__);
 
-class WebApplicationManifestUseCase extends UseCase
-{
+class WebApplicationManifestUseCase extends UseCase{
 	
-	public static function getDefaultWorkflowClass(): string
-	{
+	public static function getDefaultWorkflowClass(): string{
 		return SimpleWorkflow::class;
 	}
 	

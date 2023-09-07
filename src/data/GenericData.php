@@ -1,7 +1,7 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
-use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use mysqli;
 
 class GenericData extends DataStructure{
@@ -35,10 +35,6 @@ class GenericData extends DataStructure{
 
 	public static function getPrettyClassNames():string{
 		return static::getPrettyClassName();
-	}
-
-	public static function getTableNameStatic(): string{
-		ErrorMessage::unimplemented(__METHOD__);
 	}
 
 	public function setOneToManyAssociativeData($mapper){

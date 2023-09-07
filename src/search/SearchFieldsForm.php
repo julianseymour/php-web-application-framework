@@ -1,6 +1,6 @@
 <?php
-namespace JulianSeymour\PHPWebApplicationFramework\search;
 
+namespace JulianSeymour\PHPWebApplicationFramework\search;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
@@ -10,16 +10,13 @@ use JulianSeymour\PHPWebApplicationFramework\input\CheckboxInput;
 use JulianSeymour\PHPWebApplicationFramework\input\CheckedInput;
 use JulianSeymour\PHPWebApplicationFramework\input\FancyCheckbox;
 
-class SearchFieldsForm extends AjaxForm
-{
+class SearchFieldsForm extends AjaxForm{
 
-	public static function getFormDispatchIdStatic(): ?string
-	{
+	public static function getFormDispatchIdStatic(): ?string{
 		return "search_fields";
 	}
 
-	public function generateButtons(string $name): ?array
-	{
+	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
@@ -28,16 +25,15 @@ class SearchFieldsForm extends AjaxForm
 	 *
 	 * @param SearchFieldsData $context
 	 */
-	public function getFormDataIndices(): ?array
-	{ // $context = null){
+	public function getFormDataIndices(): ?array{
 		$f = __METHOD__;
 		$context = $this->getContext();
 		$indices = [];
 		// Debug::print("{$f} about to call getSearchableColumns()");
 		foreach ($context->getFilteredColumns("!" . COLUMN_FILTER_VIRTUAL) as $c) {
-			$cn = $c->getColumnName();
+			$cn = $c->getName();
 
-			$indices[$cn] = $cn; // FancyCheckbox::class;
+			$indices[$cn] = $cn;
 		}
 		if (count($indices) === 1) {
 			foreach ($indices as $cn) {
@@ -54,19 +50,16 @@ class SearchFieldsForm extends AjaxForm
 		return $indices;
 	}
 
-	public function getDirectives(): ?array
-	{
+	public function getDirectives(): ?array{
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
 	}
 
-	public static function getActionAttributeStatic(): ?string
-	{
+	public static function getActionAttributeStatic(): ?string{
 		return null;
 	}
 
-	public function reconfigureInput($input): int
-	{
+	public function reconfigureInput($input): int{
 		$f = __METHOD__;
 		$print = false;
 		// $context = $this->getContext();

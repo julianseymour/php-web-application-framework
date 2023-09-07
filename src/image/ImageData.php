@@ -1,10 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\image;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\DoubleDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
@@ -13,12 +15,17 @@ use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\file\CleartextFileData;
 use JulianSeymour\PHPWebApplicationFramework\input\RangeInput;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 
-class ImageData extends CleartextFileData implements StaticElementClassInterface
-{
+class ImageData extends CleartextFileData implements StaticElementClassInterface, StaticSubtypeInterface, StaticTableNameInterface{
 
+	use StaticTableNameTrait;
+	use SubtypeColumnTrait;
+	
 	protected $resampledFilename;
 
 	protected $resampledThumbnailFilename;
@@ -27,7 +34,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 		parent::declareColumns($columns, $ds);
 		$width = new UnsignedIntegerDatum("width", 16);
 		$height = new UnsignedIntegerDatum("height", 16);
-		$type = new StringEnumeratedDatum("imageType", 8);
+		$type = new StringEnumeratedDatum("subtype", 8);
 		$map = [
 			IMAGE_TYPE_GENERIC,
 			IMAGE_TYPE_ENCRYPTED_ATTACHMENT,
@@ -48,38 +55,34 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 		$orientation = new VirtualDatum("orientation");
 		$name = new NameDatum("name");
 		$name->setNullable(true);
-		static::pushTemporaryColumnsStatic($columns, $width, $height, $type, $focal_line_ratio, $thumb_h, $thumb_w, $thumb_path, $orientation, $name);
+		array_push($columns, $width, $height, $type, $focal_line_ratio, $thumb_h, $thumb_w, $thumb_path, $orientation, $name);
 	}
 
-	public static function getImageTypeStatic()
-	{
-		return IMAGE_TYPE_UNDEFINED;
+	public static function getImageTypeStatic(){
+		return static::getSubtypeStatic();
 	}
 
-	public function getThumbnail()
-	{
+	public static function getSubtypeStatic():string{
+		return CONST_ERROR;
+	}
+	
+	public function getThumbnail(){
 		if ($this->hasThumbnail()) {
 			return $this->getForeignDataStructure("thumbnail");
 		}
 		return $this->setThumbnail(new ImageThumbnail($this));
 	}
 
-	public function setThumbnail(?ImageThumbnail $thumb): ?ImageThumbnail
-	{
+	public function setThumbnail(?ImageThumbnail $thumb): ?ImageThumbnail{
 		return $this->setForeignDataStructure("thumbnail", $thumb);
 	}
 
-	public static function getTableNameStatic(): string
-	{
+	public static function getTableNameStatic(): string{
 		return "images";
 	}
 
 	public function calculateAspectRatio(){
 		return $this->getImageWidth() / $this->getImageHeight();
-	}
-
-	public function getSubtypeValue(){
-		return $this->getImageType();
 	}
 
 	public static function getPhylumName(): string{
@@ -332,48 +335,39 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 		$columns["mimeType"]->setValidEnumerationMap($map);
 	}
 
-	public function getImageType()
-	{
-		return $this->getColumnValue("imageType");
+	public function getImageType(){
+		return $this->getSubtype();
 	}
 
-	public function hasImageType()
-	{
-		return $this->hasColumnValue("imageType");
+	public function hasImageType():bool{
+		return $this->hasSubtype();
 	}
 
-	public function setImageType($type)
-	{
-		return $this->setColumnValue("imageType", $type);
+	public function setImageType(string $type):string{
+		return $this->setSubtype($type);
 	}
 
-	public function ejectImageType()
-	{
-		return $this->ejectColumnValue("imageType");
+	public function ejectImageType(){
+		return $this->ejectSubtype();
 	}
 
-	public function getFocalLineRatio()
-	{
+	public function getFocalLineRatio(){
 		return $this->getColumnValue("focalLineRatio");
 	}
 
-	public function setResampledFilename($rfn)
-	{
+	public function setResampledFilename(?string $rfn):?string{
 		return $this->resampledFilename = $rfn;
 	}
 
-	public function getResampledFilename()
-	{
+	public function getResampledFilename():string{
 		return $this->resampledFilename;
 	}
 
-	public function hasResampledFilename()
-	{
+	public function hasResampledFilename():bool{
 		return isset($this->resampledFilename);
 	}
 
-	public static function resampleImage($uploaded_filename, $mime_type, $dst_w, $dst_h)
-	{
+	public static function resampleImage(string $uploaded_filename, string $mime_type, int $dst_w, int $dst_h):string{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -471,23 +465,19 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 		}
 	}
 
-	public function getThumbnailWidth()
-	{
+	public function getThumbnailWidth():int{
 		return $this->getThumbnail()->getImageWidth();
 	}
 
-	public function getThumbnailHeight()
-	{
+	public function getThumbnailHeight():int{
 		return $this->getThumbnail()->getImageHeight();
 	}
 
-	public function isTall()
-	{
+	public function isTall():bool{
 		return $this->getImageHeight() > $this->getImageWidth();
 	}
 
-	private function resampleThumbnail()
-	{
+	private function resampleThumbnail(){
 		$uploaded_filename = $this->getUploadedTempFilename();
 		$mime_type = $this->getMimeType();
 		$dst_w = $this->getThumbnailWidth();
@@ -495,8 +485,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 		return static::resampleImage($uploaded_filename, $mime_type, $dst_w, $dst_h);
 	}
 
-	public function isThumbnail()
-	{
+	public function isThumbnail():bool{
 		return false;
 	}
 

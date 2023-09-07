@@ -11,7 +11,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateContextInterface;
 use Exception;
 
-class JavaScriptTemplateFunctionsUseCase extends JavaScriptFileUseCase{
+class JavaScriptTemplateFunctionsUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
 		$f = __METHOD__;

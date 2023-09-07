@@ -72,14 +72,6 @@ trait MultipleColumnDefiningTrait{
 	public function pushColumn(...$columns): int{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
-			foreach ($columns as $column) {
-				$column_name = $column->getColumnName();
-				if ($column_name === "enabled") {
-					Debug::printStackTraceNoExit("{$f} pushing a column named \"{$column_name}\"");
-				}
-			}
-		}
 		return $this->pushArrayProperty("columns", ...$columns);
 	}
 
@@ -211,7 +203,7 @@ trait MultipleColumnDefiningTrait{
 			if ($c instanceof VirtualDatum) {
 				continue;
 			}
-			$column_name = $c->getColumnName();
+			$column_name = $c->getName();
 			$value = $c->getHumanReadableValue();
 			Debug::print("{$column_name}: \"{$value}\"");
 		}

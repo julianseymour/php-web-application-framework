@@ -48,6 +48,7 @@ class DefaultModule extends EmptyModule{
 			"robots.txt" => \JulianSeymour\PHPWebApplicationFramework\app\RobotsDotTxtUseCase::class,
 			"script" => \JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFileRouter::class,
 			"server_cache" => \JulianSeymour\PHPWebApplicationFramework\cache\server\ClearServerCacheUseCase::class,
+			"service-worker.js" => \JulianSeymour\PHPWebApplicationFramework\script\LocalizedServiceWorkerUseCase::class,
 			"settings" => \JulianSeymour\PHPWebApplicationFramework\account\settings\AccountSettingsUseCase::class,
 			"sitemap.xml" => \JulianSeymour\PHPWebApplicationFramework\app\SiteMapUseCase::class,
 			"style" => \JulianSeymour\PHPWebApplicationFramework\style\CssBundleUseCase::class,
@@ -181,6 +182,11 @@ class DefaultModule extends EmptyModule{
 				config()->getNormalUserClass() => [
 					DIRECTIVE_UPDATE
 				],
+				config()->getShadowUserClass() => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE,
+					DIRECTIVE_DELETE
+				],
 				\JulianSeymour\PHPWebApplicationFramework\cascade\CascadeDeleteTriggerData::class => [
 					DIRECTIVE_INSERT,
 					DIRECTIVE_UPDATE,
@@ -246,6 +252,11 @@ class DefaultModule extends EmptyModule{
 				],
 				"events.*" => [
 					DIRECTIVE_INSERT
+				],
+				"strings.*" => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE,
+					DIRECTIVE_DELETE
 				],
 				"*.*" => [
 					DIRECTIVE_FILE
@@ -558,8 +569,7 @@ class DefaultModule extends EmptyModule{
 			FRAMEWORK_INSTALL_DIRECTORY . '/data/DataStructure.js',
 			FRAMEWORK_INSTALL_DIRECTORY . '/account/owner/UserOwned.js',
 			FRAMEWORK_INSTALL_DIRECTORY . '/account/correspondent/UserCorrespondence.js',
-			\JulianSeymour\PHPWebApplicationFramework\notification\NotificationData::getJavaScriptClassPath(),
-			FRAMEWORK_INSTALL_DIRECTORY . '/security/SecurityNotificationData.js'
+			\JulianSeymour\PHPWebApplicationFramework\notification\NotificationData::getJavaScriptClassPath()
 		];
 	}
 
@@ -727,5 +737,9 @@ class DefaultModule extends EmptyModule{
 			Debug::print("{$f} profile images directory was already created");
 		}
 		return SUCCESS;
+	}
+	
+	public function getEmbedName():string{
+		return "default";
 	}
 }

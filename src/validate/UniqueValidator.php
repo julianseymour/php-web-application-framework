@@ -16,8 +16,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnNamesTra
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 
-class UniqueValidator extends Validator implements TypeSpecificInterface
-{
+class UniqueValidator extends Validator implements TypeSpecificInterface{
 
 	use DataStructureClassTrait;
 	use MultipleColumnNamesTrait;
@@ -25,30 +24,23 @@ class UniqueValidator extends Validator implements TypeSpecificInterface
 	// use TableNameTrait;
 	use TypeSpecificTrait;
 
-	public function __construct($data_class, $typedef, ...$columnNames)
-	{
+	public function __construct($data_class, $typedef, ...$columnNames){
 		parent::__construct();
-		// $this->requirePropertyType("columnNames", 's');
 		$this->setDataStructureClass($data_class);
-		// $db = $data_class::getDatabaseNameStatic();
-		// $table = $data_class::getTableNameStatic();
-		// $this->setTableName($dbtable);
 		$this->setTypeSpecifier($typedef);
 		if (isset($columnNames)) {
 			$this->setColumnNames($columnNames);
 		}
 	}
 
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
 		return array_merge(parent::declarePropertyTypes(), [
 			"columnNames" => 's'
 		]);
 	}
 
-	public function evaluate(&$validate_me): int
-	{
-		$f = __METHOD__; //UniqueValidator::getShortClass()."(".static::getShortClass().")->evaluate()";
+	public function evaluate(&$validate_me): int{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$typedef = $this->getTypeSpecifier();
@@ -106,8 +98,7 @@ class UniqueValidator extends Validator implements TypeSpecificInterface
 		}
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		// unset($this->properties);
 		// unset($this->propertyTypes);
@@ -115,8 +106,7 @@ class UniqueValidator extends Validator implements TypeSpecificInterface
 		unset($this->typeSpecifier);
 	}
 
-	public function extractParameters(&$in)
-	{
+	public function extractParameters(&$in):array{
 		$out = [];
 		foreach ($this->getColumnNames() as $columnName) {
 			$out[$columnName] = $in[$columnName];

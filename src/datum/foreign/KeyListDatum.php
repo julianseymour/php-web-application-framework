@@ -30,11 +30,11 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 	public function getConstructorParams(): ?array{
 		if($this->hasRelationshipType()){
 			return [
-				$this->getColumnName(),
+				$this->getName(),
 				$this->getRelationshipType()
 			];
 		}
-		return [$this->getColumnName()];
+		return [$this->getName()];
 	}
 	
 	public static function declareFlags(): ?array{
@@ -55,7 +55,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 	public function configureArrayMembership($value){
 		$f = __METHOD__;
 		$print = false;
-		$column_name = $this->getColumnName();
+		$column_name = $this->getName();
 		if (is_bool($value)) {
 			if ($print) {
 				Debug::print("{$f} received a boolean value for column \"{$column_name}\"");
@@ -93,7 +93,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 		if (! is_array($keyvalues)) {
 			Debug::error("{$f} input->getValueAttribute() must return an array");
 		}
-		$column_name = $this->getColumnName();
+		$column_name = $this->getName();
 		foreach ($keyvalues as $key => $value) {
 			if (is_object($value)) {
 				Debug::error("{$f} should not be setting objects as value attributes");
@@ -181,7 +181,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 			}
 			$originals = $this->hasOriginalValue() ? $this->getOriginalValue() : [];
 			$ds = $this->getDataStructure();
-			$name = $this->getColumnName();
+			$name = $this->getName();
 			$print = false;
 			if (! $this->hasValue()) {
 				if ($print) {
@@ -342,7 +342,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 			$this->value = [];
 		}
 		if ($print) {
-			$column_name = $this->getColumnName();
+			$column_name = $this->getName();
 			$did = $this->getDebugId();
 			// Debug::printStackTraceNoExit("{$f} pushing the following values to datum with debug ID {$did}:");
 			// Debug::printArray(array(...$values));

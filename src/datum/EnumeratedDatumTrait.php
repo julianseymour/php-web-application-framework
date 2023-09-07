@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -20,10 +21,10 @@ trait EnumeratedDatumTrait{
 	}
 
 	public function hasValidEnumerationMap(): bool{
-		$f = __METHOD__; //"EnumeratedDatumTrait(".static::getShortClass().")->hasValidEnumerationMap()";
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
-			$cn = $this->getColumnName();
+			$cn = $this->getName();
 			if (! is_array($this->validEnumerationMap)) {
 				$gottype = gettype($this->validEnumerationMap);
 				Debug::print("{$f} column {$cn}'s enumeration map is a {$gottype}");
@@ -39,7 +40,7 @@ trait EnumeratedDatumTrait{
 	public function getValidEnumerationMap(): array{
 		$f = __METHOD__;
 		if (! $this->hasValidEnumerationMap()) {
-			$vn = $this->getColumnName();
+			$vn = $this->getName();
 			Debug::error("{$f} valid enumeration map is undefined for datum \"{$vn}\"");
 		}
 		return $this->validEnumerationMap;
@@ -49,7 +50,7 @@ trait EnumeratedDatumTrait{
 		$f = __METHOD__;
 		try {
 			$print = false;
-			$vn = $this->getColumnName();
+			$vn = $this->getName();
 			if ($this->getAlwaysValidFlag()) {
 				if ($print) {
 					Debug::print("{$f} this datum accepts all values");

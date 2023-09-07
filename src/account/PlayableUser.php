@@ -25,7 +25,6 @@ use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordData;
 use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordDatum;
 use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordDerivedColumnsTrait;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
-use JulianSeymour\PHPWebApplicationFramework\command\expression\SumCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\NonceDatum;
 use JulianSeymour\PHPWebApplicationFramework\crypt\SecretKeyDatum;
@@ -51,9 +50,9 @@ use JulianSeymour\PHPWebApplicationFramework\notification\NoteworthyInterface;
 use JulianSeymour\PHPWebApplicationFramework\notification\NotificationData;
 use JulianSeymour\PHPWebApplicationFramework\notification\RetrospectiveNotificationData;
 use JulianSeymour\PHPWebApplicationFramework\notification\push\PushSubscriptionData;
-use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnAliasExpression;
 use JulianSeymour\PHPWebApplicationFramework\query\select\CountCommand;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
+use JulianSeymour\PHPWebApplicationFramework\template\TemplateUser;
 use Exception;
 use mysqli;
 
@@ -121,7 +120,7 @@ abstract class PlayableUser extends UserData{
 		return $roles;
 	}
 
-	public function updateLastSeenTimestamp($mysqli, $timestamp){
+	public function updateLastSeenTimestamp(mysqli $mysqli, int $timestamp):int{
 		$f = __METHOD__;
 		$print = false;
 		$this->setLastSeenTimestamp($timestamp);
@@ -132,7 +131,7 @@ abstract class PlayableUser extends UserData{
 		return $this->setForeignDataStructure("accessAttemptKey", $obj);
 	}
 
-	public function hasRequestEventObject(){
+	public function hasRequestEventObject():bool{
 		return $this->hasForeignDataStructure("accessAttemptKey");
 	}
 
@@ -152,19 +151,11 @@ abstract class PlayableUser extends UserData{
 		}
 	}
 
-	public function hasCurrentThemeData(){
-		return $this->hasForeignDataStructure("theme");
-	}
-
-	public function setCurrentThemeData($theme){
-		return $this->setForeignDataStructure("theme", $theme);
-	}
-
-	public function getLastSeenTimestampString(){
+	public function getLastSeenTimestampString():string{
 		return getDateTimeStringFromTimestamp($this->getLastSeenTimestamp());
 	}
 
-	public function getMessageUpdateTimestamp(){
+	public function getMessageUpdateTimestamp():int{
 		$f = __METHOD__;
 		if (! $this->hasMessageUpdateTimestamp()) {
 			Debug::warning("{$f} message update timestamp is undefined");
@@ -173,34 +164,34 @@ abstract class PlayableUser extends UserData{
 		return $this->getColumnValue("messageUpdateTimestamp");
 	}
 
-	public function hasMessageUpdateTimestamp(){
+	public function hasMessageUpdateTimestamp():bool{
 		return $this->hasColumnValue("messageUpdateTimestamp");
 	}
 
-	public function setMessageUpdateTimestamp($time){
+	public function setMessageUpdateTimestamp(int $time):int{
 		return $this->setColumnValue("messageUpdateTimestamp", $time);
 	}
 
-	public function getLastSeenTimestamp(){
+	public function getLastSeenTimestamp():int{
 		return $this->getColumnValue("lastSeenTimestamp");
 	}
 
-	public function setLastSeenTimestamp($ts){
+	public function setLastSeenTimestamp(int $ts):int{
 		return $this->setColumnValue("lastSeenTimestamp", $ts);
 	}
 
-	public function hasLastSeenTimestamp(){
+	public function hasLastSeenTimestamp():bool{
 		return $this->hasColumnValue("lastSeenTimestamp") && $this->getColumnValue("lastSeenTimestamp") > 0;
 	}
 
-	public function getNotificationDeliveryTimestamp(){
+	public function getNotificationDeliveryTimestamp():int{
 		if ($this->hasNotificationDeliveryTimestamp()) {
 			return $this->getColumnValue('notificationDeliveryTimestamp');
 		}
 		return $this->setNotificationDeliveryTimestamp($this->getInsertTimestamp());
 	}
 
-	public function setNotificationDeliveryTimestamp($ts){
+	public function setNotificationDeliveryTimestamp(int $ts):int{
 		return $this->setColumnValue('notificationDeliveryTimestamp', $ts);
 	}
 
@@ -236,7 +227,7 @@ abstract class PlayableUser extends UserData{
 		return $status;
 	}
 
-	public function hasNotificationDeliveryTimestamp(){
+	public function hasNotificationDeliveryTimestamp():bool{
 		return $this->hasColumnValue("notificationDeliveryTimestamp") && $this->getColumnValue("notificationDeliveryTimestamp") > 0;
 	}
 
@@ -335,11 +326,7 @@ abstract class PlayableUser extends UserData{
 				$onlineStatus,
 				$customOnlineStatusString
 			];
-
-			if ($ds instanceof DataStructure && ! $ds instanceof \JulianSeymour\PHPWebApplicationFramework\template\TemplateUser && $ds->getAllocationMode() === ALLOCATION_MODE_SUBJECTIVE) {
-				// $mysqli = db()->getConnection(PublicReadCredentials::class);
-				// if(true || !app()->getFlag("debug") || RetrospectiveNotificationData::tableExistsStatic($mysqli)){
-
+			if ($ds instanceof DataStructure && !$ds instanceof TemplateUser && $ds->getAllocationMode() === ALLOCATION_MODE_SUBJECTIVE) {
 				$unreadNotificationCount = new UnsignedIntegerDatum("unreadNotificationCount", 64);
 				$unreadNotificationCount->setDefaultValue(0);
 				$unreadNotificationCount->setSubqueryExpression(new CountCommand("*"));
@@ -353,7 +340,7 @@ abstract class PlayableUser extends UserData{
 				);
 				array_push($pushed, $unreadNotificationCount);
 			}
-			static::pushTemporaryColumnsStatic($columns, ...$pushed);
+			array_push($columns, ...$pushed);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
@@ -363,7 +350,7 @@ abstract class PlayableUser extends UserData{
 		$f = __METHOD__;
 		try {
 			$print = false;
-			if (! $this->hasColumnValue("sessionRecoveryNonce_cipher")) {
+			if (! $this->hasColumnValue("sessionRecoveryNonceCipher")) {
 				if ($print) {
 					Debug::print("{$f} session recovery nonce is undefined -- creating one now");
 				}
@@ -390,7 +377,7 @@ abstract class PlayableUser extends UserData{
 		}
 	}
 
-	public function getNormalizedDisplayName(){
+	public function getNormalizedDisplayName():?string{
 		$f = __METHOD__;
 		try {
 			$sdn = $this->getColumnValue('displayNormalizedName');
@@ -412,7 +399,7 @@ abstract class PlayableUser extends UserData{
 		return $this->hasColumn("displayName") && $this->hasColumnValue("displayName");
 	}
 
-	public function getDisplayName(){
+	public function getDisplayName():string{
 		if (! $this->hasDisplayName()) {
 			return $this->getName();
 		}
@@ -629,7 +616,7 @@ abstract class PlayableUser extends UserData{
 		}
 	}
 
-	public function setDeterministicSecretKey($dsk, $mode = LOGIN_TYPE_UNDEFINED){
+	public function setDeterministicSecretKey(string $dsk, int $mode = LOGIN_TYPE_UNDEFINED):string{
 		$f = __METHOD__;
 		$print = false;
 		if ($this->getColumn("deterministicSecretKey") instanceof VirtualDatum) {
@@ -649,7 +636,7 @@ abstract class PlayableUser extends UserData{
 	 * @param array $password_data
 	 * @return string
 	 */
-	public function processPasswordData(PasswordData $password_data){
+	public function processPasswordData(PasswordData $password_data):int{
 		$f = __METHOD__;
 		try {
 			$print = false;
@@ -682,11 +669,11 @@ abstract class PlayableUser extends UserData{
 		}
 	}
 
-	public function getNotifications(){
+	public function getNotifications():array{
 		return $this->getForeignDataStructureList(NotificationData::getPhylumName());
 	}
 
-	public function getNotificationCount(){
+	public function getNotificationCount():int{
 		return $this->getForeignDataStructureCount(NotificationData::getPhylumName());
 	}
 
@@ -698,7 +685,7 @@ abstract class PlayableUser extends UserData{
 	public function transmitPushNotification(mysqli $mysqli, NotificationData $note){
 		$f = __METHOD__;
 		try {
-			$print = false; 
+			$print = $this->getDebugFlag();
 			if($print){
 				Debug::print("{$f} user ".$this->getUnambiguousName());
 			}
@@ -814,14 +801,19 @@ abstract class PlayableUser extends UserData{
 			}
 			$note_class = $subject->getNotificationClass();
 			$note_type = $note_class::getNotificationTypeStatic();
-			$select = RetrospectiveNotificationData::selectStatic()->where(new AndCommand(RetrospectiveNotificationData::whereIntersectionalHostKey(mods()->getUserClass($this->getUserAccountType()), "userKey"), new WhereCondition("notificationType", OPERATOR_EQUALS)))
-				->withTypeSpecifier('sss')
-				->withParameters([
+			$select = RetrospectiveNotificationData::selectStatic()->where(
+				new AndCommand(
+					RetrospectiveNotificationData::whereIntersectionalHostKey(
+						mods()->getUserClass($this->getAccountType()), 
+						"userKey"
+					), 
+					new WhereCondition("subtype", OPERATOR_EQUALS)
+				)
+			)->withTypeSpecifier('sss')->withParameters([
 				$this->getIdentifierValue(),
 				"userKey",
 				$note_type
 			]);
-
 			if ($this->hasCorrespondentObject()) {
 				$select->pushWhereConditionParameters(RetrospectiveNotificationData::whereIntersectionalHostKey(mods()->getUserClass($this->getCorrespondentAccountType()), "correspondentKey"));
 				$select->pushParameters($this->getCorrespondentKey(), "correspondentKey");
@@ -1064,10 +1056,10 @@ abstract class PlayableUser extends UserData{
 			$class = static::class;
 			$key = $this->getIdentifierValue();
 			Debug::print("{$f} validating key for {$class} with key \"{$key}\" {$where}");
-			if ($this->getColumn("privateKey_cipher")->hasValue()) {
+			if ($this->getColumn("privateKeyCipher")->hasValue()) {
 				Debug::print("{$f} private key cipher is defined");
 				$this->getColumn("privateKey")->ejectValue();
-				if ($this->getColumn("privateKey_cipher")->hasValue()) {
+				if ($this->getColumn("privateKeyCipher")->hasValue()) {
 					Debug::print("{$f} private key cipher is still defined after excising private key");
 				} else {
 					Debug::print("{$f} private key cipher is undefined after excising private key");

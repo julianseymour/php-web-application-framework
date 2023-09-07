@@ -386,7 +386,7 @@ class CreateTableStatement extends QueryStatement{
 		$f = __METHOD__;
 		$print = false;
 		foreach ($columns as $datum) {
-			$cn = $datum->getColumnName();
+			$cn = $datum->getName();
 			iF($print){
 				Debug::print("{$f} column \"{$cn}\"");
 			}

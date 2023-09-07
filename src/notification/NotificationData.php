@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
@@ -26,27 +27,25 @@ use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
 use JulianSeymour\messenger\RetrospectiveMessage;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-abstract class NotificationData extends UserCorrespondence implements StaticElementClassInterface
-{
+abstract class NotificationData extends UserCorrespondence implements StaticElementClassInterface, StaticTableNameInterface{
 
 	use JavaScriptCounterpartTrait;
+	use StaticTableNameTrait;
 	use SubjectiveTrait;
 
-	public abstract function getTypedNotificationClass();
+	public abstract function getTypedNotificationClass():string;
 
 	public static function getJavaScriptClassPath(): ?string{
 		$fn = get_class_filename(NotificationData::class);
 		return substr($fn, 0, strlen($fn) - 3) . "js";
 	}
 
-	public function getNotificationLinkUri(){
+	public function getNotificationLinkUri():?string{
 		$typed_class = $this->getTypedNotificationClass();
 		return $typed_class::getNotificationLinkUriStatic($this);
-	}
-
-	public function getSubtypeValue(){
-		return $this->getNotificationType();
 	}
 
 	public function hasVirtualColumnValue(string $column_name): bool{
@@ -302,27 +301,21 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	public function getName():string{
 		$f = __METHOD__;
 		try {
-			/*if ($this->getNotificationType() === NOTIFICATION_TYPE_SECURITY) {
-				return _("Security notification");
-			} elseif ($this->hasCorrespondentObject()) {
-				return $this->getCorrespondentName();
-			}*/
-			// Debug::print("{$f} this is not a security notification");
-			return substitute(_("Notification #%1%"), $this->getContext->getSerialnumber());
+			return substitute(_("Notification #%1%"), $this->getSerialNumber());
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getNotificationType(){
-		return $this->getColumnValue('notificationType');
+		return $this->getColumnValue('subtype');
 	}
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
 		try {
 			parent::declareColumns($columns, $ds);
-			$type = new StringEnumeratedDatum("notificationType");
+			$type = new StringEnumeratedDatum("subtype");
 			$type->setValidEnumerationMap(array_keys(mods()->getTypedNotificationClasses()));
 			$type->setHumanReadableName(_("Notification type"));
 			$count = new UnsignedIntegerDatum("notificationCount", 8);
@@ -357,13 +350,13 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 			$oldTimestamp->volatilize();
 
 			$actions = new VirtualDatum("actions");
-			static::pushTemporaryColumnsStatic($columns, $type, $count, $state, $pin_timestamp, $dismissable, $link_uri, $preview, $title, $actions, $subjectKey, $oldTimestamp);
+			array_push($columns, $type, $count, $state, $pin_timestamp, $dismissable, $link_uri, $preview, $title, $actions, $subjectKey, $oldTimestamp);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function getNotificationCount(){
+	public function getNotificationCount():int{
 		return $this->getColumnValue('notificationCount');
 	}
 
@@ -383,8 +376,8 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		return DATATYPE_NOTIFICATION;
 	}
 
-	public function setNotificationType($t){
-		return $this->setColumnValue('notificationType', $t);
+	public function setNotificationType(string $t):string{
+		return $this->setColumnValue('subtype', $t);
 	}
 
 	public static function getNotificationStateStringStatic($status){
@@ -452,7 +445,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 				// $config['linkUri'] = true;
 				$config['notificationCount'] = true;
 				$config['notificationState'] = true;
-				$config["notificationType"] = true;
+				$config["subtype"] = true;
 				$config["pinnedTimestamp"] = $that->hasPinnedTimestamp();
 				$config['subjectKey'] = $that->hasSubjectData() ? $that->getSubjectData()->getArrayMembershipConfiguration($sub_id) : true;
 				$config['subjectDataType'] = $that->hasSubjectData();
@@ -462,10 +455,14 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		return $config;
 	}
 
-	public function getUserTemporaryRole(){
+	public function getUserTemporaryRole():string{
 		return $this->getUserData()->getTemporaryRole();
 	}
 
+	public function hasNotificationType():bool{
+		return $this->hasSubtype();
+	}
+	
 	public static function getPhylumName(): string{
 		return "notifications";
 	}

@@ -61,7 +61,7 @@ abstract class SortNotificationForm extends AjaxForm implements TemplateElementI
 		$this->setIdAttribute(new ConcatenateCommand("{$value}_", $widget, "-", $suffix));
 		$this->setAttribute('uniqueKey', $suffix);
 		$this->addClassAttribute(new ConcatenateCommand("{$value}_", $widget, "_form"));
-		$this->setAttribute("note_type", new GetColumnValueCommand($context, "notificationType")); // ->getColumnValueCommand("notificationType"));
+		$this->setAttribute("note_type", new GetColumnValueCommand($context, "subtype")); // ->getColumnValueCommand("subtype"));
 		$ret = parent::bindContext($context);
 		return $ret;
 	}
@@ -107,7 +107,7 @@ abstract class SortNotificationForm extends AjaxForm implements TemplateElementI
 		$onclick = "NotificationData.reinsertNotification(event, this)";
 		$button->setOnClickAttribute($onclick);
 		$button->setAttribute('uniqueKey', $context->getIdAttributeSuffixCommand());
-		$button->setAttribute("note_type", new GetColumnValueCommand($context, "notificationType")); // ->getColumnValueCommand("notificationType"));
+		$button->setAttribute("note_type", new GetColumnValueCommand($context, "subtype")); // ->getColumnValueCommand("subtype"));
 		return [
 			$button
 		];

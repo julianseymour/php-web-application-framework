@@ -94,7 +94,7 @@ abstract class NotificationElement extends DivElement
 		$context = parent::bindContext($context);
 		$this->setAttribute("count", $context->getColumnValueCommand("notificationCount"));
 		$this->setIdAttribute($this->getIdAttributeStatic($context));
-		$this->setAttribute("tab", $context->getColumnValueCommand("notificationType"));
+		$this->setAttribute("tab", $context->getColumnValueCommand("subtype"));
 		$this->resolveTemplateCommand(IfCommand::hasColumnValue($context, "dismissable")->then($this->addClassCommand("dismissable")));
 		return $context;
 	}

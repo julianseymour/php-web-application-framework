@@ -4,11 +4,11 @@ namespace JulianSeymour\PHPWebApplicationFramework\security\access;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
-use JulianSeymour\PHPWebApplicationFramework\auth\AuthenticatedUser;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\BooleanDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\UnsignedIntegerDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
@@ -17,29 +17,32 @@ use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use JulianSeymour\PHPWebApplicationFramework\security\firewall\UnlistedIpAddressEmail;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class AccessAttempt extends RequestEvent{
+abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterface, StaticTableNameInterface{
 
-	protected $authenticatedUserClass;
-
-	public static function hasSubtypeStatic():bool{
-		return true;
-	}
+	use StaticTableNameTrait;
+	use SubtypeColumnTrait;
 	
-	public static function getAccessTypeStatic(): string
-	{
-		return CONST_UNDEFINED;
+	protected $authenticatedUserClass;
+	
+	public static final function getAccessTypeStatic(): string{
+		return static::getSubtypeStatic();
 	}
 
-	public static function getSubtypeStatic(): string{
-		return static::getAccessTypeStatic();
+	public function getSubtype():string{
+		if($this->hasColumnValue('subtype')) {
+			return $this->getColumnValue('subtype');
+		}
+		return $this->setSubtype(static::getSubypeStatic());
 	}
 
-	public static function getSuccessfulResultCode(){
+	public static function getSuccessfulResultCode():int{
 		return FAILURE;
 	}
 
-	public static function getEmailNotificationClass(){
+	public static function getEmailNotificationClass():?string{
 		return UnlistedIpAddressEmail::class;
 	}
 
@@ -74,14 +77,6 @@ class AccessAttempt extends RequestEvent{
 		} catch (Exception $x) {
 			x($f, $x);
 		}
-	}
-
-	public final function hasSubtypeValue(): bool{
-		return true;
-	}
-
-	public final function getSubtypeValue(): string{
-		return $this->getAccessTypeStatic();
 	}
 
 	public function getCidrNotation(){
@@ -195,7 +190,7 @@ class AccessAttempt extends RequestEvent{
 		parent::declareColumns($columns, $ds);
 		$success = new BooleanDatum("loginSuccessful");
 		$login_result = new UnsignedIntegerDatum("loginResult", 16);
-		static::pushTemporaryColumnsStatic($columns, $login_result, $success);
+		array_push($columns, $login_result, $success);
 	}
 
 	public function getFailedAttemptCount(mysqli $mysqli){

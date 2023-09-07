@@ -30,10 +30,10 @@ class RegisteringUser extends NormalUser{
 		parent::declareColumns($columns, $ds);
 		$dsk = new BlobDatum("deterministicSecretKey");
 		$dsk->volatilize();
-		static::pushTemporaryColumnsStatic($columns, $dsk);
+		array_push($columns, $dsk);
 	}
 
-	public function setDeterministicSecretKey($value, $unused = LOGIN_TYPE_UNDEFINED){
+	public function setDeterministicSecretKey(string $value, int $unused = LOGIN_TYPE_UNDEFINED):string{
 		return $this->setColumnValue("deterministicSecretKey", $value);
 	}
 

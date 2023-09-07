@@ -41,7 +41,7 @@ abstract class ValidateConfirmationCodeUseCase extends UseCase{
 		]);
 	}
 
-	public static final function getSuccessfulResultCode(){
+	public static final function getSuccessfulResultCode():int{
 		return static::getBruteforceAttemptClass()::getSuccessfulResultCode();
 	}
 

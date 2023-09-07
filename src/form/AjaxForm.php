@@ -5,7 +5,6 @@ namespace JulianSeymour\PHPWebApplicationFramework\form;
 use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
-use function JulianSeymour\PHPWebApplicationFramework\use_case;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\app\Request;
 use JulianSeymour\PHPWebApplicationFramework\auth\permit\PermissiveTrait;
@@ -310,7 +309,7 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 		return null;
 	}
 
-	public final function getSubordinateForm($column_name, $ds): AjaxForm{
+	public final function getSubordinateForm(string $column_name, $ds): AjaxForm{
 		$f = __METHOD__;
 		$print = false;
 		if ($print) {
@@ -388,15 +387,15 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 		return is_array($this->softDisabledInputIds) && ! empty($this->softDisabledInputIds);
 	}
 
-	public function getSoftDisabledInputIds(): ?array{
+	public function getSoftDisabledInputIds():?array{
 		return $this->softDisabledInputIds;
 	}
 
-	public function getImportedCollapseLabel(): ?LabelElement{
+	public function getImportedCollapseLabel():?LabelElement{
 		return $this->importedCollapseLabel;
 	}
 
-	public function hasImportedCollapseLabel(): bool{
+	public function hasImportedCollapseLabel():bool{
 		return isset($this->importedCollapseLabel);
 	}
 
@@ -453,13 +452,12 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 	public function dispatchCommands(): int{
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if ($this->skipFormInitialization()) {
+		if($this->skipFormInitialization()){
 			if ($print) {
 				Debug::print("{$f} skipping form initialization command because this form does not get initialized");
 			}
 			return parent::dispatchCommands();
-		}
-		if ($this->hasSoftDisabledInputIds()) {
+		}elseif($this->hasSoftDisabledInputIds()){
 			$input_ids = $this->getSoftDisabledInputIds();
 			foreach ($input_ids as $input_id) {
 				$subcommand = new SoftDisableInputCommand($input_id);
@@ -467,7 +465,7 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 			}
 		}
 		$subcommand = new InitializeFormCommand($this);
-		if ($print) {
+		if($print){
 			Debug::print("{$f} about to report InitializeFormCommand");
 		}
 		$this->reportSubcommand($subcommand);
@@ -485,28 +483,56 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 		return false;
 	}
 
-	/**
-	 * This function is called by subindexNestedInputs.
-	 * Override to change subindexing behavior for this form.
-	 *
-	 * @param InputInterface $input
-	 * @param string $super_index
-	 * @return string
-	 */
-	protected function subindexNestedInput(InputInterface &$input, string $super_index): void{
+	private final function subindexNestedInputHelper(&$input, string $super_index):void{
 		$f = __METHOD__;
-		$print = false;
-		if ($print) {
+		$print = $this->getDebugFlag();
+		if(is_array($input)){
+			if($print){
+				Debug::print("{$f} input is an array, calling recursively");
+			}
+			foreach($input as $subinput){
+				if($subinput instanceof AjaxForm){
+					if($print){
+						$decl = $subinput->getDeclarationLine();
+						Debug::print("{$f} nested input is an AjaxForm, instantiated {$decl}");
+					}
+					foreach($subinput->getInputs() as $subsubinput){
+						$this->subindexNestedInputHelper($subsubinput, $super_index);
+					}
+					continue;
+				}
+				$this->subindexNestedInputHelper($subinput, $super_index);
+			}
+			return;
+		}elseif ($print) {
 			$input_class = $input->getClass();
 			Debug::print("{$f} about to call {$input_class}->subindexNameAttribute({$super_index})");
 		}
+		if($input instanceof AjaxForm){
+			Debug::error("{$f} input is an AjaxForm");
+		}
+		$this->subindexNestedInput($input, $super_index);
+		// return $reindex;
+	}
+	
+	/**
+	 * This function is called by subindexNestedInputHelper.
+	 * Override to change subindexing behavior for this form.
+	 *
+	 * @param InputInterface|AjaxForm|array $input
+	 * @param string $super_index
+	 * @return string
+	 */
+	
+	protected function subindexNestedInput(InputInterface &$input, string $super_index):void{
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
 		$reindex = $input->subindexNameAttribute($super_index);
 		if ($print) {
 			Debug::print("{$f} set input name attribute to \"{$reindex}\"");
 		}
-		// return $reindex;
 	}
-
+	
 	public function getChoiceGenerationParameters($input): ?array{
 		if ($this->hasSuperiorForm()) {
 			return $this->getSuperiorForm()->getChoiceGenerationParameters($input);
@@ -521,13 +547,14 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 	 * @param Datum $datum
 	 * @param DataStructure[] $structs
 	 */
-	public function subindexNestedInputs(Datum $datum, $structs): array{
+	public final function subindexNestedInputs(Datum $datum, $structs): array{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$context = $this->getContext();
+			$print = $this->getDebugFlag();
 			$ret = [];
 			$mode = $this->getAllocationMode();
-			$column_name = $datum->getColumnName();
+			$column_name = $datum->getName();
 			$multiple = false;
 			if ($datum instanceof KeyListDatum || ($datum instanceof VirtualDatum && $datum->getReturnType() === TYPE_ARRAY)) {
 				$multiple = true;
@@ -566,8 +593,14 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 					Debug::print("{$f} about to get input map for subordinate form of class \"{$sfc}\"");
 				}
 				if($subordinate_form->hasInputs()){
+					if($print){
+						Debug::print("{$f} inputs were already generated");
+					}
 					$subordinate_map = $subordinate_form->getInputs();
 				}else{
+					if($print){
+						Debug::print("{$f} generating inputs now");
+					}
 					$subordinate_map = $subordinate_form->generateInputs($subordinate_struct);
 				}
 				if ($subordinate_struct->hasIdentifierValue()) {
@@ -598,6 +631,7 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 						if ($print) {
 							Debug::print("{$f} generated an array for index \"{$name}\"");
 						}
+						$this->subindexNestedInputHelper($input, $super_index);
 					} elseif ($input instanceof InputInterface) {
 						$input_class = $input->getClass();
 						if (! $input->hasNameAttribute()) {
@@ -606,12 +640,9 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 							Debug::error("{$f} {$input_class} input \"{$column_name}\" with debug ID \"{$did}\" lacks a name attribute; constructed {$decl}");
 						}
 						if ($print) {
-							Debug::print("{$f} about to call subindexNestedInput(input, {$super_index})");
+							Debug::print("{$f} about to call subindexNestedInputHelper(input, {$super_index})");
 						}
-						$this->subindexNestedInput($input, $super_index);
-						/*if (! $this->getDisableRenderingFlag() && $input->hasColumnName()) {
-							$subordinate_form->reconfigureInput($input);
-						}*/ //this happens anyway in generateaInputs
+						$this->subindexNestedInputHelper($input, $super_index);
 						$input->setForm($this);
 					} elseif ($print) {
 						Debug::error("{$f} subordinate container lacks child nodes, nothing to reindex");
@@ -649,16 +680,62 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 		return array_keys($this->getFormDataIndices());
 	}
 
+	private final function attachInputValidatorsHelper($input){
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
+		$mode = $this->getAllocationMode();
+		if ($input === null) {
+			Debug::error("{$f} input is null");
+		} elseif (is_array($input)) {
+			if ($print) {
+				Debug::print("{$f} input is an array");
+			}
+			foreach ($input as $sub_input) {
+				$this->attachInputValidatorsHelper($sub_input);
+			}
+		}elseif($input instanceof AjaxForm){
+			if($print){
+				Debug::print("{$f} input is an AjaxForm");
+			}
+			foreach($input->getInputs() as $sub_input){
+				$this->attachInputValidatorsHelper($sub_input);
+			}
+		} elseif (! $input->hasAllocationMode()) {
+			Debug::error("{$f} input lacks a rendering mode on line 885");
+		} elseif ($input instanceof InputInterface) {
+			if (! $this->getDisableRenderingFlag() && $input->hasColumnName()) {
+				$this->reconfigureInput($input);
+			} elseif ($print) {
+				Debug::print("{$f} rendering is disabled, or the input lacks a column name");
+			}
+			if ($print) {
+				$input_class = $input->getClass();
+				$column_name = $input->getColumnName();
+				Debug::print("{$f} about to call attachInputValidators for {$input_class} at index \"{$column_name}\"");
+			}
+			if ($mode !== ALLOCATION_MODE_FORM && $mode !== ALLOCATION_MODE_FORM_TEMPLATE) {
+				$this->attachInputValidators($input); //XXX causes duplicate validators
+			}
+		}elseif($input instanceof Element){
+			if($print){
+				Debug::print("{$f} input is an element");
+			}
+		}else{
+			Debug::error("{$f} none of the above. Input is a ".$input->getShortClass());
+		}
+		return $input;
+	}
+
 	/**
 	 * override this to apply validators to individual inputs
 	 *
 	 * @param InputInterface $input
 	 * @return InputInterface
 	 */
-	protected function attachInputValidators(InputInterface $input): InputInterface{
+	protected function attachInputValidators(InputInterface $input):InputInterface{
 		return $input;
 	}
-
+	
 	/**
 	 * override this with a function that calls setNegotiator on the input as needed
 	 *
@@ -714,7 +791,7 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 	public function generateInputs($context): array{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			$manifest = $this->getFormInputManifest();
 			if ($print) {
 				Debug::print("{$f} about to utilize the following manifest:");
@@ -790,31 +867,7 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 			}
 			// reconfigure inputs and set validators
 			foreach ($inputs as $input) {
-				if ($input === null) {
-					Debug::error("{$f} input is null");
-				} elseif (is_array($input)) {
-					foreach ($input as $name => $sub_input) {
-						if ($print) {
-							Debug::print("{$f} subordinate input \"{$name}\" is an array");
-						}
-					}
-				} elseif (! $input->hasAllocationMode()) {
-					Debug::error("{$f} input lacks a rendering mode on line 885");
-				} elseif ($input instanceof InputInterface) {
-					if (! $this->getDisableRenderingFlag() && $input->hasColumnName()) {
-						$this->reconfigureInput($input);
-					} elseif ($print) {
-						Debug::print("{$f} rendering is disabled, or the input lacks a column name");
-					}
-					if ($print) {
-						$input_class = $input->getClass();
-						$column_name = $input->getColumnName();
-						Debug::print("{$f} about to call attachInputValidators for {$input_class} at index \"{$column_name}\"");
-					}
-					if ($mode !== ALLOCATION_MODE_FORM && $mode !== ALLOCATION_MODE_FORM_TEMPLATE) {
-						$this->attachInputValidators($input); //XXX causes duplicate validators
-					}
-				}
+				$this->attachInputValidatorsHelper($input);
 			}
 			if ($print) {
 				Debug::print("{$f} returning the following inputs:");
@@ -848,10 +901,10 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 	private function generateNestedInputs(Datum $datum): ?array{
 		$f = __METHOD__;
 		try {
-			$print = false;
 			$context = $this->getContext();
-			$column_name = $datum->getColumnName();
-			if ($context->hasForeignDataStructure($column_name)) {
+			$column_name = $datum->getName();
+			$print = $this->getDebugFlag();
+			if($context->hasForeignDataStructure($column_name)){
 				if ($print) {
 					Debug::print("{$f} context already has a subordinate data structure at index \"{$column_name}\"");
 				}
@@ -918,6 +971,21 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 					if ($print) {
 						Debug::print("{$f} subordinate data structure class is \"{$subordinate_class}\"");
 					}
+					if($context->hasColumn($column_name)){
+						$column = $context->getColumn($column_name);
+						if($column instanceof ForeignKeyDatum){
+							$context->setForeignDataStructure($column_name, $subordinate_struct);
+							$context->ejectForeignDataStructure($column_name);
+						}elseif($column instanceof KeyListDatum){
+							$context->setForeignDataStructureListMember($column_name, $subordinate_struct);
+							$key = $subordinate_struct->ejectIdentifierValue();
+							$context->ejectForeignDataStructureListMember($column_name, $key);
+						}elseif($print){
+							Debug::print("{$f} column \"{$column_name}\" is neither a ForeignKey nor KeyListDatum, skipping setting it as a relationship");
+						}
+					}elseif($print){
+						Debug::print("{$f} context does not have a column \"{$column_name}\"");
+					}
 					$structs = [
 						$subordinate_struct
 					];
@@ -976,14 +1044,16 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 				}
 				$inputs = array_merge($this->generateInputs($context), $this->getAdHocInputs());
 				foreach ($inputs as $input) {
-					if ($input instanceof InputInterface && $input->hasColumnName()) {
-						if ($print) {
-							Debug::print("{$f} about to attach input validators to input " . $input->getColumnName());
-						} elseif ($print) {
-							Debug::print("{$f} input " . $input->getNameAttribute() . " has no validators");
+					if($print){
+						if ($input instanceof InputInterface){
+							if($input->hasColumnName()) {
+								Debug::print("{$f} about to attach input validators to input " . $input->getColumnName());
+							}else{
+								Debug::print("{$f} input " . $input->getNameAttribute() . " has no column name");
+							}
 						}
-						$this->attachInputValidators($input);
 					}
+					$this->attachInputValidatorsHelper($input);
 				}
 				$this->setInputs($inputs);
 			}
@@ -1272,9 +1342,9 @@ abstract class AjaxForm extends FormElement implements JavaScriptCounterpartInte
 						}
 						$input->setAllocationMode(ALLOCATION_MODE_UNDEFINED);
 					}
-					if ($input instanceof InputInterface && $input->hasColumnName()) {
-						$this->attachInputValidators($input);
-					}
+					//if ($input instanceof InputInterface && $input->hasColumnName()) {
+					$this->attachInputValidatorsHelper($input);
+					//}
 				}
 			} elseif ($print) {
 				Debug::print("{$f} this form has no ad hoc inputs");

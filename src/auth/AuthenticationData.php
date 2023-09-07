@@ -1,9 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth;
 
 use function JulianSeymour\PHPWebApplicationFramework\argon_hash;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
-use function JulianSeymour\PHPWebApplicationFramework\config;
+use function JulianSeymour\PHPWebApplicationFramework\getlocale;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
@@ -16,12 +17,10 @@ use JulianSeymour\PHPWebApplicationFramework\crypt\SodiumCryptoSignatureDatum;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\Base64Datum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
-use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
+use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
 use Exception;
 use mysqli;
-use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
-use function JulianSeymour\PHPWebApplicationFramework\getlocale;
 
 abstract class AuthenticationData extends DataStructure{
 
@@ -36,10 +35,6 @@ abstract class AuthenticationData extends DataStructure{
 	public abstract static function getSignatureColumnName():string;
 
 	public abstract static function getUsernameColumnName():string;
-
-	public static function getDatabaseNameStatic():string{
-		return "error";
-	}
 	
 	public static function getDefaultPersistenceModeStatic(): int{
 		return PERSISTENCE_MODE_SESSION;
@@ -186,7 +181,7 @@ abstract class AuthenticationData extends DataStructure{
 			$keygenNonce = new NonceDatum("keyGenerationNonce");
 			$keygenNonce->volatilize();
 			$signature = new SodiumCryptoSignatureDatum(static::getSignatureColumnName());
-			static::pushTemporaryColumnsStatic($columns, $name, $key, $dsk, $reauth_nonce, $reauth_hash, $keygenNonce, $signature);
+			array_push($columns, $name, $key, $dsk, $reauth_nonce, $reauth_hash, $keygenNonce, $signature);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
@@ -213,7 +208,7 @@ abstract class AuthenticationData extends DataStructure{
 		return $ret;
 	}
 
-	public function ejectDeterministicSecretKey():string{
+	public function ejectDeterministicSecretKey():?string{
 		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasDeterministicSecretKey()) {
@@ -528,13 +523,5 @@ abstract class AuthenticationData extends DataStructure{
 
 	public static function getDataType(): string{
 		return DATATYPE_UNKNOWN;
-	}
-
-	public static function getPhylumName(): string{
-		return "ERROR";
-	}
-
-	public static function getTableNameStatic(): string{
-		ErrorMessage::unimplemented(__METHOD__);
 	}
 }

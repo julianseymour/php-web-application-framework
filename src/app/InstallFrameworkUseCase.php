@@ -25,6 +25,8 @@ use JulianSeymour\PHPWebApplicationFramework\query\user\DatabaseUserDefinition;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\language\TranslatedStringData;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 
 class InstallFrameworkUseCase extends UseCase{
 
@@ -213,6 +215,22 @@ class InstallFrameworkUseCase extends UseCase{
 		return SUCCESS;
 	}
 	
+	public function createStringTables(mysqli $mysqli):int{
+		$f = __METHOD__;
+		$supported = config()->getSupportedLanguages();
+		foreach ($supported as $language) {
+			$string = new TranslatedStringData();
+			$string->setTableName($language);
+			$status = $string->createTable($mysqli);
+			if($status !== SUCCESS){
+				$err = ErrorMessage::getResultMessage($status);
+				Debug::warning("{$f} creating string table for language {$language} returned error status \"{$err}\"");
+				return $status;
+			}
+		}
+		return SUCCESS;
+	}
+	
 	public function execute(): int{
 		$f = __METHOD__;
 		try {
@@ -268,7 +286,17 @@ class InstallFrameworkUseCase extends UseCase{
 			unset($mysqli);
 			$mysqli = mysqli_connect("localhost", "installer", $install_password, "data");
 			db()->setConnection($mysqli);
-			//4. create stored routines
+			//4. create strings database
+			$status = $this->createStringTables($mysqli);
+			if($status !== SUCCESS){
+				$err = ErrorMessage::getResultMessage($status);
+				Debug::print("createStringTables returned error status \"{$err}\"");
+				$mysqli->close();
+				return $this->setObjectStatus($status);
+			} elseif ($print) {
+				Debug::print("successfully created string tables");
+			}
+			//5. create stored routines
 			$count = $this->createStoredRoutines($mysqli);
 			if ($count < 0) {
 				$status = $this->getObjectStatus();
@@ -283,7 +311,7 @@ class InstallFrameworkUseCase extends UseCase{
 					Debug::print("No stored routines to create");
 				}
 			}
-			//5. initialize databases and tables
+			//6. initialize databases and tables
 			$status = $this->createTables($mysqli);
 			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
@@ -293,7 +321,7 @@ class InstallFrameworkUseCase extends UseCase{
 			} elseif ($print) {
 				Debug::print("successfully created tables");
 			}
-			//6. insert administrator profile
+			//7. insert administrator profile
 			$username = base64_decode(str_replace('_', '+', $parsed['username']));
 			$password = base64_decode(str_replace('_', '+', $parsed['password']));
 			$email = base64_decode(str_replace('_', '+', $parsed['email']));
@@ -306,7 +334,7 @@ class InstallFrameworkUseCase extends UseCase{
 			}elseif(true || $print){
 				Debug::print("Successfully created administrator profile");
 			}
-			//7. create and authorize database credentials
+			//8. create and authorize database credentials
 			$status = $this->insertDatabaseCredentials($mysqli, $admin);
 			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
@@ -315,7 +343,7 @@ class InstallFrameworkUseCase extends UseCase{
 			}elseif(true || $print){
 				Debug::print("Successfully created database credentials");
 			}
-			//7. insert server keypair
+			//9. insert server keypair
 			$status = $this->insertServerKeypair($mysqli, $admin);
 			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
@@ -324,7 +352,7 @@ class InstallFrameworkUseCase extends UseCase{
 			}elseif(true || $print){
 				Debug::print("{$f} Successfully inserted server keypair");
 			}
-			//8. insert special template placeholders
+			//10. insert special template placeholders
 			$status = $this->insertSpecialTemplatePlaceholders($mysqli);
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
@@ -334,7 +362,7 @@ class InstallFrameworkUseCase extends UseCase{
 			} elseif (true || $print) {
 				Debug::print("Successfully inserted special template placeholders");
 			}
-			//9. afterInstallHook for user to define their own post-installation behavior
+			//11. afterInstallHook for user to define their own post-installation behavior
 			$status = config()->afterInstallHook($mysqli);
 			if ($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
@@ -343,7 +371,7 @@ class InstallFrameworkUseCase extends UseCase{
 			} elseif ($print) {
 				Debug::print("afterInstallHook returned success");
 			}
-			//10. delete user or revoke privileges;
+			//12. delete user or revoke privileges;
 			$installer = DatabaseUserDefinition::create()->user("installer")->at("localhost");
 			if($count > 0){
 				if($print){
@@ -534,6 +562,8 @@ class InstallFrameworkUseCase extends UseCase{
 								Debug::print("successfully granted " . implode(',', $grants) . " on {$dsc} to {$name}");
 							}
 							continue;
+						}elseif(is_a($dsc, StaticTableNameInterface::class, true) && !method_exists($dsc, "getTableNameStatic")){
+							Debug::error("{$f} class {$dsc}'s table name cannot be determined statically");
 						}
 						$db = $dsc::getDatabaseNameStatic();
 						$table = $dsc::getTableNameStatic();

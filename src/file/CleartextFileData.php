@@ -8,9 +8,13 @@ use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class CleartextFileData extends FileData{
+class CleartextFileData extends FileData implements StaticTableNameInterface{
 
+	use StaticTableNameTrait;
+	
 	public function getOriginalFilename():string{
 		$f = __METHOD__;
 		if (! $this->hasOriginalFilename()) {
@@ -88,7 +92,7 @@ class CleartextFileData extends FileData{
 		return $this->setColumnValue("originalFilename", $name);
 	}
 
-	public function setSize($size){
+	public function setSize(int $size):int{
 		return $this->setColumnValue("size", $size);
 	}
 
@@ -96,7 +100,7 @@ class CleartextFileData extends FileData{
 		return $this->hasColumnValue("size");
 	}
 
-	public function getSize(){
+	public function getSize():int{
 		$f = __METHOD__;
 		if (! $this->hasSize()) {
 			Debug::error("{$f} size is undefined");

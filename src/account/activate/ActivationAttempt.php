@@ -14,7 +14,7 @@ class ActivationAttempt extends CodeConfirmationAttempt{
 		return "attempts";
 	}
 
-	public static function getSuccessfulResultCode(){
+	public static function getSuccessfulResultCode():int{
 		return SUCCESS;
 	}
 
@@ -22,7 +22,7 @@ class ActivationAttempt extends CodeConfirmationAttempt{
 		return $this->getUserNormalizedName();
 	}
 
-	public static function getAccessTypeStatic(): string{
+	public static function getSubtypeStatic(): string{
 		return ACCESS_TYPE_ACTIVATION;
 	}
 

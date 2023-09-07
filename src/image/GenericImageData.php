@@ -2,9 +2,13 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\image;
 
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+
+ErrorMessage::deprecated(__FILE__);
+
 class GenericImageData extends ImageData{
 
-	public static function getImageTypeStatic(){
+	public static function getSubtypeStatic():string{
 		return IMAGE_TYPE_GENERIC;
 	}
 

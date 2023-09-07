@@ -1,9 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt\schemes;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\SecretKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 
 /**
  * Encrypt a datum with a symmetric key that is itself encrypted with another scheme
@@ -11,19 +13,17 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
  * @author j
  *        
  */
-abstract class IntermediateSymmetricEncryptionScheme extends SymmetricEncryptionScheme
-{
+abstract class IntermediateSymmetricEncryptionScheme extends SymmetricEncryptionScheme{
 
 	public abstract static function getIntermediateEncryptionSchemeClass();
 
-	public function generateComponents(?DataStructure $ds = null): array
-	{
-		$f = __METHOD__; //IntermediateSymmetricEncryptionScheme::getShortClass()."(".static::getShortClass().")->generateComponents()";
+	public function generateComponents(?DataStructure $ds = null): array{
+		$f = __METHOD__;
 		$print = false;
 		$components1 = parent::generateComponents();
 		$datum = $this->getColumn();
-		$vn = $datum->getColumnName();
-		$keyname = "{$vn}_aesKey";
+		$vn = $datum->getName();
+		$keyname = "{$vn}AesKey";
 		$aes_key = new SecretKeyDatum($keyname);
 		$intermediate_class = static::getIntermediateEncryptionSchemeClass();
 		$aes_key->setEncryptionScheme($intermediate_class);
@@ -45,11 +45,10 @@ abstract class IntermediateSymmetricEncryptionScheme extends SymmetricEncryption
 		return $components_merged;
 	}
 
-	public function extractTranscryptionKey($datum)
-	{
-		$f = __METHOD__; //MessageEncryptionScheme::getShortClass()."(".static::getShortClass().")->extractTranscryptionKey()";
+	public function extractTranscryptionKey(Datum $datum):?string{
+		$f = __METHOD__;
 		$print = false;
-		$vn = $datum->getColumnName() . "_aesKey";
+		$vn = $datum->getName() . "AesKey";
 		$ds = $datum->getDataStructure();
 		if ($print) {
 			$dsc = $ds->getClass();
@@ -58,11 +57,10 @@ abstract class IntermediateSymmetricEncryptionScheme extends SymmetricEncryption
 		return $ds->getColumnValue($vn);
 	}
 
-	public function generateEncryptionKey($datum)
-	{
-		$vn = $datum->getColumnName();
+	public function generateEncryptionKey(Datum $datum):string{
+		$vn = $datum->getName();
 		$ds = $datum->getDataStructure();
-		$index = "{$vn}_aesKey";
+		$index = "{$vn}AesKey";
 		if ($ds->hasColumnValue($index)) {
 			return $ds->getColumnValue($index);
 		}

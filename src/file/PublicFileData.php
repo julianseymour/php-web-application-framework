@@ -11,6 +11,6 @@ class PublicFileData extends CleartextFileData
 	{
 		parent::declareColumns($columns, $ds);
 		$description = new TextDatum("description");
-		static::pushTemporaryColumnsStatic($columns, $description);
+		array_push($columns, $description);
 	}
 }

@@ -15,7 +15,7 @@ class PreMultifactorAuthenticationData extends AuthenticationData{
 		$f = __METHOD__;
 		parent::declareColumns($columns, $ds);
 		$half = new BooleanDatum("half_login");
-		static::pushTemporaryColumnsStatic($columns, $half);
+		array_push($columns, $half);
 	}
 
 	public function handSessionToUser(PlayableUser $user, ?int $mode = null):PlayableUser{

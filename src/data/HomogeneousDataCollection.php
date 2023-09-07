@@ -43,6 +43,9 @@ class HomogeneousDataCollection extends DataCollection{
 			$print = $this->getDebugFlag();
 			$dsc = $this->getDataStructureClass();
 			if (class_exists(LoadDataStatement::class)) {
+				if(!method_exists($dsc, 'getTableNameStatic')){
+					Debug::error("{$f} table name cannot be determined statically for class \"{$dsc}\"");
+				}
 				$db = $dsc::getDatabaseNameStatic();
 				$table = $dsc::getTableNameStatic();
 				if($print){

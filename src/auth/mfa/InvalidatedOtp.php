@@ -11,9 +11,13 @@ use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\security\access\UserFingerprint;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class InvalidatedOtp extends UserFingerprint{
+class InvalidatedOtp extends UserFingerprint implements StaticTableNameInterface{
 
+	use StaticTableNameTrait;
+	
 	public static function getTableNameStatic(): string{
 		return "invalidated_otps";
 	}
@@ -96,7 +100,7 @@ class InvalidatedOtp extends UserFingerprint{
 		$otp->setSensitiveFlag(true);
 		// $otp->setInitRequired(false);
 		$otp->setHumanReadableName(_("One-time password"));
-		static::pushTemporaryColumnsStatic($columns, $otp);
+		array_push($columns, $otp);
 	}
 
 	public static function getPrettyClassName():string{

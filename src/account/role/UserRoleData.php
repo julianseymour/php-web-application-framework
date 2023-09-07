@@ -7,6 +7,8 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\TimestampDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\UnsignedIntegerDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
 /**
  * represents the intersection between a user and a group-associated role
@@ -14,8 +16,10 @@ use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
  * @author j
  *        
  */
-class UserRoleData extends UserOwned{
+class UserRoleData extends UserOwned implements StaticTableNameInterface{
 
+	use StaticTableNameTrait;
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$level = new UnsignedIntegerDatum("level", 8);
@@ -25,7 +29,7 @@ class UserRoleData extends UserOwned{
 		$role_key->setNullable(true);
 		$role_key->constrain();
 		$expires = new TimestampDatum("expirationTimestamp");
-		static::pushTemporaryColumnsStatic($columns, $role_key, $level, $expires);
+		array_push($columns, $role_key, $level, $expires);
 	}
 
 	public static function getPrettyClassName():string{

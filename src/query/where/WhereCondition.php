@@ -121,7 +121,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 			if ($this->hasSelectStatement()) {
 				$select = $this->getSelectStatement();
 				if ($select instanceof SQLInterface) {
-					$select = $select->toSQL();
+					$select = "(".$select->toSQL().")";
 				}
 			}
 

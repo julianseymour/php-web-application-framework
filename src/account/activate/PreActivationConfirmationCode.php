@@ -1,41 +1,41 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\activate;
 
-use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousAccountTypePermission;
 use JulianSeymour\PHPWebApplicationFramework\auth\confirm_code\AuthenticatedConfirmationCode;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 class PreActivationConfirmationCode extends AuthenticatedConfirmationCode{
 
-	public static function getSentEmailStatus(){
+	public static function getSentEmailStatus():int{
 		return SUCCESS;
 	}
 
-	public function setEmailAddress($email){
+	public function setEmailAddress(string $email):string{
 		return $email;
 	}
 
-	public static function getConfirmationUriStatic($suffix){
+	public static function getConfirmationUriStatic(string $suffix):string{
 		return "https://" . WEBSITE_DOMAIN . "/activate/{$suffix}";
 	}
 
-	public function setName($name){
+	public function setName(string $name):string{
 		return $name;
 	}
 
-	public function isSecurityNotificationWarranted(){
+	public function isSecurityNotificationWarranted():bool{
 		return false;
 	}
 
-	public static function getEmailNotificationClass(){
+	public static function getEmailNotificationClass():?string{
 		return ActivationEmail::class;
 	}
 
-	public static function getConfirmationCodeTypeStatic(){
+	public static function getSubtypeStatic():string{
 		return ACCESS_TYPE_ACTIVATION;
 	}
 
-	public static function getReasonLoggedStatic(){
+	public static function getReasonLoggedStatic():string{
 		return BECAUSE_REGISTER;
 	}
 

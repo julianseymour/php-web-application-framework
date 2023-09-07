@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\script;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-class JavaScriptBundleUseCase extends JavaScriptFileUseCase{
+class JavaScriptBundleUseCase extends LocalizedJavaScriptFileUseCase{
 
 	public function echoJavaScriptFileContents():void{
 		$f = __METHOD__;

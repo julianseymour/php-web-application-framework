@@ -4,9 +4,13 @@ namespace JulianSeymour\PHPWebApplicationFramework\script;
 
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 
-class LocaleJavaScriptConstantUseCase extends JavaScriptFileUseCase{
+class LocaleJavaScriptConstantUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
-		echo CommandBuilder::const('LOCALE', $this->getInputParameter("locale"))->toJavaScript().";\n";
+		static::echoJavaScriptFileContentsStatic($this->getInputParameter("locale"));
+	}
+	
+	public static function echoJavaScriptFileContentsStatic(string $locale):void{
+		echo CommandBuilder::const('LOCALE', $locale)->toJavaScript().";\n";
 	}
 }

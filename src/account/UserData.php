@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\account;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\config;
-
+use function JulianSeymour\PHPWebApplicationFramework\default_lang_region;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\timezone_offset;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -15,10 +15,12 @@ use JulianSeymour\PHPWebApplicationFramework\account\role\RoleDeclaration;
 use JulianSeymour\PHPWebApplicationFramework\account\role\UserRoleData;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\OrCommand;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\SodiumCryptoBoxPublicKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\NormalizedNameColumnTrait;
+use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
@@ -29,32 +31,41 @@ use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use DateTimeZone;
 use Exception;
 use mysqli;
-use function JulianSeymour\PHPWebApplicationFramework\default_lang_region;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-abstract class UserData extends DataStructure{
+abstract class UserData extends DataStructure implements StaticSubtypeInterface, StaticTableNameInterface{
 
 	use CorrespondentKeyColumnTrait;
 	use EmailAddressColumnTrait;
 	use NormalizedNameColumnTrait;
-
+	use StaticTableNameTrait;
+	use SubtypeColumnTrait;
+	
+	public function __construct(?int $mode=ALLOCATION_MODE_EAGER){
+		parent::__construct($mode);
+		$this->setSubtype(static::getAccountTypeStatic());
+	}
+	
+	
 	public static function getDatabaseNameStatic():string{
 		return "accounts";
 	}
 	
-	public static function getAccountTypeStatic(){
+	public static function getAccountTypeStatic():string{
 		return ACCOUNT_TYPE_UNDEFINED;
 	}
-
-	public static function hasSubtypeStatic():bool{
-		return true;
+	
+	public function getUserAccountType():string{
+		return $this->getAccountType();
 	}
 	
-	public function loadFailureHook(): int{
+	public function loadFailureHook():int{
 		$this->setAccountType(CONST_ERROR);
 		return parent::loadFailureHook();
 	}
 
-	public function getUserRoles(mysqli $mysqli, UserData $user): ?array{
+	public function getUserRoles(mysqli $mysqli, UserData $user):?array{
 		$roles = parent::getUserRoles($mysqli, $user);
 		if($this->hasIdentifierValue() && $this->getIdentifierValue() === $user->getIdentifierValue()){ //$this->equals($this, $user)) {
 			$roles['self'] = 'self';
@@ -62,6 +73,13 @@ abstract class UserData extends DataStructure{
 		return $roles;
 	}
 
+	public function getSubtype():string{
+		if($this->hasColumnValue('subtype')) {
+			return $this->getColumnValue('subtype');
+		}
+		return $this->setSubtype(static::getSubypeStatic());
+	}
+	
 	public static function getSubtypeStatic(): string{
 		return static::getAccountTypeStatic();
 	}
@@ -73,7 +91,7 @@ abstract class UserData extends DataStructure{
 	}
 
 	public function getAccountType():string{
-		return $this->getColumnValue('accountType');
+		return $this->getSubtype();
 	}
 
 	public function getPreferredLanguageName():string{
@@ -134,7 +152,7 @@ abstract class UserData extends DataStructure{
 	}
 
 	public function setAccountType(string $value):string{
-		return $this->setColumnValue("accountType", $value);
+		return $this->setSubtype($value);
 	}
 
 	public function getArrayMembershipConfiguration($config_id): ?array{
@@ -143,7 +161,7 @@ abstract class UserData extends DataStructure{
 			$config = parent::getArrayMembershipConfiguration($config_id);
 			switch ($config_id) {
 				case CONST_DEFAULT:
-					$config['accountType'] = true;
+					$config['subtype'] = true;
 					$config['accountTypeString'] = true;
 				default:
 					return $config;
@@ -154,14 +172,14 @@ abstract class UserData extends DataStructure{
 	}
 
 	public function hasAccountType():bool{
-		return $this->hasColumnValue("accountType");
+		return $this->hasSubtype();
 	}
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
 		try {
 			parent::declareColumns($columns, $ds);
-			$account_type = new StringEnumeratedDatum("accountType");
+			$account_type = new StringEnumeratedDatum("subtype");
 			$account_type->setHumanReadableName(_("Account type"));
 			$account_type->setAdminInterfaceFlag(true);
 			$account_type->setElementClass(SelectInput::class);
@@ -183,7 +201,7 @@ abstract class UserData extends DataStructure{
 			$temporaryRole->volatilize();
 			$country_code = new StringEnumeratedDatum("regionCode");
 			$country_code->setNullable(false);
-			static::pushTemporaryColumnsStatic($columns, $account_type, $language, $account_str, $timezone, $correspondentKey, $correspondentPublicKey, $temporaryRole, $country_code);
+			array_push($columns, $account_type, $language, $account_str, $timezone, $correspondentKey, $correspondentPublicKey, $temporaryRole, $country_code);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
@@ -258,10 +276,10 @@ abstract class UserData extends DataStructure{
 		$f = __METHOD__;
 		try {
 			switch ($column_name) {
-				case "accountType":
-					return $this->getAccountType();
 				case "accountTypeString":
 					return $this->getAccountTypeString();
+				case 'subtype':
+					return $this->getSubtypeStatic();
 				default:
 					return parent::getVirtualColumnValue($column_name);
 			}
@@ -274,13 +292,11 @@ abstract class UserData extends DataStructure{
 		switch ($column_name) {
 			case "accountTypeString":
 				return $this->hasAccountType();
+			case 'subtype':
+				return true;
 			default:
 				return parent::hasVirtualColumnValue($column_name);
 		}
-	}
-
-	public function getUserAccountType(): string{
-		return $this->getAccountType();
 	}
 
 	public function setTemporaryRole($role){
@@ -405,13 +421,5 @@ abstract class UserData extends DataStructure{
 			$group = $group->getIdentifierValue();
 		}
 		return isset($this->groupRoles) && is_array($this->groupRoles) && array_key_exists($group, $this->groupRoles);
-	}
-
-	public function hasSubtypeValue(): bool{
-		return true;
-	}
-
-	public function getSubtypeValue():string{
-		return $this->getAccountType();
 	}
 }

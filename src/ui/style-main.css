@@ -319,11 +319,9 @@ textarea:focus, input[type="number"]:focus, input[type="text"]:focus, input[type
 @keyframes rotate-gradient{
 	from{
 		transform:rotate(0deg);
-		background:radial-gradient(#0065d1, #bf4040);
 	}
 	to{
 		transform:rotate(360deg);
-		background:radial-gradient(#bf4040, #0065d1);
 	}
 }
 

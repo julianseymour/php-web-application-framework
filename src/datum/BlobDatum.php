@@ -17,7 +17,7 @@ class BlobDatum extends StringDatum{
 
 	public function getConstructorParams(): ?array{
 		return [
-			$this->getColumnName()
+			$this->getName()
 		];
 	}
 

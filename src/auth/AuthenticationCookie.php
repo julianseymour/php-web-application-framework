@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth;
 
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
@@ -8,17 +9,9 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 abstract class AuthenticationCookie extends DataStructure{
 
 	protected abstract static function getReauthenticationKeyColumnName();
-
-	public static function getDatabaseNameStatic():string{
-		return "error";
-	}
 	
 	public static function getPrettyClassName():string{
 		return _("Reauthentication cookie");
-	}
-
-	public static function getTableNameStatic(): string{
-		ErrorMessage::unimplemented(f(static::class));
 	}
 
 	public static function getDataType(): string{
@@ -39,7 +32,7 @@ abstract class AuthenticationCookie extends DataStructure{
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$reauthenticationKey = new BlobDatum(static::getReauthenticationKeyColumnName());
-		static::pushTemporaryColumnsStatic($columns, $reauthenticationKey);
+		array_push($columns, $reauthenticationKey);
 	}
 
 	public function hasReauthenticationKey(){

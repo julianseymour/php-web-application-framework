@@ -100,7 +100,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 
 	public function getFormInputManifest(): ?array{
 		$map1 = [
-			PasswordDatum::getColumnNameStatic() => PasswordInput::class
+			'password' => PasswordInput::class
 		];
 		$map2 = $this->getFormDataIndices();
 		return array_merge($map1, $map2);
@@ -214,7 +214,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 		}
 	}
 
-	public static function getExpandingMenuLabelString($context){
+	public static function getExpandingMenuLabelString($context):string{
 		return _("Multifactor authentication");
 	}
 
@@ -226,7 +226,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 		$d = directive();
 		$map = [];
 		if ($d === DIRECTIVE_REGENERATE || $d === DIRECTIVE_UNSET) {
-			$map[MfaSeedDatum::getColumnNameStatic()] = GhostInput::class;
+			$map['MFASeed'] = GhostInput::class;
 		}
 		if ($d === DIRECTIVE_UNSET || $d === DIRECTIVE_UPDATE) {
 			$map['MFAStatus'] = GhostButton::class;

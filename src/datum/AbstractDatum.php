@@ -91,7 +91,7 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 	public function getEmbeddedName(){
 		$f = __METHOD__;
 		if (! $this->hasEmbeddedName()) {
-			$cn = $this->getColumnName();
+			$cn = $this->getName();
 			Debug::error("{$f} embed group name is undefined for column \"{$cn}\"");
 		}
 		return $this->embeddedName;

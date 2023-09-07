@@ -48,9 +48,8 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 
 	public abstract static function getCommandId();
 
-	public function setQuoteStyle($q)
-	{
-		$f = __METHOD__; //Command::getShortClass()."(".static::getShortClass().")->setQuoteStyle()";
+	public function setQuoteStyle($q){
+		$f = __METHOD__;
 		switch ($q) {
 			case QUOTE_STYLE_SINGLE:
 			case QUOTE_STYLE_DOUBLE:
@@ -102,38 +101,32 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 		}
 	}
 
-	public function hasQuoteStyle()
-	{
+	public function hasQuoteStyle():bool{
 		return isset($this->quoteStyle);
 	}
 
-	public function withSubcommands(...$subcommands)
-	{
+	public function withSubcommands(...$subcommands){
 		$this->pushSubcommand(...$subcommands);
 		return $this;
 	}
 
-	public function getQuoteStyle()
-	{
+	public function getQuoteStyle(){
 		if (! $this->hasQuoteStyle()) {
 			return QUOTE_STYLE_SINGLE;
 		}
 		return $this->quoteStyle;
 	}
 
-	public function getDebugSubcommandString()
-	{
+	public function getDebugSubcommandString(){
 		return $this->getCommandId();
 	}
 
-	public static function getJavaScriptClassIdentifier(): string
-	{
+	public static function getJavaScriptClassIdentifier(): string{
 		return static::getCommandId();
 	}
 
-	public function debugPrintSubcommands()
-	{
-		$f = __METHOD__; //Command::getShortClass()."(".static::getShortClass().")->debugPrintSubcommands()";
+	public function debugPrintSubcommands(){
+		$f = __METHOD__;
 		$string = $this->getDebugSubcommandString();
 		// Debug::print("{$f} {$string}");
 		if ($this->hasSubcommands()) {
@@ -143,45 +136,28 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 		}
 	}
 
-	/*
-	 * public static function validateCommands($commands){
-	 * $f = __METHOD__; //Command::getShortClass()."(".static::getShortClass().")::validateCommands()";
-	 * foreach($commands as $c){
-	 * if(!$c instanceof Command){
-	 * $type = gettype($c);
-	 * Debug::error("{$f} one of your commands is a {$type} instead of a media command");
-	 * }
-	 * }
-	 * return SUCCESS;
-	 * }
-	 */
-	public function setParseType($parseType)
-	{
+	public function setParseType($parseType){
 		return $this->parseType = $parseType;
 	}
 
-	public function hasParseType()
-	{
+	public function hasParseType(){
 		return isset($this->parseType);
 	}
 
-	public function getParseType()
-	{
-		$f = __METHOD__; //Command::getShortClass()."(".static::getShortClass().")->getParseType()";
+	public function getParseType(){
+		$f = __METHOD__;
 		if (! $this->hasParseType()) {
 			Debug::error("{$f} parse type is undefined");
 		}
 		return $this->parseType;
 	}
 
-	public function reportSubcommand($sc)
-	{
+	public function reportSubcommand($sc){
 		return $this->pushSubcommand($sc);
 	}
 
-	public static function linkCommands(...$commands)
-	{
-		$f = __METHOD__; //Command::getShortClass()."(".static::getShortClass().")::linkCommands()";
+	public static function linkCommands(...$commands){
+		$f = __METHOD__;
 		$first_command = null;
 		$last_command = null;
 		foreach ($commands as $command) {
@@ -208,9 +184,8 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 		return $first_command;
 	}
 
-	public function echoInnerJson(bool $destroy = false): void
-	{
-		$f = __METHOD__; //Command::getShortClass()."(".static::getShortClass().")->echoInnerJson()";
+	public function echoInnerJson(bool $destroy = false): void{
+		$f = __METHOD__;
 		$print = false;
 		if (app()->getFlag("debug")) {
 			Json::echoKeyValuePair("debugId", $this->getDebugId());
@@ -233,8 +208,7 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 		Json::echoKeyValuePair('command', static::getCommandId(), $destroy, false);
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->properties);
 		unset($this->propertyTypes);
@@ -242,80 +216,66 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 		unset($this->parseType);
 	}
 
-	public function optional(bool $value = true): Command
-	{
+	public function optional(bool $value = true): Command{
 		$this->setOptional($value);
 		return $this;
 	}
 
-	public function pushSubcommand(...$subcommands)
-	{
+	public function pushSubcommand(...$subcommands):int{
 		return $this->pushArrayProperty("subcommands", ...$subcommands);
 	}
 
-	public function hasSubcommands()
-	{
+	public function hasSubcommands():bool{
 		return $this->hasArrayProperty("subcommands");
 	}
 
-	public function getSubcommands()
-	{
+	public function getSubcommands(){
 		return $this->getProperty("subcommands");
 	}
 
-	public function mergeSubcommands($values)
-	{
+	public function mergeSubcommands($values){
 		return $this->mergeArrayProperty("subcommands", $values);
 	}
 
-	public function setSubcommands($values)
-	{
+	public function setSubcommands($values){
 		return $this->setArrayProperty("subcommands", $values);
 	}
 
-	public function unshiftSubcommands(...$subcommands)
-	{
+	public function unshiftSubcommands(...$subcommands){
 		return $this->unshiftArrayProperty("subcommands", ...$subcommands);
 	}
 
-	public function getSubcommandCount()
-	{
+	public function getSubcommandCount():int{
 		return $this->getArrayPropertyCount("subcommands");
 	}
 
-	public function isOptional(): bool
-	{
+	public function isOptional():bool{
 		return $this->getFlag('optional');
 	}
 
-	public function setOptional(bool $opt = true): bool
-	{
+	public function setOptional(bool $opt = true): bool{
 		return $this->setFlag('optional', $opt);
 	}
 
-	public static function declareFlags(): array
-	{
+	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
 			"optional",
 			"resolved"
 		]);
 	}
 
-	public function toClosure()
-	{
+	public function toClosure(){
 		$cmd = $this;
 		return function () use ($cmd) {
 			$cmd->resolve();
 		};
 	}
 
-	public function setResolvedFlag($value = true)
-	{
+	public function setResolvedFlag(bool $value = true):bool{
 		return $this->setFlag("resolved");
 	}
 
-	public function getResolvedFlag()
-	{
+	public function getResolvedFlag():bool{
 		return $this->getFlag("resolved");
 	}
 }

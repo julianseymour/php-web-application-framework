@@ -12,10 +12,13 @@ use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class UsernameData extends DataStructure{
+class UsernameData extends DataStructure implements StaticTableNameInterface{
 
 	use NormalizedNameColumnTrait;
+	use StaticTableNameTrait;
 	use UserKeyColumnTrait;
 
 	public static function getDatabaseNameStatic():string{
@@ -86,7 +89,7 @@ class UsernameData extends DataStructure{
 		]);
 		$type->retainOriginalValue();
 
-		$name = new NameDatum();
+		$name = new NameDatum('name');
 		$name->setSearchable(true);
 		$normalized = new TextDatum("normalizedName");
 		$normalized->setCase(CASE_LOWER);
@@ -103,7 +106,6 @@ class UsernameData extends DataStructure{
 		$display_name->setNullable(true);
 		$display_name->setDefaultValue(null);
 		$display_name->setSearchable(true);
-		
 		$closure = function ($event, $target) use ($ds) {
 			$columnName = $event->getProperty("columnName");
 			if ($columnName !== "userKey") {
@@ -115,8 +117,7 @@ class UsernameData extends DataStructure{
 			}
 		};
 		$ds->addEventListener(EVENT_AFTER_SET_FOREIGN, $closure);
-
-		static::pushTemporaryColumnsStatic($columns, $userKey, $type, $name, $normalized, $display_name);
+		array_push($columns, $userKey, $type, $name, $normalized, $display_name);
 	}
 
 	public static function getKeyGenerationMode(): int{

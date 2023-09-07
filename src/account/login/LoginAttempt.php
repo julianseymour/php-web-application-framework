@@ -165,12 +165,12 @@ class LoginAttempt extends AccessAttempt{
 		}
 	}
 
-	public static function getEmailNotificationClass():string{
+	public static function getEmailNotificationClass():?string{
 		return FailedLoginEmail::class;
 	}
 
 	public function isSecurityNotificationWarranted():bool{
-		return ! $this->wasLoginSuccessful();
+		return !$this->wasLoginSuccessful();
 	}
 
 	public static function getConfirmationCodeClass(): string{
@@ -245,7 +245,7 @@ class LoginAttempt extends AccessAttempt{
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::declareColumns($columns, $ds);
 		$userName = new TextDatum("userName");
-		static::pushTemporaryColumnsStatic($columns, $userName);
+		array_push($columns, $userName);
 	}
 
 	protected function sendLockoutEmail(mysqli $mysqli){
@@ -357,7 +357,7 @@ class LoginAttempt extends AccessAttempt{
 		return BECAUSE_LOGIN;
 	}
 
-	public static function getAccessTypeStatic(): string{
+	public static function getSubtypeStatic(): string{
 		return ACCESS_TYPE_LOGIN;
 	}
 }

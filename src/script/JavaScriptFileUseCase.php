@@ -15,14 +15,6 @@ abstract class JavaScriptFileUseCase extends UseCase{
 	
 	public abstract function echoJavaScriptFileContents():void;
 	
-	public function getUriSegmentParameterMap():?array{
-		return [
-			"action",
-			"locale",
-			"filename"
-		];
-	}
-	
 	public function sendHeaders(Request $request): bool{
 		if(!$request->hasInputParameter("filename", $this)){
 			$this->setObjectStatus(ERROR_FILE_NOT_FOUND);
@@ -32,23 +24,18 @@ abstract class JavaScriptFileUseCase extends UseCase{
 	}
 	
 	public static function sendHeadersStatic(Request $request):bool{
+		$f = __METHOD__;
+		$print = false;
+		iF($print){
+			Debug::print("{$f} entered");
+		}
 		header("Content-Type: application/x-javascript; charset=utf-8", true);
 		header("X-Content-Type-Options: nosniff");
 		return false;
 	}
 	
-	public function getActionAttribute(): ?string{
-		return "/script";
-	}
-	
 	protected function getExecutePermissionClass(){
 		return SUCCESS;
-	}
-	
-	public function beforeRespondHook():int{
-		$ret = parent::beforeRespondHook();
-		$locale = $this->getInputParameter("locale");
-		return $ret;
 	}
 	
 	public static function getDefaultWorkflowClass():string{
@@ -58,7 +45,7 @@ abstract class JavaScriptFileUseCase extends UseCase{
 	public final function echoResponse(): void{
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			if (! hasInputParameter("filename", $this)) {
 				if($print){
 					Debug::warning("{$f} filename parameter does not exist");

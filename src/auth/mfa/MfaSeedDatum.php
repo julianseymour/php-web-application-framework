@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\mfa;
 
 use function JulianSeymour\PHPWebApplicationFramework\base32_decode;
@@ -9,24 +10,9 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\Base32Datum;
 use Exception;
 
-class MfaSeedDatum extends Base32Datum
-{
+class MfaSeedDatum extends Base32Datum{
 
-	public static function getColumnNameStatic()
-	{
-		return "mfaSeed";
-	}
-
-	public function __construct($name = null)
-	{
-		if (empty($name)) {
-			$name = static::getColumnNameStatic();
-		}
-		parent::__construct($name);
-	}
-
-	public function regenerate(): int
-	{
+	public function regenerate(): int{
 		$f = __METHOD__;
 		try {
 			$length = 16;
@@ -38,8 +24,7 @@ class MfaSeedDatum extends Base32Datum
 		}
 	}
 
-	public static function provisionOTPKey($data, $name)
-	{
+	public static function provisionOTPKey(string $data, string $name):string{
 		$f = __METHOD__;
 		try {
 			// $name = rawurlencode($name);
@@ -51,25 +36,15 @@ class MfaSeedDatum extends Base32Datum
 				'digits' => 6,
 				'counter' => $ts
 			];
-			$query = http_build_query($arr); // , null, null, PHP_QUERY_RFC3986);
+			$query = http_build_query($arr);
 			$str = "otpauth://totp/{$domain}:{$name}?{$query}";
-			// Debug::print("{$f} returning \"{$str}\"");
-			/*
-			 * $old = "otpauth://totp/{$domain}:{$name}?secret={$data}&issuer={$domain}&digits=6&counter={$ts}";
-			 * Debug::warning("{$f} old code: \"{$old}\"");
-			 * if($str !== $old){
-			 * Debug::error("{$f} new string ({$str}) differs from old string ({$old})");
-			 * }
-			 */
-
 			return $str;
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public static function getKeyGenerationTimestamp($interval = null)
-	{
+	public static function getKeyGenerationTimestamp($interval = null){
 		$f = __METHOD__;
 		if ($interval == null) {
 			if (! defined("MFA_KEYGEN_INTERVAL")) {
@@ -80,8 +55,7 @@ class MfaSeedDatum extends Base32Datum
 		return floor(microtime(true) / $interval);
 	}
 
-	public static function generateOTP($secret_key, $timestamp, $length = null)
-	{
+	public static function generateOTP(string $secret_key, int $timestamp, ?int $length = null):string{
 		$f = __METHOD__;
 		if (strlen($secret_key) < 8) {
 			Debug::error("{$f} secret key minimum length is 8 chars");
@@ -98,8 +72,7 @@ class MfaSeedDatum extends Base32Datum
 		return str_pad($otp, $length, '0', STR_PAD_LEFT);
 	}
 
-	public static function verifyOTPStatic($seed_32, $otp, $window = 4, $timestamp = null)
-	{
+	public static function verifyOTPStatic(string $seed_32, string $otp, int $window = 4, ?int $timestamp = null):bool{
 		$f = __METHOD__;
 		$print = false;
 		if ($timestamp === null) {
@@ -125,8 +98,7 @@ class MfaSeedDatum extends Base32Datum
 		return false;
 	}
 
-	public function verifyOTP($otp, $window = 4, $timestamp = null)
-	{
+	public function verifyOTP(string $otp, int $window = 4, ?int $timestamp = null):bool{
 		return static::verifyOTPStatic($this->getValue(), $otp, $window, $timestamp);
 	}
 }

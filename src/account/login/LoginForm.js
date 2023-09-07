@@ -109,10 +109,15 @@ function updatePageAfterLogin(response){
 	let f = "updatePageAfterLogin()";
 	try{
 		let print = false;
+		if(print){
+			window.alert(f.concat(": entered"));
+		}
 		if(response == null){
 			console.error(f+": response is null");
 			console.trace();
 			return false;
+		}else if (print){
+			console.log(f.concat(": about to call initializeBackgroundSync"));
 		}
 		initializeBackgroundSync();
 		if(response.hasCommands()){

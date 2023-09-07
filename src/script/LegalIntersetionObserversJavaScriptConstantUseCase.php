@@ -6,7 +6,7 @@ use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\DeclareVariableCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
 
-class LegalIntersetionObserversJavaScriptConstantUseCase extends JavaScriptFileUseCase{
+class LegalIntersetionObserversJavaScriptConstantUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
 		$const = DeclareVariableCommand::const("legalIntersectionObservers");

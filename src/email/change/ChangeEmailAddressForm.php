@@ -77,6 +77,9 @@ class ChangeEmailAddressForm extends ExpandingMenuNestedForm implements Confirma
 	}
 
 	protected function attachInputValidators(InputInterface $input): InputInterface{
+		if(!$input->hasColumnName()){
+			return $input;
+		}
 		$cn = $input->getColumnName();
 		switch ($cn) {
 			case "emailAddress":

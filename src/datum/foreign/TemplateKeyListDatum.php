@@ -57,6 +57,9 @@ class TemplateKeyListDatum extends KeyListDatum{
 			$ds = $this->getDataStructure();
 			$applied_column = $ds->getColumn($this->getAppliedTemplateColumnName());
 			$applied_class = $applied_column->getForeignDataStructureClass();
+			if(!method_exists($applied_class, 'getTableNameStatic')){
+				Debug::error("{$f} table name cannot be determined statically for applied data structure class \"{$applied_class}\"");
+			}
 			$table1 = $applied_class::getTableNameStatic();
 			$intersection = new IntersectionData(
 				$applied_class, 

@@ -146,7 +146,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 	}
 
 	public function ejectMfaSeed(){
-		return $this->ejectColumnValue("mfaSeed");
+		return $this->ejectColumnValue("MFASeed");
 	}
 
 	public function hasProfileImageData():bool{
@@ -590,7 +590,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 	}
 
 	public function setMfaSeed($mfa_seed){
-		return $this->setColumnValue(MfaSeedDatum::getColumnNameStatic(), $mfa_seed);
+		return $this->setColumnValue('MFASeed', $mfa_seed);
 	}
 
 	public function setHardResetCount($count): int{
@@ -602,11 +602,11 @@ abstract class AuthenticatedUser extends PlayableUser{
 	}
 
 	public function hasMfaSeed():bool{
-		return $this->hasColumnValue(MfaSeedDatum::getColumnNameStatic());
+		return $this->hasColumnValue('MFASeed');
 	}
 
 	public function getMfaSeed(){
-		return $this->getColumnValue(MfaSeedDatum::getColumnNameStatic());
+		return $this->getColumnValue('MFASeed');
 	}
 
 	public function setMFAStatus($i){
@@ -657,7 +657,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 	}
 
 	public function hasEmailAddress():bool{
-		return $this->hasColumnValue(EmailAddressDatum::getColumnNameStatic());
+		return $this->hasColumnValue('emailAddress');
 	}
 
 	public function sendEmail(mysqli $mysqli, EmailNoteworthyInterface $subject){
@@ -856,7 +856,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 			// $mfa->setSensitiveFlag(true);
 			$mfa->setUserWritableFlag(true);
 
-			$mfa_seed = new MfaSeedDatum();
+			$mfa_seed = new MfaSeedDatum('MFASeed');
 			$mfa_seed->setUserWritableFlag(true);
 			$mfa_seed->setNullable(true);
 			$mfa_seed->setNeverLeaveServer(true);
@@ -878,9 +878,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$encrypt_email->setUserWritableFlag(true);
 			$encrypt_email->setSensitiveFlag(true);
 
-			// $file_nonce_cipher = new Base64Datum("deterministicFileNonceCipher", "file_nonce_cipher");
 			$normalized = new TextDatum("normalizedEmailAddress");
-			// $normalized->setSensitiveFlag(true);
 			$hard = new UnsignedIntegerDatum("hardResetCount", 32);
 			$hard->setSensitiveFlag(true);
 			$hard->setDefaultValue(0);
@@ -888,11 +886,8 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$block_ipv6->setDefaultValue(false);
 			$block_ipv6->setUserWritableFlag(true);
 			$filter = new StringEnumeratedDatum("filterPolicy");
-			// $filter->setIgnoreError(1);
 			$filter->setDefaultValue(POLICY_NONE);
-			// $filter->setIgnoreError(0);
 			$filter->setUserWritableFlag(true);
-			// $filter->setNullable(true);
 			$filter->setValidEnumerationMap([
 				POLICY_BLOCK,
 				POLICY_NONE,
@@ -947,7 +942,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$email_note_bundle = new NotificationStatusDatumBundle("email");
 
 			$where = BinaryExpressionCommand::equals(new GetDeclaredVariableCommand("usernames_alias.uniqueKey"), new GetDeclaredVariableCommand("t0.userNameKey"));
-			$name = new NameDatum();
+			$name = new NameDatum('name');
 			$name->setSubqueryClass(UsernameData::class);
 			$name->setSubqueryWhereCondition($where);
 
@@ -1021,7 +1016,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$userNameKey->onDelete(REFERENCE_OPTION_SET_NULL);
 			$userNameKey->setConverseRelationshipKeyName("userKey");
 
-			static::pushTemporaryColumnsStatic($columns, $email, $normalized, $lastLoginTimestamp, $mfa, $notify, $send_mail, $mfa_seed, $encrypt_email, $hard, $block_ipv6, $filter, $auth_link, $reset_name, $reset_email, $profile_image_key, $logoutTimestamp, $name, $normalized_name, $display_name, $push_note_bundle, $email_note_bundle, $bind_ip, $bind_ua, $lastAuthenticatedIpAddress, $userNameKey
+			array_push($columns, $email, $normalized, $lastLoginTimestamp, $mfa, $notify, $send_mail, $mfa_seed, $encrypt_email, $hard, $block_ipv6, $filter, $auth_link, $reset_name, $reset_email, $profile_image_key, $logoutTimestamp, $name, $normalized_name, $display_name, $push_note_bundle, $email_note_bundle, $bind_ip, $bind_ua, $lastAuthenticatedIpAddress, $userNameKey
 			);
 		} catch (Exception $x) {
 			x($f, $x);

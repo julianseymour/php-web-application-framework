@@ -9,9 +9,6 @@ use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\account\UserKeyColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\account\UserMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\account\UserNameKeyColumnTrait;
-use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousUser;
-use JulianSeymour\PHPWebApplicationFramework\account\shadow\ShadowUser;
-use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use Exception;
@@ -190,7 +187,7 @@ abstract class UserOwned extends DataStructure{
 		$bundle->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 		$bundle->constrain();
 		// $enable = static::getIsEnabledDatum();
-		static::pushTemporaryColumnsStatic($columns, $bundle);
+		array_push($columns, $bundle);
 	}
 
 	public function getUserHardResetCount():int{

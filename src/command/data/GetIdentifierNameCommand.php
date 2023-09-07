@@ -1,20 +1,18 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-class GetIdentifierNameCommand extends DataStructureCommand implements ValueReturningCommandInterface
-{
+class GetIdentifierNameCommand extends DataStructureCommand implements ValueReturningCommandInterface{
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "getIdentifierName";
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		$f = __METHOD__; //GetIdentifierNameCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
+	public function evaluate(?array $params = null){
+		$f = __METHOD__;
 		$print = false;
 		$ds = $this->getDataStructure();
 		if ($ds instanceof GetForeignDataStructureCommand) {
@@ -33,8 +31,7 @@ class GetIdentifierNameCommand extends DataStructureCommand implements ValueRetu
 		return $ds->getIdentifierName();
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		return $this->evaluate();
 	}
 }

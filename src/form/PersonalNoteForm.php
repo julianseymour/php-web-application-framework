@@ -5,6 +5,7 @@ use JulianSeymour\PHPWebApplicationFramework\command\data\GetColumnValueCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\input\TextareaInput;
+use JulianSeymour\PHPWebApplicationFramework\input\HiddenInput;
 
 class PersonalNoteForm extends AjaxForm{
 
@@ -20,7 +21,8 @@ class PersonalNoteForm extends AjaxForm{
 
 	public function getFormDataIndices(): ?array{
 		return [
-			"note" => TextareaInput::class
+			"note" => TextareaInput::class,
+			$this->getContext()->getIdentifierName() => HiddenInput::class
 		];
 	}
 
@@ -32,7 +34,8 @@ class PersonalNoteForm extends AjaxForm{
 
 	public function bindContext($context){
 		$context = parent::bindContext($context);
-		$this->setAttribute('uniqueKey', $context->getColumnValueCommand($context->getIdentifierName()));
+		$idn = $context->getIdentifierName();
+		$this->setAttribute($idn, $context->getColumnValueCommand($idn));
 		return $context;
 	}
 

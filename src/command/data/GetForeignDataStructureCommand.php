@@ -29,7 +29,7 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 
 	public function evaluate(?array $params = null){
 		$f = __METHOD__;
-		$print = false;
+		$print = $this->getDebugFlag();
 		$context = $this->getDataStructure();
 		$vn = $this->getColumnName();
 		if ($context instanceof Command) {
@@ -43,8 +43,12 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 		if($context === null){
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} null context. Instantiated {$decl}");
+		}elseif($print){
+			if(!is_object($context)){
+				Debug::error("{$f} gotcha");
+			}
 		}
-		if(! $context->hasForeignDataStructure($vn)){
+		if(!$context->hasForeignDataStructure($vn)){
 			if ($print) {
 				Debug::warning("{$f} context does not have a foreign data structure for column \"{$vn}\"");
 			}
@@ -57,7 +61,7 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 		return "getForeignDataStructure";
 	}
 
-	public function getColumnValueCommand($index): GetColumnValueCommand{
+	public function getColumnValueCommand($index):GetColumnValueCommand{
 		return new GetColumnValueCommand($this, $index);
 	}
 
@@ -70,7 +74,7 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 		return $fds->getForeignDataStructureListMemberAtOffset($column_name, $offset);
 	}
 
-	public function hasColumnValueCommand($column_name): HasColumnValueCommand{
+	public function hasColumnValueCommand($column_name):HasColumnValueCommand{
 		return new HasColumnValueCommand($this, $column_name);
 	}
 }

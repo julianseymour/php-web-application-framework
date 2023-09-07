@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\permit;
 
 use JulianSeymour\PHPWebApplicationFramework\account\correspondent\CorrespondentKeyColumnTrait;
@@ -7,11 +8,14 @@ use JulianSeymour\PHPWebApplicationFramework\data\columns\SubjectiveTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\TimestampDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class GrantData extends DataStructure{
+class GrantData extends DataStructure implements StaticTableNameInterface{
 
 	use AccessControlListKeyColumnTrait;
 	use CorrespondentKeyColumnTrait;
+	use StaticTableNameTrait;
 	use SubjectiveTrait;
 
 	public static function getDatabaseNameStatic():string{
@@ -44,7 +48,7 @@ class GrantData extends DataStructure{
 		// expiration
 		$expiration = new TimestampDatum("expirationTimestamp");
 		$expiration->setNullable(true);
-		static::pushTemporaryColumnsStatic($columns, $subject_key, $scope_key, $acl_key, $correspondent, $expiration);
+		array_push($columns, $subject_key, $scope_key, $acl_key, $correspondent, $expiration);
 	}
 
 	public function setScopeData(?DataStructure $struct): ?DataStructure{

@@ -9,13 +9,16 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\NameColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class RoleDeclaration extends DataStructure{
+class RoleDeclaration extends DataStructure implements StaticTableNameInterface{
 
 	use GroupKeyColumnTrait;
 	use IteratorTrait;
 	use NameColumnTrait;
-
+	use StaticTableNameTrait;
+	
 	public static function getDatabaseNameStatic():string{
 		return "security";
 	}
@@ -28,7 +31,7 @@ class RoleDeclaration extends DataStructure{
 		$group->setForeignDataStructureClass(GroupData::class);
 		$group->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 		$group->constrain();
-		static::pushTemporaryColumnsStatic($columns, $name, $group);
+		array_push($columns, $name, $group);
 	}
 
 	public static function escapeCustomRoleName(string $s): string{

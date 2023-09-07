@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\push;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
@@ -10,8 +11,7 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\notification\NotificationData;
 use Exception;
 
-class PushNotifier extends Basic
-{
+class PushNotifier extends Basic{
 
 	/**
 	 * list of push notifications that are transmitted after the response has been returned to whomever initiated the request
@@ -24,16 +24,18 @@ class PushNotifier extends Basic
 	 *
 	 * @return NotificationData[]
 	 */
-	private function getQueue()
-	{
+	private function getQueue():array{
+		$f = __METHOD__;
+		if(!$this->hasQueue()){
+			Debug::error("{$f} queue is empty");
+		}
 		return $this->queue;
 	}
 
-	public function transmitQueue(): int
-	{
-		$f = __METHOD__; //PushNotifier::getShortClass()."(".static::getShortClass().")->transmitQueue()";
+	public function transmitQueue(): int{
+		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			if ($print) {
 				Debug::print("{$f} entered");
 			}
@@ -70,16 +72,14 @@ class PushNotifier extends Basic
 		}
 	}
 
-	public function hasQueue()
-	{
-		return is_array($this->queue);
+	public function hasQueue():bool{
+		return is_array($this->queue) && !empty($this->queue);
 	}
 
-	public function enqueue(...$notes): int
-	{
-		$f = __METHOD__; //PushNotifier::getShortClass()."(".static::getShortClass().")->enqueue()";
+	public function enqueue(...$notes): int{
+		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			foreach ($notes as $note) {
 				if (! $note instanceof NotificationData) {
 					Debug::error("{$f} pushed something that is not a notification data");
@@ -88,15 +88,21 @@ class PushNotifier extends Basic
 			if (! is_array($this->queue)) {
 				$this->queue = [];
 			}
-			array_push($this->queue, ...$notes);
+			$pusht = array_push($this->queue, ...$notes);
+			if($print){
+				Debug::print("{$f} pushed {$pusht} notifications");
+			}
 			return SUCCESS;
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function setQueue(&$queue)
-	{
+	public function setQueue(?array $queue):?array{
+		if($queue === null){
+			unset($this->queue);
+			return null;
+		}
 		return $this->queue = $queue;
 	}
 }

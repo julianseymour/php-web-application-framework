@@ -1,11 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 
-trait DataStructuralTrait
-{
+trait DataStructuralTrait{
 
 	/**
 	 * the DataStructure that hosts this datum as one of its columns
@@ -19,8 +19,7 @@ trait DataStructuralTrait
 	 * @param DataStructure $obj
 	 * @return DataStructure
 	 */
-	public function setDataStructure($obj)
-	{
+	public function setDataStructure($obj){
 		if ($obj == null) {
 			unset($this->dataStructure);
 			return null;
@@ -32,12 +31,11 @@ trait DataStructuralTrait
 	 *
 	 * @return DataStructure
 	 */
-	public function getDataStructure()
-	{
-		$f = __METHOD__; //"DataStructuralTrait(".static::getShortClass().")->getDataStructure()";
+	public function getDataStructure(){
+		$f = __METHOD__;
 		if (! $this->hasDataStructure()) {
 			if ($this instanceof Datum) {
-				$column_name = $this->getColumnName();
+				$column_name = $this->getName();
 				Debug::error("{$f} data structure is undefined for column \"{$column_name}\"");
 			}
 			Debug::error("{$f} data structure is undefined");
@@ -45,8 +43,7 @@ trait DataStructuralTrait
 		return $this->dataStructure;
 	}
 
-	public function hasDataStructure()
-	{
+	public function hasDataStructure():bool{
 		return isset($this->dataStructure) && is_object($this->dataStructure);
 	}
 }

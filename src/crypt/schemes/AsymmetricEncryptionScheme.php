@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt\schemes;
 
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -8,16 +9,15 @@ use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\CipherDatum;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 use Exception;
 
-class AsymmetricEncryptionScheme extends EncryptionScheme
-{
+class AsymmetricEncryptionScheme extends EncryptionScheme{
 
-	public function generateComponents(?DataStructure $ds = null): array
-	{
+	public function generateComponents(?DataStructure $ds = null): array{
 		$datum = $this->getColumn();
-		$vn = $datum->getColumnName();
-		$my_cipher = new CipherDatum("{$vn}_cipher");
+		$vn = $datum->getName();
+		$my_cipher = new CipherDatum("{$vn}Cipher");
 		$my_cipher->setSensitiveFlag($datum->getSensitiveFlag());
 		$my_cipher->setOriginalDatumClass($datum->getClass());
 		$my_cipher->setEncryptionScheme(static::class);
@@ -29,9 +29,8 @@ class AsymmetricEncryptionScheme extends EncryptionScheme
 		];
 	}
 
-	public static function encrypt($value, $key, $nonce = null)
-	{
-		$f = __METHOD__; //AsymmetricEncryptionScheme::getShortClass()."(".static::getShortClass().")::encrypt()";
+	public static function encrypt(string $value, string $key, ?string $nonce = null):string{
+		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::printStackTraceNoExit("{$f} entered. Encrypting {$value}");
@@ -39,14 +38,12 @@ class AsymmetricEncryptionScheme extends EncryptionScheme
 		return sodium_crypto_box_seal($value, $key);
 	}
 
-	public static function decrypt($cipher, $keypair, $nonce = null)
-	{
+	public static function decrypt(string $cipher, string $keypair, ?string $nonce = null):?string{
 		return sodium_crypto_box_seal_open($cipher, $keypair);
 	}
 
-	public function extractDecryptionKey($datum)
-	{
-		$f = __METHOD__; //AsymmetricEncryptionScheme::getShortClass()."(".static::getShortClass().")->extractDecryptionKey()";
+	public function extractDecryptionKey(Datum $datum):?string{
+		$f = __METHOD__;
 		$print = false;
 		if ($datum->hasDecryptionKeyName()) {
 			$dcn = $datum->getDecryptionKeyName();
@@ -56,25 +53,22 @@ class AsymmetricEncryptionScheme extends EncryptionScheme
 			$ds = $datum->getDataStructure();
 			return $ds->getColumnValue($dcn);
 		} elseif ($print) {
-			$cn = $datum->getColumnName();
+			$cn = $datum->getName();
 			Debug::print("{$f} datum \"{$cn}\" does not name a decryption key; returning current user keypair");
 		}
 		return user()->getKeypair();
 	}
 
-	public final function extractNonce($datum)
-	{
+	public final function extractNonce(Datum $datum):?string{
 		return null;
 	}
 
-	public final function generateNonce($datum)
-	{
+	public final function generateNonce(Datum $datum):?string{
 		return null;
 	}
 
-	protected function extractPublicKey($datum)
-	{
-		$f = __METHOD__; //AsymmetricEncryptionScheme::getShortClass()."(".static::getShortClass().")->extractPublicKey()";
+	protected function extractPublicKey(Datum $datum):string{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$ds = $datum->getDataStructure();
@@ -102,13 +96,11 @@ class AsymmetricEncryptionScheme extends EncryptionScheme
 		}
 	}
 
-	public function generateEncryptionKey($datum)
-	{
+	public function generateEncryptionKey(Datum $datum):string{
 		return $this->extractPublicKey($datum);
 	}
 
-	public function extractEncryptionKey($datum)
-	{
+	public function extractEncryptionKey(Datum $datum):?string{
 		return $this->extractPublicKey($datum);
 	}
 }

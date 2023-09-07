@@ -68,10 +68,9 @@ class CidrIpAddressForm extends AjaxForm
 		}
 	}
 
-	public function getFormDataIndices(): ?array
-	{
+	public function getFormDataIndices(): ?array{
 		return [
-			IpAddressDatum::getColumnNameStatic() => CidrIpAddressInput::class,
+			'ipAddress' => CidrIpAddressInput::class,
 			'note' => TextInput::class,
 			'list' => GhostButton::class
 		];

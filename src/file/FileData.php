@@ -46,11 +46,11 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 
 	public abstract function getFilename():string;
 
-	public abstract function setSize($size);
+	public abstract function setSize(int $size):int;
 
 	public abstract function hasSize():bool;
 
-	public abstract function getSize();
+	public abstract function getSize():int;
 
 	public abstract function getFileToWrite();
 
@@ -64,10 +64,6 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 
 	public static final function getDataType(): string{
 		return DATATYPE_FILE;
-	}
-
-	public final function hasSubtypeValue(): bool{
-		return true;
 	}
 
 	public static function getDatabaseNameStatic():string{
@@ -328,7 +324,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 			$uploadedTempFileSize->volatilize();
 			$uploadDirectory = new TextDatum("uploadDirectory");
 			$uploadDirectory->volatilize();
-			static::pushTemporaryColumnsStatic($columns, $mime_type, $ofn, $filename, $size, $file_hash, $web_path, $extension, $uploadedTempFilename, $uploadedTempFileSize, $uploadDirectory);
+			array_push($columns, $mime_type, $ofn, $filename, $size, $file_hash, $web_path, $extension, $uploadedTempFilename, $uploadedTempFileSize, $uploadDirectory);
 		} catch (Exception $x) {
 			x($f, $x);
 		}

@@ -99,7 +99,6 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 	public function parseValueFromQueryResult($value){
 		$f = __METHOD__;
 		try {
-			$name = $this->getColumnName();
 			$print = false;
 			if ($value === null) {
 				if ($print) {
@@ -213,10 +212,7 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 	public function unsetValue(bool $force = false): int{
 		$f = __METHOD__;
 		$print = false;
-		$column_name = $this->getColumnName();
-		if ($print) {
-			Debug::printStackTraceNoExit("{$f} entered");
-		}
+		$column_name = $this->getName();
 		if ($force) {
 			if ($print) {
 				Debug::print("{$f} forcefully annihiliating this boolean value");
@@ -254,7 +250,6 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 
 	public function processInput($input){
 		$f = __METHOD__;
-		$cn = $this->getColumnName();
 		$print = false;
 		if ($print) {
 			if ($input->hasValueAttribute()) {

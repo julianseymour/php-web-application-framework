@@ -9,28 +9,25 @@ if (! defined("CACHE_ENABLED")) {
 	define("CACHE_ENABLED", true);
 }
 if (! defined("FILE_CACHE_ENABLED")) {
-	define("FILE_CACHE_ENABLED", true);
+	define("FILE_CACHE_ENABLED", CACHE_ENABLED && true);
 }
 if (! defined("HTML_CACHE_ENABLED")) {
-	define("HTML_CACHE_ENABLED", false);
+	define("HTML_CACHE_ENABLED", FILE_CACHE_ENABLED && true);
 }
 if (! defined("QUERY_CACHE_ENABLED")) {
-	define("QUERY_CACHE_ENABLED", true);
+	define("QUERY_CACHE_ENABLED", CACHE_ENABLED && true);
 }
 if (! defined("JAVASCRIPT_CACHE_ENABLED")) {
-	define("JAVASCRIPT_CACHE_ENABLED", false);
+	define("JAVASCRIPT_CACHE_ENABLED", FILE_CACHE_ENABLED && true);
 }
 if (! defined("CSS_CACHE_ENABLED")) {
-	define("CSS_CACHE_ENABLED", false);
+	define("CSS_CACHE_ENABLED", FILE_CACHE_ENABLED && true);
 }
 if (! defined("JSON_CACHE_ENABLED")) {
-	define("JSON_CACHE_ENABLED", false);
+	define("JSON_CACHE_ENABLED", FILE_CACHE_ENABLED && true);
 }
 if (! defined("USER_CACHE_ENABLED")) {
-	define("USER_CACHE_ENABLED", true);
-}
-if (! defined("REDIS_CACHE_ENABLED")) {
-	define("REDIS_CACHE_ENABLED", true);
+	define("USER_CACHE_ENABLED", CACHE_ENABLED && true);
 }
 if (! defined("CUSTOM_ROLE_PREFIX")) {
 	define("CUSTOM_ROLE_PREFIX", "}%");

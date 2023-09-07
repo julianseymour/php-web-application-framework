@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -12,19 +13,16 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
  *
  * @author j
  */
-class IntegerEnumeratedDatum extends UnsignedIntegerDatum implements EnumeratedDatumInterface
-{
+class IntegerEnumeratedDatum extends UnsignedIntegerDatum implements EnumeratedDatumInterface{
 
 	use EnumeratedDatumTrait;
 
-	public function __construct($name, $bit_count)
-	{
+	public function __construct($name, $bit_count){
 		parent::__construct($name, $bit_count);
 	}
 
-	public function validate($value): int
-	{
-		$f = __METHOD__; //IntegerEnumeratedDatum::getShortClass()."(".static::getShortClass().")->validate()";
+	public function validate($value): int{
+		$f = __METHOD__;
 		$status = $this->validateEnumeration($value);
 		if ($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
@@ -40,12 +38,11 @@ class IntegerEnumeratedDatum extends UnsignedIntegerDatum implements EnumeratedD
 	 * {@inheritdoc}
 	 * @see Datum::unset()
 	 */
-	public function unsetValue(bool $force = false): int
-	{
+	public function unsetValue(bool $force = false): int{
 		if ($force) {
 			return parent::unset($force);
 		}
-		$column_name = $this->getColumnName();
+		$column_name = $this->getName();
 		if ($this->value !== 0) {
 			$this->setValue(0);
 			$this->setUpdateFlag(true);

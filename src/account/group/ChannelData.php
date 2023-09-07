@@ -11,14 +11,19 @@ use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
+use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class ChannelData extends DataStructure{
+class ChannelData extends DataStructure implements StaticTableNameInterface{
 
 	use DescriptionColumnTrait;
 	use EnabledTrait;
 	use GroupKeyColumnTrait;
 	use NameColumnTrait;
-
+	use StaticTableNameTrait;
+	use SubtypeColumnTrait;
+	
 	public static function getDatabaseNameStatic():string{
 		return "user_content";
 	}
@@ -37,7 +42,7 @@ class ChannelData extends DataStructure{
 		$enabled = static::getIsEnabledDatum(true);
 		$type = new StringEnumeratedDatum("channelType");
 		$type->setNullable(false);
-		static::pushTemporaryColumnsStatic($columns, $name, $category, $language, $group_key, $enabled, $type);
+		array_push($columns, $name, $category, $language, $group_key, $enabled, $type);
 	}
 
 	public static function getPrettyClassName():string{

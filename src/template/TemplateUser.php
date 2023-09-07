@@ -21,7 +21,7 @@ class TemplateUser extends PlayableUser implements TemplateContextInterface{
 		return $this->getColumnValue("hasEverAuthenticated");
 	}
 
-	public static function getAccountTypeStatic(){
+	public static function getAccountTypeStatic():string{
 		return ACCOUNT_TYPE_TEMPLATE;
 	}
 
@@ -31,10 +31,6 @@ class TemplateUser extends PlayableUser implements TemplateContextInterface{
 
 	public static function getPrettyClassName():string{
 		return NormalUser::getPrettyClassName();
-	}
-
-	public function getAttachmentsEnabled(): bool{
-		return $this->getColumnValue("attachmentsEnabled");
 	}
 
 	public static function getTableNameStatic(): string{

@@ -17,9 +17,9 @@ interface NoteworthyInterface
 
 	function getNotificationPreview();
 
-	function getSubtypeValue();
+	function getSubtype():string;
 
-	function hasSubtypeValue(): bool;
+	function hasSubtype(): bool;
 
 	function isNotificationDataWarranted(PlayableUser $user): bool;
 }

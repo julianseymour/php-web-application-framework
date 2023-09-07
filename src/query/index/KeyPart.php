@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\index;
 
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
@@ -10,16 +11,14 @@ use JulianSeymour\PHPWebApplicationFramework\query\DirectionalityTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnNameTrait;
 
-class KeyPart extends Basic implements SQLInterface
-{
+class KeyPart extends Basic implements SQLInterface{
 
 	use ColumnNameTrait;
 	use DirectionalityTrait;
 	use ExpressionalTrait;
 	use LengthTrait;
 
-	public function __construct($columnName, $length = null)
-	{
+	public function __construct($columnName, $length = null){
 		parent::__construct();
 		if ($columnName instanceof ExpressionCommand) {
 			$this->setExpression($columnName);
@@ -28,9 +27,8 @@ class KeyPart extends Basic implements SQLInterface
 		}
 	}
 
-	public function setColumnName(?string $columnName, ?int $length = null): ?string
-	{
-		$f = __METHOD__; //KeyPart::getShortClass()."(".static::getShortClass().")->setColumnName()";
+	public function setColumnName(?string $columnName, ?int $length = null): ?string{
+		$f = __METHOD__;
 		if ($columnName == null) {
 			unset($this->columnName);
 			unset($this->lengthValue);
@@ -45,10 +43,8 @@ class KeyPart extends Basic implements SQLInterface
 		return $this->columnName = $columnName;
 	}
 
-	public function toSQL(): string
-	{
-		$f = __METHOD__; //KeyPart::getShortClass()."(".static::getShortClass().")->toSQL()";
-		// {col_name [(length)] | (expr)} [ASC | DESC]
+	public function toSQL(): string{
+		$f = __METHOD__;
 		if ($this->hasColumnName()) {
 			$string = $this->getColumnName();
 			/*

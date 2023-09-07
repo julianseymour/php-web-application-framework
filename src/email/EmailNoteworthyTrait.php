@@ -9,7 +9,7 @@ trait EmailNoteworthyTrait
 
 	use NoteworthyTrait;
 
-	public abstract static function getEmailNotificationClass();
+	public abstract static function getEmailNotificationClass():?string;
 
 	public abstract function getConfirmationUri();
 

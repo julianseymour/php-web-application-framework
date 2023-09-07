@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
@@ -63,9 +64,8 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 		return $this->hasArrayProperty("selectStatements");
 	}
 	
-	public function getSelectStatements(UseCase $use_case): ?array
-	{
-		$f = __METHOD__; //SearchLoadoutGenerator::getShortClass()."(".static::getShortClass().")->getSelectStatements()";
+	public function getSelectStatements(UseCase $use_case): ?array{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->hasSelectStatements()) {
 			if ($print) {
@@ -92,9 +92,8 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 	 *        	| the current user's timezone offset relative to the server time
 	 * @return SelectStatement
 	 */
-	private function generateSelectStatementForClass(string $classname, $offset = 0): ?SelectStatement
-	{
-		$f = __METHOD__; //SearchLoadoutGenerator::getShortClass()."(".static::getShortClass().")->generateSelectStatementForClass()";
+	private function generateSelectStatementForClass(string $classname, $offset = 0): ?SelectStatement{
+		$f = __METHOD__;
 		try {
 			$print = $this->getDebugFlag();
 			$short_class = get_short_class($classname);
@@ -178,12 +177,6 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 						];
 						$select->pushWhereConditionParameters(...$parameters);
 					}
-					/*
-					 * $select = $use_case->modifySelect/Statement($classname, $select);
-					 * if($print){
-					 * Debug::print("{$f} after handing it over to the use case to mangle, select query is now \"{$select}\"");
-					 * }
-					 */
 				}
 			}
 			if (! $select->hasMatchFunction()) {
@@ -209,9 +202,8 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 	 *
 	 * @return array
 	 */
-	private function generateSelectStatements(UseCase $use_case): ?Array
-	{
-		$f = __METHOD__; //SearchLoadoutGenerator::getShortClass()."(".static::getShortClass().")->generateSelectStatements()";
+	private function generateSelectStatements(UseCase $use_case): ?Array{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			$user = user();
@@ -227,7 +219,6 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 			}
 			foreach ($columns as $vn => $column) {
 				if ($column instanceof SearchFieldDatum) {
-					//$vn = $column->getColumnName();
 					if ($column->getValue()) {
 						if ($print) {
 							Debug::print("{$f} column \"{$vn}\" is set");
@@ -268,13 +259,11 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 		}
 	}
 	
-	public function setSelectStatements($queries)
-	{
+	public function setSelectStatements($queries){
 		return $this->setArrayProperty("selectStatements", $queries);
 	}
 	
-	public function setSelectStatement($classname, $select)
-	{
+	public function setSelectStatement($classname, $select){
 		return $this->setArrayPropertyValue("selectStatements", $classname, $select);
 	}
 }

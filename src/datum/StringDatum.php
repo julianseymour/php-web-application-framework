@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use function JulianSeymour\PHPWebApplicationFramework\bbcode_parse_extended;
@@ -8,8 +9,7 @@ use function JulianSeymour\PHPWebApplicationFramework\strip_nonalphanumeric;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-abstract class StringDatum extends Datum
-{
+abstract class StringDatum extends Datum{
 
 	protected $case;
 
@@ -19,8 +19,7 @@ abstract class StringDatum extends Datum
 
 	protected $regularExpression;
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->case);
 		unset($this->minimumLength);
@@ -28,8 +27,7 @@ abstract class StringDatum extends Datum
 		unset($this->regularExpression);
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"alphanumeric",
 			"bbcode",
@@ -37,34 +35,29 @@ abstract class StringDatum extends Datum
 		]);
 	}
 
-	public function setAlphanumeric($value)
-	{
+	public function setAlphanumeric(bool $value=true):bool{
 		return $this->setFlag("alphanumeric", true);
 	}
 
-	public function isAlphanumeric()
-	{
+	public function isAlphanumeric():bool{
 		return $this->getFlag('alphanumeric');
 	}
 
-	public function getDefaultValueString()
-	{
+	public function getDefaultValueString():string{
 		return "'" . escape_quotes($this->getDefaultValue(), QUOTE_STYLE_SINGLE) . "'";
 	}
 
-	public function setNl2brFlag(bool $value = true): bool
-	{
+	public function setNl2brFlag(bool $value = true): bool{
 		return $this->setFlag("nl2br");
 	}
 
-	public function getNl2brFlag(): bool
-	{
+	public function getNl2brFlag(): bool{
 		return $this->getFlag("nl2br");
 	}
 
-	public function getHumanReadableValue()
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->getHumanReadableValue()";
+	//XXX TODO it is not appropriate to do these transformations inside this class
+	public function getHumanReadableValue(){
+		$f = __METHOD__;
 		$print = $this->getDebugFlag();
 		if ($this->getNeverLeaveServer()) {
 			return null;
@@ -92,27 +85,23 @@ abstract class StringDatum extends Datum
 		return $value;
 	}
 
-	public function setFlag(string $name, bool $value = true): bool
-	{
+	public function setFlag(string $name, bool $value = true): bool{
 		if ($value === true && $name === "bbcode") {
 			$this->setNl2brFlag($value);
 		}
 		return parent::setFlag($name, $value);
 	}
 
-	public function setBBCodeFlag(bool $value = true): bool
-	{
+	public function setBBCodeFlag(bool $value = true): bool{
 		return $this->setFlag("bbcode", $value);
 	}
 
-	public function getBBCodeFlag(): bool
-	{
+	public function getBBCodeFlag(): bool{
 		return $this->getFlag("bbcode");
 	}
 
-	public function setCase($case)
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->setCase()";
+	public function setCase($case){
+		$f = __METHOD__; 
 		if ($case == null) {
 			unset($this->case);
 			return null;
@@ -134,23 +123,20 @@ abstract class StringDatum extends Datum
 		return $this->case = $case;
 	}
 
-	public function hasCase()
-	{
+	public function hasCase():bool{
 		return isset($this->case) && is_int($this->case);
 	}
 
-	public function getCase()
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->getCase()";
+	public function getCase(){
+		$f = __METHOD__;
 		if (! $this->hasCase()) {
 			Debug::error("{$f} case is undefined");
 		}
 		return $this->case;
 	}
 
-	public function cast($v)
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->cast()";
+	public function cast($v){
+		$f = __METHOD__;
 		if ($v instanceof ValueReturningCommandInterface) {
 			while ($v instanceof ValueReturningCommandInterface) {
 				$v = $v->evaluate();
@@ -172,9 +158,8 @@ abstract class StringDatum extends Datum
 		return $v;
 	}
 
-	public function setRequiredLength($l)
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->setRequiredLength()";
+	public function setRequiredLength(?int $l):?int{
+		$f = __METHOD__;
 		if (! is_int($l)) {
 			Debug::error("{$f} length is not an integer");
 		} elseif ($l < 1) {
@@ -183,37 +168,31 @@ abstract class StringDatum extends Datum
 		return $this->setMaximumLength($this->setMinimumLength($l));
 	}
 
-	public function hasRequiredLength()
-	{
+	public function hasRequiredLength():bool{
 		return $this->hasMinimumLength() && $this->hasMaximumLength() && $this->getMinimumLength() === $this->getMaximumLength();
 	}
 
-	public function getRequiredLength()
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->getRequiredLength()";
+	public function getRequiredLength():int{
+		$f = __METHOD__;
 		if (! $this->hasRequiredLength()) {
 			Debug::error("{$f} required length is undefined");
 		}
 		return $this->getMinimumLength();
 	}
 
-	public function setRegularExpression($regex)
-	{
+	public function setRegularExpression($regex){
 		return $this->regularExpression = $regex;
 	}
 
-	public function hasRegularExpression()
-	{
+	public function hasRegularExpression():bool{
 		return isset($this->regularExpression);
 	}
 
-	public function getJavaScriptRegularExpression()
-	{
+	public function getJavaScriptRegularExpression(){
 		return regex_js($this->getRegularExpression());
 	}
 
-	public function getRegularExpression()
-	{
+	public function getRegularExpression(){
 		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->getRegularExpression()";
 		if (! $this->hasRegularExpression()) {
 			Debug::error("{$f} regular expression is undefined");
@@ -221,9 +200,8 @@ abstract class StringDatum extends Datum
 		return $this->regularExpression;
 	}
 
-	public function setMinimumLength($l)
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->setMinimumLength()";
+	public function setMinimumLength(?int $l):?int{
+		$f = __METHOD__;
 		if (! is_int($l)) {
 			Debug::error("{$f} length is not an integer");
 		} elseif ($l < 1) {
@@ -232,23 +210,20 @@ abstract class StringDatum extends Datum
 		return $this->minimumLength = $l;
 	}
 
-	public function hasMinimumLength()
-	{
+	public function hasMinimumLength():bool{
 		return isset($this->minimumLength);
 	}
 
-	public function getMinimumLength()
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->getMinimumLength()";
+	public function getMinimumLength():int{
+		$f = __METHOD__;
 		if (! $this->hasMinimumLength()) {
 			Debug::error("{$f} minimum length is undefined");
 		}
 		return $this->minimumLength;
 	}
 
-	public function setMaximumLength($l)
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->setMaximumLength()";
+	public function setMaximumLength(?int $l):?int{
+		$f = __METHOD__;
 		if (! is_int($l)) {
 			Debug::error("{$f} length is not an integer");
 		} elseif ($l < 1) {
@@ -257,23 +232,20 @@ abstract class StringDatum extends Datum
 		return $this->maximumLength = $l;
 	}
 
-	public function hasMaximumLength()
-	{
+	public function hasMaximumLength():bool{
 		return isset($this->maximumLength);
 	}
 
-	public function getMaximumLength()
-	{
-		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->getMaximumLength()";
+	public function getMaximumLength():int{
+		$f = __METHOD__;
 		if (! $this->hasMaximumLength()) {
-			$index = $this->getColumnName();
+			$index = $this->getName();
 			Debug::error("{$f} maximum length is undefined for datum \"{$index}\"");
 		}
 		return $this->maximumLength;
 	}
 
-	public function validate($v): int
-	{
+	public function validate($v): int{
 		$f = __METHOD__;
 		$print = false;
 		$length = strlen($v);
@@ -301,28 +273,23 @@ abstract class StringDatum extends Datum
 		return parent::validate($v);
 	}
 
-	public static function parseString(string $v)
-	{
+	public static function parseString(string $v){
 		return $v;
 	}
 
-	public static function getTypeSpecifier()
-	{
+	public static function getTypeSpecifier():string{
 		return 's';
 	}
 
-	public function parseValueFromQueryResult($raw)
-	{
+	public function parseValueFromQueryResult($raw){
 		return $raw;
 	}
 
-	public static function validateStatic($value): int
-	{
+	public static function validateStatic($value): int{
 		return SUCCESS;
 	}
 
-	public function parseValueFromSuperglobalArray($value)
-	{
+	public function parseValueFromSuperglobalArray($value){
 		return $value;
 	}
 }

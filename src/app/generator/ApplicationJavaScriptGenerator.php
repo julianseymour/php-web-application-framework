@@ -20,7 +20,7 @@ use Exception;
 abstract class ApplicationJavaScriptGenerator extends Basic{
 
 	public static function generateClassReturningFunction():JavaScriptFunction{
-		$f = __METHOD__; //ApplicationJavaScriptGenerator::getShortClass()."(".static::getShortClass().")::generateClassReturningFunction()";
+		$f = __METHOD__;
 		$print = false;
 		$function = new JavaScriptFunction("getApplicationClass");
 		$function->setRoutineType(ROUTINE_TYPE_FUNCTION);
@@ -48,7 +48,7 @@ abstract class ApplicationJavaScriptGenerator extends Basic{
 	}
 
 	public static function generateJavaScriptClass(?ModuleBundler $bundler):JavaScriptClass{
-		$f = __METHOD__; //ApplicationJavaScriptGenerator::getShortClass()."(".static::getShortClass().")::generateJavaScriptClass()";
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if ($bundler === null) {

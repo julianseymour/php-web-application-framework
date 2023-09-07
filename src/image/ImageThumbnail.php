@@ -1,7 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\image;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 use mysqli;
@@ -132,7 +134,7 @@ class ImageThumbnail extends ImageData{
 		return THUMBNAIL_MAX_DIMENSION;
 	}
 
-	public static function getImageTypeStatic(){
+	public static function getSubtypeStatic():string{
 		return IMAGE_TYPE_THUMBNAIL;
 	}
 }

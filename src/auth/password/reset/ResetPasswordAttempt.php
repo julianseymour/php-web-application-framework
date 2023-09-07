@@ -8,7 +8,7 @@ use Exception;
 
 class ResetPasswordAttempt extends CodeConfirmationAttempt{
 	
-	public function getReasonLoggedString(){
+	public function getReasonLoggedString():string{
 		$f = __METHOD__;
 		try {
 			if ($this->wasLoginSuccessful()) {
@@ -44,7 +44,7 @@ class ResetPasswordAttempt extends CodeConfirmationAttempt{
 		}
 	}
 
-	public static function getSuccessfulResultCode(){
+	public static function getSuccessfulResultCode():int{
 		return SUCCESS;
 	}
 
@@ -52,7 +52,7 @@ class ResetPasswordAttempt extends CodeConfirmationAttempt{
 		return "passwordResetAttempts";
 	}
 
-	public static function getAccessTypeStatic(): string{
+	public static function getSubtypeStatic(): string{
 		return ACCESS_TYPE_RESET;
 	}
 

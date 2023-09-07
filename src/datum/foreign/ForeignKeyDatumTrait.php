@@ -156,7 +156,7 @@ trait ForeignKeyDatumTrait{
 	public function getConstraints(): array{
 		$f = __METHOD__;
 		$print = false;
-		$cn = $this->getColumnName();
+		$cn = $this->getName();
 		$constraints = parent::hasConstraints() ? parent::getConstraints() : [];
 		if ($this->getConstraintFlag()) {
 			if ($print) {
@@ -209,7 +209,7 @@ trait ForeignKeyDatumTrait{
 			Debug::error("{$f} contractVertex flag is not set");
 		} elseif (! $this->hasVertexContractions()) {
 			return [
-				$this->getDataStructureClass() => $this->getColumnName()
+				$this->getDataStructureClass() => $this->getName()
 			];
 		}
 		return $this->vertexContractions;
@@ -261,6 +261,9 @@ trait ForeignKeyDatumTrait{
 				} else {
 					if ($print) {
 						Debug::print("{$f} datum \"{$columnName}\" for class \"{$class}\" is non-polymorphic");
+					}
+					if(!method_exists($class, 'getTableNameStatic')){
+						Debug::error("{$f} table name cannot be determined statically for class \"{$class}\"");
 					}
 					$update = QueryBuilder::update($class::getDatabaseNameStatic(), $class::getTableNameStatic())->set($columnName)->where(new WhereCondition($columnName, OPERATOR_EQUALS));
 					$update->setParameters([
@@ -324,7 +327,7 @@ trait ForeignKeyDatumTrait{
 
 	public function getRelativeSequence(): string{
 		$f = __METHOD__;
-		$cn = $this->getColumnName();
+		$cn = $this->getName();
 		$print = false;
 		if ($this->hasRelativeSequence()) {
 			if ($print) {
@@ -403,7 +406,7 @@ trait ForeignKeyDatumTrait{
 	public function getRelationshipType(): int{
 		$f = __METHOD__;
 		if (! $this->hasRelationshipType()) {
-			$name = $this->getColumnName();
+			$name = $this->getName();
 			Debug::error("{$f} relationship type is undefined for column \"{$name}\"");
 		}
 		return $this->relationshipType;
@@ -483,7 +486,7 @@ trait ForeignKeyDatumTrait{
 	public function getForeignDataTypeName(): string{
 		$f = __METHOD__;
 		if (! $this->hasForeignDataTypeName()) {
-			$vn = $this->getColumnName();
+			$vn = $this->getName();
 			if ($this instanceof Datum && $this->hasDataStructure()) {
 				$dsc = $this->getDataStructureClass();
 				Debug::error("{$f} foreign data type name is undefined for {$dsc} column \"{$vn}\"");
@@ -512,8 +515,7 @@ trait ForeignKeyDatumTrait{
 		return $this->foreignDataType = $type;
 	}
 
-	public function hasForeignDataType(): bool
-	{
+	public function hasForeignDataType(): bool{
 		return isset($this->foreignDataType);
 	}
 
@@ -523,7 +525,7 @@ trait ForeignKeyDatumTrait{
 		$subtype_name = $this->getForeignDataSubtypeName();
 		if ($print) {
 			$dsc = $this->getDataStructureClass();
-			$columnName = $this->getColumnName();
+			$columnName = $this->getName();
 			Debug::print("{$f} data structure class is \"{$dsc}\", datum is \"{$columnName}\", subtype name is \"{$subtype_name}\"");
 		}
 		return $this->getDataStructure()->hasColumnValue($subtype_name);
@@ -538,7 +540,7 @@ trait ForeignKeyDatumTrait{
 			}
 			return $this->foreignDataType;
 		} elseif (! $this->hasForeignDataTypeName()) {
-			$vn = $this->getColumnName();
+			$vn = $this->getName();
 			if ($this instanceof Datum && $this->hasDataStructure()) {
 				$dsc = $this->getDataStructureClass();
 				Debug::error("{$f} foreign data type name is undefined for {$dsc} column \"{$vn}\"");
@@ -570,7 +572,7 @@ trait ForeignKeyDatumTrait{
 		$f = __METHOD__;
 		if (! $this->hasForeignDataSubtypeName()) {
 			if ($this instanceof Datum) {
-				$name = $this->getColumnName();
+				$name = $this->getName();
 				Debug::error("{$f} foreign data subtyppe name is undefined for column \"{$name}\"");
 			}
 			Debug::error("{$f} foreign data subtype name is undefined");
@@ -584,7 +586,7 @@ trait ForeignKeyDatumTrait{
 		$subtype_name = $this->getForeignDataSubtypeName();
 		if ($print) {
 			$dsc = $this->getDataStructureClass();
-			$columnName = $this->getColumnName();
+			$columnName = $this->getName();
 			Debug::print("{$f} data structure class is \"{$dsc}\", datum is \"{$columnName}\", subtype name is \"{$subtype_name}\"");
 		}
 		$value = $this->getDataStructure()->getColumnValue($subtype_name);
@@ -601,7 +603,7 @@ trait ForeignKeyDatumTrait{
 		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasForeignDataStructureClass()) {
-			$column_name = $this->getColumnName();
+			$column_name = $this->getName();
 			if ($print) {
 				Debug::print("{$f} foreign data structure class is undefined for column \"{$column_name}\"");
 			}
@@ -662,8 +664,11 @@ trait ForeignKeyDatumTrait{
 				Debug::print("{$f} foreign data structure class is defined");
 			}
 			$intersections = [
-				new IntersectionData($this->getDataStructureClass(), $this->getForeignDataStructureClass(), $this->getColumnName())
-				
+				new IntersectionData(
+					$this->getDataStructureClass(), 
+					$this->getForeignDataStructureClass(), 
+					$this->getName()
+				)
 			];
 		} elseif ($this->hasForeignDataStructureClassResolver()) {
 			if($print){
@@ -675,7 +680,7 @@ trait ForeignKeyDatumTrait{
 			if($print){
 				Debug::print("{$f} foreign data structure class and resolver are both undefined");
 			}
-			$cn = $this->getColumnName();
+			$cn = $this->getName();
 			$dsc = $this->getDataStructureClass();
 			$ds = $this->getDataStructure();
 			$key = $ds->hasIdentifierValue() ? $ds->getIdentifierValue() : "undefined";
@@ -706,7 +711,7 @@ trait ForeignKeyDatumTrait{
 		$f = __METHOD__;
 		try {
 			$print = false;
-			$name = $this->getColumnName();
+			$name = $this->getName();
 			if (! $this->hasDataStructure()) {
 				Debug::error("{$f} foreign key datum \"{$name}\" doesn't have a data structure");
 			}

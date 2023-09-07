@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
 use function JulianSeymour\PHPWebApplicationFramework\ends_with;
@@ -37,8 +38,7 @@ use JulianSeymour\PHPWebApplicationFramework\validate\OnSubmitValidatorInterface
 use Closure;
 use Exception;
 
-abstract class InputElement extends ValuedElement implements InputInterface
-{
+abstract class InputElement extends ValuedElement implements InputInterface{
 
 	use ColumnNameTrait;
 	use FormAttributeTrait;
@@ -64,7 +64,7 @@ abstract class InputElement extends ValuedElement implements InputInterface
 		$print = false;
 		if ($this->hasContext() && ! $this->hasLabelString()) {
 			$datum = $this->getContext();
-			$cn = $datum->getColumnName();
+			$cn = $datum->getName();
 			if ($datum->hasHumanReadableName()) {
 				if ($print) {
 					Debug::print("{$f} datum has a human-readable name");
@@ -73,7 +73,7 @@ abstract class InputElement extends ValuedElement implements InputInterface
 				if ($print) {
 					Debug::print("{$f} human readable name for column \"{$cn}\" is \"{$hrvn}\"");
 				}
-				if ($form->hasSuperiorForm()) {
+				/*if ($form->hasSuperiorForm()) {
 					$sf = $form->getSuperiorForm();
 					$si = $form->getSuperiorFormIndex();
 					$sc = $sf->getContext();
@@ -82,7 +82,7 @@ abstract class InputElement extends ValuedElement implements InputInterface
 						$sv = $sd->getHumanReadableName();
 						$hrvn = new ConcatenateCommand($sv, " (", $hrvn, ")");
 					}
-				}
+				}*/
 				$this->setLabelString($hrvn);
 			} elseif ($print) {
 				Debug::print("{$f} human readable name is undefined for column \"{$cn}\"");
@@ -477,10 +477,9 @@ abstract class InputElement extends ValuedElement implements InputInterface
 	public function bindContext($context){
 		$f = __METHOD__;
 		try {
-			$vn = $context->getColumnName();
-			$print = false;
+			$vn = $context->getName();
+			$print = $this->getDebugFlag();
 			if ($print) {
-				$this->debug();
 				$decl = $this->getDeclarationLine();
 				$dsc = $context->hasDataStructure() ? get_short_class($context->getDataStructure()) : "unknown";
 				$did = $this->getDebugId();
@@ -847,6 +846,7 @@ abstract class InputElement extends ValuedElement implements InputInterface
 	 * @return string
 	 */
 	public function setLabelString($str){
+		$f = __METHOD__;
 		return $this->labelString = $str;
 	}
 
@@ -876,7 +876,7 @@ abstract class InputElement extends ValuedElement implements InputInterface
 			}
 			$name = $this->getNameAttribute();
 			$ds = new GenericData();
-			$ds->setIdentifierName($this->getColumnName()); // $ds->getIdentifierName());
+			$ds->setIdentifierName($this->getColumnName());
 			$value = new GetColumnValueCommand($ds, $this->getColumnName());
 			return new CallFunctionCommand("{$formdata_name}.append", $name, $value);
 		} catch (Exception $x) {
@@ -888,7 +888,7 @@ abstract class InputElement extends ValuedElement implements InputInterface
 		return $this->setAttribute("oninput", $oninput);
 	}
 
-	public function hasOnInvalidAttribute(){
+	public function hasOnInvalidAttribute():bool{
 		return $this->hasAttribute("oninvalid");
 	}
 
@@ -911,7 +911,7 @@ abstract class InputElement extends ValuedElement implements InputInterface
 	public function subindexNameAttribute($super_column_name){
 		$f = __METHOD__;
 		try {
-			$print = false;
+			$print = $this->getDebugFlag();
 			$this->dispatchEvent(new BeforeSubindexEvent($super_column_name));
 			$oldname = $this->getNameAttribute();
 			if ($print) {

@@ -7,8 +7,7 @@ use JulianSeymour\PHPWebApplicationFramework\element\Element;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\file\CleartextFileData;
 
-class PDFData extends CleartextFileData
-{
+class PDFData extends CleartextFileData{
 
 	protected $element;
 
@@ -46,16 +45,11 @@ class PDFData extends CleartextFileData
 		ErrorMessage::unimplemented(__METHOD__);
 	}
 
-	public static function getTableNameStatic(): string{
-		return "files";
-	}
-
 	public function hasContext():bool{
 		return isset($this->context);
 	}
 
-	public function setContext($context)
-	{
+	public function setContext($context){
 		$this->context = $context;
 		$this->setFileGenerationMode(FILE_GENERATION_MODE_DOMPDF);
 		return $this->getContext();

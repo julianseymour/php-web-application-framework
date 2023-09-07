@@ -11,10 +11,6 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Exception;
 
 class AntiXsrfTokenData extends DataStructure{
-
-	public static function getDatabaseNameStatic():string{
-		return "error";
-	}
 	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
@@ -22,7 +18,7 @@ class AntiXsrfTokenData extends DataStructure{
 		$xsrf_token->setNullable(true);
 		$secondary = new TextDatum("secondary_token");
 		$secondary->setNullable(true);
-		static::pushTemporaryColumnsStatic($columns, $xsrf_token, $secondary);
+		array_push($columns, $xsrf_token, $secondary);
 	}
 
 	public function getSecondaryToken(){
@@ -164,10 +160,6 @@ class AntiXsrfTokenData extends DataStructure{
 
 	public static function getPrettyClassNames():string{
 		return _("Anti-XSRF token");
-	}
-
-	public static function getTableNameStatic(): string{
-		ErrorMessage::unimplemented(__METHOD__);
 	}
 
 	public static function getDataType(): string{

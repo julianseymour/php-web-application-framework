@@ -145,8 +145,7 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 			$context = $this->getContext();
 			$mode = $this->getAllocationMode();
 			$this->setIdOverride("note_optns");
-			$this->resolveTemplateCommand(NodeBearingIfCommand::hasColumnValue($context, "pinnedTimestamp")->then(new AppendChildCommand($this->getIdOverride(), new BindElementCommand(new RepinNotificationForm($mode), $context)), new AppendChildCommand($this->getIdOverride(), new BindElementCommand(new $unpin_form_class($mode), $context)))
-				->else(new AppendChildCommand($this->getIdOverride(), new BindElementCommand(new $pin_form_class($mode), $context))));
+			$this->resolveTemplateCommand(NodeBearingIfCommand::hasColumnValue($context, "pinnedTimestamp")->then(new AppendChildCommand($this->getIdOverride(), new BindElementCommand(new RepinNotificationForm($mode), $context)), new AppendChildCommand($this->getIdOverride(), new BindElementCommand(new $unpin_form_class($mode), $context)))->else(new AppendChildCommand($this->getIdOverride(), new BindElementCommand(new $pin_form_class($mode), $context))));
 			$dismissal_form = new DismissNotificationForm($mode);
 			$dismissal_form->setIdOverride("dismissal_form");
 			$is_dismissable = $context->hasColumnValueCommand("dismissable");

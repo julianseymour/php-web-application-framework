@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password\change;
 
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
@@ -16,13 +17,11 @@ use JulianSeymour\PHPWebApplicationFramework\validate\FormDataIndexValidator;
 use JulianSeymour\PHPWebApplicationFramework\validate\Validator;
 use Exception;
 
-class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGeneratingFormInterface
-{
+class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGeneratingFormInterface{
 
 	use PasswordGeneratingFormTrait;
 
-	public function getDirectives(): ?array
-	{
+	public function getDirectives(): ?array{
 		return [
 			DIRECTIVE_REGENERATE
 		];
@@ -98,11 +97,13 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 		}
 	}
 
-	protected function attachInputValidators(InputInterface $input): InputInterface
-	{
-		$f = __METHOD__; //ChangePasswordForm::getShortClass()."(".static::getShortClass().")->attachInputValidators()";
+	protected function attachInputValidators(InputInterface $input): InputInterface{
+		$f = __METHOD__;
 		try {
 			$print = false;
+			if(!$input->hasColumnName()){
+				return $input;
+			}
 			$cn = $input->getColumnName();
 			switch ($cn) {
 				case "password":
@@ -123,8 +124,7 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 		}
 	}
 
-	public function getValidator(): ?Validator
-	{
+	public function getValidator(): ?Validator{
 		if($this->hasValidator()){
 			return $this->validator;
 		}
@@ -134,40 +134,33 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 		// return new ChangePasswordValidator($this);
 	}
 
-	public static function getExpandingMenuLabelString($context): string
-	{
+	public static function getExpandingMenuLabelString($context): string{
 		return _("Change password");
 	}
 
-	public static function getExpandingMenuRadioButtonIdAttribute(): string
-	{
+	public static function getExpandingMenuRadioButtonIdAttribute(): string{
 		return "radio_settings_password";
 	}
 
-	public function getFormDataIndices(): ?array
-	{
+	public function getFormDataIndices(): ?array{
 		return [
 			"password" => PasswordInput::class
 		];
 	}
 
-	public static function getMaxHeightRequirement(): string
-	{
+	public static function getMaxHeightRequirement(): string{
 		return "213px";
 	}
 
-	public static function getFormDispatchIdStatic(): ?string
-	{
+	public static function getFormDispatchIdStatic(): ?string{
 		return "change_password";
 	}
 
-	public static function getActionAttributeStatic(): ?string
-	{
+	public static function getActionAttributeStatic(): ?string{
 		return '/settings';
 	}
 
-	public function generateButtons(string $name): ?array
-	{
+	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
 		switch ($name) {
 			case DIRECTIVE_REGENERATE:
@@ -186,13 +179,11 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 		}
 	}
 
-	public static function getPasswordInputName(): string
-	{
+	public static function getPasswordInputName(): string{
 		return "password_new";
 	}
 
-	public static function getConfirmPasswordInputName(): string
-	{
+	public static function getConfirmPasswordInputName(): string{
 		return "confirm_new";
 	}
 }

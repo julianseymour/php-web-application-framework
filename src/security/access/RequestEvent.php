@@ -3,6 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\security\access;
 
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
+use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\email\EmailNoteworthyInterface;
 use JulianSeymour\PHPWebApplicationFramework\email\EmailNoteworthyTrait;
@@ -32,7 +33,7 @@ abstract class RequestEvent extends UserFingerprint implements EmailNoteworthyIn
 		return false;
 	}
 
-	public function getUpdateNotificationRecipient(){
+	public function getUpdateNotificationRecipient():UserData{
 		return $this->getUserData();
 	}
 
@@ -44,7 +45,7 @@ abstract class RequestEvent extends UserFingerprint implements EmailNoteworthyIn
 		return SecurityNotificationData::class;
 	}
 
-	public function isEmailNotificationWarranted($recipient): bool{
+	public function isEmailNotificationWarranted(UserData $recipient): bool{
 		return true;
 	}
 
@@ -63,10 +64,6 @@ abstract class RequestEvent extends UserFingerprint implements EmailNoteworthyIn
 			default:
 				return $config;
 		}
-	}
-
-	public function getCommentRoot(){
-		return $this;
 	}
 
 	public function getNotificationPreview(){

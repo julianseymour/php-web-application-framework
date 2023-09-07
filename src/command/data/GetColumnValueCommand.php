@@ -1,6 +1,6 @@
 <?php
-namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
+namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
@@ -8,21 +8,18 @@ use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 
-class GetColumnValueCommand extends ColumnValueCommand
-{
+class GetColumnValueCommand extends ColumnValueCommand{
 
 	protected $format;
 
 	protected $fallbackValue;
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "getColumnValue";
 	}
 
-	public function __construct($context = null, $vn = null)
-	{
-		$f = __METHOD__; //GetColumnValueCommand::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($context = null, $vn = null){
+		$f = __METHOD__;
 		if (isset($context)) {
 			if ($context instanceof GetColumnValueCommand) {
 				Debug::error("{$f} context is another GetColumnValueCommand");
@@ -31,15 +28,13 @@ class GetColumnValueCommand extends ColumnValueCommand
 		parent::__construct($context, $vn);
 	}
 
-	public static function declareFlags(): array
-	{
+	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
 			"disallowNull"
 		]);
 	}
 
-	public function setFallbackValue($value)
-	{
+	public function setFallbackValue($value){
 		if ($value === null) {
 			unset($this->fallbackValue);
 			return null;
@@ -47,33 +42,27 @@ class GetColumnValueCommand extends ColumnValueCommand
 		return $this->fallbackValue = $value;
 	}
 
-	public function hasFallbackValue()
-	{
+	public function hasFallbackValue():bool{
 		return isset($this->fallbackValue);
 	}
 
-	public function getFallbackValue()
-	{
-		$f = __METHOD__; //GetColumnValueCommand::getShortClass()."(".static::getShortClass().")->getFallbackValue()";
-		if (! $this->hasFallbackValue()) {
+	public function getFallbackValue(){
+		$f = __METHOD__;if (! $this->hasFallbackValue()) {
 			Debug::error("{$f} fallback value is undefined");
 		}
 		return $this->fallbackValue;
 	}
 
-	public static function concatIndex($prefix, $context, $index, $suffix = null)
-	{
-		$cmd = new ConcatenateCommand($prefix, new GetColumnValueCommand($context, $index)) // ->getColumnValueCommand($index)
-		;
+	public static function concatIndex($prefix, $context, $index, $suffix = null){
+		$cmd = new ConcatenateCommand($prefix, new GetColumnValueCommand($context, $index));
 		if (! isset($suffix)) {
 			return $cmd;
 		}
 		return new ConcatenateCommand($cmd, $suffix);
 	}
 
-	public function setFormat($i)
-	{
-		$f = __METHOD__; //GetColumnValueCommand::getShortClass()."(".static::getShortClass().")->setFormat()";
+	public function setFormat($i){
+		$f = __METHOD__;
 		$print = $this->getDebugFlag();
 		if ($print) {
 			Debug::print("{$f} setting format to \"{$i}\"");
@@ -81,9 +70,8 @@ class GetColumnValueCommand extends ColumnValueCommand
 		return $this->format = $i;
 	}
 
-	public function getFormat()
-	{
-		$f = __METHOD__; //GetColumnValueCommand::getShortClass()."(".static::getShortClass().")->getFormat()";
+	public function getFormat(){
+		$f = __METHOD__;
 		$print = $this->getDebugFlag();
 		if (! $this->hasFormat()) {
 			if ($print) {
@@ -96,23 +84,19 @@ class GetColumnValueCommand extends ColumnValueCommand
 		return $this->format;
 	}
 
-	public function hasFormat()
-	{
+	public function hasFormat():bool{
 		return isset($this->format);
 	}
 
-	public function setDisallowNullFlag($value = true)
-	{
+	public function setDisallowNullFlag(bool $value = true):bool{
 		return $this->setFlag("disallowNull", $value);
 	}
 
-	public function getDisallowNullFlag()
-	{
+	public function getDisallowNullFlag():bool{
 		return $this->getFlag("disallowNull");
 	}
 
-	public function evaluate(?array $params = null)
-	{
+	public function evaluate(?array $params = null){
 		$f = __METHOD__;
 		try {
 			$vn = $this->getColumnName();
@@ -145,12 +129,7 @@ class GetColumnValueCommand extends ColumnValueCommand
 				}
 				$decl = $this->getDeclarationLine();
 				Debug::error("{$f} context \"{$context}\" is not an object; column name is \"{$vn}\". This was declared {$decl}");
-			} /*
-			   * elseif(!$context instanceof DataStructure){
-			   * $class = $context->getClass();
-			   * Debug::error("{$f} context is a {$class} and not a data structure");
-			   * }
-			   */
+			}
 			if ($print) {
 				Debug::print("{$f} context is now a " . $context->getClass() . "; about to get value of column {$vn}");
 			}
@@ -208,8 +187,7 @@ class GetColumnValueCommand extends ColumnValueCommand
 		}
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->fallbackValue);
 		unset($this->format);

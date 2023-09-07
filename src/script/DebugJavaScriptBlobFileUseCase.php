@@ -16,7 +16,7 @@ class DebugJavaScriptBlobFileUseCase extends BundleUseCase{
 	}
 	
 	protected function getBundledFilenames(?string $filename = null):?array{
-		return mods()->getDebugJavaScriptFilenames();
+		return mods()->getDebugJavaScriptFilePaths();
 	}
 
 	public function getActionAttribute(): ?string{

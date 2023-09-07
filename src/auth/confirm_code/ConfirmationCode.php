@@ -9,6 +9,7 @@ use function JulianSeymour\PHPWebApplicationFramework\is_base64;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousUser;
+use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\CipherDatum;
 use JulianSeymour\PHPWebApplicationFramework\crypt\NonceDatum;
@@ -23,22 +24,26 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\security\access\RequestEvent;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
+use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyInterface{
+abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyInterface, StaticSubtypeInterface, StaticTableNameInterface{
 
 	use EmailNoteworthyTrait;
-
+	use StaticTableNameTrait;
+	use SubtypeColumnTrait;
+	
 	protected static $requestTimeoutDuration = - 1;
 
 	protected abstract function encrypt(string $data): ?string;
 
 	protected abstract function decrypt(string $data): ?string;
 
-	public abstract static function getSentEmailStatus();
+	public abstract static function getSentEmailStatus():int;
 
-	public abstract static function getConfirmationUriStatic($suffix);
-
-	public abstract static function getConfirmationCodeTypeStatic();
+	public abstract static function getConfirmationUriStatic(string $suffix):string;
 
 	public abstract function getKeypair();
 
@@ -58,12 +63,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		}
 	}
 
-	public static function hasSubtypeStatic():bool{
-		return true;
-	}
-	
-	public static function getSubtypeStatic(): string{
-		return static::getConfirmationCodeTypeStatic();
+	public static function getConfirmationCodeTypeStatic():string{
+		return static::getSubtypeStatic();
 	}
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
@@ -77,21 +78,19 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$secretCodeXorKey->volatilize();
 		$hashedSecretCode = new BlobDatum("hashedSecretCode"); // hash of (nonce.secret)
 		$hashedSecretCode->volatilize();
-
-		$confirmationCodeType = new StringEnumeratedDatum("confirmationCodeType");
-		$confirmationCodeType->setValidEnumerationMap([
+		$subtype = new StringEnumeratedDatum("subtype");
+		$subtype->setValidEnumerationMap([
 			ACCESS_TYPE_ACTIVATION,
 			ACCESS_TYPE_CHANGE_EMAIL,
 			ACCESS_TYPE_UNLISTED_IP_ADDRESS,
 			ACCESS_TYPE_RESET,
 			ACCESS_TYPE_LOCKOUT_WAIVER
 		]);
-
 		$nonce = new NonceDatum("nonce");
 		$nonce->setRequiredLength(SODIUM_CRYPTO_PWHASH_SALTBYTES);
 		$data = new TextDatum("data");
 		$data->setDefaultValue(null);
-		static::pushTemporaryColumnsStatic($columns, $nonce, $data, $confirmationCodeType, $secretCode, $xoredSecretCode, $secretCodeXorKey, $hashedSecretCode);
+		array_push($columns, $nonce, $data, $subtype, $secretCode, $xoredSecretCode, $secretCodeXorKey, $hashedSecretCode);
 	}
 
 	public static function declareFlags(): ?array{
@@ -106,14 +105,41 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$columns['userNameKey']->setOnDelete(REFERENCE_OPTION_CASCADE);
 	}
 
-	public function getSubtypeValue(){
-		return $this->getConfirmationCodeType();
+	/**
+	 * {@inheritDoc}
+	 * @see \JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameInterface::getDatabaseNameStatic()
+	 */
+	public static function getDatabaseNameStatic(): string{
+		return "user_content";
 	}
-
+	
 	public static function getTableNameStatic(): string{
 		return "confirmation_codes";
 	}
 
+	public function getVirtualColumnValue(string $column_name){
+		$f = __METHOD__;
+		try {
+			switch ($column_name) {
+				case 'subtype':
+					return $this->getSubtypeStatic();
+				default:
+					return parent::getVirtualColumnValue($column_name);
+			}
+		} catch (Exception $x) {
+			x($f, $x);
+		}
+	}
+	
+	public function hasVirtualColumnValue(string $column_name): bool{
+		switch ($column_name) {
+			case 'subtype':
+				return true;
+			default:
+				return parent::hasVirtualColumnValue($column_name);
+		}
+	}
+	
 	protected function getConfirmationUriGetParameters(): array{
 		$f = __METHOD__;
 		$x1 = $this->getSecretCodeXorKey();
@@ -402,7 +428,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		return $this->setColumnValue('data', $data);
 	}
 
-	public function isEmailNotificationWarranted($recipient): bool{
+	public function isEmailNotificationWarranted(UserData $recipient): bool{
 		return true;
 	}
 
@@ -422,7 +448,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	 * Write an email confirmation code record to the database for a particular user
 	 *
 	 * @param mysqli $mysqli
-	 * @param AuthenticatedUser $user
+	 * @param PlayableUser $user
 	 * @return int
 	 */
 	public static function submitStatic(mysqli $mysqli, PlayableUser $user){
@@ -479,7 +505,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 
 	/**
 	 *
-	 * @param AuthenticatedUser $user
+	 * @param PlayableUser $user
 	 * @return int
 	 */
 	protected function extractAdditionalDataFromUser(PlayableUser $user){
@@ -498,15 +524,11 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		return DATATYPE_CONFIRMATION_CODE;
 	}
 
-	public final function hasSubtypeValue(): bool{
-		return true;
-	}
-
 	public function hasXoredSecretCode(): bool{
 		return $this->hasColumnValue("xoredSecretCode");
 	}
 
-	public function getReasonLogged(){
+	public function getReasonLogged():string{
 		return $this->getColumnValue('reasonLogged');
 	}
 
@@ -515,18 +537,22 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	}
 
 	public function hasConfirmationCodeType(): bool{
-		return $this->hasColumnValue('confirmationCodeType');
+		return $this->hasSubtype();
 	}
 
-	public function getConfirmationCodeType(){
-		if ($this->hasConfirmationCodeType()) {
-			return $this->getColumnValue('confirmationCodeType');
+	public function getSubtype():string{
+		if($this->hasColumnValue('subtype')) {
+			return $this->getColumnValue('subtype');
 		}
-		return $this->setConfirmationCodeType(static::getConfirmationCodeTypeStatic());
+		return $this->setSubtype(static::getSubypeStatic());
+	}
+	
+	public function getConfirmationCodeType():string{
+		return $this->getSubtype();
 	}
 
-	public function setConfirmationCodeType($value){
-		return $this->setColumnValue("confirmationCodeType", $value);
+	public function setConfirmationCodeType(string $value):string{
+		return $this->setSubtype($value);
 	}
 
 	public function generateNonce(){
@@ -612,10 +638,6 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 
 	public function loadFailureHook(): int{
 		return $this->setObjectStatus(ERROR_LINK_EXPIRED);
-	}
-
-	public function getCommentRoot(){
-		return $this;
 	}
 
 	public static function getPrettyClassName():string{

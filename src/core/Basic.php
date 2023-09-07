@@ -52,15 +52,15 @@ abstract class Basic{
 		}
 	}
 
-	public function setAllocatedFlag(bool $value = true): bool{
+	public function setAllocatedFlag(bool $value = true):bool{
 		return $this->setFlag("allocated", $value);
 	}
 
-	public function getAllocatedFlag(): bool{
+	public function getAllocatedFlag():bool{
 		return $this->getFlag("allocated");
 	}
 
-	public function setDeclarationLine($dl): ?string{
+	public function setDeclarationLine($dl):?string{
 		$f = __METHOD__;
 		if ($dl == null) {
 			unset($this->declarationLine);
@@ -69,11 +69,11 @@ abstract class Basic{
 		return $this->declarationLine = $dl;
 	}
 
-	public function hasDeclarationLine(): bool{
+	public function hasDeclarationLine():bool{
 		return isset($this->declarationLine);
 	}
 
-	public function getDeclarationLine(): string{
+	public function getDeclarationLine():string{
 		$f = __METHOD__;
 		$print = false;
 		if (! $this->hasDeclarationLine()) {
@@ -85,7 +85,7 @@ abstract class Basic{
 		return $this->declarationLine;
 	}
 
-	public static function declareFlags(): ?array{
+	public static function declareFlags():?array{
 		return [
 			"allocated",
 			"debug"

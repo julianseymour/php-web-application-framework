@@ -5,23 +5,20 @@ use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnNameTrait;
 
 /**
  * For this class, $columnName refers to the old column name.
- * The new one can be retrieved with $columnDefinition->getColumnName()
+ * The new one can be retrieved with $columnDefinition->getName()
  *
  * @author j
  */
-class ChangeColumnOption extends ModifyColumnOption
-{
+class ChangeColumnOption extends ModifyColumnOption{
 
 	use ColumnNameTrait;
 
-	public function __construct($oldColumnName, $newColumnDefinition, $position = null, $afterColumnName = null)
-	{
+	public function __construct($oldColumnName, $newColumnDefinition, $position = null, $afterColumnName = null){
 		parent::__construct($newColumnDefinition, $position, $afterColumnName);
 		$this->setColumnName($oldColumnName);
 	}
 
-	public function toSQL(): string
-	{
+	public function toSQL(): string{
 		$oldName = $this->getColumnName();
 		$newDefinition = $this->getColumnDefinition()->toSQL();
 		$string = "change {$oldName} {$newDefinition}";
@@ -31,8 +28,7 @@ class ChangeColumnOption extends ModifyColumnOption
 		return $string;
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->columnName);
 	}

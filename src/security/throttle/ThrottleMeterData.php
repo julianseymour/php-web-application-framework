@@ -6,6 +6,7 @@ use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\DataTypeDatum;
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 use JulianSeymour\PHPWebApplicationFramework\datum\QuotaDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\query\QueryBuilder;
@@ -33,7 +34,7 @@ abstract class ThrottleMeterData extends DataStructure{
 		return $this->getColumnValue("perMinute");
 	}
 
-	public function hasLimitPerMinute(){
+	public function hasLimitPerMinute():bool{
 		return $this->hasColumnValue("perMinute");
 	}
 
@@ -45,7 +46,7 @@ abstract class ThrottleMeterData extends DataStructure{
 		return $this->getColumnValue("perHour");
 	}
 
-	public function hasLimitPerHour(){
+	public function hasLimitPerHour():bool{
 		return $this->hasColumnValue("perHour");
 	}
 
@@ -61,7 +62,7 @@ abstract class ThrottleMeterData extends DataStructure{
 		return $this->getColumnValue("perDay");
 	}
 
-	public function hasLimitPerDay(){
+	public function hasLimitPerDay():bool{
 		return $this->hasColumnValue("perDay");
 	}
 
@@ -69,78 +70,63 @@ abstract class ThrottleMeterData extends DataStructure{
 		return $this->setColumnValue("perDay", $limit);
 	}
 
-	public function getLimitPerWeek()
-	{
+	public function getLimitPerWeek(){
 		return $this->getColumnValue("perWeek");
 	}
 
-	public function hasLimitPerWeek()
-	{
+	public function hasLimitPerWeek():bool{
 		return $this->hasColumnValue("perWeek");
 	}
 
-	public function setLimitPerWeek($limit)
-	{
+	public function setLimitPerWeek($limit){
 		return $this->setColumnValue("perWeek", $limit);
 	}
 
-	public function getLimitPerMonth()
-	{
+	public function getLimitPerMonth(){
 		return $this->getColumnValue("perMonth");
 	}
 
-	public function hasLimitPerMonth()
-	{
+	public function hasLimitPerMonth():bool{
 		return $this->hasColumnValue("perMonth");
 	}
 
-	public function setLimitPerMonth($limit)
-	{
+	public function setLimitPerMonth($limit){
 		return $this->setColumnValue("perMonth", $limit);
 	}
 
-	public function getLimitPerYear()
-	{
+	public function getLimitPerYear(){
 		return $this->getColumnValue("perYear");
 	}
 
-	public function hasLimitPerYear()
-	{
+	public function hasLimitPerYear():bool{
 		return $this->hasColumnValue("perYear");
 	}
 
-	public function setLimitPerYear($limit)
-	{
+	public function setLimitPerYear($limit){
 		return $this->setColumnValue("perYear", $limit);
 	}
 
-	public function getLimitPerLifetime()
-	{
+	public function getLimitPerLifetime(){
 		return $this->getColumnValue("perLifetime");
 	}
 
-	public function hasLimitPerLifetime()
-	{
+	public function hasLimitPerLifetime():bool{
 		return $this->hasColumnValue("perLifetime");
 	}
 
-	public function setLimitPerLifetime($limit)
-	{
+	public function setLimitPerLifetime($limit){
 		return $this->setColumnValue("perLifetime", $limit);
 	}
 
-	public function getLimitPerDecade()
-	{
+	public function getLimitPerDecade(){
 		return $this->getColumnValue("perDecade");
 	}
 
-	public function hasLimitPerDecade()
-	{
+	public function hasLimitPerDecade():bool{
 		return $this->hasColumnValue("perDecade");
 	}
 
-	public function setLimitPerDecade($limit)
-	{
+	public function setLimitPerDecade($limit){
 		return $this->setColumnValue("perDecade", $limit);
 	}
 
@@ -153,9 +139,8 @@ abstract class ThrottleMeterData extends DataStructure{
 	 * @param string $quota_operator
 	 * @param SelectStatement $query
 	 */
-	public function meter(mysqli $mysqli, int $timestamp, string $quota_operator, SelectStatement $query): bool
-	{
-		$f = __METHOD__; //ThrottleMeterData::getShortClass()."(".static::getShortClass().")->meter()";
+	public function meter(mysqli $mysqli, int $timestamp, string $quota_operator, SelectStatement $query): bool{
+		$f = __METHOD__;
 		try {
 			$print = false;
 			if (! $query instanceof SelectStatement) {
@@ -219,21 +204,23 @@ abstract class ThrottleMeterData extends DataStructure{
 			if ($print) {
 				Debug::print("{$f} generated super query \"{$superquery}\"");
 			}
-			$results = $superquery->executeGetResult($mysqli // , ''
-			)->fetch_all(MYSQLI_ASSOC);
+			$results = $superquery->executeGetResult($mysqli)->fetch_all(MYSQLI_ASSOC);
 			if ($print) {
 				Debug::print("{$f} executing super query returned the following result array:");
 				Debug::printArray($results[0]);
 			}
 			foreach ($select_columns as $interval) {
-				$column_name = $interval->getColumnName();
+				if($interval instanceof Datum){
+					$column_name = $interval->getName();
+				}else{
+					$column_name = $interval->getColumnName();
+				}
 				if ($print) {
 					Debug::print("{$f} about to check count for column \"{$column_name}\"");
 					// Debug::printArray($results);
 				}
 				$count = $results[0][$column_name];
-				$quota = $this->getColumn($interval->getColumnName())
-					->getValue();
+				$quota = $this->getColumnValue($column_name);
 				if ($print) {
 					Debug::print("{$f} result count is {$count} for interval {$column_name}");
 				}
@@ -288,9 +275,8 @@ abstract class ThrottleMeterData extends DataStructure{
 		}
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void
-	{
-		$f = __METHOD__; //ThrottleMeterData::getShortClass()."(".static::getShortClass().")::declareColumns()";
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		$f = __METHOD__;
 		try {
 			parent::declareColumns($columns, $ds);
 			$metered_type = new DataTypeDatum("meteredDataType");
@@ -317,7 +303,7 @@ abstract class ThrottleMeterData extends DataStructure{
 			$per_decade->setIntervalSeconds($year * 10);
 			$per_lifetime = new QuotaDatum("perLifetime", 64);
 			$per_lifetime->setIntervalSeconds(time());
-			static::pushTemporaryColumnsStatic($columns, $metered_type, $per_minute, $per_hour, $per_day, $per_week, $per_month, $per_year, $per_decade, $per_lifetime);
+			array_push($columns, $metered_type, $per_minute, $per_hour, $per_day, $per_week, $per_month, $per_year, $per_decade, $per_lifetime);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
@@ -333,10 +319,5 @@ abstract class ThrottleMeterData extends DataStructure{
 
 	public static function getPrettyClassNames():string{
 		return static::getPrettyClassName();
-	}
-
-	public static function getTableNameStatic(): string{
-		$f = __METHOD__; 
-		return ErrorMessage::unimplemented($f);
 	}
 }

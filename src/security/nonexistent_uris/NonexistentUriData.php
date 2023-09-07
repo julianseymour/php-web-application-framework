@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\nonexistent_uris;
 
 use function JulianSeymour\PHPWebApplicationFramework\ip_version;
@@ -13,8 +14,12 @@ use JulianSeymour\PHPWebApplicationFramework\security\condemn\CondemnedIpAddress
 use mysqli;
 use JulianSeymour\PHPWebApplicationFramework\datum\IpAddressDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\UnsignedIntegerDatum;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class NonexistentUriData extends DataStructure{
+class NonexistentUriData extends DataStructure implements StaticTableNameInterface{
+	
+	use StaticTableNameTrait;
 	
 	public static function getDatabaseNameStatic():string{
 		return "security";
@@ -33,7 +38,7 @@ class NonexistentUriData extends DataStructure{
 			POLICY_ALLOW,
 			POLICY_BLOCK
 		]);
-		static::pushTemporaryColumnsStatic($columns, $ipAddress, $ipVersion, $uri, $full, $list);
+		array_push($columns, $ipAddress, $ipVersion, $uri, $full, $list);
 	}
 	
 	public static function getDataType():string{

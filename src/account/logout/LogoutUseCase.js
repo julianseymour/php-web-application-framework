@@ -11,7 +11,7 @@ class LogoutUseCase extends UseCase{
 					for(let i = 0; i < containers.length; i++){
 						let container = containers[i];
 						container.style['opacity'] = '1';
-						container.style['pointer-events'] = 'auto';
+						container.style['pointer-events'] = null;
 					}
 					break;
 				default:

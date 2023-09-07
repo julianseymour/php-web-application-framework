@@ -1,37 +1,33 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\StringDatum;
 
-abstract class StringInput extends KeypadInput
-{
+abstract class StringInput extends KeypadInput{
 
 	use ReadOnlyAttributeTrait;
 	use RequiredAttributeTrait;
 
-	public function getMaximumLengthAttribute()
-	{
-		$f = __METHOD__; //StringInput::getShortClass()."(".static::getShortClass().")->getMaximumLengthAttribute()";
+	public function getMaximumLengthAttribute(){
+		$f = __METHOD__;
 		if (! $this->hasMaximumLengthAttribute()) {
 			Debug::error("{$f} max length attribute is undefined");
 		}
 		return $this->getAttribute("maxlength");
 	}
 
-	public function hasMaximumLengthAttribute()
-	{
+	public function hasMaximumLengthAttribute():bool{
 		return $this->hasAttribute("maxlength");
 	}
 
-	public function setMaximumLengthAttribute($maxlength)
-	{
+	public function setMaximumLengthAttribute($maxlength){
 		return $this->setAttribute("maxlength", $maxlength);
 	}
 
-	public function getMinimumLengthAttribute()
-	{
-		$f = __METHOD__; //StringInput::getShortClass()."(".static::getShortClass().")->getMinimumLengthAttribute()";
+	public function getMinimumLengthAttribute(){
+		$f = __METHOD__;
 		if (! $this->hasMinimumLengthAttribute()) {
 			$decl = $this->getDeclarationLine();
 			$name = $this->hasNameAttribute() ? $this->getNameAttribute() : "unnamed";
@@ -40,39 +36,33 @@ abstract class StringInput extends KeypadInput
 		return $this->getAttribute("minlength");
 	}
 
-	public function hasMinimumLengthAttribute()
-	{
+	public function hasMinimumLengthAttribute():bool{
 		return $this->hasAttribute("minlength");
 	}
 
-	public function setMinimumLengthAttribute($minlength)
-	{
+	public function setMinimumLengthAttribute($minlength){
 		return $this->setAttribute("minlength", $minlength);
 	}
 
-	public function setPatternAttribute($value)
-	{
+	public function setPatternAttribute($value){
 		return $this->setAttribute("pattern", $value);
 	}
 
-	public function hasPatternAttribute()
-	{
+	public function hasPatternAttribute():bool{
 		return $this->hasAttribute("pattern");
 	}
 
-	public function getPatternAttribute()
-	{
-		$f = __METHOD__; //StringInput::getShortClass()."(".static::getShortClass().")->getPatternAttribute()";
+	public function getPatternAttribute(){
+		$f = __METHOD__;
 		if (! $this->hasPatternAttribute()) {
 			Debug::error("{$f} pattern attribute is undefined");
 		}
 		return $this->getAttribute("pattern");
 	}
 
-	public function bindContext($context)
-	{
-		$f = __METHOD__; //StringInput::getShortClass()."(".static::getShortClass().")->bindContext()";
-		$print = false;
+	public function bindContext($context){
+		$f = __METHOD__;
+		$print = $this->getDebugFlag();
 		if ($context instanceof StringDatum) {
 			if ($context->hasMinimumLength()) {
 				$this->setMinimumLengthAttribute($context->getMinimumLength());
@@ -95,19 +85,16 @@ abstract class StringInput extends KeypadInput
 		return parent::bindContext($context);
 	}
 
-	public function setSizeAttribute($value)
-	{
+	public function setSizeAttribute($value){
 		return $this->setAttribute("size", $value);
 	}
 
-	public function hasSizeAttribute()
-	{
+	public function hasSizeAttribute():bool{
 		return $this->hasAttribute("size");
 	}
 
-	public function getSizeAttribute()
-	{
-		$f = __METHOD__; //StringInput::getShortClass()."(".static::getShortClass().")->getSizeAttribute()";
+	public function getSizeAttribute(){
+		$f = __METHOD__;
 		if (! $this->hasSizeAttribute()) {
 			Debug::error("{$f} size attribute is undefined");
 		}

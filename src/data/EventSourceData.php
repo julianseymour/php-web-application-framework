@@ -4,12 +4,14 @@ namespace JulianSeymour\PHPWebApplicationFramework\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\account\owner\UserOwned;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\SodiumCryptoSignatureDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
-use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameTrait;
 
 /**
  * data structure for automating finite state datum update event sourcing.
@@ -18,8 +20,10 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
  * @author j
  *        
  */
-class EventSourceData extends UserOwned{
+class EventSourceData extends UserOwned implements StaticDatabaseNameInterface{
 
+	use StaticDatabaseNameTrait;
+	
 	protected $stateColumn;
 
 	public function __construct(?Datum $column = null, ?int $mode = ALLOCATION_MODE_EAGER){
@@ -56,8 +60,8 @@ class EventSourceData extends UserOwned{
 		$target_key->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 		$target = $sc->getDataStructure();
 		$target_class = $target->getClass();
-		if ($target->hasSubtypeValue()) {
-			$subtype = $target->getSubtypeValue();
+		if ($target->hasColumnValue("subtype") || $target instanceof StaticSubtypeInterface) {
+			$subtype = $target->getSubtype();
 			if ($print) {
 				Debug::print("{$f} target {$target_class} subtype is {$subtype}");
 			}
@@ -80,7 +84,7 @@ class EventSourceData extends UserOwned{
 			"targeyDataType",
 			"targetSubtype"
 		]));
-		static::pushTemporaryColumnsStatic($columns, $current_state, $previous_state, $token, $target_key, $comment, $signature);
+		array_push($columns, $current_state, $previous_state, $token, $target_key, $comment, $signature);
 	}
 
 	public static function getPermissionStatic(string $name, $data){
@@ -122,14 +126,9 @@ class EventSourceData extends UserOwned{
 		return "events";
 	}
 
-	public static function getTableNameStatic(): string{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
-	}
-
 	public function getTableName(): string{
 		$sc = $this->getStateColumn();
-		return $sc->getDataStructure()->getTableName() . "_" . $sc->getColumnName();
+		return $sc->getDataStructure()->getTableName() . "_" . $sc->getName();
 	}
 
 	public static function getPrettyClassName():string{

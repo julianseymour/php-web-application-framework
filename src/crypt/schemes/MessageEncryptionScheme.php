@@ -1,11 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt\schemes;
 
-class MessageEncryptionScheme extends IntermediateSymmetricEncryptionScheme
-{
+class MessageEncryptionScheme extends IntermediateSymmetricEncryptionScheme{
 
-	public static function getIntermediateEncryptionSchemeClass()
-	{
+	public static function getIntermediateEncryptionSchemeClass(){
 		return AsymmetricEncryptionScheme::class;
 	}
 }

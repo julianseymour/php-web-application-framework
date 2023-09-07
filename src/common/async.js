@@ -21,7 +21,7 @@ const subscribe = async function(){
 	try{
 		let print = false;
 		if(print){
-			window.alert(f.concat(": entered"));
+			console.log(f.concat(": entered"));
 		}
 		navigator.serviceWorker.ready.then(
 			async function(registration){
@@ -33,14 +33,14 @@ const subscribe = async function(){
 			}
 		).then(function(subscription){
 			if(print){
-				window.alert('Subscribed', subscription.endpoint);
+				console.log('Subscribed', subscription.endpoint);
 			}
 			let stringified = JSON.stringify({
 				subscription: subscription
 				//js: 1
 			});
 			if(print){
-				window.alert(f+": about to fetch from subscribe");
+				console.log(f+": about to fetch from subscribe");
 			}
 			return fetch('/subscribe/', {
 				method:'post',
@@ -56,17 +56,17 @@ const subscribe = async function(){
 					return null;
 				}
 				if(print){
-					window.alert(f+": got response");
+					console.log(f+": got response");
 				}
 				if(!response.ok){
 					console.error(f+": response is not OK");
 					window.alert(response);
 					throw new Error('Bad status code from server.');
 				}else if(print){
-					window.alert(f+": server response is OK");
+					console.log(f+": server response is OK");
 				}
 				if(print){
-					window.alert(f+": about to get JSON from response");
+					console.log(f+": about to get JSON from response");
 				}
 				return response.text().then(function(json){
 					if(!isset(json) || json == ""){
@@ -83,20 +83,19 @@ const subscribe = async function(){
 					let decoded = JSON.parse(json);
 					document.getElementById("pushSubscriptionKey").value = decoded.pushSubscriptionKey;
 					if(print){
-						window.alert(f+": returning json");
-						window.alert(json);
+						console.log(f+": returning json");
+						console.log(json);
 					}
 					console.log(f.concat("Push subscription was successful"));
 					return json;
 				}).catch(function(x){
-						error(f, x);
-						window.alert(response);
-						window.alert(f+": caught error with response.text()");
-						return null;
+					error(f, x);
+					window.alert(response);
+					window.alert(f+": caught error with response.text()");
+					return null;
 				});
 			}).catch(function(x){
 				error(f, x);
-				window.alert(response);
 				window.alert(f+": caught error");
 				return null;
 			});
@@ -216,7 +215,7 @@ const initializeBackgroundSync = async function(){
 	try{
 		let print = false;
 		if(print){
-			window.alert(f+": entered");
+			console.log(f+": entered");
 		}
 		let notify_form = document.getElementById("notify_form");
 		if(!isset(notify_form)){
@@ -226,47 +225,47 @@ const initializeBackgroundSync = async function(){
 		let init = notify_form.getAttribute("initialized");
 		if(init === 1){
 			if(print){
-				window.alert(f+": notification update form was already initialized");
+				console.log(f+": notification update form was already initialized");
 			}
 			return;
 		}else if(print){
-			window.alert(f+": initializing update check form");
+			console.log(f+": initializing update check form");
 		}
 		notify_form.addEventListener('check_update', ShortPollForm.poll);
 		if(print){
-			window.alert(f+": added update check event listener");
+			console.log(f+": added update check event listener");
 		}
 		if(!isPushEnabled()){
 			if(print){
-				window.alert(f+": push notifications are not enabled -- returning");
+				console.log(f+": push notifications are not enabled -- returning");
 			}
 			return;
 		}
 		if(!isset(navigator.serviceWorker)){
 			if(print){
-				window.alert(f+": navigator.serviceWorker is undefined");
+				console.log(f+": navigator.serviceWorker is undefined");
 			}
 			return;
 		}else if(typeof window.Notification === 'undefined'){
 			if(print){
-				window.alert(f+": looks like push notifications are unsupported on your device");
+				console.log(f+": looks like push notifications are unsupported on your device");
 			}
 			return;
 		}
 		//this is where all functions for interacting with the UI from within the service worker must go
 		navigator.serviceWorker.addEventListener('message', function(event){
 			if(print){
-				window.alert(f+": about to log event");
-				window.alert(event);
+				console.log(f+": about to log event");
+				console.log(event);
 			}
 			if(isset(event.data)){
 				if(print){
-					window.alert(f+": about to process media commands sent from service worker");
+					console.log(f+": about to process media commands sent from service worker");
 				}
 				switch(event.data.intent){
 					case "notificationclick":
 						if(print){
-							window.alert(f+": notification clicked -- you are now inside message event handler");
+							console.log(f+": notification clicked -- you are now inside message event handler");
 						}
 						let note_data = NotificationData.allocateNotificationDataStatic(
 							event.data, 
@@ -276,10 +275,10 @@ const initializeBackgroundSync = async function(){
 						break;
 					default:
 						if(print){
-							window.alert(f+": about to log event.data");
-							window.alert(event.data);
+							console.log(f+": about to log event.data");
+							console.log(event.data);
 							let type = typeof event.data;
-							window.alert(f.concat(": typeof event.data is \"").concat(type).concat("\""));
+							console.log(f.concat(": typeof event.data is \"").concat(type).concat("\""));
 						}
 						let callback = function(rt){
 							console.log(f.concat(": still inside initializeBackgroundSync. About to handle message event"));
@@ -291,22 +290,19 @@ const initializeBackgroundSync = async function(){
 						//return error(f, "Undefined intent \"".concat(event.data.intent).concat("\""));
 				}
 			}else if(print){
-				window.alert(f+": no media commands to process from service worker");
+				console.log(f+": no media commands to process from service worker");
 			}
 		});
-		
 		if(print){
-			window.alert(f+": added message event listener; about to register service worker");
+			console.log(f+": added message event listener; about to register service worker");
 		}
-		
-		navigator.serviceWorker.register('/script/'.concat(LOCALE).concat('/service-worker.js'));
-		
+		navigator.serviceWorker.register('/service-worker.js'.concat('?locale=').concat(LOCALE));
 		if(print){
-			window.alert(f+": called navigator.serviceWorker.register");
+			console.log(f+": called navigator.serviceWorker.register");
 		}
 		navigator.serviceWorker.ready.then(async function(registration){
 			if(print){
-				window.alert(f.concat(': service worker ready'));
+				console.log(f.concat(': service worker ready'));
 			}
 			let sub;
 			try{
@@ -318,7 +314,7 @@ const initializeBackgroundSync = async function(){
 			}catch(x){
 				console.error(f+": exception thrown requesting permission");
 				if(x instanceof TypeError){
-					window.alert(f+": lucky for you it's a TypeError, most likely the user is a Safari-using chump");
+					console.log(f+": lucky for you it's a TypeError, most likely the user is a Safari-using chump");
 					Notification.requestPermission(() => {
 						sub = registration.pushManager.getSubscription();
 					});
@@ -327,20 +323,20 @@ const initializeBackgroundSync = async function(){
 				}
 			}
 			if(print){
-				window.alert(f+": returning normally");
+				console.log(f+": returning normally from serviceWorker.ready");
 			}
 			return sub;
 		}).then(async function(subscription){
 			if(print){
-				window.alert(f+": attempted to subscribe, about to check whether a subscription already existed beforehand");
+				console.log(f+": attempted to subscribe, about to check whether a subscription already existed beforehand");
 			}
 			if(subscription){
 				if(print){
-					window.alert(f+': Already subscribed', subscription.endpoint);
+					console.log(f+': Already subscribed', subscription.endpoint);
 				}
 				//unsubscribe();
 			}else if(print){
-				window.alert(f+": no, you were not already subscribed");
+				console.log(f+": no, you were not already subscribed");
 			}
 			let json = subscribe();
 		}).catch(function(x){
@@ -348,7 +344,7 @@ const initializeBackgroundSync = async function(){
 			error(f, x);
 		});
 		if(print){
-			window.alert(f+": returning");
+			console.log(f+": returning");
 		}
 	}catch(x){
 		console.error(f+" exception: \""+x.toString()+"\"");

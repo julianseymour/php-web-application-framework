@@ -63,7 +63,7 @@ class Administrator extends AuthenticatedUser{
 		$f = __METHOD__;
 		parent::declareColumns($columns, $ds);
 		$body = new VirtualDatum("messageBody");
-		static::pushTemporaryColumnsStatic($columns, $body);
+		array_push($columns, $body);
 	}
 
 	public function encryptAdminCopy($data){
@@ -76,7 +76,7 @@ class Administrator extends AuthenticatedUser{
 
 	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::reconfigureColumns($columns, $ds);
-		$columns['accountType']->volatilize();
+		$columns['subtype']->volatilize();
 	}
 
 	public static function getTableNameStatic(): string{
@@ -99,10 +99,6 @@ class Administrator extends AuthenticatedUser{
 		return true;
 	}
 
-	public function getAttachmentsEnabled(): bool{
-		return true;
-	}
-
 	public static function getPrettyClassName():string{
 		return _("Administrator");
 	}
@@ -111,7 +107,7 @@ class Administrator extends AuthenticatedUser{
 		return _("Administrators");
 	}
 
-	public static function getAccountTypeStatic(){
+	public static function getAccountTypeStatic():string{
 		return ACCOUNT_TYPE_ADMIN;
 	}
 

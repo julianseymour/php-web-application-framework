@@ -7,7 +7,6 @@ use function JulianSeymour\PHPWebApplicationFramework\db;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\account\logout\LogoutUseCase;
 use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\BlobDatum;
@@ -21,13 +20,6 @@ use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 
 class PasswordDatum extends BlobDatum{
 
-	public function __construct($name = null){
-		if (empty($name)) {
-			$name = static::getColumnNameStatic();
-		}
-		parent::__construct($name);
-	}
-
 	public function getHumanReadableValue(){
 		return null;
 	}
@@ -38,10 +30,6 @@ class PasswordDatum extends BlobDatum{
 
 	public final function getSensitiveFlag():bool{
 		return true;
-	}
-
-	public static function getColumnNameStatic():string{
-		return "password";
 	}
 
 	public function hasMinimumLength():bool{
@@ -83,10 +71,10 @@ class PasswordDatum extends BlobDatum{
 				$crypto_sign_seed
 			);
 			$user->unsetColumnValues(
-				"privateKey_cipher", 
-				"privateKey_aesNonce", 
-				"signaturePrivateKey_cipher",
-				"sessionRecoveryNonce_cipher",
+				"privateKeyCipher", 
+				"privateKeyAesNonce", 
+				"signaturePrivateKeyCipher",
+				"sessionRecoveryNonceCipher",
 				...$data->getColumnNames()
 			);
 			$user->setReceptivity(DATA_MODE_RECEPTIVE);

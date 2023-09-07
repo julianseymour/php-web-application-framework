@@ -5,8 +5,10 @@ use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use JulianSeymour\PHPWebApplicationFramework\admin\AdminOnlyAccountTypePermission;
+use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
 use JulianSeymour\PHPWebApplicationFramework\app\Responder;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 
 class ClearUserCacheUseCase extends UseCase{
@@ -25,7 +27,7 @@ class ClearUserCacheUseCase extends UseCase{
 		}
 		$user = user();
 		$user_key = $user->getIdentifierValue();
-		if (cache()->enabled() && USER_CACHE_ENABLED) {
+		if(cache()->enabled() && USER_CACHE_ENABLED) {
 			if ($print) {
 				Debug::print("{$f} user cache is enabled");
 			}
@@ -65,6 +67,11 @@ class ClearUserCacheUseCase extends UseCase{
 	}
 
 	public function getPageContent(): ?array{
+		if(!user() instanceof Administrator){
+			return [
+				ErrorMessage::getVisualError(ERROR_EMPLOYEES_ONLY)
+			];
+		}
 		return [
 			new ClearUserCacheForm(ALLOCATION_MODE_LAZY)
 		];

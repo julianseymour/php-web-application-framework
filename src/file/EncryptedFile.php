@@ -10,6 +10,7 @@ use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\AsymmetricEncryptionS
 use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\MessageEncryptionScheme;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\Base64Datum;
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 use JulianSeymour\PHPWebApplicationFramework\datum\UrlDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
@@ -17,9 +18,13 @@ use JulianSeymour\PHPWebApplicationFramework\image\ImageData;
 use JulianSeymour\PHPWebApplicationFramework\image\ImageElement;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-abstract class EncryptedFile extends FileData implements StaticElementClassInterface{
+abstract class EncryptedFile extends FileData implements StaticElementClassInterface, StaticTableNameInterface{
 
+	use StaticTableNameTrait;
+	
 	protected $skipWrite = false;
 
 	protected $counterpartKey;
@@ -44,10 +49,14 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		return $this->hasColumnValue("fileAesKey");
 	}
 
-	public final function getSubtypeValue(): string{
+	public static function getSubtypeStatic(): string{
 		return "encrypted";
 	}
 
+	public function getSubtyoe():string{
+		return $this->getSubtypeStatic();
+	}
+	
 	public function getWebFileDirectory():string{
 		$f = __METHOD__;
 		$type = $this->getMimeType();
@@ -238,7 +247,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 	}
 
 	public function getAesKeyCipherIndex(string $vn):string{
-		return "{$vn}_aesKeyCipher";
+		return "{$vn}AesKeyCipher";
 	}
 
 	public function getMimeType():string{
@@ -377,16 +386,37 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		}
 	}
 
+	public static function reconfigureColumnEncryption(Datum $column):void{
+		switch($column->getName()){
+			case "mimeType":
+				$column->setEncryptionScheme(AsymmetricEncryptionScheme::class);
+				break;
+			case "filename":
+				$column->setEncryptionScheme(AsymmetricEncryptionScheme::class);
+				break;
+			case "originalFilename":
+				$column->setEncryptionScheme(MessageEncryptionScheme::class);
+				break;
+			case "size":
+				$column->setEncryptionScheme(AsymmetricEncryptionScheme::class);
+				break;
+			case 'fileHash':
+				$column->setEncryptionScheme(AsymmetricEncryptionScheme::class);
+				break;
+			default:
+		}
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
 		try {
 			parent::declareColumns($columns, $ds);
 
-			$columns["mimeType"]->setEncryptionScheme(AsymmetricEncryptionScheme::class);
+			/*$columns["mimeType"]->setEncryptionScheme(AsymmetricEncryptionScheme::class);
 			$columns["filename"]->setEncryptionScheme(AsymmetricEncryptionScheme::class);
 			$columns["originalFilename"]->setEncryptionScheme(MessageEncryptionScheme::class);
 			$columns["size"]->setEncryptionScheme(AsymmetricEncryptionScheme::class);
-			$columns['fileHash']->setEncryptionScheme(AsymmetricEncryptionScheme::class);
+			$columns['fileHash']->setEncryptionScheme(AsymmetricEncryptionScheme::class);*/
 
 			$file_aes_nonce = new Base64Datum("fileAesNonce");
 			$file_aes_key = new Base64Datum("fileAesKey");
@@ -404,13 +434,13 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 			$orientation = new VirtualDatum("orientation");
 			$mime_string = new VirtualDatum("mimeTypeString");
 			$correspondentKey = new VirtualDatum("correspondentKey");
-			static::pushTemporaryColumnsStatic($columns, $file_aes_nonce, $file_aes_key, $file_index_nonce, $metadataJson, $height, $width, $orientation, $mime_string, $correspondentKey);
+			array_push($columns, $file_aes_nonce, $file_aes_key, $file_index_nonce, $metadataJson, $height, $width, $orientation, $mime_string, $correspondentKey);
 		} catch (Exception $x) {
 			x($f, $x);
 		}
 	}
 
-	public function setSize($size){
+	public function setSize(int $size):int{
 		return $this->setColumnValue("size", $size);
 	}
 
@@ -418,7 +448,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		return $this->hasColumnValue("size");
 	}
 
-	public function getSize(){
+	public function getSize():int{
 		$f = __METHOD__;
 		if (! $this->hasSize()) {
 			Debug::error("{$f} size is undefined");

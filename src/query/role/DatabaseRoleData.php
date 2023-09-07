@@ -10,11 +10,14 @@ use JulianSeymour\PHPWebApplicationFramework\datum\CharDatum;
 use JulianSeymour\PHPWebApplicationFramework\query\DatabaseVersionTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class DatabaseRoleData extends DataStructure implements SQLInterface{
+class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTableNameInterface{
 
 	use DatabaseVersionTrait;
-
+	use StaticTableNameTrait;
+	
 	public static function create():DatabaseRoleData{
 		return new static();
 	}
@@ -91,7 +94,7 @@ class DatabaseRoleData extends DataStructure implements SQLInterface{
 		// Password_reuse_time
 		// Password_require_current
 		// User_attributes
-		static::pushTemporaryColumnsStatic($columns, $Host, $User, $plugin);
+		array_push($columns, $Host, $User, $plugin);
 	}
 
 	public static function getPrettyClassName():string{

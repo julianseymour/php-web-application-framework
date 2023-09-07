@@ -1,8 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\cookie;
 
 use JulianSeymour\PHPWebApplicationFramework\data\SuperGlobalData;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+
+ErrorMessage::deprecated(__FILE__);
 
 abstract class CookieData extends SuperGlobalData{
 
@@ -23,10 +26,5 @@ abstract class CookieData extends SuperGlobalData{
 			$datum->setValue(null);
 		}
 		return SUCCESS;
-	}
-
-	public static function getPhylumName(): string{
-		$f = __METHOD__;
-		ErrorMessage::unimplemented($f);
 	}
 }

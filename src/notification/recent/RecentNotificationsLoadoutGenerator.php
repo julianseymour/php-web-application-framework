@@ -34,7 +34,7 @@ class RecentNotificationsLoadoutGenerator extends LoadoutGenerator
 		}
 		if (defined("NOTIFICATION_TYPE_MESSAGE")) {
 			$statements['online'] = [
-				RetrospectiveNotificationData::class => RetrospectiveNotificationData::selectStatic()->where(new AndCommand(RetrospectiveNotificationData::whereIntersectionalHostKey(user()->getClass(), "userKey"), new WhereCondition("notificationType", OPERATOR_EQUALS)))
+				RetrospectiveNotificationData::class => RetrospectiveNotificationData::selectStatic()->where(new AndCommand(RetrospectiveNotificationData::whereIntersectionalHostKey(user()->getClass(), "userKey"), new WhereCondition("subtype", OPERATOR_EQUALS)))
 					->withParameters([
 					getCurrentUserKey(),
 					"userKey",

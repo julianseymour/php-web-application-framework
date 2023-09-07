@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\form;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -13,8 +14,7 @@ class FormRepeaterScriptElement extends ScriptElement
 
 	protected $superiorFormClass;
 
-	public function __construct(int $mode = ALLOCATION_MODE_UNDEFINED, $context = null, ?string $super_form_class = null, ?string $column_name = null)
-	{
+	public function __construct(int $mode = ALLOCATION_MODE_UNDEFINED, $context = null, ?string $super_form_class = null, ?string $column_name = null){
 		if ($super_form_class != null) {
 			$this->setSuperiorFormClass($super_form_class);
 		}
@@ -24,9 +24,8 @@ class FormRepeaterScriptElement extends ScriptElement
 		parent::__construct($mode, $context);
 	}
 
-	public function setSuperiorFormClass(?string $class): ?string
-	{
-		$f = __METHOD__; //FormRepeaterScriptElement::getShortClass()."(".static::getShortClass().")->setSuperiorFormClass()";
+	public function setSuperiorFormClass(?string $class): ?string{
+		$f = __METHOD__;
 		if ($class == null) {
 			unset($this->superiorFormClass);
 			return null;
@@ -36,23 +35,20 @@ class FormRepeaterScriptElement extends ScriptElement
 		return $this->superiorFormClass = $class;
 	}
 
-	public function hasSuperiorFormClass(): bool
-	{
+	public function hasSuperiorFormClass(): bool{
 		return isset($this->superiorFormClass);
 	}
 
-	public function getSuperiorFormClass(): string
-	{
-		$f = __METHOD__; //FormRepeaterScriptElement::getShortClass()."(".static::getShortClass().")->getSuperiorFormClass()";
+	public function getSuperiorFormClass(): string{
+		$f = __METHOD__;
 		if (! $this->hasSuperiorFormClass()) {
 			Debug::error("{$f} superior form class is undefined");
 		}
 		return $this->superiorFormClass;
 	}
 
-	public function generateChildNodes(): ?array
-	{
-		$f = __METHOD__; //FormRepeaterScriptElement::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
+	public function generateChildNodes(): ?array{
+		$f = __METHOD__;
 		$print = false;
 		$context = $this->getContext();
 		$temp_map = [];

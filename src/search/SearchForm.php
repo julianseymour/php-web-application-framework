@@ -82,7 +82,7 @@ class SearchForm extends AjaxForm{
 		$f = __METHOD__;
 		$context = $input->getContext();
 		$ds = $context->getDataStructure();
-		$vn = $context->getColumnName();
+		$vn = $context->getName();
 		switch ($vn) {
 			case "orderBy":
 				if ($ds->getSearchClassCount() > 1) {
@@ -164,12 +164,12 @@ class SearchForm extends AjaxForm{
 			$indices = [
 				"searchQuery" => SearchInput::class,
 				"autoSearch" => ToggleInput::class,
-				// "caseSensitive" => FancyCheckbox::class,
-				"searchMode" => FancyMultipleRadioButtons::class
+				//"caseSensitive" => FancyCheckbox::class,
+				//"searchMode" => FancyMultipleRadioButtons::class
 			];
 			$columns = $context->getColumns();
 			foreach ($columns as $c) {
-				$vn = $c->getColumnName();
+				$vn = $c->getName();
 				if ($c->getFlag("paginator")) {
 					// Debug::print("{$f} index \"{$vn}\" points to a datum contributed by Paginator");
 				} elseif (false !== array_search($vn, [

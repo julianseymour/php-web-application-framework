@@ -1,41 +1,38 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element;
 
 use JulianSeymour\PHPWebApplicationFramework\common\ReusableInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 
-abstract class CompoundElement extends Element
-{
+abstract class CompoundElement extends Element{
 
 	protected $components;
 
 	public abstract function generateComponents();
 
-	public function hasComponents(): bool
-	{
-		return ! empty($this->components);
+	public function hasComponents(): bool{
+		return !empty($this->components);
 	}
 
-	public function setComponents($components)
-	{
-		$f = __METHOD__; //CompoundElement::getShortClass()."(".static::getShortClass().")->setComponents()";
+	public function setComponents($components){
+		$f = __METHOD__;
 		if (! is_array($components) || empty($components)) {
 			Debug::error("{$f} invalid components");
 		}
 		return $this->components = $components;
 	}
 
-	public final function getComponents(): ?array
-	{
-		$f = __METHOD__; //CompoundElement::getShortClass()."(".static::getShortClass().")->getComponents()";
+	public final function getComponents(): ?array{
+		$f = __METHOD__;
 		$print = false;
 		if ($print) {
 			if ($this->hasContext()) {
 				$context = $this->getContext();
 				$cc = $context->getClass();
 				if ($context instanceof Datum) {
-					$cn = $context->getColumnName();
+					$cn = $context->getName();
 					Debug::print("{$f} context is a {$cc} named \"{$cn}\"");
 				} else {
 					Debug::print("{$f} context is a {$cc}");
@@ -62,9 +59,8 @@ abstract class CompoundElement extends Element
 		return $this->components;
 	}
 
-	public function echo(bool $destroy = false): void
-	{
-		$f = __METHOD__; //CompoundElement::getShortClass()."(".static::getShortClass().")->echo()";
+	public function echo(bool $destroy = false): void{
+		$f = __METHOD__;
 		$print = false;
 		$this->generateContents();
 		// XXX copied from Element->echo
@@ -147,39 +143,32 @@ abstract class CompoundElement extends Element
 		}
 	}
 
-	public function dispose(): void
-	{
+	public function dispose(): void{
 		parent::dispose();
 		unset($this->components);
 	}
 
-	public function hasComponent($name)
-	{
+	public function hasComponent(string $name):bool{
 		return $this->hasComponents() && array_key_exists($name, $this->components);
 	}
 
-	public function setComponent($name, $component)
-	{
+	public function setComponent(string $name, $component){
 		if (! isset($this->components) || ! is_array($this->components)) {
 			$this->components = [];
 		}
 		return $this->components[$name] = $component;
 	}
 
-	public function getComponent($component_name)
-	{
-		$f = __METHOD__; //CompoundElement::getShortClass()."(".static::getShortClass().")->getComponent()";
+	public function getComponent(string $component_name){
+		$f = __METHOD__;
 		if (! $this->hasComponents()) {
 			Debug::error("{$f} component \"{$component_name}\" is undefined");
 		}
 		return $this->components[$component_name];
 	}
 
-	public function echoJson(bool $destroy = false): void
-	{
-		$f = __METHOD__; //CompoundElement::getShortClass()."(".static::getShortClass().")->echoJson()";
-
-		// XXX copied from Element->echoJson
+	public function echoJson(bool $destroy = false): void{
+		$f = __METHOD__;
 		$print = false;
 		if ($this->getTemplateFlag()) {
 			Debug::print($this->__toString());

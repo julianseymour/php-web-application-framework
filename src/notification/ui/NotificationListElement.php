@@ -99,12 +99,6 @@ class NotificationListElement extends DivElement
 					$element = new $iec($mode, $note);
 					$element->setDisposeContextFlag(true);
 					$this->appendChild($element);
-					/*
-					 * if(!array_key_exists($note_type, $tab_counters)){
-					 * $tab_counters[$note_type] = 0;
-					 * }
-					 * $tab_counters[$note_type]++;
-					 */
 				}
 			}
 			// $this->setTabCounters($tab_counters);

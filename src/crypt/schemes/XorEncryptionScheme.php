@@ -1,18 +1,18 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt\schemes;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\CipherDatum;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 
-class XorEncryptionScheme extends EncryptionScheme
-{
+class XorEncryptionScheme extends EncryptionScheme{
 
-	public function generateComponents(?DataStructure $ds = null): array
-	{
+	public function generateComponents(?DataStructure $ds = null): array{
 		$datum = $this->getColumn();
-		$vn = $datum->getColumnName();
-		$cipher = new CipherDatum("{$vn}_cipher");
+		$vn = $datum->getName();
+		$cipher = new CipherDatum("{$vn}Cipher");
 		$cipher->setNullable(false);
 		$cipher->setNeverLeaveServer(true);
 		$cipher->setUserWritableFlag(true);
@@ -22,9 +22,8 @@ class XorEncryptionScheme extends EncryptionScheme
 		];
 	}
 
-	public static function transcrypt($value, $key)
-	{
-		$f = __METHOD__; //XorEncryptionScheme::getShortClass()."(".static::getShortClass().")->transcrypt()";
+	public static function transcrypt(string $value, string $key):?string{
+		$f = __METHOD__;
 		$value_length = strlen($value);
 		$key_length = strlen($key);
 		if ($value_length !== $key_length) {
@@ -33,46 +32,36 @@ class XorEncryptionScheme extends EncryptionScheme
 		return $value ^ $key;
 	}
 
-	public function generateEncryptionKey($datum)
-	{
+	public function generateEncryptionKey(Datum $datum){
 		return $this->extractTranscryptionKey($datum);
-		// $ds = $datum->getDataStructure();
-		// return $ds->getColumnValue($datum->getTranscryptionKeyName()); //extractTranscryptionKey($datum->getColumnName());
 	}
 
-	public final function generateNonce($datum)
-	{
+	public final function generateNonce(Datum $datum):?string{
 		return null;
 	}
 
-	public static function encrypt($value, $key, $nonce = null)
-	{
+	public static function encrypt(string $value, string $key, ?string $nonce = null):string{
 		return static::transcrypt($value, $key);
 	}
 
-	public static function decrypt($cipher, $key, $nonce = null)
-	{
+	public static function decrypt(string $cipher, string $key, ?string $nonce = null):?string{
 		return static::transcrypt($cipher, $key);
 	}
 
-	public function extractTranscryptionKey($datum)
-	{
+	public function extractTranscryptionKey(Datum $datum):?string{
 		$ds = $datum->getDataStructure();
-		return $ds->getColumnValue($datum->getTranscryptionKeyName()); // extractTranscryptionKey($datum->getColumnName());
+		return $ds->getColumnValue($datum->getTranscryptionKeyName());
 	}
 
-	public function extractDecryptionKey($datum)
-	{
+	public function extractDecryptionKey(Datum $datum):?string{
 		return $this->extractTranscryptionKey($datum);
 	}
 
-	public function extractEncryptionKey($datum)
-	{
+	public function extractEncryptionKey(Datum $datum):?string{
 		return $this->extractTranscryptionKey($datum);
 	}
 
-	public final function extractNonce($datum)
-	{
+	public final function extractNonce(Datum $datum):?String{
 		return null;
 	}
 }

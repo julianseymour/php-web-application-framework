@@ -25,7 +25,7 @@ trait ChoiceGeneratorTrait{
 		$f = __METHOD__;
 		if (! $this->hasChoiceGenerator()) {
 			if ($this instanceof Datum) {
-				$cn = $this->getColumnName();
+				$cn = $this->getName();
 				$dsc = $this->getDataStructureClass();
 				Debug::error("{$f} choice generator is undefined for column \"{$cn}\"; data structure class is \"{$dsc}\"");
 			}

@@ -21,8 +21,12 @@ use JulianSeymour\PHPWebApplicationFramework\file\CleartextFileData;
 use JulianSeymour\PHPWebApplicationFramework\image\ImageData;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-abstract class SpamEmail extends DataStructure implements StaticElementClassInterface{
+abstract class SpamEmail extends DataStructure implements StaticElementClassInterface, StaticTableNameInterface{
+	
+	use StaticTableNameTrait;
 	
 	protected $htmlContent;
 
@@ -50,7 +54,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 		$senderEmailAddress->setNullable(true);
 		$recipientEmailAddress = new EmailAddressDatum("recipientEmailAddress");
 		$accepted = new BooleanDatum("accepted");
-		static::pushTemporaryColumnsStatic($columns, $sender, $senderEmailAddress, $recipient, $recipientEmailAddress, $accepted);
+		array_push($columns, $sender, $senderEmailAddress, $recipient, $recipientEmailAddress, $accepted);
 	}
 
 	public function hasRecipient():bool{
