@@ -14,9 +14,6 @@ use JulianSeymour\PHPWebApplicationFramework\datum\DatumBundle;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\event\AfterSetForeignDataStructureEvent;
-use JulianSeymour\PHPWebApplicationFramework\query\QueryBuilder;
-use JulianSeymour\PHPWebApplicationFramework\query\join\TableFactor;
-use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 
 class MultilingualStringDatumBundle extends DatumBundle implements StaticElementClassInterface{
 	
@@ -64,26 +61,6 @@ class MultilingualStringDatumBundle extends DatumBundle implements StaticElement
 		$alias = $localized->getSubqueryTableAlias();
 		$idn = $localized->getSubqueryClass()::getIdentifierNameStatic();
 		$rcn = $localized->setReferenceColumnName("{$column_name}Key");
-		/*$idn2 = new GetDeclaredVariableCommand(
-			"multilingual_alias.".MultilingualStringData::getIdentifierNameStatic()
-		);
-		$where = new WhereCondition(
-			new GetDeclaredVariableCommand("{$alias}.{$idn}"),
-			OPERATOR_EQUALS,
-			null,
-			QueryBuilder::select($idn2)->from(
-				new TableFactor(
-					MultilingualStringData::getDatabaseNameStatic(),
-					MultilingualStringData::getTableNameStatic(),
-					"multilingual_alias"
-				)
-			)->where(
-				BinaryExpressionCommand::equals(
-					$idn2,
-					new GetDeclaredVariableCommand("t0.{$rcn}")
-				)
-			)
-		);*/
 		$where = BinaryExpressionCommand::equals(
 			new GetDeclaredVariableCommand("{$alias}.{$idn}"),
 			new GetDeclaredVariableCommand("t0.{$rcn}")
