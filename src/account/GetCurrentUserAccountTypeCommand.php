@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account;
 
 use function JulianSeymour\PHPWebApplicationFramework\getCurrentUserAccountType;
@@ -11,24 +12,17 @@ use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
  *
  * @author j
  */
-class GetCurrentUserAccountTypeCommand extends Command implements JavaScriptInterface, ValueReturningCommandInterface
-{
+class GetCurrentUserAccountTypeCommand extends Command implements JavaScriptInterface, ValueReturningCommandInterface{
 
-	public static function getCommandId(): string
-	{
-		return "subtype";
+	public static function getCommandId(): string{
+		return "accountType";
 	}
 
-	public function evaluate(?array $params = null)
-	{
+	public function evaluate(?array $params = null){
 		return getCurrentUserAccountType();
-		// $f = __METHOD__; //GetCurrentUserAccountTypeCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
-		// $user = user();
-		// return $user->getAccountType();
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		return "getCurrentUserAccountType()";
 	}
 }
