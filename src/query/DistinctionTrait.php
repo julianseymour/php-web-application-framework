@@ -10,10 +10,10 @@ trait DistinctionTrait{
 
 	public function setDistinction(?string $distinction):?string{
 		$f = __METHOD__;
-		if ($distinction == null) {
+		if($distinction == null) {
 			unset($this->distinction);
 			return null;
-		} elseif (! is_string($distinction)) {
+		}elseif(!is_string($distinction)) {
 			Debug::error("{$f} distinction must be a string");
 		}
 		$distinction = strtolower($distinction);
@@ -35,7 +35,7 @@ trait DistinctionTrait{
 
 	public function getDistinction():string{
 		$f = __METHOD__;
-		if (! $this->hasDistinction()) {
+		if(!$this->hasDistinction()) {
 			Debug::error("{$f} distinction is undefined");
 		}
 		return $this->distinction;

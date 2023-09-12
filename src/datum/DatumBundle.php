@@ -21,7 +21,7 @@ abstract class DatumBundle extends AbstractDatum{
 
 	public function __construct(?string $name = null, ?DataStructure $ds = null){
 		parent::__construct();
-		if (! empty($name)) {
+		if(!empty($name)) {
 			$this->setName($name);
 		}
 	}

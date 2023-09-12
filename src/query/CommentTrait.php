@@ -13,15 +13,15 @@ trait CommentTrait
 	public function setComment($comment)
 	{
 		$f = __METHOD__; //"CommentTrait(".static::getShortClass().")->setComment()";
-		try {
-			if ($comment == null) {
+		try{
+			if($comment == null) {
 				unset($this->commentString);
 				return null;
-			} elseif (! is_string($comment)) {
+			}elseif(!is_string($comment)) {
 				$comment = "{$comment}";
 			}
 			return $this->commentString = $comment;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -34,7 +34,7 @@ trait CommentTrait
 	public function getComment()
 	{
 		$f = __METHOD__; //"CommentTrait(".static::getShortClass().")->getComment()";
-		if (! $this->hasComment()) {
+		if(!$this->hasComment()) {
 			Debug::error("{$f} comment is undefined");
 		}
 		return $this->commentString;

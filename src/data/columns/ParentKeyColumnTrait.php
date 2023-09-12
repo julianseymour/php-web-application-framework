@@ -27,9 +27,9 @@ trait ParentKeyColumnTrait
 	public function getParentDataType()
 	{
 		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")->getParentDataType()";
-		if ($this->hasParentDataType()) {
+		if($this->hasParentDataType()) {
 			return $this->getColumnValue('parentDataType');
-		} elseif (! $this->hasParentObject()) {
+		}elseif(!$this->hasParentObject()) {
 			Debug::error("{$f} parent object is null");
 			return DATATYPE_UNKNOWN;
 		}
@@ -54,7 +54,7 @@ trait ParentKeyColumnTrait
 	public function getParentObjectClassName()
 	{
 		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")->getParentObjectClassName()";
-		if (! $this->hasParentObject()) {
+		if(!$this->hasParentObject()) {
 			Debug::error("{$f} parent object is undefined");
 		}
 		return $this->getParentObject()->getClass();
@@ -78,14 +78,14 @@ trait ParentKeyColumnTrait
 	public function getParentKey()
 	{
 		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")::getParentKey()";
-		if ($this->hasColumn('parentKey')) {
-			if ($this->hasColumnValue('parentKey')) {
+		if($this->hasColumn('parentKey')) {
+			if($this->hasColumnValue('parentKey')) {
 				return $this->getColumnValue('parentKey');
 			}
 		}
-		if ($this->hasParentObject()) {
+		if($this->hasParentObject()) {
 			$parent = $this->getParentObject();
-			if ($parent->hasIdentifierValue()) {
+			if($parent->hasIdentifierValue()) {
 				$key = $parent->getIdentifierValue();
 				return $this->setParentKey($key);
 			}
@@ -100,9 +100,9 @@ trait ParentKeyColumnTrait
 
 	public function isParentRequired()
 	{
-		if ($this->hasParentObject()) {
+		if($this->hasParentObject()) {
 			$parent = $this->getParentObject();
-		} else {
+		}else{
 			$parent = null;
 		}
 		return static::isParentRequiredStatic($parent);
@@ -117,7 +117,7 @@ trait ParentKeyColumnTrait
 	{
 		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")->getParentClass()";
 		$type = $this->getParentDataType();
-		if (! isset($type)) {
+		if(! isset($type)) {
 			Debug::error("{$f} parent data type is undefined");
 		}
 		return mods()->getDataStructureClass($type, $this);
@@ -151,8 +151,8 @@ trait ParentKeyColumnTrait
 
 	public function hasParentKey()
 	{
-		if ($this->hasParentObject()) {
-			if ($this->getParentObject()->hasIdentifierValue()) {
+		if($this->hasParentObject()) {
+			if($this->getParentObject()->hasIdentifierValue()) {
 				return true;
 			}
 		}
@@ -165,7 +165,7 @@ trait ParentKeyColumnTrait
 
 	public function setParentKey($key){
 		$f = __METHOD__;
-		if (empty($key)) {
+		if(empty($key)) {
 			Debug::warning("{$f} passed a null parameter");
 			return $this->setObjectStatus(ERROR_NULL_PARENT_KEY);
 		}
@@ -174,32 +174,32 @@ trait ParentKeyColumnTrait
 
 	public function getSiblingKeys(){
 		$f = __METHOD__;
-		try {
+		try{
 			$parent = $this->getParentObject();
 			$keys = [];
 			$phylum = $this->getPhylumName();
-			if (! $parent->hasForeignDataStructureList($phylum)) {
+			if(!$parent->hasForeignDataStructureList($phylum)) {
 				return [];
 			}
 			$siblings = $parent->getForeignDataStructureList($phylum);
-			if (empty($siblings)) {
+			if(empty($siblings)) {
 				return $keys;
 			}
-			foreach ($siblings as $sib) {
-				if ($sib->getIdentifierValue() === $this->getIdentifierValue()) {
+			foreach($siblings as $sib) {
+				if($sib->getIdentifierValue() === $this->getIdentifierValue()) {
 					continue;
 				}
 				array_push($keys, $sib->getIdentifierValue());
 			}
 			return $keys;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getParentName(){
 		$f = __METHOD__;
-		if ($this->hasParentObject()) {
+		if($this->hasParentObject()) {
 			return $this->getParentObject()->getName();
 		}
 		Debug::warning("{$f} parent object is undefined");
@@ -210,7 +210,7 @@ trait ParentKeyColumnTrait
 	public function getParentSerialNumber()
 	{
 		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")::getParentSerialNumber()";
-		if ($this->getParentObject() == null) {
+		if($this->getParentObject() == null) {
 			Debug::warning("{$f} parent object is null");
 			$this->setObjectStatus(ERROR_NULL_PARENT);
 			return null;

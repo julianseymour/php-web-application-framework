@@ -45,7 +45,7 @@ class SessionRecoveryCookie extends DataStructure{
 
 	public function getRecoveryKey(){
 		$f = __METHOD__;
-		if (! $this->hasRecoveryKey()) {
+		if(!$this->hasRecoveryKey()) {
 			Debug::error("{$f} recovery key is undefined");
 		}
 		return $this->getColumnValue(static::getRecoveryKeyColumnName());
@@ -69,25 +69,25 @@ class SessionRecoveryCookie extends DataStructure{
 
 	public function hasValidRecoveryData(){
 		$f = __METHOD__;
-		try {
-			if (! $this->hasRecoveryKey()) {
+		try{
+			if(!$this->hasRecoveryKey()) {
 				return false;
-			} elseif ($this->hasSessionRecoveryData()) {
+			}elseif($this->hasSessionRecoveryData()) {
 				$srd = $this->getSessionRecoveryData();
-			} else {
+			}else{
 				$recovery_key = $this->getRecoveryKey();
 				$mysqli = db()->getConnection(PublicReadCredentials::class);
 				$srd = new SessionRecoveryData();
 			}
 			$kit = $srd->unpack($mysqli, $recovery_key);
-			if (is_array($kit)) {
-				if (! $this->hasSessionRecoveryData()) {
+			if(is_array($kit)) {
+				if(!$this->hasSessionRecoveryData()) {
 					$this->setSessionRecoveryData($srd);
 				}
 				return true;
 			}
 			return false;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -102,23 +102,23 @@ class SessionRecoveryCookie extends DataStructure{
 
 	public function recoverSession():?PlayableUser{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			if (! isset($mysqli)) {
+			if(! isset($mysqli)) {
 				$err = ErrorMessage::getResultMessage(ERROR_MYSQL_CONNECT);
 				Debug::warning("{$f} {$err}");
 				return null;
 			}
 			// load session recovery data from database
 			$recovery_key = $this->getRecoveryKey();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} session recovery cookie has its recovery key set to \"{$recovery_key}\"");
 			}
 			$recovery_data = new SessionRecoveryData();
 			$recovery_data->setSessionRecoveryCookie($this);
 			$kit = $recovery_data->unpack($mysqli, $recovery_key);
-			if (! is_array($kit)) {
+			if(!is_array($kit)) {
 				$status = $recovery_data->getObjectStatus();
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} unpacking session recovery data with key \"{$recovery_key}\" returned error status \"{$err}\"");
@@ -134,7 +134,7 @@ class SessionRecoveryCookie extends DataStructure{
 			$idn = $user->getIdentifierName();
 			$result = $user->select()->where(new WhereCondition($idn, OPERATOR_EQUALS))->withTypeSpecifier($user->getColumn($idn)->getTypeSpecifier())->withParameters($user_key)->executeGetResult($mysqli);
 			$count = $result->num_rows;
-			if ($count !== 1) {
+			if($count !== 1) {
 				$result->free_result();
 				Debug::warning("{$f} {$user_class} with key \"{$user_key}\" count is {$count}");
 				return null;
@@ -144,59 +144,59 @@ class SessionRecoveryCookie extends DataStructure{
 			$results = $result->fetch_all(MYSQLI_ASSOC)[0];
 			$result->free_result();
 			$status = $user->processQueryResultArray($mysqli, $results);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} processQueryResultArray returned error status \"{$err}\"");
 				$user->setObjectStatus($status);
 				return null;
 			}
 			$status = $user->loadIntersectionTableKeys($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} loadIntersectionTableKeys returned error status \"{$err}\"");
 				$user->setObjectStatus($status);
 				return null;
-			} elseif (cache()->enabled() && USER_CACHE_ENABLED) {
+			}elseif(cache()->enabled() && USER_CACHE_ENABLED) {
 				if($print){
 					Debug::print("{$f} user cache is enabled, setting user cache value now");
 				}
 				$columns = $user->getFilteredColumns(COLUMN_FILTER_DIRTY_CACHE);
-				if (! empty($columns)) {
-					foreach ($columns as $column_name => $column) {
+				if(!empty($columns)) {
+					foreach($columns as $column_name => $column) {
 						$results[$column_name] = $column->getDatabaseEncodedValue();
 						$column->setDirtyCacheFlag(false);
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} there are no dirty cache flagged columns");
 				}
 				$user->setCacheValue($results);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} cache is disabled, skipping loaded user cache");
 			}
 			$user->setObjectStatus(SUCCESS);
 			$status = $user->loadForeignDataStructures($mysqli, false, 3);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} loading foreign data structures returned error status \"{$err}\"");
 				return null;
 			}
 			// create RecoveredAuthenticationData and set its user
 			$auth_data = new RecoveredAuthenticationData();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} deterministic secret key has hash " . sha1($deterministicSecretKey));
 			}
 			$auth_data->setDeterministicSecretKey($deterministicSecretKey);
 			$auth_data->handSessionToUser($user, LOGIN_TYPE_UNDEFINED);
 			// delete the old one
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			if (! isset($mysqli)) {
+			if(! isset($mysqli)) {
 				$err = ErrorMessage::getResultMessage(ERROR_MYSQL_CONNECT);
 				Debug::warning("{$f} {$err}");
 				return null;
 			}
 			$recovery_data->setUserData($user);
 			$status = $recovery_data->delete($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} deleting old session recovery data returned error status \"{$err}\"");
 				return null;
@@ -205,21 +205,21 @@ class SessionRecoveryCookie extends DataStructure{
 			$new_recovery_data = new SessionRecoveryData();
 			app()->setUserData($user);
 			$new_recovery_data->setUserData($user);
-			if ($recovery_data->getBindIpAddress()) {
+			if($recovery_data->getBindIpAddress()) {
 				$new_recovery_data->setBindIpAddress(true);
 			}
-			if ($recovery_data->getBindUserAgent()) {
+			if($recovery_data->getBindUserAgent()) {
 				$new_recovery_data->setBindUserAgent(true);
 			}
 			$status = $new_recovery_data->insert($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} inserting new session recovery data returned error status \"{$err}\"");
 				return null;
 			}
 			app()->setFlag("resumedSession", true);
 			return $user;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -241,7 +241,7 @@ class SessionRecoveryCookie extends DataStructure{
 		$recovery_data->setSessionRecoveryCookie($this);
 		$mysqli = db()->getConnection(PublicWriteCredentials::class);
 		$kit = $recovery_data->unpack($mysqli, $recovery_key);
-		if (! is_array($kit)) {
+		if(!is_array($kit)) {
 			$status = $recovery_data->getObjectStatus();
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} unpacking session recovery data with key \"{$recovery_key}\" returned error status \"{$err}\"");
@@ -250,19 +250,19 @@ class SessionRecoveryCookie extends DataStructure{
 		$recovery_data->setUserKey($kit["userKey"]);
 		$recovery_data->setUserAccountType($kit['userAccountType']);
 		$status = $recovery_data->loadForeignDataStructures($mysqli, false);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($this->setObjectStatus($status));
 			Debug::warning("{$f} loading foreign data structures returned error status \"{$err}\"");
 			return $this->getObjectStatus();
-		} elseif (! $recovery_data->hasUserData()) {
+		}elseif(!$recovery_data->hasUserData()) {
 			Debug::error("{$f} recovery data lacks user data");
 		}
-		if (user() instanceof AuthenticatedUser) {
-			if (! $recovery_data->hasUserAccountType()) {
+		if(user() instanceof AuthenticatedUser) {
+			if(!$recovery_data->hasUserAccountType()) {
 				$recovery_data->setUserAccountType(user()->getAccountType());
 			}
 			$status = $recovery_data->delete($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($this->setObjectStatus($status));
 				Debug::warning("{$f} deleting session recovery data returned error status \"{$err}\"");
 				return $this->getObjectStatus();

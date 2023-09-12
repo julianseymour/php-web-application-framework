@@ -12,7 +12,7 @@ trait FullTableNameTrait{
 
 	public function unpackTableName($dbtable){
 		$f = __METHOD__;
-		if (!isset($dbtable)) {
+		if(!isset($dbtable)) {
 			Debug::error("{$f} received null parameter");
 		}
 		$count = count($dbtable);

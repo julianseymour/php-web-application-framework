@@ -19,9 +19,9 @@ trait LimitOffsetTrait
 	public function setOffset($offsetRowCount): int
 	{
 		$f = __METHOD__; //"LimitOffsetTrait(".static::getShortClass().")->offsetRowCount()";
-		if (! $this->hasLimit()) {
+		if(!$this->hasLimit()) {
 			Debug::error("{$f} assign limit before assigning offset plz");
-		} elseif (empty($offsetRowCount) || ! is_int($offsetRowCount)) {
+		}elseif(empty($offsetRowCount) || ! is_int($offsetRowCount)) {
 			Debug::error("{$f} invalid offset value");
 		}
 		return $this->offsetRowCount = $offsetRowCount;
@@ -35,9 +35,9 @@ trait LimitOffsetTrait
 	public function getOffset(): int
 	{
 		$f = __METHOD__; //"LimitOffsetTrait(".static::getShortClass().")->getOffset()";
-		if (! $this->hasLimit()) {
+		if(!$this->hasLimit()) {
 			Debug::error("{$f} should not be here without a limit");
-		} elseif (! $this->hasOffset()) {
+		}elseif(!$this->hasOffset()) {
 			Debug::error("{$f} offset is undefined");
 		}
 		return $this->offsetRowCount;

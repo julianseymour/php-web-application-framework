@@ -23,7 +23,7 @@ class Permission extends Basic implements StaticPermissionGatewayInterface
 	{
 		parent::__construct();
 		$this->setName($name);
-		if (isset($closure)) {
+		if(isset($closure)) {
 			$this->setPermittanceClosure($closure);
 		}
 	}
@@ -31,10 +31,10 @@ class Permission extends Basic implements StaticPermissionGatewayInterface
 	public function setPermittanceClosure(?Closure $closure): ?Closure
 	{
 		$f = __METHOD__; //Permission::getShortClass()."(".static::getShortClass().")->setPermittanceClosure()";
-		if ($closure == null) {
+		if($closure == null) {
 			unset($this->permittanceClosure);
 			return null;
-		} elseif (! $closure instanceof Closure) {
+		}elseif(!$closure instanceof Closure) {
 			Debug::error("{$f} closure is not a valid closure");
 		}
 		return $this->permittanceClosure = $closure;
@@ -48,7 +48,7 @@ class Permission extends Basic implements StaticPermissionGatewayInterface
 	public function getPermittanceClosure()
 	{
 		$f = __METHOD__; //Permission::getShortClass()."(".static::getShortClass().")->getPermttanceClosure()";
-		if (! $this->hasPermittanceClosure()) {
+		if(!$this->hasPermittanceClosure()) {
 			Debug::error("{$f} permittance closure is undefined");
 		}
 		return $this->permittanceClosure;
@@ -62,7 +62,7 @@ class Permission extends Basic implements StaticPermissionGatewayInterface
 	public function getMinimumAccessLevel()
 	{
 		$f = __METHOD__; //Permission::getShortClass()."(".static::getShortClass().")->getMinimumAccessLevel()";
-		if (! $this->hasMinimumAccessLevel()) {
+		if(!$this->hasMinimumAccessLevel()) {
 			Debug::error("{$f} minimum access level is undefined");
 		}
 		return $this->minimumAccessLevel;
@@ -71,7 +71,7 @@ class Permission extends Basic implements StaticPermissionGatewayInterface
 	public function setMinimumAccessLevel($level)
 	{
 		$f = __METHOD__; //Permission::getShortClass()."(".static::getShortClass().")->setMinimumAccessLevel()";
-		if (! is_int($level)) {
+		if(!is_int($level)) {
 			Debug::error("{$f} minimum access level must be an integer");
 		}
 		return $this->minimumAccessLevel = $level;
@@ -82,9 +82,9 @@ class Permission extends Basic implements StaticPermissionGatewayInterface
 		$f = __METHOD__; //Permission::getShortClass()."(".static::getShortClass().")->permit()";
 		$closure = $this->getPermittanceClosure();
 		$status = $closure($user, $object, ...$params);
-		if (! is_int($status)) {
+		if(!is_int($status)) {
 			Debug::error("{$f} permittance closure must return an integer");
-		} elseif ($status !== SUCCESS) {
+		}elseif($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} {$err}");
 		}
@@ -100,10 +100,10 @@ class Permission extends Basic implements StaticPermissionGatewayInterface
 	public function setDenialClosure(?Closure $closure): ?Closure
 	{
 		$f = __METHOD__; //Permission::getShortClass()."(".static::getShortClass().")->setDenialClosure()";
-		if ($closure == null) {
+		if($closure == null) {
 			unset($this->denialClosure);
 			return null;
-		} elseif (! $closure instanceof Closure) {
+		}elseif(!$closure instanceof Closure) {
 			Debug::error("{$f} closure must be an instanceof Closure");
 		}
 		return $this->denialClosure = $closure;
@@ -117,7 +117,7 @@ class Permission extends Basic implements StaticPermissionGatewayInterface
 	public function getDenialClosure()
 	{
 		$f = __METHOD__; //Permission::getShortClass()."(".static::getShortClass().")->getDenialClosure()";
-		if (! $this->hasDenialClosure()) {
+		if(!$this->hasDenialClosure()) {
 			Debug::error("{$f} denial closure is undefined");
 		}
 		return $this->denialClosure;
@@ -126,15 +126,15 @@ class Permission extends Basic implements StaticPermissionGatewayInterface
 	protected function deny(UserData $user, object $object, ...$parameters)
 	{
 		$f = __METHOD__; //Permission::getShortClass()."(".static::getShortClass().")->deny()";
-		if ($this->hasDenialClosure()) {
+		if($this->hasDenialClosure()) {
 			$r = $this->getDenialClosure();
-			if (! $r instanceof Closure) {
+			if(!$r instanceof Closure) {
 				Debug::error("{$f} denial closure must be a closure");
 			}
 			$status = $r($user, $object, ...$parameters);
-			if (! is_int($status)) {
+			if(!is_int($status)) {
 				Debug::error("{$f} denial closure must return an integer");
-			} elseif ($status === SUCCESS) {
+			}elseif($status === SUCCESS) {
 				Debug::error("{$f} denial closure cannot return SUCCESS");
 			}
 			return $status;

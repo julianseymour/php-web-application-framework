@@ -15,10 +15,10 @@ class FormRepeaterScriptElement extends ScriptElement
 	protected $superiorFormClass;
 
 	public function __construct(int $mode = ALLOCATION_MODE_UNDEFINED, $context = null, ?string $super_form_class = null, ?string $column_name = null){
-		if ($super_form_class != null) {
+		if($super_form_class != null) {
 			$this->setSuperiorFormClass($super_form_class);
 		}
-		if ($column_name != null) {
+		if($column_name != null) {
 			$this->setColumnName($column_name);
 		}
 		parent::__construct($mode, $context);
@@ -26,10 +26,10 @@ class FormRepeaterScriptElement extends ScriptElement
 
 	public function setSuperiorFormClass(?string $class): ?string{
 		$f = __METHOD__;
-		if ($class == null) {
+		if($class == null) {
 			unset($this->superiorFormClass);
 			return null;
-		} elseif (! is_a($class, AjaxForm::class, true)) {
+		}elseif(!is_a($class, AjaxForm::class, true)) {
 			Debug::error("{$f} superior form class \"{$class}\" is not an AjaxForm");
 		}
 		return $this->superiorFormClass = $class;
@@ -41,7 +41,7 @@ class FormRepeaterScriptElement extends ScriptElement
 
 	public function getSuperiorFormClass(): string{
 		$f = __METHOD__;
-		if (! $this->hasSuperiorFormClass()) {
+		if(!$this->hasSuperiorFormClass()) {
 			Debug::error("{$f} superior form class is undefined");
 		}
 		return $this->superiorFormClass;
@@ -65,14 +65,14 @@ class FormRepeaterScriptElement extends ScriptElement
 		$sfc = $this->getSuperiorFormClass();
 		$form = new $sfc(ALLOCATION_MODE_TEMPLATE, $context);
 		$temp_map = $form->subindexNestedInputs($context->getColumn($column_name), $temp_structs);
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} subindexNestedInputs returned the following items:");
-			foreach ($temp_map as $name => $input) {
+			foreach($temp_map as $name => $input) {
 				Debug::print("{$f} {$name} : " . $input->getClass());
 			}
 		}
 		$temp_div->appendChild(...$form->getInternalFormElements($temp_map));
-		if ($temp_div->getChildNodeCount() > 1) {
+		if($temp_div->getChildNodeCount() > 1) {
 			Debug::error("{$f} this should only return a single child node");
 		}
 		$form_class = $form->getInputClass($column_name);

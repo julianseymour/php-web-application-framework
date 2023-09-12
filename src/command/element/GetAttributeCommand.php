@@ -17,14 +17,14 @@ class GetAttributeCommand extends ElementCommand implements ValueReturningComman
 		$f = __METHOD__; //GetAttributeCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct($element);
 		$this->setAttributeName($attr_name);
-		if (! $this->hasElement()) {
+		if(!$this->hasElement()) {
 			Debug::error("{$f} element is undefined");
 		}
 	}
 
 	public function setAttributeName($attr_name)
 	{
-		if ($attr_name == null) {
+		if($attr_name == null) {
 			unset($this->attributeName);
 			return null;
 		}
@@ -39,7 +39,7 @@ class GetAttributeCommand extends ElementCommand implements ValueReturningComman
 	public function getAttributeName()
 	{
 		$f = __METHOD__; //GetAttributeCommand::getShortClass()."(".static::getShortClass().")->getAttributeName()";
-		if (! $this->hasAttributeName()) {
+		if(!$this->hasAttributeName()) {
 			Debug::error("{$f} attribute name is undefined");
 		}
 		return $this->attributeName;
@@ -48,13 +48,13 @@ class GetAttributeCommand extends ElementCommand implements ValueReturningComman
 	public function toJavaScript(): string
 	{
 		$idc = $this->getIdCommandString();
-		if ($idc instanceof JavaScriptInterface) {
+		if($idc instanceof JavaScriptInterface) {
 			$idc = $idc->toJavaScript();
 		}
 		$attr_name = $this->getAttributeName();
-		if ($attr_name instanceof JavaScriptInterface) {
+		if($attr_name instanceof JavaScriptInterface) {
 			$attr_name = $attr_name->toJavaScript();
-		} elseif (is_string($attr_name) || $attr_name instanceof StringifiableInterface) {
+		}elseif(is_string($attr_name) || $attr_name instanceof StringifiableInterface) {
 			$attr_name = single_quote($attr_name);
 		}
 		return "{$idc}.getAttribute({$attr_name})";

@@ -33,14 +33,14 @@ class SetRoleStatement extends RoleStatement
 	{
 		$f = __METHOD__; //SetRoleStatement::getShortClass()."(".static::getShortClass().")->getRoleStatementString()";
 		$string = "role ";
-		if ($this->hasRoleType()) {
+		if($this->hasRoleType()) {
 			$string .= $this->getRoleType();
-		} elseif ($this->hasRoles()) {
-			if ($this->getAllExceptFlag()) {
+		}elseif($this->hasRoles()) {
+			if($this->getAllExceptFlag()) {
 				$string .= " all except";
 			}
 			$string .= " " . implode(',', $this->getRoles());
-		} else {
+		}else{
 			Debug::error("{$f} neither of the above");
 			return null;
 		}

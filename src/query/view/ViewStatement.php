@@ -27,13 +27,13 @@ abstract class ViewStatement extends QueryStatement implements SelectStatementIn
 	{
 		parent::__construct();
 		$this->requirePropertyType('columnNames', 's');
-		if ($db != null) {
+		if($db != null) {
 			$this->setDatabaseName($db);
 		}
-		if ($name !== null) {
+		if($name !== null) {
 			$this->setName($name);
 		}
-		if ($selectStatement !== null) {
+		if($selectStatement !== null) {
 			$this->setSelectStatement($selectStatement);
 		}
 	}
@@ -41,10 +41,10 @@ abstract class ViewStatement extends QueryStatement implements SelectStatementIn
 	public function setAlgorithm($alg)
 	{
 		$f = __METHOD__; //ViewStatement::getShortClass()."(".static::getShortClass().")->setAlgorithm()";
-		if ($alg == null) {
+		if($alg == null) {
 			unset($this->algorithmType);
 			return null;
-		} elseif (! is_string($alg)) {
+		}elseif(!is_string($alg)) {
 			Debug::error("{$f} algortihm must be a string");
 		}
 		$alg = strtolower($alg);
@@ -62,10 +62,10 @@ abstract class ViewStatement extends QueryStatement implements SelectStatementIn
 	public function setCheckOption($o)
 	{
 		$f = __METHOD__; //ViewStatement::getShortClass()."(".static::getShortClass().")->setCheckOption()";
-		if ($o == null) {
+		if($o == null) {
 			unset($this->checkOption);
 			return null;
-		} elseif (! is_string($o)) {
+		}elseif(!is_string($o)) {
 			Debug::error("{$f} check option must be a string");
 		}
 		$o = strtolower($o);
@@ -87,7 +87,7 @@ abstract class ViewStatement extends QueryStatement implements SelectStatementIn
 	public function getCheckOption()
 	{
 		$f = __METHOD__; //ViewStatement::getShortClass()."(".static::getShortClass().")->getCheckOption()";
-		if (! $this->hasCheckOption()) {
+		if(!$this->hasCheckOption()) {
 			Debug::error("{$f} check option is undefined");
 		}
 		return $this->checkOption;

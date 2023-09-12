@@ -19,8 +19,8 @@ abstract class AttributeCommand extends ElementCommand implements ServerExecutab
 	{
 		$f = __METHOD__; //AttributeCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct($element);
-		if (! empty($attributes)) {
-			if (! is_array($attributes)) {
+		if(!empty($attributes)) {
+			if(!is_array($attributes)) {
 				Debug::printStackTraceNoExit("{$f} received something that is not an array");
 			}
 			$this->setAttributes($attributes);
@@ -45,8 +45,8 @@ abstract class AttributeCommand extends ElementCommand implements ServerExecutab
 	public function setAttributes($attr)
 	{
 		$f = __METHOD__; //AttributeCommand::getShortClass()."(".static::getShortClass().")->setAttributes()";
-		foreach ($attr as $key => $value) {
-			if ($value instanceof UseCase) {
+		foreach($attr as $key => $value) {
+			if($value instanceof UseCase) {
 				Debug::error("{$f} attempting to set attribute \"{$key}\" to a UseCase");
 			}
 		}
@@ -62,11 +62,11 @@ abstract class AttributeCommand extends ElementCommand implements ServerExecutab
 	{
 		$f = __METHOD__; //AttributeCommand::getShortClass()."(".static::getShortClass().")->getAttribute()";
 		$print = false;
-		if (! $this->hasAttribute($key)) {
+		if(!$this->hasAttribute($key)) {
 			Debug::error("{$f} attribute \"{$key}\" is undefined");
 		}
 		$attr = $this->getArrayPropertyValue("attributes", $key);
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning \"{$attr}\"");
 		}
 		return $attr;

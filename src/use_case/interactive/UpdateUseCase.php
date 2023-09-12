@@ -15,16 +15,16 @@ class UpdateUseCase extends AbstractUpdateUseCase
 	{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} this is a regular update -- processing form");
 		}
 		$form = $this->getPredecessor()->getProcessedFormObject();
 		$files = null;
-		if (request()->hasRepackedIncomingFiles()) {
+		if(request()->hasRepackedIncomingFiles()) {
 			$files = request()->getRepackedIncomingFiles();
 		}
 		$post = getInputParameters();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} about to process the following parameters:");
 			// Debug::printArray($post);
 		}

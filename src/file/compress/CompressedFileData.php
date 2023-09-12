@@ -16,18 +16,18 @@ abstract class CompressedFileData extends CleartextFileData{
 		$f = __METHOD__;
 		$print = false;
 		$contents = static::extractAll($compressed_filename, $directory);
-		if ($directory === null) {
-			if ($print) {
+		if($directory === null) {
+			if($print) {
 				Debug::print("{$f} directory is null");
 			}
 			$directory = "tmp";
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} directory \"{$directory}\"");
 		}
 		$tempfilenames = [];
-		foreach ($contents as $filename => $data) {
+		foreach($contents as $filename => $data) {
 			@$tempfilename = tempnam($directory, static::getExtensionStatic());
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} tempfilename \"{$tempfilename}\"");
 			}
 			file_put_contents($tempfilename, $data);

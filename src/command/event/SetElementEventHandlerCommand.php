@@ -17,22 +17,22 @@ abstract class SetElementEventHandlerCommand extends SetEventHandlerCommand impl
 	{
 		$f = __METHOD__; //SetElementEventHandlerCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct($call_function);
-		if (is_string($element)) {
+		if(is_string($element)) {
 			// Debug::print("{$f} element is a string -- setting ID");
 			$this->setId($element);
 			$this->setElement($element);
-		} elseif ($element instanceof Element) {
-			if ($element->getDeletedFlag()) {
+		}elseif($element instanceof Element) {
+			if($element->getDeletedFlag()) {
 				Debug::error("{$f} element has already been deleted");
 			}
 			$this->setElement($element);
-		} elseif ($element instanceof ValueReturningCommandInterface) {
+		}elseif($element instanceof ValueReturningCommandInterface) {
 			// Debug::print("{$f} element is another command");
 			$this->setElement($element);
-			if ($element instanceof ConcatenateCommand) {
+			if($element instanceof ConcatenateCommand) {
 				$this->setId($element);
 			}
-		} else {
+		}else{
 			Debug::error("{$f} element is not string, element or media command");
 		}
 	}

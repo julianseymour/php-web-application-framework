@@ -11,19 +11,23 @@ class WidgetLabelIdsJavaScriptConstantUseCase extends LocalizedJavaScriptFileUse
 	
 	public function echoJavaScriptFileContents():void{
 		$f = __METHOD__;
-		try {
+		try{
 			$labels = [];
-			foreach (mods()->getWidgetClasses() as $class) {
+			foreach(mods()->getWidgetClasses() as $class) {
 				$wid = $class::getWidgetLabelId();
-				if ($wid == null) {
+				if($wid == null) {
 					continue;
 				}
 				array_push($labels, $wid);
 			}
 			$cmd = CommandBuilder::const("widgetLabelIds", $labels);
 			echo $cmd->toJavaScript().";\n";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
+	}
+	
+	public static function getFilename(): string{
+		return "widgets.js";
 	}
 }

@@ -22,7 +22,7 @@ class AddClassCommand extends ElementCommand implements ServerExecutableCommandI
 	public function __construct($element, ...$added_classes)
 	{
 		parent::__construct($element);
-		if (isset($added_classes) && ! empty($added_classes)) {
+		if(isset($added_classes) && ! empty($added_classes)) {
 			$this->setClassNames($added_classes);
 		}
 	}
@@ -40,7 +40,7 @@ class AddClassCommand extends ElementCommand implements ServerExecutableCommandI
 	public function getClassNames()
 	{
 		$f = __METHOD__; //AddClassCommand::getShortClass()."(".static::getShortClass().")->getClassNames()";
-		if (! $this->hasClassNames()) {
+		if(!$this->hasClassNames()) {
 			Debug::error("{$f} className is undefined");
 		}
 		return $this->getProperty("classNames");
@@ -57,25 +57,25 @@ class AddClassCommand extends ElementCommand implements ServerExecutableCommandI
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //AddClassCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$e = $this->getIdCommandString();
-			if ($e instanceof JavaScriptInterface) {
+			if($e instanceof JavaScriptInterface) {
 				$e = $e->toJavaScript();
 			}
 			$str = "";
-			foreach ($this->getClassNames() as $cn) {
-				if ($cn instanceof JavaScriptInterface) {
+			foreach($this->getClassNames() as $cn) {
+				if($cn instanceof JavaScriptInterface) {
 					$cn = $cn->toJavaScript();
-				} elseif (is_string($cn) || $cn instanceof StringifiableInterface) {
+				}elseif(is_string($cn) || $cn instanceof StringifiableInterface) {
 					$cn = "\"" . escape_quotes($cn, QUOTE_STYLE_DOUBLE) . "\"";
 				}
-				if ($str !== "") {
+				if($str !== "") {
 					$str .= ",";
 				}
 				$str = $cn;
 			}
 			return "{$e}.classList.add({$str})";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -89,7 +89,7 @@ class AddClassCommand extends ElementCommand implements ServerExecutableCommandI
 		}
 		$classes = $this->getClassNames();
 		$add_us = [];
-		foreach ($classes as $class) {
+		foreach($classes as $class) {
 			while ($class instanceof ValueReturningCommandInterface) {
 				$class = $class->evaluate();
 			}

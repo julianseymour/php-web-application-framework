@@ -20,7 +20,7 @@ class StringToLowerCaseCommand extends StringTransformationCommand
 		while ($subject instanceof Command) {
 			$subject = $subject->evaluate();
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} about to strtolower \"{$subject}\"");
 		}
 		return strtolower($subject);

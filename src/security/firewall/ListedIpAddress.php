@@ -40,7 +40,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 		switch ($name) {
 			case DIRECTIVE_INSERT:
 				return new Permission($name, function (PlayableUser $user, ListedIpAddress $object, ...$params) {
-					if ($object->hasList() && ! $object->isOwnedBy($user)) {
+					if($object->hasList() && ! $object->isOwnedBy($user)) {
 						return FAILURE;
 					}
 					return SUCCESS;
@@ -98,9 +98,9 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 
 	protected function afterGenerateInitialValuesHook(): int{
 		$f = __METHOD__;
-		if (! $this->hasLastAttemptObject()) {
+		if(!$this->hasLastAttemptObject()) {
 			$timestamp = time();
-		} else {
+		}else{
 			$attempt = $this->getLastAttemptObject();
 			$timestamp = $attempt->generateInsertTimestamp();
 		}
@@ -130,35 +130,35 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 	
 	public function cidrMatchYourself(?string $match_ip = null): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($match_ip === null) {
-				if ($print) {
+			if($match_ip === null) {
+				if($print) {
 					Debug::print("{$f} IP address not provided, assuming you want to match for the current IP address");
 				}
 				$match_ip = $_SERVER['REMOTE_ADDR'];
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} matching for IP address {$match_ip}");
 			}
-			if ($this->getObjectStatus() === STATUS_DELETED) {
-				if ($print) {
+			if($this->getObjectStatus() === STATUS_DELETED) {
+				if($print) {
 					Debug::print("{$f} this IP address is about to be deleted");
 				}
 				return RESULT_CIDR_UNMATCHED;
 			}
 			$range = $this->getCidrNotation();
-			if (! cidr_match($match_ip, $range)) {
-				if ($print) {
+			if(! cidr_match($match_ip, $range)) {
+				if($print) {
 					Debug::print("{$f} no match");
 				}
 				return RESULT_CIDR_UNMATCHED;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} CIDR match for IP range \"{$range}\"");
 			}
 			$list = $this->getList();
 			switch ($list) {
 				case POLICY_ALLOW:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} this IP address is whitelisted");
 					}
 					return SUCCESS;
@@ -166,15 +166,15 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 					Debug::warning("{$f} this IP address is blacklisted");
 					return ERROR_IP_ADDRESS_BLOCKED_BY_USER;
 				case POLICY_DEFAULT:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} default list policy");
 					}
 					$tco = $this->getUserData();
 					$policy = $tco->getFilterPolicy();
-					if ($policy === POLICY_BLOCK) {
+					if($policy === POLICY_BLOCK) {
 						Debug::warning("{$f} log it here and block them");
 						return ERROR_IP_ADDRESS_NOT_AUTHORIZED;
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} user does not have whitelist mode enabled");
 					}
 					return RESULT_CIDR_UNMATCHED;
@@ -182,22 +182,22 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 					Debug::error("{$f} illegal list policy \"{$list}\"");
 					return FAILURE;
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function preventSelfLockout(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$list = $this->getList();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} value is \"{$list}\" something other than whitelist");
 			}
 			$user = $this->getUserData();
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			if ($mysqli == null) {
+			if($mysqli == null) {
 				return $this->setObjectStatus(static::debugErrorStatic($f, ERROR_MYSQL_CONNECT));
 			}
 			$status = $user->filterIpAddress($mysqli, $_SERVER['REMOTE_ADDR']);
@@ -216,7 +216,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 					return $this->setObjectStatus($status);
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -233,7 +233,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::declareColumns($columns, $ds);
 			$mask = new CidrMaskDatum("mask", 8);
 			$list = new StringEnumeratedDatum("list", 8);
@@ -275,7 +275,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 				$columns, 
 				$mask, $list, $note, $attempted, $attempt_key, $attempt_result, $attempt_ts, $attempt_success, $cidr
 			);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -367,12 +367,12 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 	public function setLastAttemptObject($attempt){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} setting last attempt object");
 		}
 		$this->setLastAttemptDataType($attempt->getDataType());
 		$this->setLastAttemptSubtype($attempt->getSubtype());
-		if (! $attempt->hasIdentifierValue()) {
+		if(!$attempt->hasIdentifierValue()) {
 			$ip_address = $this;
 			$index = sha1(random_bytes(32));
 			$closure = function ($event, $target) use ($ip_address, $attempt, $index) {
@@ -387,35 +387,35 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 
 	public function getCidrNotation(){
 		$f = __METHOD__;
-		try {
+		try{
 			$ip = $this->getIpAddress();
-			if (preg_match(REGEX_IPv4_ADDRESS, $ip)) {
+			if(preg_match(REGEX_IPv4_ADDRESS, $ip)) {
 				$mask = $this->getMask();
-				if (! is_int($mask) || $mask < 0 || $mask > 32) {
+				if(!is_int($mask) || $mask < 0 || $mask > 32) {
 					Debug::error("{$f} illegal mask \"{$mask}\"");
 				}
-			} elseif (preg_match(REGEX_IPv6_ADDRESS, $ip)) {
+			}elseif(preg_match(REGEX_IPv6_ADDRESS, $ip)) {
 				Debug::error("{$f} IPV6 is unsupported");
-			} else {
+			}else{
 				Debug::warning("{$f} illegal IP address \"{$ip}\"");
 				return null;
 			}
 			return "{$ip}/{$mask}";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function setMask(int $mask): int{
 		$f = __METHOD__;
-		try {
-			if (! is_int($mask)) {
+		try{
+			if(!is_int($mask)) {
 				Debug::error("{$f} mask \"{$mask}\" is not an integer");
-			} elseif ($mask > 128) {
+			}elseif($mask > 128) {
 				Debug::error("{$f} illegal mask \"{$mask}\"");
 			}
 			return $this->setColumnValue("mask", $mask);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -457,7 +457,7 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 		$user = $this->getUserData();
 		$status = $user->filterIpAddress($mysqli, $_SERVER['REMOTE_ADDR'], true);
 		$this->setObjectStatus($backup);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} filterIpAddress returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
@@ -475,20 +475,20 @@ class ListedIpAddress extends StoredIpAddress implements EmailNoteworthyInterfac
 
 	protected function beforeInsertHook(mysqli $mysqli):int{
 		$f = __METHOD__;
-		if ($this->getList() === POLICY_BLOCK) {
+		if($this->getList() === POLICY_BLOCK) {
 			$user = user();
 			$phylum = ListedIpAddress::getPhylumName();
 			$children = user()->hasForeignDataStructureList($phylum) ? user()->getForeignDataStructureList($phylum) : [];
 			$children[$this->getIdentifierValue()] = $this;
 			$children = uasort($children, function ($a, $b) {
-				if ($a->getMask() > $b->getMask()) {
+				if($a->getMask() > $b->getMask()) {
 					return 1;
 				}
 				return - 1;
 			});
 			$user->setChildren($phylum, $children);
 			$status = $user->filterIpAddress($mysqli, $_SERVER['REMOTE_ADDR'], true);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} filterIpAddress returned error message \"{$err}\"");
 				return $this->setObjectStatus($status);

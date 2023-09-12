@@ -30,49 +30,49 @@ class ValidateAccountActivationCodeUseCase extends ValidateAuthenticatedConfirma
 
 	public function setObjectStatus(?int $status):?int{
 		$f = __METHOD__; 
-		try {
-			if ($status === ERROR_ALREADY_LOGGED) {
+		try{
+			if($status === ERROR_ALREADY_LOGGED) {
 				Debug::error("{$f} so what if I'm already logged in?");
 			}
 			return parent::setObjectStatus($status);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getPageContent(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} entered");
 			}
 			$status = $this->getObjectStatus();
-			if ($status === ERROR_MUST_LOGIN && ! Request::isXHREvent()) {
-				if ($print) {
+			if($status === ERROR_MUST_LOGIN && ! Request::isXHREvent()) {
+				if($print) {
 					Debug::print("{$f} about to return activation form");
 				}
 				$user_class = mods()->getUserClass(NormalUser::getAccountTypeStatic());
 				$context = new $user_class();
 				$form = new ActivationForm(ALLOCATION_MODE_LAZY, $context);
-				if (empty($form)) {
+				if(empty($form)) {
 					Debug::error("{$f} activation form returned null");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} returning a nifty form");
 				}
 				$this->setObjectStatus(SUCCESS);
 				return [
 					$form
 				];
-			} elseif ($print) {
+			}elseif($print) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::print("{$f} parent function returned error status \"{$err}\"");
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning parent function");
 			}
 			return parent::getPageContent();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -75,7 +75,7 @@ class AccountSettingsUseCase extends InteractiveUseCase
 
 	public function getProcessedDataType(): ?string
 	{
-		if (hasInputParameter('dispatch')) {
+		if(hasInputParameter('dispatch')) {
 			switch (getInputParameter('dispatch')) {
 				case SessionRecoverySettingsForm::getFormDispatchIdStatic():
 					return DATATYPE_SESSION_RECOVERY;
@@ -91,24 +91,24 @@ class AccountSettingsUseCase extends InteractiveUseCase
 		$f = __METHOD__;
 		$print = false;
 		$user = user();
-		if (static::getProcessedDataType() === DATATYPE_SESSION_RECOVERY) {
+		if(static::getProcessedDataType() === DATATYPE_SESSION_RECOVERY) {
 			$session = new SessionRecoveryData();
 			$session->setUserData($user);
 			$cookie = new SessionRecoveryCookie();
-			if ($cookie->hasRecoveryKey()) {
+			if($cookie->hasRecoveryKey()) {
 				$recovery_key = $cookie->getRecoveryKey();
 				$session->setIdentifierValue($recovery_key);
-				if ($session->unpack($mysqli, $recovery_key) !== null) {
+				if($session->unpack($mysqli, $recovery_key) !== null) {
 					$session->setObjectStatus(SUCCESS);
 					$cookie->setSessionRecoveryData($session);
-				} else {
+				}else{
 					$session->ejectIdentifierValue();
 				}
 			}
 			$this->setOriginalOperand($session->replicate());
 			return $this->setDataOperandObject($session);
-		} elseif ($print) {
-			if (! user()->hasProfileImageData()) {
+		}elseif($print) {
+			if(! user()->hasProfileImageData()) {
 				Debug::print("{$f} user lacks profile image data");
 			}
 		}
@@ -162,7 +162,7 @@ class AccountSettingsUseCase extends InteractiveUseCase
 	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
 		$print = false;
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			return parent::getResponder($status);
 		}
 		$directive = directive();
@@ -171,7 +171,7 @@ class AccountSettingsUseCase extends InteractiveUseCase
 			case DIRECTIVE_DELETE_FOREIGN:
 			case DIRECTIVE_INSERT:
 			case DIRECTIVE_VALIDATE:
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} directive is \"{$directive}\". Returning an update responder");
 				}
 				return new UpdateResponder(false);
@@ -188,7 +188,7 @@ class AccountSettingsUseCase extends InteractiveUseCase
 						}
 						return new ChangePasswordResponder();
 					case MfaSettingsForm::getFormDispatchIdStatic():
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} this is an update of the MFA settings form. Returning an UpdateResponder.");
 						}
 						return new UpdateResponder(false);

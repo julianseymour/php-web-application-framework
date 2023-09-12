@@ -59,7 +59,7 @@ class EmbeddedData extends DataStructure implements StaticDatabaseNameInterface{
 	public function getTableName(): string{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			$ret = $this->getSubsumingObject()->getTableName() . "_" . $this->getName();
 			Debug::print("{$f} returning \"{$ret}\"");
 		}
@@ -71,7 +71,7 @@ class EmbeddedData extends DataStructure implements StaticDatabaseNameInterface{
 	}
 
 	public function getJoinKey(): string{
-		if (! $this->hasJoinKey() && $this->hasSubsumingObject()) {
+		if(!$this->hasJoinKey() && $this->hasSubsumingObject()) {
 			return $this->setJoinKey($this->getSubsumingObject()
 				->getIdentifierValue());
 		}
@@ -109,10 +109,10 @@ class EmbeddedData extends DataStructure implements StaticDatabaseNameInterface{
 	protected function beforeSetForeignDataStructureHook(string $column_name, DataStructure $struct): int{
 		$f = __METHOD__;
 		$print = false;
-		if ($column_name === "joinKey") {
-			if (! $struct instanceof DataStructure) {
+		if($column_name === "joinKey") {
+			if(!$struct instanceof DataStructure) {
 				Debug::error("{$f} subsuming object must be a DataStructure");
-			} elseif ($struct instanceof EmbeddedData) {
+			}elseif($struct instanceof EmbeddedData) {
 				Debug::error("{$f} you cannot do nested embedded data");
 			}
 			$this->getColumn("joinKey")->setForeignDataStructureClass($struct->getClass());
@@ -122,7 +122,7 @@ class EmbeddedData extends DataStructure implements StaticDatabaseNameInterface{
 			 * $this->getColumn("joinKey")->constrain();
 			 * $this->getColumn("joinKey")->setIndexFlag(true);
 			 */
-			if ($struct->hasIdentifierValue()) {
+			if($struct->hasIdentifierValue()) {
 				$this->setJoinKey($struct->getIdentifierValue());
 			}
 		}
@@ -135,7 +135,7 @@ class EmbeddedData extends DataStructure implements StaticDatabaseNameInterface{
 
 	public function getSubsumingObject(): DataStructure{
 		$f = __METHOD__;
-		if (! $this->hasSubsumingObject()) {
+		if(!$this->hasSubsumingObject()) {
 			Debug::error("{$f} subsuming object is undefined");
 		}
 		return $this->getForeignDataStructure("joinKey");

@@ -28,17 +28,17 @@ class SubstituteCommand extends Command implements JavaScriptInterface, Stringif
 	public function __construct($subject, ...$substitutions){
 		$f = __METHOD__;
 		parent::__construct();
-		if (! isset($subject)) {
+		if(! isset($subject)) {
 			Debug::error("{$f} subject is undefined");
 		}
 		$this->setSubject($subject);
-		if (! $this->hasSubject()) {
+		if(!$this->hasSubject()) {
 			Debug::error("{$f} after setting string ID it is still undefined");
 		}
-		if (! empty($substitutions)) {
+		if(!empty($substitutions)) {
 			$arr = [];
-			foreach ($substitutions as $sub) {
-				if (is_array($sub)) {
+			foreach($substitutions as $sub) {
+				if(is_array($sub)) {
 					Debug::error("{$f} one of your substitutions is an array");
 				}
 				array_push($arr, $sub);
@@ -57,7 +57,7 @@ class SubstituteCommand extends Command implements JavaScriptInterface, Stringif
 
 	public function getSubject(){
 		$f = __METHOD__;
-		if (! $this->hasSubject()) {
+		if(!$this->hasSubject()) {
 			Debug::error("{$f} string ID is undefined");
 		}
 		return $this->subject;
@@ -84,7 +84,7 @@ class SubstituteCommand extends Command implements JavaScriptInterface, Stringif
 
 	public function echoInnerJson(bool $destroy = false): void{
 		Json::echoKeyValuePair('subject', $this->getSubject(), $destroy);
-		if ($this->hasSubstitutions()) {
+		if($this->hasSubstitutions()) {
 			Json::echoKeyValuePair('substitutions', $this->substitutions, $destroy);
 		}
 		parent::echoInnerJson($destroy);
@@ -99,7 +99,7 @@ class SubstituteCommand extends Command implements JavaScriptInterface, Stringif
 	public function toJavaScript(): string{
 		$f = __METHOD__;
 		$subject = $this->getSubject();
-		if ($subject instanceof JavaScriptInterface) {
+		if($subject instanceof JavaScriptInterface) {
 			$subject = $subject->toJavaScript();
 		}
 		if(is_string($subject)){
@@ -107,18 +107,18 @@ class SubstituteCommand extends Command implements JavaScriptInterface, Stringif
 		}
 		$cmd = $this->getCommandId();
 		$string = "{$cmd}({$subject}";
-		if ($this->hasSubstitutions()) {
+		if($this->hasSubstitutions()) {
 			$string .= ", [";
 			$count = 0;
-			foreach ($this->getSubstitutions() as $sub) {
-				if (is_array($sub)) {
+			foreach($this->getSubstitutions() as $sub) {
+				if(is_array($sub)) {
 					Debug::error("{$f} subsistution is an array");
-				} elseif ($count > 0) {
+				}elseif($count > 0) {
 					$string .= ", ";
 				}
-				if ($sub instanceof JavaScriptInterface) {
+				if($sub instanceof JavaScriptInterface) {
 					$sub = $sub->toJavaScript();
-				} elseif (is_string($sub) || $sub instanceof StringifiableInterface) {
+				}elseif(is_string($sub) || $sub instanceof StringifiableInterface) {
 					$sub = single_quote($sub);
 				}
 				$string .= $sub;

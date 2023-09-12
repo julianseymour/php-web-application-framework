@@ -35,10 +35,10 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	{
 		parent::__construct(); // ALLOCATION_MODE_UNDEFINED, null);
 		                       // $this->setRoutineType(ROUTINE_TYPE_FUNCTION);
-		if (isset($name)) {
+		if(isset($name)) {
 			$this->setName($name);
 		}
-		if (! empty($params)) {
+		if(!empty($params)) {
 			/*
 			 * $arr = [];
 			 * foreach($params as $param){
@@ -97,19 +97,19 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	private function getParamSignatureString()
 	{
 		$f = __METHOD__; //Routine::getShortClass()."(".static::getShortClass().")->getParamSignatureString()";
-		try {
-			if (! $this->hasParameters()) { // empty($this->paramSignature)){
+		try{
+			if(!$this->hasParameters()) { // empty($this->paramSignature)){
 				return "";
 			}
 			$string = "";
-			foreach ($this->getParameters() as $param) { // paramSignature as $param){
-				if (! empty($string)) {
+			foreach($this->getParameters() as $param) { // paramSignature as $param){
+				if(!empty($string)) {
 					$string .= ", ";
 				}
 				$string .= $param;
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -122,19 +122,19 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	public function getFunctionSignatureString()
 	{
 		$f = __METHOD__; //Routine::getShortClass()."(".static::getShortClass().")->getFunctionSignatureString()";
-		try {
+		try{
 			$string = "";
-			if ($this->hasRoutineType() && ! $this->getArrowFlag()) {
+			if($this->hasRoutineType() && ! $this->getArrowFlag()) {
 				$string .= $this->getRoutineTypeString();
 			}
 			$name = $this->hasName() ? " " . $this->getName() : null;
 			$params = $this->getParamSignatureString();
 			$string .= "{$name}({$params})";
-			if ($this->getArrowFlag()) {
+			if($this->getArrowFlag()) {
 				$string .= " => ";
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -142,7 +142,7 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	public function echoJson(bool $destroy = false): void
 	{
 		echo json_encode($this->toJavaScript());
-		if ($destroy) {
+		if($destroy) {
 			$this->dispose();
 		}
 	}
@@ -150,61 +150,61 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //Routine::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$print = false;
 
 			$cache = false;
-			if ($this->isCacheable() && JAVASCRIPT_CACHE_ENABLED) {
-				if (cache()->hasFile($this->getCacheKey() . ".js")) {
-					if ($print) {
+			if($this->isCacheable() && JAVASCRIPT_CACHE_ENABLED) {
+				if(cache()->hasFile($this->getCacheKey() . ".js")) {
+					if($print) {
 						Debug::print("{$f} cache hit");
 					}
 					return cache()->getFile($this->getCacheKey() . ".js");
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} cache miss");
 					}
 					$cache = true;
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this function is not cacheable");
 			}
 
 			// Debug::printStackTraceNoExit("{$f} entered");
 
 			$name = $this->hasName() ? $this->getName() : "anonymous";
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} echoing function \"{$name}\"");
 			}
 			$string = $this->getFunctionSignatureString() . "{\n";
-			if ($this->getArrowFlag()) {
-				foreach ($this->getSubcommands() as $num => $line) {
+			if($this->getArrowFlag()) {
+				foreach($this->getSubcommands() as $num => $line) {
 					$string .= "\t";
-					if ($line instanceof JavaScriptInterface) {
+					if($line instanceof JavaScriptInterface) {
 						$string .= $line->toJavaScript();
-					} elseif (is_string($line) || $string instanceof StringifiableInterface) {
+					}elseif(is_string($line) || $string instanceof StringifiableInterface) {
 						$string .= $line;
-					} else {
+					}else{
 						Debug::error("{$f} line {$num} is cannot be converted into javascript");
 					}
 					$string .= ";\n";
 				}
-			} else {
+			}else{
 				$dec = DeclareVariableCommand::let("f", "{$name}()");
 				$string .= "\t" . ($dec->toJavaScript()) . "\n";
 				$string .= TryCatchCommand::try(...$this->getSubcommands())->catch(CommandBuilder::return(CommandBuilder::call("error", new GetDeclaredVariableCommand("f"), new GetDeclaredVariableCommand("x"))))->toJavaScript();
 			}
 			$string .= "}\n";
-			if ($cache) {
+			if($cache) {
 				cache()->setFile($this->getCacheKey() . ".js", $string, time() + 30 * 60);
 			}
 
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning \"{$string}\"");
 			}
 
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -212,8 +212,8 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	public function toSQL(): string
 	{
 		$string = "begin ";
-		foreach ($this->getSubcommands() as $b) {
-			if ($b instanceof SQLInterface) {
+		foreach($this->getSubcommands() as $b) {
+			if($b instanceof SQLInterface) {
 				$b = $b->toSQL();
 			}
 			$string .= "{$b}";
@@ -230,7 +230,7 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	public function getRoutineTypeString()
 	{
 		$f = __METHOD__; //Routine::getShortClass()."(".static::getShortClass().")->getRoutineTypeString()";
-		if (! $this->hasRoutineType()) {
+		if(!$this->hasRoutineType()) {
 			return "";
 		}
 		$type = strtolower($this->getRoutineType());
@@ -248,7 +248,7 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	public function echo(bool $destroy = false): void
 	{
 		$js = $this->toJavaScript();
-		if ($destroy) {
+		if($destroy) {
 			$this->dispose();
 		}
 		echo $js;
@@ -257,7 +257,7 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	public function getScope(): Scope
 	{
 		$f = __METHOD__; //Routine::getShortClass()."(".static::getShortClass().")->getScope()";
-		if (! $this->hasScope()) {
+		if(!$this->hasScope()) {
 			return app()->getGlobalScope();
 		}
 		return $this->scope;
@@ -267,7 +267,7 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	{
 		$f = __METHOD__; //Routine::getShortClass()."(".static::getShortClass().")->evaluate()";
 		$ret = $this->resolve($params);
-		if ($ret !== null || $this->getReturnNullFlag()) {
+		if($ret !== null || $this->getReturnNullFlag()) {
 			return $ret;
 		}
 		$decl = $this->getDeclarationLine();
@@ -279,49 +279,49 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	{
 		$f = __METHOD__; //Routine::getShortClass()."(".static::getShortClass().")->resolveSubcommands()";
 		$print = false;
-		foreach ($commands as $cmd) {
-			if ($print) {
+		foreach($commands as $cmd) {
+			if($print) {
 				Debug::print("{$f} resolving a " . $cmd->getClass() . " declared " . $cmd->getDeclarationLine());
 			}
-			if ($cmd instanceof ScopedCommandInterface && $scope instanceof Scope) {
+			if($cmd instanceof ScopedCommandInterface && $scope instanceof Scope) {
 				$cmd->setParentScope($scope);
 			}
-			if ($cmd instanceof LoopCommand) {
+			if($cmd instanceof LoopCommand) {
 				Debug::error("{$f} resolution of loops is comletely unsupported, sorry");
 			}
-			if ($cmd instanceof ControlStatementCommand) {
-				if ($print) {
+			if($cmd instanceof ControlStatementCommand) {
+				if($print) {
 					Debug::print("{$f} " . $cmd->getClass() . " is a ControlStatementCommand");
 				}
 				$c2s = $cmd->getEvaluatedCommands();
 				$ret = $this->resolveSubcommands($c2s);
-				if ($ret !== null || $this->getReturnNullFlag()) {
-					if ($print) {
+				if($ret !== null || $this->getReturnNullFlag()) {
+					if($print) {
 						Debug::print("{$f} " . $cmd->getClass() . " returned non-null, or the return null flag is set");
 					}
 					return $ret;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} no return value yet");
 				}
-			} elseif ($cmd instanceof ReturnCommand) {
-				if ($print) {
+			}elseif($cmd instanceof ReturnCommand) {
+				if($print) {
 					Debug::print("{$f} command is a ReturnCommand");
 				}
 				$ret = $cmd->evaluate();
-				if ($ret === null) {
-					if ($print) {
+				if($ret === null) {
+					if($print) {
 						Debug::print("{$f} returning null");
 					}
 					$this->returnNull();
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} returning a non-null value");
 				}
 				return $ret;
-			} else {
+			}else{
 				$cmd->resolve();
 			}
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} did not encounter a ReturnCommand");
 		}
 		return null;
@@ -331,22 +331,22 @@ class Routine extends Command implements JavaScriptInterface, ValueReturningComm
 	{
 		$f = __METHOD__; //Routine::getShortClass()."(".static::getShortClass().")->resolve()";
 		$print = false;
-		if (! $this->hasScope()) {
+		if(!$this->hasScope()) {
 			$scope = $this->setScope(new Scope());
 			$scope->setParentScope(app()->getGlobalScope());
-			if (isset($params)) {
-				if ($print) {
+			if(isset($params)) {
+				if($print) {
 					$did = $scope->getDebugId();
 					Debug::print("{$f} assigning the following parameters to scope with debug ID \"{$did}\"");
 					Debug::printArray($params);
 				}
-				foreach ($params as $name => $value) {
+				foreach($params as $name => $value) {
 					$scope->setLocalValue($name, $value);
 				}
-			} else {
+			}else{
 				Debug::printStackTrace("{$f} no parameters");
 			}
-		} else {
+		}else{
 			$scope = $this->getScope();
 		}
 		return $this->resolveSubcommands($this->getSubcommands(), $scope);

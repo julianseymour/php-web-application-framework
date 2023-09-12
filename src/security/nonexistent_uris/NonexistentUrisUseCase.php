@@ -67,13 +67,13 @@ class NonexistentUrisUseCase extends InteractiveUseCase{
 	
 	public function getPageContent(): array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if($print){
 				Debug::print("{$f} entered");
 			}
 			$status = $this->getObjectStatus();
-			if ($status === ERROR_MUST_LOGIN) {
+			if($status === ERROR_MUST_LOGIN) {
 				if($print){
 					Debug::warning("{$f} not logged in");
 				}
@@ -81,9 +81,9 @@ class NonexistentUrisUseCase extends InteractiveUseCase{
 			}
 			$ret = [];
 			$user = user();
-			if (! isset($user)) {
+			if(! isset($user)) {
 				Debug::error("{$f} user data returned null");
-			} elseif ($status !== SUCCESS) {
+			}elseif($status !== SUCCESS) {
 				array_push($ret, ErrorMessage::getVisualError($status));
 			}
 			$mode = ALLOCATION_MODE_LAZY;
@@ -92,7 +92,7 @@ class NonexistentUrisUseCase extends InteractiveUseCase{
 				Debug::print("{$f} returning normally");
 			}
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -101,13 +101,13 @@ class NonexistentUrisUseCase extends InteractiveUseCase{
 		$directive = directive();
 		switch ($directive) {
 			case DIRECTIVE_UPDATE:
-				if ($status === SUCCESS) {
+				if($status === SUCCESS) {
 					$operand = $this->getDataOperandObject();
 					$backup = $this->getOriginalOperand();
-					if ($operand->getList() !== $backup->getList()) {
-						if ($directive === DIRECTIVE_INSERT) {
+					if($operand->getList() !== $backup->getList()) {
+						if($directive === DIRECTIVE_INSERT) {
 							return new InsertAfterResponder();
-						} elseif ($directive === DIRECTIVE_UPDATE) {
+						}elseif($directive === DIRECTIVE_UPDATE) {
 							return new AccountFirewallResponder();
 						}
 					}

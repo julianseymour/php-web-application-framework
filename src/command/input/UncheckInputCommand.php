@@ -17,7 +17,7 @@ class UncheckInputCommand extends ElementCommand implements ServerExecutableComm
 	public function toJavaScript(): string
 	{
 		$id = $this->getIdCommandString();
-		if ($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface) {
 			$id = $id->toJavaScript();
 		}
 		return "{$id}.checked = false";
@@ -29,7 +29,7 @@ class UncheckInputCommand extends ElementCommand implements ServerExecutableComm
 		while ($element instanceof ValueReturningCommandInterface) {
 			$element = $element->evaluate();
 		}
-		if ($element->isChecked()) {
+		if($element->isChecked()) {
 			$element->removeAttribute("checked");
 		}
 	}

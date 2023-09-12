@@ -27,7 +27,7 @@ class CidrIpAddressForm extends AjaxForm
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			$context = $this->getContext();
 			switch ($vn) {
@@ -35,23 +35,23 @@ class CidrIpAddressForm extends AjaxForm
 					$cidr_notation = _("CIDR notation");
 					$placeholder = _("IP address") . " ({$cidr_notation})";
 					$input->setLabelString($placeholder);
-					if (! $context->isUninitialized()) {
+					if(!$context->isUninitialized()) {
 						$input->setValueAttribute($context->getCidrNotation());
 					}
 					return SUCCESS;
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getDirectives(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$context = $this->getContext();
-			if ($context->isUninitialized()) {
+			if($context->isUninitialized()) {
 				return [
 					DIRECTIVE_INSERT
 				];
@@ -59,11 +59,11 @@ class CidrIpAddressForm extends AjaxForm
 			$submits = [
 				DIRECTIVE_UPDATE
 			];
-			if (! $context->getAccessAttempted()) {
+			if(!$context->getAccessAttempted()) {
 				array_push($submits, DIRECTIVE_DELETE);
 			}
 			return $submits;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

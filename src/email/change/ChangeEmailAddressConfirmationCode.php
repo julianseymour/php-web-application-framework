@@ -42,15 +42,15 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 
 	public function processDecryptedAdditionalDataArray($data_arr){
 		$f = __METHOD__;
-		try {
+		try{
 			parent::processDecryptedAdditionalDataArray($data_arr);
-			if (! array_key_exists("emailAddress", $data_arr)) {
+			if(! array_key_exists("emailAddress", $data_arr)) {
 				Debug::error("{$f} email address is undefined");
 			}
 			$new_email = $data_arr['emailAddress'];
 			$this->setNewEmailAddress($new_email);
 			return;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -58,7 +58,7 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 	public function setNewEmailAddress(string $email):string{
 		$f = __METHOD__;
 		$print = false;
-		if ($email == null) {
+		if($email == null) {
 			Debug::error("{$f} email address is null");
 		}elseif($print){
 			Debug::print("{$f} setting new email address to \"{$email}\"");
@@ -83,7 +83,7 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 
 	public function getNewEmailAddress(){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if(!$this->hasNewEmailAddress()){
 				if($print){
@@ -91,7 +91,7 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 				}
 				if(! user() instanceof AuthenticatedUser){
 					Debug::error("{$f} user is not logged in");
-				} elseif (! user()->hasEmailAddress()){
+				}elseif(! user()->hasEmailAddress()){
 					Debug::error("{$f} current user lacks an email address");
 				}
 				$email = user()->getEmailAddress();
@@ -99,7 +99,7 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 					Debug::error("{$f} email address is undefined");
 					$this->setObjectStatus(ERROR_EMAIL_UNDEFINED);
 					return null;
-				} elseif ($print){
+				}elseif($print){
 					Debug::print("{$f} setting email address to \"{$email}\"");
 				}
 				return $this->setNewEmailAddress($email);
@@ -137,11 +137,11 @@ class ChangeEmailAddressConfirmationCode extends AuthenticatedConfirmationCode{
 
 	protected function getConfirmationUriGetParameters(): array{
 		$f = __METHOD__;
-		try {
+		try{
 			$url_arr = parent::getConfirmationUriGetParameters();
 			$url_arr['emailAddress'] = $this->getNewEmailAddress(); // change email only
 			return $url_arr;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

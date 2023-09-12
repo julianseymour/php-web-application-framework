@@ -18,7 +18,7 @@ abstract class MultipartEmailContent extends EmailContent
 	public function __construct(...$children)
 	{
 		$this->setBoundary(uniqid($this->getPrefix()));
-		if (isset($children)) {
+		if(isset($children)) {
 			$this->setChildNodes($children);
 		}
 	}
@@ -26,7 +26,7 @@ abstract class MultipartEmailContent extends EmailContent
 	public function setChildNodes(?array $children): ?array
 	{
 		$children = $this->setArrayProperty("childNodes", $children);
-		if (! empty($children)) {
+		if(!empty($children)) {
 			$this->adoptChildNodes($children);
 		}
 		return $children;
@@ -36,17 +36,17 @@ abstract class MultipartEmailContent extends EmailContent
 	{
 		$f = __METHOD__; //MultipartEmailContent::getShortClass()."(".static::getShortClass().")->adoptChildNodes()";
 		$print = false;
-		if (is_array($children) && ! empty($children)) {
-			if ($print) {
+		if(is_array($children) && ! empty($children)) {
+			if($print) {
 				$count = count($children);
 				Debug::print("{$f} adopting {$count} child nodes");
 			}
-			foreach ($children as $child) {
-				if ($child instanceof EmailContent) {
+			foreach($children as $child) {
+				if($child instanceof EmailContent) {
 					$child->setParentNode($this);
 				}
 			}
-		} else {
+		}else{
 			Debug::error("{$f} this function accepts only non-empty arrays");
 		}
 		return $children;
@@ -70,7 +70,7 @@ abstract class MultipartEmailContent extends EmailContent
 	public function getBoundary(): string
 	{
 		$f = __METHOD__; //MultipartEmailContent::getShortClass()."(".static::getShortClass().")->getBoundary()";
-		if (! $this->hasBoundary()) {
+		if(!$this->hasBoundary()) {
 			Debug::error("{$f} boundary is undefined");
 		}
 		return $this->boundary;
@@ -79,7 +79,7 @@ abstract class MultipartEmailContent extends EmailContent
 	public function setBoundary(?string $boundary): ?string
 	{
 		// $f = __METHOD__; //MultipartEmailContent::getShortClass()."(".static::getShortClass().")->setBoundary()";
-		if ($boundary === null) {
+		if($boundary === null) {
 			unset($this->boundary);
 			return null;
 		}
@@ -92,18 +92,18 @@ abstract class MultipartEmailContent extends EmailContent
 		$ret = "";
 		$eol = "\r\n";
 		$boundary = $this->getBoundary();
-		if ($this->hasParentNode()) {
+		if($this->hasParentNode()) {
 			$content_type = $this->getContentType();
 			$ret .= "Content-Type:{$content_type}{$eol}";
 		}
 		// child nodes
-		if ($this->hasChildNodes()) {
-			foreach ($this->getChildNodes() as $child) {
+		if($this->hasChildNodes()) {
+			foreach($this->getChildNodes() as $child) {
 				// boundary 1+
 				$ret .= "{$eol}{$eol}--{$boundary}{$eol}";
 				$ret .= $child;
 			}
-		} else {
+		}else{
 			Debug::error("{$f} child nodes are undefined");
 		}
 		$ret .= "{$eol}{$eol}--{$boundary}{$eol}";

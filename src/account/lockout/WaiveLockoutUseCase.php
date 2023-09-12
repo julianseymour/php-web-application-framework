@@ -29,7 +29,7 @@ class WaiveLockoutUseCase extends ValidConfirmationCodeUseCase{
 
 	public function execute(): int{
 		$status = parent::execute();
-		if ($status === SUCCESS) {
+		if($status === SUCCESS) {
 			return RESULT_BFP_WAIVER_SUCCESS;
 		}
 		return $status;
@@ -38,28 +38,28 @@ class WaiveLockoutUseCase extends ValidConfirmationCodeUseCase{
 	public function getTransitionFromPermission(): Permission{
 		return new Permission(DIRECTIVE_TRANSITION_FROM, function (PlayableUser $user, UseCase $target, UseCase $predecessor) {
 			$f = __METHOD__; //"WaiveLockoutUseCase transition from permission closure";
-			try {
+			try{
 				$print = false;
-				if (! $predecessor instanceof ValidateLockoutCodeUseCase) {
-					if ($print) {
+				if(!$predecessor instanceof ValidateLockoutCodeUseCase) {
+					if($print) {
 						Debug::print("{$f} predecessor is the wrong class");
 					}
 					return FAILURE;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} predecessor has the right class");
 				}
 				$status = $predecessor->getObjectStatus();
-				if ($status !== SUCCESS) {
-					if ($print) {
+				if($status !== SUCCESS) {
+					if($print) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} predecessor has error status \"{$err}\"");
 					}
 					return $status;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} transition validated");
 				}
 				return SUCCESS;
-			} catch (Exception $x) {
+			}catch(Exception $x) {
 				x($f, $x);
 			}
 		});

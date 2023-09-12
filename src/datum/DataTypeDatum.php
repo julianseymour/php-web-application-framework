@@ -16,10 +16,10 @@ class DataTypeDatum extends StringEnumeratedDatum
 	public function setForeignKeyName(?string $name): ?string
 	{
 		$f = __METHOD__; //DataTypeDatum::getShortClass()."(".static::getShortClass().")->setForeingKeyName()";
-		if ($name == null) {
+		if($name == null) {
 			unset($this->foreignKeyName);
 			return null;
-		} elseif (! is_string($name)) {
+		}elseif(!is_string($name)) {
 			Debug::error("{$f} foreign key name must be a string");
 		}
 		return $this->foreignKeyName = $name;
@@ -33,7 +33,7 @@ class DataTypeDatum extends StringEnumeratedDatum
 	public function getForeignKeyName(): string
 	{
 		$f = __METHOD__; //DataTypeDatum::getShortClass()."(".static::getShortClass().")->getForeignKeyName()";
-		if (! $this->hasForeignKeyName()) {
+		if(!$this->hasForeignKeyName()) {
 			Debug::error("{$f} foreign key name is undefined");
 		}
 		return $this->foreignKeyName;
@@ -49,13 +49,13 @@ class DataTypeDatum extends StringEnumeratedDatum
 	{
 		$f = __METHOD__; //DataTypeDatum::getShortClass()."(".static::getShortClass().")->hasValidEnumerationMap()";
 		$print = false;
-		if ($this->hasForeignKeyName()) {
-			if ($print) {
+		if($this->hasForeignKeyName()) {
+			if($print) {
 				Debug::print("{$f} foreign key name is \"{$this->foreignKeyName}\"");
 			}
 			$foreignKey = $this->getDataStructure()->getColumn($this->getForeignKeyName());
 			return $foreignKey->hasForeignDataStructureClass() || $foreignKey->hasForeignDataStructureClassResolver();
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} foreign key name is undefined; returning parent function");
 		}
 		return parent::hasValidEnumerationMap();
@@ -65,27 +65,27 @@ class DataTypeDatum extends StringEnumeratedDatum
 	{
 		$f = __METHOD__; //DataTypeDatum::getShortClass()."(".static::getShortClass().")->getValidEnumerationMap()";
 		$print = false;
-		if ($this->hasForeignKeyName()) {
-			if ($print) {
+		if($this->hasForeignKeyName()) {
+			if($print) {
 				Debug::print("{$f} foreign key name is \"{$this->foreignKeyName}\"");
 			}
 			$foreignKey = $this->getDataStructure()->getColumn($this->getForeignKeyName());
-			if ($foreignKey->hasForeignDataStructureClass()) {
-				if ($print) {
+			if($foreignKey->hasForeignDataStructureClass()) {
+				if($print) {
 					Debug::print("{$f} foreign key datum has its foreign data structure class");
 				}
 				return [
 					$foreignKey->getForeignDataStructureClass()::getDataType()
 				];
-			} elseif ($foreignKey->hasForeignDataStructureClassResolver()) {
-				if ($print) {
+			}elseif($foreignKey->hasForeignDataStructureClassResolver()) {
+				if($print) {
 					Debug::print("{$f} foreign key datum has its class resolver");
 				}
 				return array_keys($foreignKey->getForeignDataStructureClassResolver()::getIntersections());
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} foreign key datum has neither a foreign data structure class nor a class resolver");
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} foreign key name is undefined; returning parent function");
 		}
 		return parent::getValidEnumerationMap();

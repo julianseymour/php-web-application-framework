@@ -30,7 +30,7 @@ class InfoBoxElement extends DivElement implements JavaScriptCounterpartInterfac
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__; //InfoBoxElement::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
-		try {
+		try{
 			$info_box_check = new CheckboxInput();
 			$info_box_check->addClassAttribute("hidden");
 			$info_box_check->setIdAttribute("info_box_check");
@@ -61,7 +61,7 @@ class InfoBoxElement extends DivElement implements JavaScriptCounterpartInterfac
 			// $script->setInnerHTML("InfoBoxElement.initializeInfoBox();");
 			// $this->appendChild($script);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -17,7 +17,7 @@ class ToolBelt extends CompoundElement{
 
 	public function generateComponents(): ?array{
 		$f = __METHOD__; //ToolBelt::getShortClass()."(".static::getShortClass().")->generateComponents()";
-		try {
+		try{
 			$print = false;
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
@@ -26,7 +26,7 @@ class ToolBelt extends CompoundElement{
 			$style = new StyleElement();
 			$containers = [];
 			$count = 0;
-			foreach ($widgets as $wc) {
+			foreach($widgets as $wc) {
 				$name = $wc::getWidgetName();
 				$cid = "{$name}_widget_container";
 				$c = new WidgetContainer(ALLOCATION_MODE_EAGER); // new DivElement($mode);
@@ -47,19 +47,19 @@ class ToolBelt extends CompoundElement{
 					$index = 1;
 				}
 				$widget = $c->getChildNode($index);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} widget is a " . get_class($widget) . " that was declared on " . $widget->getDeclarationLine());
 				}
 				// style properties for container ID
 				$negative = $wc::getClosedDisplayProperties();
-				if (! empty($negative)) {
+				if(!empty($negative)) {
 					$style->appendChild(CssRule::rule()->withSelectors(ElementSelector::id("widget-{$name}")->not(new PseudoclassSelector("checked"))
 						->sibling(ElementSelector::id($cid))
 						->child(ElementSelector::id($widget->getIdAttribute())))
 						->withStyleProperties($negative));
 				}
 				$positive = $wc::getOpenDisplayProperties();
-				if (! empty($positive)) {
+				if(!empty($positive)) {
 					$style->appendChild(CssRule::rule()->withSelectors(ElementSelector::id("widget-{$name}")->checked()
 						->sibling(ElementSelector::id($cid))
 						->child(ElementSelector::id($widget->getIdAttribute())))
@@ -74,18 +74,18 @@ class ToolBelt extends CompoundElement{
 				$button->setNameAttribute("widget");
 				// widget containers
 				$c->pushPredecessor($button->generateInput($choice));
-				if ($icon_class !== null) {
+				if($icon_class !== null) {
 					$icon = $c->getChildNode(0);
 					$iid = $icon->getIdAttribute();
 					$negative = $icon_class::getClosedDisplayProperties();
-					if (! empty($negative)) {
+					if(!empty($negative)) {
 						$style->appendChild(CssRule::rule()->withSelectors(ElementSelector::id("widget-{$name}")->not(new PseudoclassSelector("checked"))
 							->sibling(ElementSelector::elementClass("widget_container"))
 							->child(ElementSelector::id($iid)))
 							->withStyleProperties($negative));
 					}
 					$positive = $icon_class::getOpenDisplayProperties();
-					if (! empty($positive)) {
+					if(!empty($positive)) {
 						$style->appendChild(CssRule::rule()->withSelectors(ElementSelector::id("widget-{$name}")->checked()
 							->sibling(ElementSelector::elementClass("widget_container"))
 							->child(ElementSelector::id($iid)))
@@ -101,7 +101,7 @@ class ToolBelt extends CompoundElement{
 				$button->generateInput($none),
 				...array_values($containers)
 			);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

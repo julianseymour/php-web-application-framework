@@ -25,7 +25,7 @@ abstract class AccessControlPanelElement extends DivElement
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__; //AccessControlPanelElement::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
-		try {
+		try{
 			$print = false;
 			$context = $this->getContext();
 			$ds_class = $this->getDataStructureClass();
@@ -43,8 +43,8 @@ abstract class AccessControlPanelElement extends DivElement
 			$ip_whitelist->appendChild($div1);
 			$form_class = $this->getFormClass();
 			$counter = 0;
-			foreach ($arr as $ip) {
-				if ($ip->getList() !== POLICY_ALLOW) {
+			foreach($arr as $ip) {
+				if($ip->getList() !== POLICY_ALLOW) {
 					if($print){
 						Debug::print("{$f} this is not a whitelisted IP address");
 					}
@@ -70,8 +70,8 @@ abstract class AccessControlPanelElement extends DivElement
 			$div2->setInnerHTML(_("Blocked IP addresses"));
 			$ip_blacklist->appendChild($div2);
 			$counter = 0;
-			foreach ($arr as $ip) {
-				if ($ip->getList() !== POLICY_BLOCK) {
+			foreach($arr as $ip) {
+				if($ip->getList() !== POLICY_BLOCK) {
 					if($print){
 						Debug::print("{$f} this is not a blacklisted IP address");
 					}
@@ -97,14 +97,14 @@ abstract class AccessControlPanelElement extends DivElement
 			$div3->setInnerHTML(_("Unauthorized IP addresses"));
 			$ip_graylist->appendChild($div3);
 			$counter = 0;
-			foreach ($arr as $ip) {
-				if ($ip->isUninitialized()) {
+			foreach($arr as $ip) {
+				if($ip->isUninitialized()) {
 					if($print){
 						$decl = $ip->getDeclarationLine();
 						Debug::print("{$f} skipping uninitialized ".$ds_class::getPrettyClassName()." declared {$decl}");
 					}
 					continue;
-				} elseif ($ip->getList() !== POLICY_DEFAULT) {
+				}elseif($ip->getList() !== POLICY_DEFAULT) {
 					if($print){
 						Debug::print("{$f} this is not an unauthorized IP address");
 					}
@@ -120,7 +120,7 @@ abstract class AccessControlPanelElement extends DivElement
 			$ip_graylist->appendChild($nothing_here);
 			$this->appendChild($ip_graylist);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

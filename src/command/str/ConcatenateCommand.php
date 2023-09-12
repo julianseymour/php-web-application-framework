@@ -29,13 +29,13 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 		$strings = [
 			$s1
 		];
-		if (! empty($more)) {
-			foreach ($more as $s) {
+		if(!empty($more)) {
+			foreach($more as $s) {
 				array_push($strings, $s);
 			}
 		}
 		$this->setStrings($strings);
-		if (! $this->hasStrings()) {
+		if(!$this->hasStrings()) {
 			Debug::error("{$f} strings are mandatory");
 		}
 	}
@@ -81,32 +81,32 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 
 	public function toJavaScript(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$q = $this->getQuoteStyle();
 			$strings = $this->getStrings();
 			$string = $strings[0];
-			if ($string instanceof JavaScriptInterface) {
+			if($string instanceof JavaScriptInterface) {
 				$string = $string->toJavaScript();
-			} elseif (is_string($string) || $string instanceof StringifiableInterface) {
+			}elseif(is_string($string) || $string instanceof StringifiableInterface) {
 				$string = escape_quotes($string, $q);
 				$string = "{$q}{$string}{$q}";
 			}
 			for ($i = 1; $i < count($strings); $i ++) {
 				$s = $strings[$i];
-				if ($s instanceof JavaScriptInterface) {
+				if($s instanceof JavaScriptInterface) {
 					$s = $s->toJavaScript();
-				} elseif (is_string($s) || $s instanceof StringifiableInterface) {
+				}elseif(is_string($s) || $s instanceof StringifiableInterface) {
 					$s = escape_quotes($s, $q);
 					$s = "{$q}{$s}{$q}";
 				}
 				$string .= ".concat({$s})";
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} after concatenating string {$i}, we have \"{$string}\"");
 				}
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -116,8 +116,8 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 		try{
 			$strings = $this->getStrings();
 			$value = "";
-			foreach ($strings as $s) {
-				if ($s instanceof ValueReturningCommandInterface) {
+			foreach($strings as $s) {
+				if($s instanceof ValueReturningCommandInterface) {
 					while ($s instanceof ValueReturningCommandInterface) {
 						$s = $s->evaluate();
 					}

@@ -25,12 +25,12 @@ class SetTextContentCommand extends ElementCommand
 		$f = __METHOD__; //SetTextContentCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		$print = false;
 		parent::__construct($element);
-		if ($textContent !== null) {
-			if ($print) {
+		if($textContent !== null) {
+			if($print) {
 				Debug::print("{$f} setting text content to \"{$textContent}\"");
 			}
 			$this->setTextContent($textContent);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} text content is null");
 		}
 	}
@@ -51,23 +51,23 @@ class SetTextContentCommand extends ElementCommand
 	{
 		$f = __METHOD__; //SetTextContentCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
 		$print = false;
-		try {
+		try{
 			$id = $this->getIdCommandString();
-			if ($id instanceof JavaScriptInterface) {
+			if($id instanceof JavaScriptInterface) {
 				$id = $id->toJavaScript();
 			}
 			$textContent = $this->getTextContent();
-			if ($textContent instanceof JavaScriptInterface) {
+			if($textContent instanceof JavaScriptInterface) {
 				$textContent = $textContent->toJavaScript();
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} after string conversion, textContent is \"{$textContent}\"");
 				}
-			} elseif (is_string($textContent) || $textContent instanceof StringifiableInterface) {
+			}elseif(is_string($textContent) || $textContent instanceof StringifiableInterface) {
 				$q = $this->getQuoteStyle();
 				$textContent = "{$q}" . escape_quotes($textContent, $q) . "{$q}";
 			}
 			return "{$id}.textContent = {$textContent}";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

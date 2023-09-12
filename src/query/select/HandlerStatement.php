@@ -22,36 +22,36 @@ class HandlerStatement extends WhereConditionalStatement
 
 		// HANDLER tbl_name READ index_name
 		$string = "handler ";
-		if ($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()) {
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
 		$string .= back_quote($this->getTableName()) . " read ";
-		if ($this->hasIndexName()) {
+		if($this->hasIndexName()) {
 			$string .= $this->getIndexName() . " ";
 			// { = | <= | >= | < | > } (value1,value2,...)
-			if ($this->hasOperator()) {
+			if($this->hasOperator()) {
 				$string .= $this->getOperator() . " (";
 				for ($i = 0; $i < $this->getParameterCount(); $i ++) {
-					if ($i > 0) {
+					if($i > 0) {
 						$string .= ",";
 					}
 					$string .= "?";
 				}
 				$string .= ")";
-			} elseif ($this->hasIndexPosition()) { // { FIRST | NEXT | PREV | LAST }
+			}elseif($this->hasIndexPosition()) { // { FIRST | NEXT | PREV | LAST }
 				$string .= " " . $this->getIndexPosition();
 			}
-		} elseif ($this->hasIndexPosition()) { // HANDLER tbl_name READ { FIRST | NEXT }
+		}elseif($this->hasIndexPosition()) { // HANDLER tbl_name READ { FIRST | NEXT }
 			$string .= " " . $this->getIndexPosition();
 		}
 		// [ WHERE where_condition ]
-		if ($this->hasWhereCondition()) {
+		if($this->hasWhereCondition()) {
 			$string .= " where " . $this->getWhereCondition();
 		}
 		// [LIMIT ... ]
-		if ($this->hasLimit()) {
+		if($this->hasLimit()) {
 			$string .= " limit " . $this->getLimit();
-			if ($this->hasOffset()) {
+			if($this->hasOffset()) {
 				$string .= " offset " . $this->getOffset();
 			}
 		}

@@ -14,14 +14,14 @@ class InitializeFormCommand extends ElementCommand
 	{
 		$f = __METHOD__; //InitializeFormCommand::getShortClass()."(".static::getShortClass().")->setElement()";
 		$print = false;
-		if ($element instanceof Element) {
-			if (! $element->hasIdAttribute()) {
+		if($element instanceof Element) {
+			if(!$element->hasIdAttribute()) {
 				Debug::error("{$f} element lacks an ID attribute");
-			} elseif ($print) {
+			}elseif($print) {
 				$id = $element->getIdAttribute();
 				Debug::print("{$f} element has ID \"{$id}\"");
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} element is not an element");
 		}
 		return parent::setElement($element);
@@ -49,7 +49,7 @@ class InitializeFormCommand extends ElementCommand
 	public function echoInnerJson(bool $destroy = false): void
 	{
 		$f = __METHOD__; //InitializeFormCommand::getShortClass()."(".static::getShortClass().")->echoInnerJson()";
-		if (! $this->hasId()) {
+		if(!$this->hasId()) {
 			Debug::error("{$f} this command cannot be executed without an ID");
 		}
 		$form = $this->getElement();
@@ -64,15 +64,15 @@ class InitializeFormCommand extends ElementCommand
 		$string = "";
 		$element = $this->getElement();
 		$id = $element->getIdOverride();
-		if ($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface) {
 			$id = $id->toJavaScript();
 		}
 		$callback_success = $element->getSuccessCallback();
-		if ($callback_success instanceof JavaScriptInterface) {
+		if($callback_success instanceof JavaScriptInterface) {
 			$callback_success = $callback_success->toJavaScript();
 		}
 		$callback_error = $element->getErrorCallback();
-		if ($callback_error instanceof JavaScriptInterface) {
+		if($callback_error instanceof JavaScriptInterface) {
 			$callback_error = $callback_error->toJavaScript();
 		}
 		$string .= "AjaxForm.setFormSubmitHandler({$id}, {$callback_success}, {$callback_error})";

@@ -25,7 +25,7 @@ class AddIndexOption extends AlterOption
 	public function toSQL(): string
 	{
 		$index = $this->getIndexDefinition();
-		if ($index instanceof SQLInterface) {
+		if($index instanceof SQLInterface) {
 			$index = $index->toSQL();
 		}
 		return "add {$index}";

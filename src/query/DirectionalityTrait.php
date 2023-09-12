@@ -11,10 +11,10 @@ trait DirectionalityTrait
 	public function setDirectionality($directionality)
 	{
 		$f = __METHOD__; //"DirectionalityTrait(".static::getShortClass().")->setDirectionality()";
-		if ($directionality == null) {
+		if($directionality == null) {
 			unset($this->directionality);
 			return null;
-		} elseif (! is_string($directionality)) {
+		}elseif(!is_string($directionality)) {
 			Debug::error("{$f} directionality is must be a string");
 		}
 		$directionality = strtolower($directionality);
@@ -35,7 +35,7 @@ trait DirectionalityTrait
 	public function getDirectionality()
 	{
 		$f = __METHOD__; //"DirectionalityTrait(".static::getShortClass().")->getDirectionality()";
-		if (! $this->hasDirectionality()) {
+		if(!$this->hasDirectionality()) {
 			Debug::error("{$f} directionality is undefined");
 		}
 		return $this->directionality;

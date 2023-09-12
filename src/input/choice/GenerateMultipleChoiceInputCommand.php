@@ -23,10 +23,10 @@ implements AllocationModeInterface, NodeBearingCommandInterface{
 	
 	public function __construct($element, $generator, ...$params){
 		parent::__construct($element);
-		if ($generator !== null) {
+		if($generator !== null) {
 			$this->setChoiceGenerator($generator);
 		}
-		if (isset($params)) {
+		if(isset($params)) {
 			$this->setParameters($params);
 		}
 	}
@@ -46,7 +46,7 @@ implements AllocationModeInterface, NodeBearingCommandInterface{
 
 	public function incrementVariableName(int &$counter){
 		$f = __METHOD__;
-		if (! $this->hasElement()) {
+		if(!$this->hasElement()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} element is undefined. Declared {$decl}");
 		}
@@ -59,27 +59,27 @@ implements AllocationModeInterface, NodeBearingCommandInterface{
 
 	public function toJavaScript(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! $this->hasChoiceGenerator()) {
+			if(!$this->hasChoiceGenerator()) {
 				Debug::error("{$f} choice generator is undefined");
 			}
 			$e = $this->getElement();
-			if ($print) {
+			if($print) {
 				$ec = $e->getClass();
 				$did = $e->getDebugId();
 				$decl = $e->getDeclarationLine();
 				Debug::print("{$f} element is a {$ec} with debug ID {$did}, declared {$decl}");
 			}
 			$cg = $this->getChoiceGenerator();
-			if (! $cg->hasGeneratedFunction()) {
+			if(!$cg->hasGeneratedFunction()) {
 				$cg->setGeneratedFunction($cg->generate(null));
 			}
 			$gf = $cg->getGeneratedFunction();
 			$params = $cg->getClientSideChoiceGenerationParameters($e);
-			if ($e instanceof SelectInput) {
+			if($e instanceof SelectInput) {
 				$fn = "generateSelectOptions";
-			} elseif ($e instanceof MultipleChoiceInput) {
+			}elseif($e instanceof MultipleChoiceInput) {
 				$ec2 = $e->getElementClass();
 				switch ($ec2) {
 					case OptionElement::class:
@@ -98,7 +98,7 @@ implements AllocationModeInterface, NodeBearingCommandInterface{
 			}
 			$cf = new CallFunctionCommand($fn, $e, new CallFunctionCommand($gf->getName(), ...$params));
 			return $cf->toJavaScript();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

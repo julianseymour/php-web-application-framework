@@ -15,10 +15,10 @@ abstract class ValidConfirmationCodeUseCase extends SubsequentUseCase{
 
 	public function validateTransition(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$status = parent::validateTransition();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} parent function returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -26,7 +26,7 @@ abstract class ValidConfirmationCodeUseCase extends SubsequentUseCase{
 				Debug::print("{$f} parent function successful");
 			}
 			$predecessor = $this->getPredecessor();
-			if (! $predecessor instanceof ValidateConfirmationCodeUseCase) {
+			if(!$predecessor instanceof ValidateConfirmationCodeUseCase) {
 				$pc = $predecessor->getClass();
 				Debug::error("{$f} predecessor has invalid class \"{$pc}\"");
 				return $this->setObjectStatus(ERROR_PREDECESSOR_CLASS);
@@ -34,7 +34,7 @@ abstract class ValidConfirmationCodeUseCase extends SubsequentUseCase{
 				Debug::print("{$f} predecessor is a validate confirmation code use case");
 			}
 			$status = $predecessor->getObjectStatus();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} predecessor has error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -43,7 +43,7 @@ abstract class ValidConfirmationCodeUseCase extends SubsequentUseCase{
 			}
 			$confirmation_code = $predecessor->getConfirmationCodeObject();
 			$status = $confirmation_code->getObjectStatus();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} confirmation code has error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -52,7 +52,7 @@ abstract class ValidConfirmationCodeUseCase extends SubsequentUseCase{
 			}
 			$this->transitionValidated = true;
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

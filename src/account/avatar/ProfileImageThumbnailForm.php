@@ -38,7 +38,7 @@ class ProfileImageThumbnailForm extends AjaxForm{
 	public function bindContext($context){
 		$f = __METHOD__;
 		$print = false;
-		if ($context->getDataType() !== DATATYPE_USER) {
+		if($context->getDataType() !== DATATYPE_USER) {
 			Debug::error("{$f} this is not the client object");
 			$context = $context->getUserData();
 		}
@@ -67,14 +67,14 @@ class ProfileImageThumbnailForm extends AjaxForm{
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$inputs = parent::getAdHocInputs();
 			$hidden = new HiddenInput($this->getAllocationMode());
 			$hidden->setIgnoreDatumSensitivity(true);
 			$hidden->setNameAttribute("profile_image");
 			$inputs[$hidden->getNameAttribute()] = $hidden;
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -84,7 +84,7 @@ class ProfileImageThumbnailForm extends AjaxForm{
 		$names = [
 			DIRECTIVE_UPDATE
 		];
-		if ($this->getContext()->hasProfileImageKey()) {
+		if($this->getContext()->hasProfileImageKey()) {
 			array_push($names, DIRECTIVE_DELETE_FOREIGN);
 		}
 		return $names;

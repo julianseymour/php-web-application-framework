@@ -20,62 +20,62 @@ class EncryptedImageUseCase extends OpenFileUseCase{
 
 	public function acquireFileObject(mysqli $mysqli){
 		$f = __METHOD__;
-		try {
+		try{
 			$user = user();
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
-			if (! isset($mysqli)) {
+			if(! isset($mysqli)) {
 				Debug::error("{$f} mysqli object returned null");
 				$this->setObjectStatus(ERROR_MYSQL_CONNECT);
 				return null;
 			}
 			$image = new RetrospectiveEncryptedFile();
-			if ($image == null) {
+			if($image == null) {
 				Debug::error("{$f} message returned null");
 			}
 			$image->setUserData($user);
 			$image->setTableName($image->getTableNameStatic());
 			$segments = request()->getRequestURISegments();
-			if (empty($segments)) {
+			if(empty($segments)) {
 				Debug::error("{$f} request URI segments array is empty");
 			}
 			$image_key = $segments[1];
-			if (empty($image_key)) {
+			if(empty($image_key)) {
 				Debug::warning("{$f} image key is empty");
 				Debug::printArray($segments);
 				Debug::printStackTrace();
 			}
 			$status = $image->loadFromKey($mysqli, $image_key);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} loading image with key {$image_key} returned error status \"{$err}\"");
 				$this->setObjectStatus($status);
 				return null;
 			}
 			$status = $image->getObjectStatus();
-			if ($status === ERROR_NOT_FOUND) {
+			if($status === ERROR_NOT_FOUND) {
 				Debug::error("{$f} image not found");
 				$this->setObjectStatus($status);
 				return null;
-			} elseif ($status !== SUCCESS) {
+			}elseif($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} loaded image has error status \"{$err}\"");
 				$this->setObjectStatus($status);
 				return null;
 			}
 			return $image;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function echoResponse(): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$user = user();
-			if ($user == null) {
+			if($user == null) {
 				Debug::error("{$f} user data returned null");
 				$this->echoResponse(ERROR_NULL_USER_OBJECT);
-			} elseif ($user instanceof AnonymousUser || ! $user->isEnabled()) {
+			}elseif($user instanceof AnonymousUser || ! $user->isEnabled()) {
 				Debug::warning("{$f} user is not enabled or you are not logged in");
 				$image = imagecreatefrompng("rca.png");
 				imagepng($image);
@@ -83,7 +83,7 @@ class EncryptedImageUseCase extends OpenFileUseCase{
 				// exit();
 			}
 			parent::echoResponse();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

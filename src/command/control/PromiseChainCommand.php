@@ -23,7 +23,7 @@ class PromiseChainCommand extends Command implements JavaScriptInterface, Static
 		$f = __METHOD__;
 		parent::__construct();
 		$this->setExpression($expr);
-		if (! $this->hasExpression()) {
+		if(!$this->hasExpression()) {
 			Debug::error("{$f} expression is undefined");
 		}
 	}
@@ -36,10 +36,10 @@ class PromiseChainCommand extends Command implements JavaScriptInterface, Static
 
 	public function setCatchHandler(?JavaScriptFunction $catch): ?JavaScriptFunction{
 		$f = __METHOD__;
-		if ($catch == null) {
+		if($catch == null) {
 			unset($this->catchHandler);
 			return null;
-		} elseif (! $catch instanceof JavaScriptFunction) {
+		}elseif(!$catch instanceof JavaScriptFunction) {
 			Debug::error("{$f} catch handler must be a javascript function");
 		}
 		return $this->catchHandler = $catch;
@@ -51,7 +51,7 @@ class PromiseChainCommand extends Command implements JavaScriptInterface, Static
 
 	public function getCatchHandler(): JavaScriptFunction{
 		$f = __METHOD__;
-		if (! $this->hasCatchHandler()) {
+		if(!$this->hasCatchHandler()) {
 			Debug::error("{$f} catch handler is undefined");
 		}
 		return $this->catchHandler;
@@ -82,27 +82,27 @@ class PromiseChainCommand extends Command implements JavaScriptInterface, Static
 	public function toJavaScript(): string{
 		$f = __METHOD__;
 		$expr = $this->getExpression();
-		if (is_string($expr)) {
+		if(is_string($expr)) {
 			$expr = single_quote($expr);
-		} elseif ($expr instanceof JavaScriptInterface) {
+		}elseif($expr instanceof JavaScriptInterface) {
 			$expr = $expr->toJavaScript();
 		}
 		$string = "{$expr}";
-		foreach ($this->getPromiseSignatures() as $settler) {
+		foreach($this->getPromiseSignatures() as $settler) {
 			$string .= ".then(";
-			if ($settler instanceof JavaScriptInterface) {
+			if($settler instanceof JavaScriptInterface) {
 				$string .= $settler->toJavaScript();
-			} else {
+			}else{
 				Debug::error("{$f} settler is not convertible to javascript");
 			}
 			$string .= ")";
 		}
-		if ($this->hasCatchHandler()) {
+		if($this->hasCatchHandler()) {
 			$string .= ".catch(";
 			$catch = $this->getCatchHandler();
-			if ($catch instanceof JavaScriptInterface) {
+			if($catch instanceof JavaScriptInterface) {
 				$string .= $catch->toJavaScript();
-			} else {
+			}else{
 				Debug::error("{$f} catch handler is not convertible to javascript");
 			}
 		}

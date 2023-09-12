@@ -46,11 +46,11 @@ abstract class DatabaseCredentials extends UserOwned{
 			"userNormalizedName",
 			"userTemporaryRole"
 		];
-		foreach ($indices as $index) {
-			if ($print) {
+		foreach($indices as $index) {
+			if($print) {
 				Debug::print("{$f} about to volatilize a column \"{$index}\"");
 			}
-			if (! array_key_exists($index, $columns)) {
+			if(! array_key_exists($index, $columns)) {
 				Debug::printArray($columns);
 				Debug::error("{$f} key \"{$index}\" does not exist");
 			}

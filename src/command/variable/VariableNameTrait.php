@@ -10,7 +10,7 @@ trait VariableNameTrait
 
 	public function setVariableName($vn)
 	{
-		if ($vn == null) {
+		if($vn == null) {
 			unset($this->variableName);
 			return null;
 		}
@@ -25,7 +25,7 @@ trait VariableNameTrait
 	public function getVariableName()
 	{
 		$f = __METHOD__; //"VariableNameTrait(".static::getShortClass().")->getVariableName()";
-		if (! $this->hasVariableName()) {
+		if(!$this->hasVariableName()) {
 			Debug::error("{$f} variable name is undefined");
 		}
 		return $this->variableName;

@@ -103,7 +103,7 @@ class MultilingualStringData extends DataStructure implements StaticElementClass
 		parent::declareColumns($columns, $ds);
 		$components = [];
 		$supported = config()->getSupportedLanguages();
-		foreach ($supported as $language) {
+		foreach($supported as $language) {
 			$string = new ForeignKeyDatum($language, RELATIONSHIP_TYPE_ONE_TO_ONE);
 			$hrvn = Internationalization::getLanguageNameFromCode($language);
 			$string->setHumanReadableName($hrvn);

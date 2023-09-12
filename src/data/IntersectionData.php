@@ -27,17 +27,17 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public function __construct($hostClass, $foreignClass, string $relationship, ?int $mode = ALLOCATION_MODE_EAGER){
 		$f = __METHOD__;
-		if (! is_a($hostClass, DataStructure::class, true)) {
+		if(!is_a($hostClass, DataStructure::class, true)) {
 			Debug::error("{$f} host class must be a DataStructure class");
-		} elseif (! is_a($foreignClass, DataStructure::class, true)) {
+		}elseif(!is_a($foreignClass, DataStructure::class, true)) {
 			Debug::error("{$f} foreign class \"{$foreignClass}\" must be a DataStructure class");
 		}
 		parent::__construct($mode);
 		$this->setHostDataStructureClass($hostClass);
 		$this->setForeignDataStructureClass($foreignClass);
-		if (! $this->hasHostDataStructureClass()) {
+		if(!$this->hasHostDataStructureClass()) {
 			Debug::error("{$f} host data structure class is undefined");
-		} elseif (! $this->hasForeignDataStructureClass()) {
+		}elseif(!$this->hasForeignDataStructureClass()) {
 			Debug::error("{$f} foreign data structure class is undefined");
 		}
 		$this->setRelationship($relationship);
@@ -49,7 +49,7 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::declareColumns($columns, $ds);
 			$hostKey = new ForeignKeyDatum("hostKey");
 			$hostKey->setPersistenceMode(PERSISTENCE_MODE_DATABASE);
@@ -65,7 +65,7 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 			$foreignKey->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 			$relationship = new TextDatum("relationship");
 			array_push($columns, $hostKey, $foreignKey, $relationship);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -79,8 +79,8 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 			"foreignKey",
 			"relationship"
 		];
-		foreach ($columns as $name => $column) {
-			if (in_array($name, $keep, true)) {
+		foreach($columns as $name => $column) {
+			if(in_array($name, $keep, true)) {
 				continue;
 			}
 			$column->volatilize();
@@ -99,15 +99,15 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public function setForeignDataStructureClass(string $fdsc):string{
 		$f = __METHOD__;
-		if (is_object($fdsc)) {
+		if(is_object($fdsc)) {
 			$fdsc = $fdsc->getClass();
-		} elseif (! is_string($fdsc)) {
+		}elseif(!is_string($fdsc)) {
 			Debug::error("{$f} received something that is not a string");
-		} elseif (empty($fdsc)) {
+		}elseif(empty($fdsc)) {
 			Debug::error("{$f} received empty string");
-		} elseif (! class_exists($fdsc)) {
+		}elseif(! class_exists($fdsc)) {
 			Debug::error("{$f} class \"{$fdsc}\" does not exist");
-		} elseif (is_abstract($fdsc)) {
+		}elseif(is_abstract($fdsc)) {
 			Debug::error("{$f} abstract class \"{$fdsc}\"");
 		}
 		$foreign_key = $this->getColumn("foreignKey");
@@ -121,7 +121,7 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 	public function getTableName(): string{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasTableName()) {
+		if(!$this->hasTableName()) {
 			$fdsc = $this->getForeignDataStructureClass();
 			if(!method_exists($fdsc, 'getTableNameStatic')){
 				Debug::error("{$f} table name cannot be determined statically for foreign data structure class \"{$fdsc}\"");
@@ -129,31 +129,33 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 			$foreign = $fdsc::getTableNameStatic();
 			$hdsc = $this->getHostDataStructureClass();
 			$rel = $this->getRelationship();
-			if ($this->hasHostDataStructure()) {
+			if($this->hasHostDataStructure()) {
 				$hds = $this->getHostDataStructure();
 				$column = $hds->getColumn($rel);
-			} else {
-				$column = $hdsc::getColumnStatic($rel);
+			}else{
+				$dummy = new $hdsc();
+				$column = $dummy->getColumn($rel);
 			}
-			if ($this->hasHostDataStructure()) {
+			if($this->hasHostDataStructure()) {
 				$htn = $hds->getTableName();
-			} else {
+			}else{
 				if(!method_exists($hdsc, 'getTableNameStatic')){
 					Debug::error("{$f} table name cannot be determined statically for host data structure class \"{$hdsc}\"");
 				}
 				$htn = $hdsc::getTableNameStatic();
 			}
-			if ($column->hasEmbeddedName()) {
+			$embedded = $column->hasEmbeddedName();
+			if($embedded) {
 				$tn = "{$htn}_" . $column->getEmbeddedName() . "_{$foreign}";
-			} else {
+			}else{
 				$tn = "{$htn}_{$foreign}";
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} intersection table name is \"{$tn}\"");
 			}
 			return $this->setTableName($tn);
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} intersection table name is \"{$this->tableName}\"");
 		}
 		return $this->tableName;
@@ -176,7 +178,7 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public function getForeignDataStructureClass():string{
 		$f = __METHOD__;
-		if (! $this->hasForeignDataStructureClass()) {
+		if(!$this->hasForeignDataStructureClass()) {
 			Debug::error("{$f} foreign data structure class is undefined");
 		}
 		return $this->foreignDataStructureClass;
@@ -196,17 +198,17 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public function setHostDataStructureClass(string $hdsc):string{
 		$f = __METHOD__;
-		if (is_object($hdsc)) {
+		if(is_object($hdsc)) {
 			$hdsc = $hdsc->getClass();
-		} elseif (! is_string($hdsc)) {
+		}elseif(!is_string($hdsc)) {
 			Debug::error("{$f} received something that is not a string");
-		} elseif (empty($hdsc)) {
+		}elseif(empty($hdsc)) {
 			Debug::error("{$f} received empty string");
-		} elseif (! class_exists($hdsc)) {
+		}elseif(! class_exists($hdsc)) {
 			Debug::error("{$f} class \"{$hdsc}\" does not exist");
-		} elseif (! is_a($hdsc, DataStructure::class, true)) {
+		}elseif(!is_a($hdsc, DataStructure::class, true)) {
 			Debug::error("{$f} host data structure class is not one of a DataStructure");
-		} elseif (is_abstract($hdsc)) {
+		}elseif(is_abstract($hdsc)) {
 			Debug::error("{$f} abstract class \"{$hdsc}\"");
 		}
 		$host_key = $this->getColumn("hostKey");
@@ -219,8 +221,8 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public function getHostDataStructureClass():string{
 		$f = __METHOD__;
-		if (! $this->hasHostDataStructureClass()) {
-			if ($this->hasHostDataStructure()) {
+		if(!$this->hasHostDataStructureClass()) {
+			if($this->hasHostDataStructure()) {
 				return $this->getHostDataStructure()->getClass();
 			}
 			Debug::error("{$f} host data structure class is undefined");
@@ -238,7 +240,7 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public function getRelationship():string{
 		$f = __METHOD__;
-		if (! $this->hasRelationship()) {
+		if(!$this->hasRelationship()) {
 			Debug::error("{$f} foreign key name is undefined");
 		}
 		return $this->getColumnValue("relationship");
@@ -254,7 +256,7 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public function getHostKey():string{
 		$f = __METHOD__;
-		if (! $this->hasHostKey()) {
+		if(!$this->hasHostKey()) {
 			Debug::error("{$f} host key is undefined");
 		}
 		return $this->getColumnValue("hostKey");
@@ -270,7 +272,7 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public function getForeignKey():string{
 		$f = __METHOD__;
-		if (! $this->hasForeignKey()) {
+		if(!$this->hasForeignKey()) {
 			Debug::error("{$f} foreign key is undefined");
 		}
 		return $this->getColumnValue("foreignKey");
@@ -278,7 +280,7 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public function insert(mysqli $mysqli): int{
 		$f = __METHOD__;
-		if (! $this->hasForeignKey()) {
+		if(!$this->hasForeignKey()) {
 			Debug::error("{$f} foreign key is undefined");
 		}elseif(!is_a($this->getHostDataStructureClass(), EventSourceData::class, true)){
 			$hdsc = $this->getHostDataStructureClass();

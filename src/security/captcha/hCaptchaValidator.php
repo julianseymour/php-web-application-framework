@@ -12,11 +12,11 @@ class hCaptchaValidator extends Validator
 	public function evaluate(&$validate_me): int
 	{
 		$f = __METHOD__; //hCaptchaValidator::getShortClass()."(".static::getShortClass().")->evaluate()";
-		if (app()->getFlag("debug")) {
+		if(app()->getFlag("debug")) {
 			return SUCCESS;
 		}
 		$hcaptcha = hCaptcha::verifyResponse(app()->getUseCase());
-		if ($hcaptcha !== SUCCESS) {
+		if($hcaptcha !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($hcaptcha);
 			Debug::warning("{$f} hcaptcha validation failed with error status \"{$err}\"");
 		}

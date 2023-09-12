@@ -20,24 +20,24 @@ class KeyPart extends Basic implements SQLInterface{
 
 	public function __construct($columnName, $length = null){
 		parent::__construct();
-		if ($columnName instanceof ExpressionCommand) {
+		if($columnName instanceof ExpressionCommand) {
 			$this->setExpression($columnName);
-		} else {
+		}else{
 			$this->setColumnName($columnName, $length);
 		}
 	}
 
 	public function setColumnName(?string $columnName, ?int $length = null): ?string{
 		$f = __METHOD__;
-		if ($columnName == null) {
+		if($columnName == null) {
 			unset($this->columnName);
 			unset($this->lengthValue);
 			return null;
-		} elseif (! is_string($columnName)) {
+		}elseif(!is_string($columnName)) {
 			Debug::error("{$f} column name must be a string");
-		} elseif (empty($columnName)) {
+		}elseif(empty($columnName)) {
 			Debug::error("{$f} column name cannot be empty string");
-		} elseif ($length !== null) {
+		}elseif($length !== null) {
 			$this->setLength($length);
 		}
 		return $this->columnName = $columnName;
@@ -45,7 +45,7 @@ class KeyPart extends Basic implements SQLInterface{
 
 	public function toSQL(): string{
 		$f = __METHOD__;
-		if ($this->hasColumnName()) {
+		if($this->hasColumnName()) {
 			$string = $this->getColumnName();
 			/*
 			 * if($this->hasLength()){
@@ -53,12 +53,12 @@ class KeyPart extends Basic implements SQLInterface{
 			 * }
 			 */
 			// XXX this was causing syntax errors
-		} elseif ($this->hasExpression()) {
+		}elseif($this->hasExpression()) {
 			$string = "(" . $this->getExpression() . ")";
-		} else {
+		}else{
 			Debug::error("{$f} neither of the above");
 		}
-		if ($this->hasDirectionality()) {
+		if($this->hasDirectionality()) {
 			$string .= " " . $this->getDirectionality();
 		}
 		return $string;

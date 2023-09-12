@@ -33,7 +33,7 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 
 	public function __construct($predecessor = null, $segments = null){
 		$f = __METHOD__;
-		if ($predecessor instanceof LogoutUseCase) {
+		if($predecessor instanceof LogoutUseCase) {
 			Debug::error("{$f} precedessor cannot be another LogoutUseCase");
 		}
 		return parent::__construct($predecessor, $segments);
@@ -41,14 +41,14 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 
 	public function logout($mysqli){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (app()->hasUserData()) {
+			if(app()->hasUserData()) {
 				$timestamp = time();
 				$user = app()->getUserData();
 				// $user->unsetFilteredColumns("cookie");
-				if ($user instanceof AuthenticatedUser) {
-					if ($user instanceof Administrator) {
+				if($user instanceof AuthenticatedUser) {
+					if($user instanceof Administrator) {
 						if($user->hasColumnValue("privateKey")){
 							db()->disconnect();
 							$mysqli = db()->getConnection(AdminWriteCredentials::class);
@@ -58,24 +58,24 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 					}
 					$user->updateLogoutTimestamp($mysqli, $timestamp);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} application lacks user data");
 			}
 			$recovery_cookie = new SessionRecoveryCookie();
-			if ($recovery_cookie->hasRecoveryKey()) {
-				if ($print) {
+			if($recovery_cookie->hasRecoveryKey()) {
+				if($print) {
 					Debug::print("{$f} about to delete session recovery data");
 				}
 				$recovery_cookie->deleteSession();
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} recovery cookie lacks a recovery key");
 			}
-			if ($print) {
+			if($print) {
 				Debug::warning("{$f} destroying session");
 			}
 			// $anon = new FullAuthenticationData();
 			// $key = $anon->getUserKey();
-			foreach ([
+			foreach([
 				PreMultifactorAuthenticationData::class,
 				FullAuthenticationData::class,
 				AntiHijackSessionData::class
@@ -84,7 +84,7 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 			}
 			$user = AuthenticateUseCase::getAnonymousUser();
 			return app()->setUserData($user);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -93,32 +93,32 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 	{
 		$f = __METHOD__;
 		$print = false;
-		if (app()->hasUserData()) {
-			if ($print) {
+		if(app()->hasUserData()) {
+			if($print) {
 				Debug::print("{$f} application instance has user data");
 			}
 			$user = user();
-			if ($user instanceof AuthenticatedUser) {
+			if($user instanceof AuthenticatedUser) {
 				$class = $user->getClass();
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} user class is \"{$class}\" about to connect public updater");
 				}
 				$mysqli = db()->getConnection(PublicWriteCredentials::class);
-				if (! isset($mysqli)) {
+				if(! isset($mysqli)) {
 					Debug::error("{$f} mysqli connection returned null");
 				}
 				$this->logout($mysqli);
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} user data is not registered so fuck em");
 				}
 				$mysqli = db()->getConnection(PublicReadCredentials::class);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} user is a guest");
 				}
 			}
-		} else {
-			if ($print) {
+		}else{
+			if($print) {
 				Debug::print("{$f} application instance lacks a user data");
 			}
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
@@ -141,7 +141,7 @@ class LogoutUseCase extends PreauthenticationUseCase implements ClientUseCaseInt
 	}
 
 	public function getResponder(int $status): ?Responder{
-		if ($status === RESULT_LOGGED_OUT) {
+		if($status === RESULT_LOGGED_OUT) {
 			return new LogoutResponder();
 		}
 		return parent::getResponder($status);

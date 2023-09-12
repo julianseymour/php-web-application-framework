@@ -17,7 +17,7 @@ abstract class IntegerDatum extends AbstractNumericDatum{
 	}
 
 	public function cast($v){
-		if (is_string($v) && $this->hasApoptoticSignal() && $this->getApoptoticSignal() === $v) {
+		if(is_string($v) && $this->hasApoptoticSignal() && $this->getApoptoticSignal() === $v) {
 			return $v;
 		}
 		return intval($v);
@@ -36,7 +36,7 @@ abstract class IntegerDatum extends AbstractNumericDatum{
 
 	public function setBitCount(?int $bits):?int{
 		$f = __METHOD__;
-		if (! is_int($bits)) {
+		if(!is_int($bits)) {
 			Debug::error("{$f} received a non-integer value");
 		}
 		return $this->bitCount = $bits;
@@ -79,21 +79,21 @@ abstract class IntegerDatum extends AbstractNumericDatum{
 
 	public function parseValueFromSuperglobalArray($value){
 		$f = __METHOD__;
-		try {
-			if ($value === null) {
-				if ($this->isNullable()) {
+		try{
+			if($value === null) {
+				if($this->isNullable()) {
 					return $value;
 				}
 				return 0;
 			}
 			return is_int($value) ? $value : intval($value);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public static function validateStatic($value): int{
-		if (! is_int($value)) {
+		if(!is_int($value)) {
 			return FAILURE;
 		}
 		return SUCCESS;
@@ -104,7 +104,7 @@ abstract class IntegerDatum extends AbstractNumericDatum{
 	}
 
 	public function getBitCount():int{
-		if (! $this->hasBitCount()) {
+		if(!$this->hasBitCount()) {
 			return 32;
 		}
 		return $this->bitCount;
@@ -115,9 +115,9 @@ abstract class IntegerDatum extends AbstractNumericDatum{
 		$suffix = "";
 		$prefix = "";
 		$bit_count = $this->getBitCount();
-		if ($bit_count < 8) {
+		if($bit_count < 8) {
 			$prefix = "TINY";
-		} else {
+		}else{
 			$byte_count = $bit_count / 8;
 			$suffix = "({$byte_count})";
 			switch ($byte_count) {
@@ -146,12 +146,12 @@ abstract class IntegerDatum extends AbstractNumericDatum{
 
 	public function parseValueFromQueryResult($v){
 		$f = __METHOD__;
-		try {
-			if ($v === null) {
+		try{
+			if($v === null) {
 				return $this->isNullable() ? null : 0;
 			}
 			return ! is_int($v) ? intval($v) : $v;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

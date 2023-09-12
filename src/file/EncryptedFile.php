@@ -76,10 +76,10 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public function getWebFilePath(){
 		$f = __METHOD__;
-		try {
+		try{
 			$uri = $this->getWebFileDirectory();
 			return "{$uri}/" . $this->getOriginalFilename();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -94,9 +94,9 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	protected function afterDeleteHook(mysqli $mysqli): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$status = parent::afterDeleteHook($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} parent function returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -104,7 +104,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 			$counterpartKey = $this->getCounterpartKey();
 			$correspondent = $this->getCorrespondentObject();
 			$counterpart = SenderEncryptedFile::getObjectFromKey($mysqli, $counterpartKey);
-			if (! isset($counterpart)) {
+			if(! isset($counterpart)) {
 				Debug::warning("{$f} counterpart object returned null");
 				return SUCCESS;
 			}
@@ -112,14 +112,14 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 			$filename = $this->getFilename();
 			$counterpart->setFilename($filename);
 			$status = $counterpart->delete($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} deleting counterpart object returned error status \"{$err}\"");
 			}
 
 			Debug::print("{$f} deletion successful");
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -143,7 +143,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public function getImageHeight(){
 		$f = __METHOD__;
-		if (empty($this->height)) {
+		if(empty($this->height)) {
 			$key = $this->getIdentifierValue();
 			Debug::error("{$f} image height is null or empty string for file with key \"{$key}\"");
 		}
@@ -153,7 +153,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public function getImageWidth(){
 		$f = __METHOD__;
-		if (empty($this->width)) {
+		if(empty($this->width)) {
 			$key = $this->getIdentifierValue();
 			Debug::error("{$f} image width is null or empty string for file with key \"{$key}\" and debug ID \"{$this->debugId}\"");
 		}
@@ -163,40 +163,40 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public function setImageHeight($h){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! is_int($h) && ! is_float($h)) {
+			if(!is_int($h) && ! is_float($h)) {
 				$type = gettype($h);
 				Debug::error("{$f} height \"{$h}\" is \"{$type}\", not an integer");
 				return 0;
-			} elseif (is_double($h) && $h % 1 > 0) {
+			}elseif(is_double($h) && $h % 1 > 0) {
 				Debug::error("{$f} height \"{$h}\" is a double with significant digits");
 				$h = floor($h);
 			}
-			if ($print) {
+			if($print) {
 				$key = $this->hasIdentifierValue() ? $this->getIdentifierValue() : "undefined";
 				Debug::print("{$f} set image height to \"{$h}\" for file with key \"{$key}\" and debug ID \"{$this->debugId}\"");
 			}
 			return $this->height = $h;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function setImageWidth($w){
 		$f = __METHOD__;
-		try {
-			if (! is_numeric($w)) {
+		try{
+			if(!is_numeric($w)) {
 				Debug::error("{$f} width \"{$w}\" is not an integer");
 				Debug::printStackTrace();
 				return 0;
-			} elseif (is_double($w) && $w % 1 > 0) {
+			}elseif(is_double($w) && $w % 1 > 0) {
 				Debug::error("{$f} width \"{$w}\" is a double with significant digits");
 				$w = floor($w);
 			}
 			// Debug::print("{$f} returning \"{$w}\"");
 			return $this->width = $w;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -211,10 +211,10 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public function setOriginalFilename(string $name):string{
 		$f = __METHOD__;
-		if (empty($name)) {
+		if(empty($name)) {
 			Debug::error("{$f} parameter is undefined");
 			Debug::printStackTrace();
-		} elseif (substr($name, 0, 5) == "/tmp/") {
+		}elseif(substr($name, 0, 5) == "/tmp/") {
 			Debug::error("{$f} wrong one dipshit");
 			Debug::printStackTrace();
 		}
@@ -232,16 +232,16 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__; //EncryptedFile::getShortClass()."(".static::getShortClass().")::reconfigureColumns()";
-		try {
+		try{
 			parent::reconfigureColumns($columns, $ds);
 			$indices = [
 				"userAccountType",
 				"userKey"
 			];
-			foreach ($indices as $index) {
+			foreach($indices as $index) {
 				$columns[$index]->volatilize();
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -293,7 +293,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 	public function setFileAesNonce(string $nonce):string{
 		$f = __METHOD__;
 		$length = strlen($nonce);
-		if ($length !== SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES) {
+		if($length !== SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES) {
 			Debug::error("{$f} nonce is incorrect length ({$length}, should be " . SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES . ")");
 			Debug::printStackTrace();
 		}
@@ -305,7 +305,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 		$aes_key = $this->getColumnValue('fileAesKey');
 		$length = strlen($aes_key);
 		$shouldbe = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES;
-		if ($length !== $shouldbe) {
+		if($length !== $shouldbe) {
 			Debug::error("{$f} file AES key is wrong length ({$length}, should be {$shouldbe})");
 		}
 		return $aes_key;
@@ -313,14 +313,14 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public function setFileAesKey(string $aes_key):string{	
 		$f = __METHOD__;
-		if (! isset($aes_key) || $aes_key == "") {
+		if(! isset($aes_key) || $aes_key == "") {
 			Debug::error("{$f} file AES key is null or empty string");
 		}
 		$length = strlen($aes_key);
 		$shouldbe = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES;
-		if ($length == 7) {
+		if($length == 7) {
 			Debug::error("{$f} \"{$aes_key}\"");
-		} elseif ($length !== $shouldbe) {
+		}elseif($length !== $shouldbe) {
 			Debug::error("{$f} file AES key is wrong length ({$length}, should be {$shouldbe})");
 		}
 		$this->setColumnValue('fileAesKey', $aes_key);
@@ -341,7 +341,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public function setMetadataJson($mjc){
 		$f = __METHOD__;
-		if (empty($mjc)) {
+		if(empty($mjc)) {
 			Debug::warning("{$f} parameter is undefined");
 		}
 		return $this->setColumnValue('metadataJson', $mjc);
@@ -370,7 +370,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public function getVirtualColumnValue(string $index){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($index) {
 				case "height":
 					return $this->getImageHeight();
@@ -381,7 +381,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 				default:
 					return parent::getVirtualColumnValue($index);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -409,7 +409,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::declareColumns($columns, $ds);
 
 			/*$columns["mimeType"]->setEncryptionScheme(AsymmetricEncryptionScheme::class);
@@ -435,7 +435,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 			$mime_string = new VirtualDatum("mimeTypeString");
 			$correspondentKey = new VirtualDatum("correspondentKey");
 			array_push($columns, $file_aes_nonce, $file_aes_key, $file_index_nonce, $metadataJson, $height, $width, $orientation, $mime_string, $correspondentKey);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -450,7 +450,7 @@ abstract class EncryptedFile extends FileData implements StaticElementClassInter
 
 	public function getSize():int{
 		$f = __METHOD__;
-		if (! $this->hasSize()) {
+		if(!$this->hasSize()) {
 			Debug::error("{$f} size is undefined");
 			return 0;
 		}

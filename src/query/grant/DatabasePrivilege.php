@@ -21,10 +21,10 @@ class DatabasePrivilege extends Basic implements SQLInterface
 	{
 		parent::__construct();
 		$this->requirePropertyType("columnNames", 's');
-		if (isset($name)) {
+		if(isset($name)) {
 			$this->setName($name);
 		}
-		if (isset($columnNames)) {
+		if(isset($columnNames)) {
 			$this->setColumnNames($columnNames);
 		}
 	}
@@ -32,14 +32,14 @@ class DatabasePrivilege extends Basic implements SQLInterface
 	public function toSQL(): string
 	{
 		$f = __METHOD__; //DatabasePrivilege::getShortClass()."(".static::getShortClass().")->__toString()";
-		try {
+		try{
 			// priv_type [(column_list)] [, priv_type [(column_list)]] ...
 			$string = $this->getName();
-			if ($this->hasColumnNames()) {
+			if($this->hasColumnNames()) {
 				$string .= " (" . implode_back_quotes(',', $this->getColumnNames()) . ")";
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

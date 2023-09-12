@@ -19,10 +19,10 @@ class PasswordFunction extends ExpressionCommand
 	public function __construct($vn = null, $password = null)
 	{
 		parent::__construct();
-		if (! empty($vn)) {
+		if(!empty($vn)) {
 			$this->setColumnName($vn);
 		}
-		if (! empty($password)) {
+		if(!empty($password)) {
 			$this->setPassword($password);
 		}
 	}
@@ -45,12 +45,12 @@ class PasswordFunction extends ExpressionCommand
 	public function getPassword()
 	{
 		$f = __METHOD__; //PasswordFunction::getShortClass()."(".static::getShortClass().")->getPassword()";
-		try {
-			if (! $this->hasPassword()) {
+		try{
+			if(!$this->hasPassword()) {
 				Debug::error("{$f} password is undefined");
 			}
 			return $this->password;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

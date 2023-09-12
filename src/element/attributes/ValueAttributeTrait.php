@@ -16,7 +16,7 @@ trait ValueAttributeTrait{
 	public function setValueAttribute($value){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} assigning value \"{$value}\"");
 		}
 		return $this->setAttribute("value", $value);

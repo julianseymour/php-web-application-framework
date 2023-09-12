@@ -35,7 +35,7 @@ class ModuleBundler extends Basic{
 		$f = __METHOD__;
 		$print = false;
 		$ret = $this->bundle("getWidgetClasses");
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning the following:");
 			Debug::printArray($ret);
 		}
@@ -61,13 +61,13 @@ class ModuleBundler extends Basic{
 	public function getClientConstants(): ?array{
 		$f = __METHOD__;
 		$define_us = [];
-		foreach ($this->getModules() as $mod) {
+		foreach($this->getModules() as $mod) {
 			$paths = $mod->getClientConstants();
-			if (! is_associative($paths)) {
-				foreach ($paths as $string) {
+			if(!is_associative($paths)) {
+				foreach($paths as $string) {
 					$define_us[$string] = $string;
 				}
-			} else {
+			}else{
 				$define_us = array_merge($define_us, $paths);
 			}
 		}
@@ -89,7 +89,7 @@ class ModuleBundler extends Basic{
 	public function getUseCaseDictionary(): ?array{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			$use_cases = $this->bundle("getUseCaseDictionary");
 			Debug::print("{$f} this application has the following URIs:");
 			Debug::printArray($use_cases);
@@ -134,11 +134,11 @@ class ModuleBundler extends Basic{
 	public final function getUseCaseFromAction($action): string{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} action is \"{$action}\"");
 		}
 		$use_case_classes = $this->getUseCaseDictionary();
-		if (array_key_exists($action, $use_case_classes)) {
+		if(array_key_exists($action, $use_case_classes)) {
 			return $use_case_classes[$action];
 		}
 		return \JulianSeymour\PHPWebApplicationFramework\error\FileNotFoundUseCase::class;
@@ -154,8 +154,8 @@ class ModuleBundler extends Basic{
 			$print = $this->getDebugFlag();
 			$cache = false;
 			$key = "getTypeSortedDataStructureClasses";
-			if (cache()->enabled() && !app()->getFlag("install")) {
-				if (cache()->hasAPCu($key)) {
+			if(cache()->enabled() && !app()->getFlag("install")) {
+				if(cache()->hasAPCu($key)) {
 					if($print){
 						Debug::print("{$f} cache hit");
 					}
@@ -228,7 +228,7 @@ class ModuleBundler extends Basic{
 	public function getValidatorClass(string $className): string{
 		$f = __METHOD__;
 		$validatorClasses = $this->getValidatorClasses();
-		if (false === array_key_exists($className, $validatorClasses)) {
+		if(false === array_key_exists($className, $validatorClasses)) {
 			Debug::error("{$f} validator class is undefined");
 			return \JulianSeymour\PHPWebApplicationFramework\validate\ImpossibleValidator::class();
 		}
@@ -240,16 +240,16 @@ class ModuleBundler extends Basic{
 		$print = false;
 		$cache = false;
 		$key = "getValidatorClasses";
-		if (cache()->enabled()) {
-			if (cache()->hasAPCu($key)) {
+		if(cache()->enabled()) {
+			if(cache()->hasAPCu($key)) {
 				return cache()->getAPCu($key);
 			}
 			$cache = true;
 		}
 		$ret = [];
 		$mods = $this->getModules();
-		if (! empty($mods)) {
-			foreach ($mods as $mod) {
+		if(!empty($mods)) {
+			foreach($mods as $mod) {
 				$validator_classes = $mod->getValidatorClasses();
 				if(empty($validator_classes)){
 					continue;
@@ -257,10 +257,10 @@ class ModuleBundler extends Basic{
 					$ret[get_short_class($vc)] = $vc;
 				}
 			}
-			if ($cache) {
+			if($cache) {
 				cache()->setAPCu($key, $ret, time() + 30 * 60);
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} no data modules");
 		}
 		return $ret;
@@ -277,11 +277,11 @@ class ModuleBundler extends Basic{
 	public function getModules(){
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasModules()) {
-			if ($print) {
+		if($this->hasModules()) {
+			if($print) {
 				$count = count($this->modules);
 				Debug::print("{$f} returning {$count} modules");
-				foreach ($this->modules as $mod) {
+				foreach($this->modules as $mod) {
 					Debug::print(get_class($mod));
 				}
 			}
@@ -291,9 +291,9 @@ class ModuleBundler extends Basic{
 	}
 
 	public function load(?array $mc): ?array{
-		if (isset($mc) && is_array($mc) && ! empty($mc)) {
+		if(isset($mc) && is_array($mc) && ! empty($mc)) {
 			$mods = [];
-			foreach ($mc as $class) {
+			foreach($mc as $class) {
 				$mod = new $class();
 				array_push($mods, $mod);
 			}
@@ -317,21 +317,21 @@ class ModuleBundler extends Basic{
 		$f = __METHOD__;
 		$cache = false;
 		$key = "getTypedNotificationClasses";
-		if (cache()->enabled()) {
-			if (cache()->hasAPCu($key)) {
+		if(cache()->enabled()) {
+			if(cache()->hasAPCu($key)) {
 				return cache()->getAPCu($key);
 			}
 			$cache = true;
 		}
 		$ret = [];
 		$mods = $this->getModules();
-		foreach ($mods as $mod) {
+		foreach($mods as $mod) {
 			$types = $mod->getTypedNotificationClasses();
 			foreach($types as $class){
 				$ret[$class::getNotificationTypeStatic()] = $class;
 			}
 		}
-		if ($cache) {
+		if($cache) {
 			cache()->setAPCu($key, $ret, time() + 30 * 60);
 		}
 		return $ret;
@@ -340,13 +340,13 @@ class ModuleBundler extends Basic{
 	public final function getDataStructureClass($type, $subtype = null): ?string{
 		$f = __METHOD__;
 		$classes = $this->getTypeSortedDataStructureClasses();
-		if (! array_key_exists($type, $classes)) {
+		if(! array_key_exists($type, $classes)) {
 			Debug::error("{$f} this application doesn't know about a datatype \"{$type}\"");
 		}
 		$class = $classes[$type];
-		if (! is_array($class)) {
+		if(!is_array($class)) {
 			return $class;
-		} elseif (! array_key_exists($subtype, $class)) {
+		}elseif(! array_key_exists($subtype, $class)) {
 			Debug::error("{$f} this application doesn't know about a datatype \"{$type}\" with subtype \"{$subtype}\"");
 		}
 		return $class[$subtype];
@@ -355,7 +355,7 @@ class ModuleBundler extends Basic{
 	public final function getTypedNotificationClass($type): ?string{
 		$f = __METHOD__;
 		$classes = $this->getTypedNotificationClasses();
-		if (! array_key_exists($type, $classes)) {
+		if(! array_key_exists($type, $classes)) {
 			Debug::error("{$f} invalid notification type \"{$type}\"");
 		}
 		return $classes[$type];
@@ -365,8 +365,8 @@ class ModuleBundler extends Basic{
 		$f = __METHOD__;
 		$print = false;
 		$ret = [];
-		foreach ($this->getWidgetClasses() as $wc) {
-			if ($wc::meetsDisplayCriteria($use_case)) {
+		foreach($this->getWidgetClasses() as $wc) {
+			if($wc::meetsDisplayCriteria($use_case)) {
 				array_push($ret, $wc);
 			}
 		}
@@ -398,31 +398,31 @@ class ModuleBundler extends Basic{
 		$print = false;
 		//Debug::limitExecutionDepth();
 		//Debug::checkMemoryUsage("bundle", 96000000);
-		if (! $this->isLegalBundleName($bundle_name)) {
+		if(!$this->isLegalBundleName($bundle_name)) {
 			Debug::error("{$f} \"{$bundle_name}\" is not legal");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} bundling \"{$bundle_name}\"");
 		}
 		$cache = false;
-		if (cache()->enabled()) {
-			if (cache()->hasAPCu($bundle_name)) {
-				if ($print) {
+		if(cache()->enabled()) {
+			if(cache()->hasAPCu($bundle_name)) {
+				if($print) {
 					Debug::print("{$f} cache hit for \"{$bundle_name}\"");
 				}
 				return cache()->getAPCu($bundle_name);
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} cache miss for \"{$bundle_name}\"");
 				}
 				$cache = true;
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} cache is disabled");
 		}
 		$bundle = [];
 		$mods = $this->getModules();
-		if (empty($mods)) {
-			if ($print) {
+		if(empty($mods)) {
+			if($print) {
 				Debug::print("{$f} there are no modules");
 			}
 			return [];
@@ -442,14 +442,14 @@ class ModuleBundler extends Basic{
 				$bundle = array_merge_recursive($bundle, $mod->$bundle_name());
 			}
 		}
-		if ($cache) {
-			if ($print) {
+		if($cache) {
+			if($print) {
 				Debug::print("{$f} updating cache for \"{$bundle_name}\" with the following:");
 				//Debug::print($bundle);
 			}
 			cache()->setAPCu($bundle_name, $bundle, time() + 30 * 60);
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning the following array:");
 			Debug::printArray($bundle);
 		}
@@ -462,18 +462,18 @@ class ModuleBundler extends Basic{
 
 	public function getGrantArray(): ?array{
 		$grants = [];
-		foreach ($this->getModules() as $mod) {
+		foreach($this->getModules() as $mod) {
 			$arr = $mod->getGrantArray();
-			foreach ($arr as $name => $tablegrants) {
-				if (! array_key_exists($name, $grants)) {
+			foreach($arr as $name => $tablegrants) {
+				if(! array_key_exists($name, $grants)) {
 					$grants[$name] = $tablegrants;
 				} else
-					foreach ($tablegrants as $table => $add_us) {
-						if (! array_key_exists($table, $grants[$name])) {
+					foreach($tablegrants as $table => $add_us) {
+						if(! array_key_exists($table, $grants[$name])) {
 							$grants[$name][$table] = $add_us;
 						} else
-							foreach ($add_us as $add_me) {
-								if (false === array_search($add_me, $grants[$name][$table])) {
+							foreach($add_us as $add_me) {
+								if(false === array_search($add_me, $grants[$name][$table])) {
 									array_push($grants[$name][$table], $add_me);
 								}
 							}
@@ -487,9 +487,13 @@ class ModuleBundler extends Basic{
 		return $this->bundle("getPollingUseCaseClasses");
 	}
 	
+	public final function getInstallDirectories(): ?array{
+		return $this->bundle("getInstallDirectories");
+	}
+	
 	public final function isLegalBundleName(string $name): bool{
 		$names = $this->getLegalBundleNames();
-		if (! is_array($names) || empty($names)) {
+		if(!is_array($names) || empty($names)) {
 			return false;
 		}
 		return false !== array_search($name, $names, true);
@@ -549,6 +553,7 @@ class ModuleBundler extends Basic{
 			"getDebugJavaScriptFilePaths",
 			"getDependentClassespingFunctions",
 			"getFormDataSubmissionClasses",
+			"getInstallDirectories",
 			"getInvokeableJavaScriptFunctions",
 			"getJavaScriptFilePaths",
 			"getJavaScriptFunctionGeneratorClasses",

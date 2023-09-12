@@ -25,13 +25,13 @@ trait ErrorMessageColumnTrait{
 
 	public function updateErrorMessage(mysqli $mysqli, ?string $msg): int{
 		$f = __METHOD__; //"ErrorMessageColumnTrait(".static::getShortClass().")->updateErrorMessage()";
-		if ($msg == null) {
+		if($msg == null) {
 			$this->ejectErrorMessage();
-		} else {
+		}else{
 			$this->setErrorMessage($msg);
 		}
 		$status = $this->update($mysqli);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} updating error message returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);

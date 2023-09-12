@@ -83,10 +83,10 @@ class CreateTableStatement extends QueryStatement{
 
 	public function setTableOptions($tableOptions){
 		$f = __METHOD__;
-		if ($tableOptions == null) {
+		if($tableOptions == null) {
 			unset($this->tableOptions);
 			return null;
-		} elseif (! $tableOptions instanceof TableOptions) {
+		}elseif(!$tableOptions instanceof TableOptions) {
 			Debug::error("{$f} table options must be an instanceof TableOptions");
 		}
 		return $this->tableOptions = $tableOptions;
@@ -98,7 +98,7 @@ class CreateTableStatement extends QueryStatement{
 
 	public function getTableOptions(){
 		$f = __METHOD__;
-		if (! $this->hasTableOptions()) {
+		if(!$this->hasTableOptions()) {
 			Debug::error("{$f} table options are undefined");
 		}
 		return $this->tableOptions;
@@ -106,14 +106,14 @@ class CreateTableStatement extends QueryStatement{
 
 	public function setPartitionOption($partition){
 		$f = __METHOD__;
-		if (! $partition instanceof CreatePartitionOption) {
+		if(!$partition instanceof CreatePartitionOption) {
 			Debug::error("{$f} partition options must be an instanceof PartitionOption");
 		}
 		return $this->partitionOption = $partition;
 	}
 
 	public function partitionBy(CreatePartitionOption $partition, $count = null): CreatePartitionOption{
-		if ($count !== NULL) {
+		if($count !== NULL) {
 			$partition->setPartitionCount($count);
 		}
 		$this->setPartitionOption($partition);
@@ -126,7 +126,7 @@ class CreateTableStatement extends QueryStatement{
 
 	public function getPartitionOption(): CreatePartitionOption{
 		$f = __METHOD__;
-		if (! $this->hasPartitionOption()) {
+		if(!$this->hasPartitionOption()) {
 			Debug::error("{$f} partition options are undefined");
 		}
 		return $this->partitionOption;
@@ -138,7 +138,7 @@ class CreateTableStatement extends QueryStatement{
 
 	public function getSubpartitionOption(){
 		$f = __METHOD__;
-		if (! $this->hasSubpartitionOption()) {
+		if(!$this->hasSubpartitionOption()) {
 			Debug::error("{$f} subpartition options are undefined");
 		}
 		return $this->subpartitionOption;
@@ -146,14 +146,14 @@ class CreateTableStatement extends QueryStatement{
 
 	public function setSubpartitionOption($partition){
 		$f = __METHOD__;
-		if (! $partition instanceof CreatePartitionOption) {
+		if(!$partition instanceof CreatePartitionOption) {
 			Debug::error("{$f} partition options must be an instanceof CreatePartitionOption");
 		}
 		return $this->subpartitionOption = $partition;
 	}
 
 	public function subpartitionBy(CreatePartitionOption $partition, $count = null){
-		if ($count !== NULL) {
+		if($count !== NULL) {
 			$partition->setPartitionCount($count);
 		}
 		$this->setSubpartitionOption($partition);
@@ -162,26 +162,26 @@ class CreateTableStatement extends QueryStatement{
 
 	public function getPartitionOptionsString(){
 		$options = $this->getPartitionOption();
-		if ($options instanceof SQLInterface) {
+		if($options instanceof SQLInterface) {
 			$options = $options->toSQL();
 		}
 		$string = " partition by {$options}";
-		if ($options->hasPartitionCount()) {
+		if($options->hasPartitionCount()) {
 			$string .= " partitions " . $options->getPartitionCount();
 		}
-		if ($this->hasSubpartitionOption()) {
+		if($this->hasSubpartitionOption()) {
 			$options = $this->getSubpartitionOption();
-			if ($options instanceof SQLInterface) {
+			if($options instanceof SQLInterface) {
 				$options = $options->toSQL();
 			}
 			$string .= " subpartition by {$options}";
-			if ($options->hasPartitionCount()) {
+			if($options->hasPartitionCount()) {
 				$string .= " subpartitions " . $options->getSubpartitionCount();
 			}
 		}
 		$partitions = [];
-		foreach ($this->getPartitionDefinitions() as $p) {
-			if ($p instanceof SQLInterface) {
+		foreach($this->getPartitionDefinitions() as $p) {
+			if($p instanceof SQLInterface) {
 				$p = $p->toSQL();
 				array_push($partitions, $p);
 			}
@@ -192,10 +192,10 @@ class CreateTableStatement extends QueryStatement{
 
 	public function setQueryExpression($query){
 		$f = __METHOD__;
-		if ($query == null) {
+		if($query == null) {
 			unset($this->queryExpression);
 			return null;
-		} elseif (! $query instanceof QueryStatement && ! $query instanceof UnionClause) {
+		}elseif(!$query instanceof QueryStatement && ! $query instanceof UnionClause) {
 			Debug::error("{$f} query expression must be an instanceof SelectStatement or UnionClause");
 		}
 		return $this->queryExpression = $query;
@@ -207,7 +207,7 @@ class CreateTableStatement extends QueryStatement{
 
 	public function getQueryExpression(){
 		$f = __METHOD__;
-		if (! $this->hasQueryExpression()) {
+		if(!$this->hasQueryExpression()) {
 			Debug::error("{$f} query expression is undefined");
 		}
 		return $this->queryExpression;
@@ -220,10 +220,10 @@ class CreateTableStatement extends QueryStatement{
 
 	public function setOldTableName($oldTableName){
 		$f = __METHOD__;
-		if ($oldTableName == null) {
+		if($oldTableName == null) {
 			unset($this->oldTableName);
 			return null;
-		} elseif (! is_string($oldTableName)) {
+		}elseif(!is_string($oldTableName)) {
 			Debug::error("{$f} old table name must be a string");
 		}
 		return $this->oldTableName = $oldTableName;
@@ -235,7 +235,7 @@ class CreateTableStatement extends QueryStatement{
 
 	public function getOldTableName(){
 		$f = __METHOD__;
-		if (! $this->hasOldTableName()) {
+		if(!$this->hasOldTableName()) {
 			Debug::error("{$f} old table name is undefined");
 		}
 		return $this->oldTableName;
@@ -276,58 +276,58 @@ class CreateTableStatement extends QueryStatement{
 
 	public function getQueryStatementString(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$string = "create ";
-			if ($this->isTemporaryTable()) {
+			if($this->isTemporaryTable()) {
 				$string .= "temporary ";
 			}
 			$string .= "table ";
-			if ($this->getIfNotExistsFlag()) {
+			if($this->getIfNotExistsFlag()) {
 				$string .= "if not exists ";
 			}
-			if ($this->hasDatabaseName()) {
+			if($this->hasDatabaseName()) {
 				$string .= back_quote($this->getDatabaseName()) . ".";
 			}
 			$string .= back_quote($this->getTableName());
-			if ($this->hasOldTableName()) {
+			if($this->hasOldTableName()) {
 				$string .= " like " . $this->getOldTableName();
 				return $string;
 			}
-			if ($this->hasColumns()) {
+			if($this->hasColumns()) {
 				$columns = [];
-				foreach ($this->getColumns() as $c) {
-					if ($c instanceof SQLInterface) {
+				foreach($this->getColumns() as $c) {
+					if($c instanceof SQLInterface) {
 						$c = $c->toSQL();
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} column is string \"{$c}\"");
 						}
 					}
 					array_push($columns, $c);
 				}
 				$string .= " (" . implode(',', $columns);
-				if ($this->hasCreateDefinitions()) {
-					if ($print) {
+				if($this->hasCreateDefinitions()) {
+					if($print) {
 						Debug::print("{$f} about to print create definitions");
-						foreach ($this->getCreateDefinitions() as $key => $def) {
-							if ($def instanceof SQLInterface) {
+						foreach($this->getCreateDefinitions() as $key => $def) {
+							if($def instanceof SQLInterface) {
 								$def = $def->toSQL();
 							}
 							Debug::print("{$f} {$key} : {$def}");
 						}
 					}
 					$definitions = [];
-					foreach ($this->getCreateDefinitions() as $cd) {
-						if ($cd instanceof SQLInterface) {
-							if ($print) {
+					foreach($this->getCreateDefinitions() as $cd) {
+						if($cd instanceof SQLInterface) {
+							if($print) {
 								$class = $cd->getClass();
 								$decl = $cd->getDeclarationLine();
 								Debug::print("{$f} {$class} declared \"{$decl}\"");
 							}
 							$cd = $cd->toSQL();
 						}
-						if ($print) {
-							if ($cd == "") {
+						if($print) {
+							if($cd == "") {
 								Debug::error("{$f} create definition string is empty");
 							}
 							Debug::print("{$f} create definition is string \"{$cd}\"");
@@ -337,31 +337,31 @@ class CreateTableStatement extends QueryStatement{
 					$string .= ", " . implode(',', $definitions);
 				}
 				$string .= ")";
-			} elseif (! $this->hasQueryExpression()) {
+			}elseif(!$this->hasQueryExpression()) {
 				Debug::error("{$f} query must define either a list of columns or a query expression");
 			}
-			if ($this->hasTableOptions()) {
+			if($this->hasTableOptions()) {
 				$to = $this->getTableOptions();
-				if ($to instanceof SQLInterface) {
+				if($to instanceof SQLInterface) {
 					$to = $to->toSQL();
 				}
 				$string .= " {$to}";
 			}
-			if ($this->hasPartitionOption()) {
+			if($this->hasPartitionOption()) {
 				$string .= " " . $this->getPartitionOptionsString();
 			}
-			if ($this->hasDuplicateKeyHandler()) {
+			if($this->hasDuplicateKeyHandler()) {
 				$string .= " " . $this->getDuplicateKeyHandler();
 			}
-			if ($this->hasQueryExpression()) {
+			if($this->hasQueryExpression()) {
 				$qe = $this->getQueryExpression();
-				if ($qe instanceof SQLInterface) {
+				if($qe instanceof SQLInterface) {
 					$qe = $qe->toSQL();
 				}
 				$string .= " {$qe}";
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -373,10 +373,10 @@ class CreateTableStatement extends QueryStatement{
 		)->withColumns(
 			array_values($ds->getFilteredColumns(DIRECTIVE_CREATE_TABLE))
 		);
-		if ($ds->hasIndexDefinitions()) {
+		if($ds->hasIndexDefinitions()) {
 			$query->pushCreateDefinitions(...$ds->getIndexDefinitions());
 		}
-		if ($ds->hasConstraints()) {
+		if($ds->hasConstraints()) {
 			$query->pushCreateDefinitions(...$ds->getConstraints());
 		}
 		return $query;
@@ -385,20 +385,20 @@ class CreateTableStatement extends QueryStatement{
 	public function setColumns($columns){
 		$f = __METHOD__;
 		$print = false;
-		foreach ($columns as $datum) {
+		foreach($columns as $datum) {
 			$cn = $datum->getName();
 			iF($print){
 				Debug::print("{$f} column \"{$cn}\"");
 			}
-			if (! $datum instanceof Datum) {
+			if(!$datum instanceof Datum) {
 				$gottype = gettype($datum);
 				Debug::error("{$f} received a \"{$gottype}\"");
 			}
-			if ($datum->hasConstraints()) {
+			if($datum->hasConstraints()) {
 				$this->pushCreateDefinitions(...$datum->getConstraints());
 			}
-			if ($datum instanceof FullTextStringDatum && $datum->getFulltextFlag()) {
-				if ($print) {
+			if($datum instanceof FullTextStringDatum && $datum->getFulltextFlag()) {
+				if($print) {
 					Debug::print("{$f} column \"{$cn}\" is flagged as a full text index");
 				}
 				// array_push($fulltext, $datum);
@@ -407,15 +407,15 @@ class CreateTableStatement extends QueryStatement{
 				$index = new IndexDefinition("{$type}_{$cn}_fulltext");
 				// foreach($fulltext as $ft){
 				$keypart = new KeyPart($cn);
-				if ($datum->hasMaximumLength()) {
+				if($datum->hasMaximumLength()) {
 					$keypart->setLength($datum->getMaximumLength());
 				}
 				$index->pushKeyParts($keypart);
 				$index->setIndexType(INDEX_TYPE_FULLTEXT);
 				// }
 				$this->pushCreateDefinitions($index);
-			} elseif ($datum->getIndexFlag()) {
-				if ($print) {
+			}elseif($datum->getIndexFlag()) {
+				if($print) {
 					Debug::print("{$f} column \"{$cn}\" is flagged as an index");
 				}
 				$this->pushCreateDefinitions($datum->generateIndexDefinition());

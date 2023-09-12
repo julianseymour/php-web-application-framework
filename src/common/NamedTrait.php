@@ -11,10 +11,10 @@ trait NamedTrait{
 
 	public function setName(?string $name):?string{
 		$f = __METHOD__;
-		if ($name == null) {
+		if($name == null) {
 			unset($this->name);
 			return null;
-		} elseif (! is_string($name) && ! $name instanceof ValueReturningCommandInterface) {
+		}elseif(!is_string($name) && ! $name instanceof ValueReturningCommandInterface) {
 			Debug::error("{$f} name must be a string or value-returning command");
 		}
 		return $this->name = $name;
@@ -26,7 +26,7 @@ trait NamedTrait{
 
 	public function getName():string{ // note to self: if you declare a return type of string for a function, and the function returns somerhing that has a __toString() method, the function will return its string conversion
 		$f = __METHOD__;
-		if (! $this->hasName()) {
+		if(!$this->hasName()) {
 			Debug::error("{$f} name is undefined");
 		}
 		return $this->name;

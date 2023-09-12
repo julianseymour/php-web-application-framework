@@ -19,9 +19,9 @@ class ExpandingEditForm extends ExpanderElement
 	public function setFormClass($form_class)
 	{
 		$f = __METHOD__;
-		if (! is_string($form_class)) {
+		if(!is_string($form_class)) {
 			Debug::error("{$f} received a parameter that is not a string");
-		} elseif (! class_exists($form_class)) {
+		}elseif(! class_exists($form_class)) {
 			Debug::error("{$f} form class \"{$form_class}\" is not a class");
 		}
 		return $this->formClass = $form_class;
@@ -35,7 +35,7 @@ class ExpandingEditForm extends ExpanderElement
 	public function getFormClass()
 	{
 		$f = __METHOD__;
-		if (! $this->hasFormClass()) {
+		if(!$this->hasFormClass()) {
 			Debug::error("{$f} form class is undefined");
 		}
 		return $this->formClass;
@@ -54,7 +54,7 @@ class ExpandingEditForm extends ExpanderElement
 	public function getActionAttribute(): ?string
 	{
 		$f = __METHOD__;
-		if (! $this->hasActionAttribute()) {
+		if(!$this->hasActionAttribute()) {
 			Debug::error("{$f} action attribute is undefined");
 		}
 		return $this->action;
@@ -63,7 +63,7 @@ class ExpandingEditForm extends ExpanderElement
 	public function getErrorCallback()
 	{
 		$f = __METHOD__;
-		if (! $this->hasErrorCallback()) {
+		if(!$this->hasErrorCallback()) {
 			Debug::error("{$f} error callback is undefined");
 		}
 		return $this->errorCallback;
@@ -82,7 +82,7 @@ class ExpandingEditForm extends ExpanderElement
 	public function getSuccessCallback()
 	{
 		$f = __METHOD__;
-		if (! $this->hasSuccessCallback()) {
+		if(!$this->hasSuccessCallback()) {
 			static::debugSuccess("{$f} success callback is undefined");
 		}
 		return $this->successCallback;
@@ -116,7 +116,7 @@ class ExpandingEditForm extends ExpanderElement
 
 	public function getElementTag(): string
 	{
-		if (! $this->hasElementTag()) {
+		if(!$this->hasElementTag()) {
 			return $this->setElementTag("div");
 		}
 		return parent::getElementTag();
@@ -130,23 +130,23 @@ class ExpandingEditForm extends ExpanderElement
 		$mode = $this->getAllocationMode();
 		$context = $this->getContext();
 		$form_class = $this->getFormClass();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} about to create a new {$form_class}");
 		}
 		$form = new $form_class($mode);
-		if ($this->hasScope()) {
+		if($this->hasScope()) {
 			$form->setScope($this->getResolvedScope());
 		}
 		$form->setIdOverride("edit_form");
-		if ($this->hasActionAttribute()) {
+		if($this->hasActionAttribute()) {
 			$action = $this->getActionAttribute();
 			$form->setActionAttribute($action);
 		}
-		if ($this->hasErrorCallback()) {
+		if($this->hasErrorCallback()) {
 			$callback_error = $this->getErrorCallback();
 			$form->setErrorCallback($callback_error);
 		}
-		if ($this->hasSuccessCallback()) {
+		if($this->hasSuccessCallback()) {
 			$callback_success = $this->getSuccessCallback();
 			$form->setSuccessCallback($callback_success);
 		}

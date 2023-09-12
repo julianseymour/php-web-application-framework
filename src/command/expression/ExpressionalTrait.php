@@ -11,7 +11,7 @@ trait ExpressionalTrait
 	public function setExpression($expr)
 	{
 		$f = __METHOD__; //"ExpressionalTrait(".static::getShortClass().")->setExpression()";
-		if ($expr == null) {
+		if($expr == null) {
 			unset($this->expression);
 			return null;
 		}
@@ -26,7 +26,7 @@ trait ExpressionalTrait
 	public function getExpression()
 	{
 		$f = __METHOD__; //"ExpressionalTrait(".static::getShortClass().")->getExpression()";
-		if (! $this->hasExpression()) {
+		if(!$this->hasExpression()) {
 			Debug::error("{$f} expression is undefined");
 		}
 		return $this->expression;

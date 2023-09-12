@@ -25,7 +25,7 @@ abstract class ClassReturningJsFunctionGenerator extends JavaScriptFunctionGener
 		$function->setRoutineType(ROUTINE_TYPE_STATIC);
 		$declarations = [];
 		$switch = new SwitchCommand(new GetDeclaredVariableCommand("id"));
-		foreach ($classes as $className) {
+		foreach($classes as $className) {
 			$short = get_short_class($className);
 			$declarations[$short] = new GetDeclaredVariableCommand($short);
 			$switch->case($className::getJavaScriptClassIdentifier(), CommandBuilder::return(new GetDeclaredVariableCommand("classNames['{$short}']")));

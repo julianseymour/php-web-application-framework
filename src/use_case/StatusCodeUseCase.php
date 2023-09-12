@@ -23,7 +23,7 @@ class StatusCodeUseCase extends UseCase{
 		$f = __METHOD__;
 		$print = false;
 		$status = $this->getObjectStatus();
-		if ($print) {
+		if($print) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::print("{$f} status is \"{$err}\"");
 		}
@@ -72,12 +72,12 @@ class StatusCodeUseCase extends UseCase{
 	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
 		$print = false;
-		if (request()->getProgressiveHyperlinkFlag()) {
-			if ($print) {
+		if(request()->getProgressiveHyperlinkFlag()) {
+			if($print) {
 				Debug::print("{$f} returning ProgressiveHyperlinkResponder");
 			}
 			return new ProgressiveHyperlinkResponder();
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} nothing to do here");
 		}
 		return new Responder();

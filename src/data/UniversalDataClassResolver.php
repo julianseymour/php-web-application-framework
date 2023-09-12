@@ -11,7 +11,7 @@ class UniversalDataClassResolver extends IntersectionTableResolver{
 		$f = __METHOD__;
 		$print = false;
 		$ret = mods()->getTypeSortedDataStructureClasses();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning the following:");
 			Debug::printArray($ret);
 		}

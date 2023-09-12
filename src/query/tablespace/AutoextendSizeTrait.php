@@ -11,7 +11,7 @@ trait AutoextendSizeTrait
 	public function setAutoextendSize($value)
 	{
 		$f = __METHOD__; //"AutoextendSizeTrait(".static::getShortClass().")->setAutoextendSize()";
-		if (! is_int($value)) {
+		if(!is_int($value)) {
 			Debug::error("{$f} this function accepts integers only");
 		}
 		return $this->autoextendSizeValue = $value;
@@ -25,7 +25,7 @@ trait AutoextendSizeTrait
 	public function getAutoextendSize()
 	{
 		$f = __METHOD__; //"AutoextendSizeTrait(".static::getShortClass().")->getAutoextendSize()";
-		if (! $this->hasAutoextendSize()) {
+		if(!$this->hasAutoextendSize()) {
 			Debug::error("{$f} autoextend size is undefined");
 		}
 		return $this->autoextendSizeValue;

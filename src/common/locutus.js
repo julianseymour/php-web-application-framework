@@ -53,7 +53,7 @@ function array_search(needle, haystack, argStrict){
 		return false;
 	}
 	for(key in haystack){
-		if (haystack.hasOwnProperty(key)){
+		if(haystack.hasOwnProperty(key)){
 			if((strict && haystack[key] === needle) || (!strict && haystack[key] == needle)){ // eslint-disable-line eqeqeq
 				return key;
 			}
@@ -233,7 +233,7 @@ function isset(val){
 
 //https://locutus.io/php/strings/nl2br/
 function nl2br(str, is_xhtml){
-	if (typeof str === 'undefined' || str === null){
+	if(typeof str === 'undefined' || str === null){
 		return '';
 	}
 	let breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
@@ -343,7 +343,7 @@ function is_array (mixedVar) { // eslint-disable-line camelcase
 	  //   returns 5: false
 	  const _getFuncName = function (fn) {
 	    const name = (/\W*function\s+([\w$]+)\s*\(/).exec(fn)
-	    if (!name) {
+	    if(!name) {
 	      return '(Anonymous)'
 	    }
 	    return name[1]
@@ -353,7 +353,7 @@ function is_array (mixedVar) { // eslint-disable-line camelcase
 	    // The above works, but let's do the even more stringent approach:
 	    // (since Object.prototype.toString could be overridden)
 	    // Null, Not an object, no length property so couldn't be an Array (or String)
-	    if (!mixedVar || typeof mixedVar !== 'object' || typeof mixedVar.length !== 'number') {
+	    if(!mixedVar || typeof mixedVar !== 'object' || typeof mixedVar.length !== 'number') {
 	      return false
 	    }
 	    const len = mixedVar.length
@@ -366,7 +366,7 @@ function is_array (mixedVar) { // eslint-disable-line camelcase
 	    // specific indexes; but there should be no false negatives
 	    // and such a false positive would need to rely on later JavaScript
 	    // innovations like __defineSetter__
-	    if (len !== mixedVar.length) {
+	    if(len !== mixedVar.length) {
 	      // We know it's an array since length auto-changed with the addition of a
 	      // numeric property at its length end, so safely get rid of our bogus element
 	      mixedVar.length -= 1
@@ -379,18 +379,18 @@ function is_array (mixedVar) { // eslint-disable-line camelcase
 	    delete mixedVar[mixedVar.length]
 	    return false
 	  }
-	  if (!mixedVar || typeof mixedVar !== 'object') {
+	  if(!mixedVar || typeof mixedVar !== 'object') {
 	    return false
 	  }
 	  const isArray = _isArray(mixedVar)
-	  if (isArray) {
+	  if(isArray) {
 	    return true
 	  }
 	  const iniVal = (typeof require !== 'undefined' ? require('../info/ini_get')('locutus.objectsAsArrays') : undefined) || 'on'
-	  if (iniVal === 'on') {
+	  if(iniVal === 'on') {
 	    const asString = Object.prototype.toString.call(mixedVar)
 	    const asFunc = _getFuncName(mixedVar.constructor)
-	    if (asString === '[object Object]' && asFunc === 'Object') {
+	    if(asString === '[object Object]' && asFunc === 'Object') {
 	      // Most likely a literal and intended as assoc. array
 	      return true
 	    }

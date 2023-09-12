@@ -22,15 +22,15 @@ class ToggleInput extends CheckboxInput{
 
 	public function bindContext($context){
 		$f = __METHOD__;
-		try {
+		try{
 			$value = $context->getValue();
-			if ($value) {
+			if($value) {
 				$this->addClassAttribute("init_on");
-			} else {
+			}else{
 				$this->addClassAttribute("init_off");
 			}
 			return parent::bindContext($context);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -54,7 +54,7 @@ class ToggleInput extends CheckboxInput{
 		$span2->setInnerHTML("&nbsp");
 		$label->appendChild($span2);
 		$this->pushSuccessor($label);
-		if (! $this->hasWrapperElement()) {
+		if(!$this->hasWrapperElement()) {
 			$mcns_m = new DivElement($mode);
 			$mcns_m->addClassAttribute("mncns_m");
 			$this->setWrapperElement($mcns_m);

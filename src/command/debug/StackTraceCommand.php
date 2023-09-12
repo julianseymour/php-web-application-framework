@@ -18,11 +18,11 @@ class StackTraceCommand extends LogCommand
 	public function toJavaScript(): string
 	{
 		$s = "";
-		if ($this->hasMessage()) {
+		if($this->hasMessage()) {
 			$msg = $this->getMessage();
-			if ($msg instanceof JavaScriptInterface) {
+			if($msg instanceof JavaScriptInterface) {
 				$msg = $msg->toJavaScript();
-			} elseif (is_string($msg) || $msg instanceof StringifiableInterface) {
+			}elseif(is_string($msg) || $msg instanceof StringifiableInterface) {
 				$msg = single_quote($msg);
 			}
 			$s .= $msg;
@@ -33,12 +33,12 @@ class StackTraceCommand extends LogCommand
 
 	public function resolve()
 	{
-		if ($this->hasMessage()) {
+		if($this->hasMessage()) {
 			$msg = $this->getMessage();
 			while ($msg instanceof ValueReturningCommandInterface) {
 				$msg = $msg->evaluate();
 			}
-		} else {
+		}else{
 			$msg = null;
 		}
 		Debug::printStackTraceNoExit($msg);

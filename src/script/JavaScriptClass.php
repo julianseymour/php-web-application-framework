@@ -18,10 +18,10 @@ class JavaScriptClass extends Element implements JavaScriptInterface
 	public function __construct($className = null, $superClass = null)
 	{
 		parent::__construct();
-		if (isset($className)) {
+		if(isset($className)) {
 			$this->setName($className);
 		}
-		if (isset($superClass)) {
+		if(isset($superClass)) {
 			$this->setSuperClass($superClass);
 		}
 	}
@@ -39,7 +39,7 @@ class JavaScriptClass extends Element implements JavaScriptInterface
 	public function getSuperClass()
 	{
 		$f = __METHOD__; //JavaScriptClass::getShortClass()."(".static::getShortClass().")->getSuperClass()";
-		if (! $this->hasSuperClass()) {
+		if(!$this->hasSuperClass()) {
 			Debug::error("{$f} superClass is undefined");
 		}
 		return $this->superClass;
@@ -54,7 +54,7 @@ class JavaScriptClass extends Element implements JavaScriptInterface
 }
 ";
 		$string .= "var {$className} = class ";
-		if ($this->hasSuperClass()) {
+		if($this->hasSuperClass()) {
 			$super = $this->getSuperClass();
 			$string .= " extends {$super}";
 		}
@@ -64,37 +64,37 @@ class JavaScriptClass extends Element implements JavaScriptInterface
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //JavaScriptClass::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$print = false;
 			$cache = false;
-			if ($this->isCacheable() && JAVASCRIPT_CACHE_ENABLED) {
-				if (cache()->hasFile($this->getCacheKey() . ".js")) {
-					if ($print) {
+			if($this->isCacheable() && JAVASCRIPT_CACHE_ENABLED) {
+				if(cache()->hasFile($this->getCacheKey() . ".js")) {
+					if($print) {
 						Debug::print("{$f} cache hit");
 					}
 					return cache()->getFile($this->getCacheKey() . ".js");
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} cache miss");
 					}
 					$cache = true;
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this class is not cacheable");
 			}
 			$string = $this->getClassDeclarationString() . "{\n";
-			foreach ($this->getChildNodes() as $node) {
+			foreach($this->getChildNodes() as $node) {
 				$string .= "\t" . $node->toJavaScript() . "\n";
-				if ($node instanceof JavaScriptFunction) {
+				if($node instanceof JavaScriptFunction) {
 					$string .= "\n";
 				}
 			}
 			$string .= "}\n";
-			if ($cache) {
+			if($cache) {
 				cache()->setFile($this->getCacheKey() . ".js", $string, time() + 30 * 60);
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -102,7 +102,7 @@ class JavaScriptClass extends Element implements JavaScriptInterface
 	public function echo(bool $destroy = false): void
 	{
 		$js = $this->toJavaScript();
-		if ($destroy) {
+		if($destroy) {
 			$this->dispose();
 		}
 		echo $js;

@@ -14,14 +14,14 @@ class NodeBearingSwitchCommand extends SwitchCommand implements AllocationModeIn
 
 	public function extractChildNodes(int $mode): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$children = [];
 			$commands = $this->getEvaluatedCommands();
-			foreach ($commands as $c) {
+			foreach($commands as $c) {
 				$children = array_merge($children, $c->extractChildNodes($mode));
 			}
 			return $children;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -35,16 +35,16 @@ class NodeBearingSwitchCommand extends SwitchCommand implements AllocationModeIn
 	}
 
 	public function incrementVariableName(int &$counter){
-		foreach ($this->getCases() as $blocks) {
-			foreach ($blocks as $block) {
-				if ($block instanceof IncrementVariableNameInterface) {
+		foreach($this->getCases() as $blocks) {
+			foreach($blocks as $block) {
+				if($block instanceof IncrementVariableNameInterface) {
 					$block->incrementVariableName($counter);
 				}
 			}
 		}
-		if ($this->hasDefault()) {
+		if($this->hasDefault()) {
 			$default = $this->getDefault();
-			if ($default instanceof IncrementVariableNameInterface) {
+			if($default instanceof IncrementVariableNameInterface) {
 				$default->incrementVariableName($counter);
 			}
 		}

@@ -84,28 +84,28 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 
 	public function getPageLinkHTTPQueryParameters($pg){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$params = parent::getPageLinkHTTPQueryParameters($pg);
 			// search options
 			$params['directive'] = 'search';
 			$params['searchMode'] = $this->getSearchMode();
-			if ($this->isCaseSensitive()) {
+			if($this->isCaseSensitive()) {
 				$params['caseSensitive'] = $this->isCaseSensitive();
 			}
-			if ($this->hasSearchQuery()) {
+			if($this->hasSearchQuery()) {
 				$params['searchQuery'] = $this->getSearchQuery();
 			}
 			// searchable classes
-			foreach ($this->getColumns() as $column) {
+			foreach($this->getColumns() as $column) {
 				$vn = $column->getName();
-				if (! $column instanceof SearchFieldDatum) {
-					if ($print) {
+				if(!$column instanceof SearchFieldDatum) {
+					if($print) {
 						Debug::print("{$f} column at index \"{$vn}\" is not a SearchFieldDatum");
 					}
 					continue;
-				} elseif (! $column->getValue()) {
-					if ($print) {
+				}elseif(!$column->getValue()) {
+					if($print) {
 						Debug::print("{$f} column at index \"{$vn}\" is not set");
 					}
 					continue;
@@ -115,23 +115,23 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 				$fields = $this->getSearchFieldsData($classname);
 				$superindex = $this->getColumn("fields_".get_short_class($classname))->getName();
 				$fields_params = [];
-				foreach ($fields->getColumns() as $fields_column) {
-					if (! $fields_column->getValue()) {
+				foreach($fields->getColumns() as $fields_column) {
+					if(!$fields_column->getValue()) {
 						continue;
 					}
 					$fields_params[$fields_column->getName()] = 1;
 				}
-				if (! empty($fields_params)) {
+				if(!empty($fields_params)) {
 					$params[$superindex] = $fields_params;
 				}
 			}
 			// searchable timestamps
-			if ($this->hasSearchableTimestamps()) {
+			if($this->hasSearchableTimestamps()) {
 				$timestamps = $this->getSearchableTimestamps();
-				foreach (array_keys($timestamps) as $index) {
+				foreach(array_keys($timestamps) as $index) {
 					$timestamp = $timestamps[$index];
-					if ($timestamp === null) {
-						if ($print) {
+					if($timestamp === null) {
+						if($print) {
 							Debug::print("{$f} timestamp datum at index \"{$index}\" was nullified");
 						}
 						continue;
@@ -141,11 +141,11 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 						"end" => $timestamp->getIntervalEnd()
 					];
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} there are no searchable timestamps");
 			}
 			return $params;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -159,7 +159,7 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 	}
 
 	public function getSearchQuery(){
-		if (! $this->hasSearchQuery()) {
+		if(!$this->hasSearchQuery()) {
 			return null;
 		}
 		return $this->getColumnValue("searchQuery");
@@ -191,7 +191,7 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 		$sub = $this->generateSubordinateFormInput($class);
 		$vn1 = $boolean->getName();
 		$vn2 = $sub->getName();
-		if ($this->hasColumn($vn1) || $this->hasColumn($vn2)) {
+		if($this->hasColumn($vn1) || $this->hasColumn($vn2)) {
 			Debug::error("{$f} already have a column named either \"{$vn1}\" or \"{$vn2}\"");
 		}
 		$this->pushColumn($vn1, $boolean);
@@ -202,13 +202,13 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 	public function setSearchClasses($classes){
 		$f = __METHOD__;
 		$print = false;;
-		if (empty($classes)) {
+		if(empty($classes)) {
 			Debug::error("{$f} classes array is empty");
-		} elseif ($this->hasSearchClasses()) {
+		}elseif($this->hasSearchClasses()) {
 			Debug::error("{$f} query classes have already been assigned");
 		}
 		$columns = [];
-		foreach ($classes as $c) {
+		foreach($classes as $c) {
 			if($print){
 				Debug::print("{$f} generating a searchable field for class \"{$c}\"");
 			}
@@ -269,14 +269,14 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 			default:
 				Debug::error("{$f} invalid search mode \"{$mode}\"");
 		}
-		if (! $this->isCaseSensitive()) {
-			foreach (array_keys($exploded) as $e) {
+		if(!$this->isCaseSensitive()) {
+			foreach(array_keys($exploded) as $e) {
 				$exploded[$e] = NameDatum::normalize($exploded[$e]);
 			}
 		}
 		$terms = [];
-		foreach ($exploded as $term) {
-			if (! empty($term)) {
+		foreach($exploded as $term) {
+			if(!empty($term)) {
 				array_push($terms, $term);
 			}
 		}
@@ -293,13 +293,13 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 
 	public function setSearchableTimestamp($vn, $searchable){
 		$f = __METHOD__;
-		if ($this->getDebugFlag() && $vn === "insertTimestamp") {
+		if($this->getDebugFlag() && $vn === "insertTimestamp") {
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
 		$ret = $this->setArrayPropertyValue("searchableTimestamps", $vn, $searchable);
-		if ($searchable === null) {
+		if($searchable === null) {
 			$sts = $this->getSearchableTimestamp($vn);
-			if ($sts !== null) {
+			if($sts !== null) {
 				Debug::error("{$f} there is something critically wrong with nullifying searchable timestamps");
 			}
 		}
@@ -309,9 +309,9 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 	public function reportSearchableTimestamp($datum){
 		$vn = $datum->getName();
 		$class = $datum->getDataStructure()->getClass();
-		if ($this->hasSearchableTimestamp($vn)) {
+		if($this->hasSearchableTimestamp($vn)) {
 			$this->getSearchableTimestamp($vn)->pushSearchClass($class);
-		} else {
+		}else{
 			$searchable = new SearchTimestampDatum($vn);
 			$searchable->setDataStructure($this);
 			$searchable->pushSearchClass($class);
@@ -327,11 +327,11 @@ class SearchPaginator extends Paginator implements StaticPropertyTypeInterface{
 		$template = $fields->getSearchTemplateObject();
 		$timestamps = $this->getSearchableTimestamps();
 		$bind_timestamps = [];
-		foreach ($timestamps as $index => $timestamp) {
-			if ($timestamp === null) {
+		foreach($timestamps as $index => $timestamp) {
+			if($timestamp === null) {
 				Debug::print("{$f} timestamp datum at index \"{$index}\" was nullified");
 				continue;
-			} elseif (! $template->hasColumn($index)) {
+			}elseif(!$template->hasColumn($index)) {
 				Debug::print("{$f} class \"{$classname}\" does not have a datum \"{$index}\"");
 				continue;
 			}

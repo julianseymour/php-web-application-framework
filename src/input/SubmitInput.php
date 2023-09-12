@@ -29,7 +29,7 @@ class SubmitInput extends ButtonlikeInput
 	public function getFormActionAttribute()
 	{
 		$f = __METHOD__; //SubmitInput::getShortClass()."(".static::getShortClass().")->getFormActionAttribute()";
-		if (! $this->hasFormActionAttribute()) {
+		if(!$this->hasFormActionAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute("formaction");
@@ -48,7 +48,7 @@ class SubmitInput extends ButtonlikeInput
 	public function getBypassFormValidationAttribute()
 	{
 		$f = __METHOD__; //SubmitInput::getShortClass()."(".static::getShortClass().")->getBypassFormValidationAttribute()";
-		if (! $this->hasBypassFormValidationAttribute()) {
+		if(!$this->hasBypassFormValidationAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute("formnovalidate");
@@ -67,7 +67,7 @@ class SubmitInput extends ButtonlikeInput
 	public function getFormEncodingTypeAttribute()
 	{
 		$f = __METHOD__; //SubmitInput::getShortClass()."(".static::getShortClass().")->getFormEncodingTypeAttribute()";
-		if (! $this->hasFormEncodingTypeAttribute()) {
+		if(!$this->hasFormEncodingTypeAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute("formenctype");
@@ -86,7 +86,7 @@ class SubmitInput extends ButtonlikeInput
 	public function getFormMethodAttribute()
 	{
 		$f = __METHOD__; //SubmitInput::getShortClass()."(".static::getShortClass().")->getFormMethodAttribute()";
-		if (! $this->hasFormMethodAttribute()) {
+		if(!$this->hasFormMethodAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute("formmethod");
@@ -105,7 +105,7 @@ class SubmitInput extends ButtonlikeInput
 	public function getFormTargetAttribute()
 	{
 		$f = __METHOD__; //SubmitInput::getShortClass()."(".static::getShortClass().")->getFormTargetAttribute()";
-		if (! $this->hasFormTargetAttribute()) {
+		if(!$this->hasFormTargetAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute("formtarget");

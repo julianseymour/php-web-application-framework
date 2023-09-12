@@ -16,7 +16,7 @@ trait ColumnNameTrait{
 	 * @return NULL|string|ValueReturningCommandInterface
 	 */
 	public function setColumnName($columnName){
-		if ($columnName === null) {
+		if($columnName === null) {
 			unset($this->columnName);
 			return null;
 		}
@@ -29,7 +29,7 @@ trait ColumnNameTrait{
 
 	public function getColumnName(){
 		$f = __METHOD__;
-		if (! $this->hasColumnName()) {
+		if(!$this->hasColumnName()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} column name is undefined. Declared {$decl}");
 		}

@@ -14,18 +14,18 @@ class SessionRecoverySettingsForm extends AbstractSessionForm{
 
 	public function getDirectives(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$context = $this->getContext();
 			if(is_array($context->getRecoveryKit())) {
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} recovery kit decrypted as array");
 				}
 				$arr = [
 					DIRECTIVE_DELETE
 				];
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} context is uninitialized, or recovery kit was not decrypted as an array");
 				}
 				$arr = [
@@ -33,14 +33,14 @@ class SessionRecoverySettingsForm extends AbstractSessionForm{
 				];
 			}
 			return $arr;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getFormDataIndices(): ?array{
 		$f = __METHOD__;
-		if (! $this->hasContext()) {
+		if(!$this->hasContext()) {
 			Debug::error("{$f} context is undefined");
 		}
 		$context = $this->getContext();
@@ -79,7 +79,7 @@ class SessionRecoverySettingsForm extends AbstractSessionForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($name) {
 				case DIRECTIVE_DELETE:
 					$button = $this->generateGenericButton($name);
@@ -104,7 +104,7 @@ class SessionRecoverySettingsForm extends AbstractSessionForm{
 			return [
 				$button
 			];
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -328,14 +328,14 @@ function elementExists(id){
 
 function getChildNodeByClass(n, c){ //get all child nodes of node n that are class c
 	const f = "getChildNodeClass(~, "+c+")";
-	try {
+	try{
 		let len = n.childNodes.length;
 		//console.log(f+":\n\tEntered for a node with "+len.toString()+" children");
 		let get = [];
 		for (let i = 0; i < len; i++) {
 			//console.log(f+": iteration "+i.toString());
 			let cl = n.childNodes[i].className;
-			if (n.childNodes[i].className == c){
+			if(n.childNodes[i].className == c){
 				//console.log("\tPushed node "+i.toString()+"\n");
 				get.push(n.childNodes[i]);
 			}
@@ -349,24 +349,24 @@ function getChildNodeByClass(n, c){ //get all child nodes of node n that are cla
 
 function replaceInnerHTMLById(id, html, callback_success, callback_error){ //gracefully transition between two elements 
 	const f = "replaceInnerHTMLById()";
-	try {
-		if (typeof html == 'undefined') {
+	try{
+		if(typeof html == 'undefined') {
 			let err = f+" error: html is undefined";
 			console.error(err);
 			console.trace();
 			//console.log(err);
 			return false;
-		}else if (html === ""){
+		}else if(html === ""){
 			console.error(f+": html is empty string");
 			return false;
 		}
 		//console.log(f+": entered with html \""+html+"\"");
 		//console.log(f+" html is of type "+typeof html);
 		let ce = document.getElementById(id);		
-		if (ce == null) {
+		if(ce == null) {
 			console.error(f+": element by id \""+id+"\"");
 			return false;
-		} else {
+		}else{
 			replaceInnerHTML(ce, html, callback_success, callback_error);
 		}
 	} catch(x) {
@@ -399,7 +399,7 @@ function defer(timeout, delay=null){
 
 function transitionEndHandler(element, callback_first, timeout_second, listener) {//execute the callback once the transition has ended, remove the transitionend event listener, then defer timeout if it exists
 	const f = "transitionEndHandler()";
-	try {
+	try{
 		//console.log(f+": entered; about to remove transition end listener");
 		//defer(timeout_second); //revealHiddenElement(element, callback_success, old_opacity);
 		element.removeEventListener("transitionend", listener);
@@ -444,7 +444,7 @@ function getImmediateChildElementByClassName(element, className, assert=true){
 				let child = element.childNodes[i];
 				let classNames = child.className != undefined? child.className.split(" ") : [];
 				for(let j = 0; j < classNames.length; j++) {
-					if (classNames[j] == className){
+					if(classNames[j] == className){
 						//console.log(f+": className match at index ".concat(j));
 						found = true;
 						//return child;
@@ -759,7 +759,7 @@ function replaceNode(newNode, existingNode, effect=EFFECT_NONE, callback_success
 				}
 				let listener = function(event){
 					const f = "replaceNode.ontransitionend";
-					try {
+					try{
 						//console.log(f.concat(": Entered"));
 						let reveal = function(event){ 
 							const f = "reveal";
@@ -976,7 +976,7 @@ function replaceInnerHTML(element, html, callback_success, callback_error){
 		}
 		let listener = function(event){
 			const f = "replaceInnerHTML.ontransitionend";
-			try {
+			try{
 				if(print){
 					console.log(f.concat(": Entered"));
 				}
@@ -1492,7 +1492,7 @@ function insecureNumericHash(str){
 	const f = "insecureNumericHash()";
 	try{
 		let hash = 0;
-		if (str.length == 0){
+		if(str.length == 0){
 			return hash;
 		}
 		for (let i = 0; i < str.length; i++) {

@@ -54,9 +54,9 @@ class NormalUser extends AuthenticatedUser{
 
 	public function getStaticRoles(): ?array{
 		$roles = parent::getStaticRoles();
-		if ($this->hasActivationTimestamp()) {
+		if($this->hasActivationTimestamp()) {
 			$roles["active"] = 'active';
-		} else {
+		}else{
 			$roles['inactive'] = 'inactive';
 		}
 		return $roles;
@@ -73,7 +73,7 @@ class NormalUser extends AuthenticatedUser{
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::declareColumns($columns, $ds);
 			$active_t = new TimestampDatum("activationTimestamp");
 			$active_t->setUserWritableFlag(true);
@@ -92,7 +92,7 @@ class NormalUser extends AuthenticatedUser{
 			];
 			$kyc->setValidEnumerationMap($map);
 			array_push($columns, $kyc, $active_t);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -116,10 +116,10 @@ class NormalUser extends AuthenticatedUser{
 	public static function checkUserExists(mysqli $mysqli, string $key):bool{
 		$f = __METHOD__; 
 		$user = static::getObjectFromKey($mysqli, $key);
-		if ($user === null || $user->getObjectStats() !== SUCCESS) {
+		if($user === null || $user->getObjectStats() !== SUCCESS) {
 			Debug::warning("{$f} user with key {$key} doesn't exist");
 			return false;
-		} else {
+		}else{
 			// Debug::print("{$f} user with key DOES exist; his name is ".$user->getName());
 			return true;
 		}

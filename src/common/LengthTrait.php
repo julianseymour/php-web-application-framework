@@ -11,12 +11,12 @@ trait LengthTrait
 	public function setLength($length)
 	{
 		$f = __METHOD__; //"LengthTrait(".static::getShortClass().")->setLength()";
-		if ($length === null) {
+		if($length === null) {
 			unset($this->lengthValue);
 			return null;
-		} elseif (! is_int($length)) {
+		}elseif(!is_int($length)) {
 			Debug::error("{$f} length must be a positive integer");
-		} elseif ($length < 1) {
+		}elseif($length < 1) {
 			Debug::error("{$f} length must be positive");
 		}
 		return $this->lengthValue = $length;
@@ -30,7 +30,7 @@ trait LengthTrait
 	public function getLength()
 	{
 		$f = __METHOD__; //"LengthTrait(".static::getShortClass().")->getLength()";
-		if (! $this->hasLength()) {
+		if(!$this->hasLength()) {
 			Debug::error("{$f} length is undefined");
 		}
 		return $this->lengthValue;

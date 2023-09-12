@@ -20,7 +20,7 @@ class AddConstraintOption extends AlterOption
 	public function setConstraint($constraint)
 	{
 		$f = __METHOD__; //AddConstraintOption::getShortClass()."(".static::getShortClass().")->setConstraint()";
-		if (! $constraint instanceof Constraint) {
+		if(!$constraint instanceof Constraint) {
 			Debug::error("{$f} input parameter must be a constraint");
 		}
 		return $this->constraint = $constraint;
@@ -34,7 +34,7 @@ class AddConstraintOption extends AlterOption
 	public function getConstraint()
 	{
 		$f = __METHOD__; //AddConstraintOption::getShortClass()."(".static::getShortClass().")->getConstraint()";
-		if (! $this->hasConstraint()) {
+		if(!$this->hasConstraint()) {
 			Debug::error("{$f} constraint is undefined");
 		}
 		return $this->constraint;
@@ -43,7 +43,7 @@ class AddConstraintOption extends AlterOption
 	public function toSQL(): string
 	{
 		$constraint = $this->getConstraint();
-		if ($constraint instanceof SQLInterface) {
+		if($constraint instanceof SQLInterface) {
 			$constraint = $constraint->toSQL();
 		}
 		return "add {$constraint}";

@@ -23,43 +23,43 @@ class Responder extends Basic{
 	
 	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$response->setProperty("time", floor(microtime(true) * 1000));
-			if (app()->hasUserData()) {
+			if(app()->hasUserData()) {
 				$user = user();
-				if (! $response->hasDataStructure($user)) {
+				if(!$response->hasDataStructure($user)) {
 					$user->configureArrayMembership(CONST_DEFAULT);
 					$response->pushDataStructure($user);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} application runtime lacks user data");
 			}
 			if($use_case->hasObjectStatus()){
 				$status = $use_case->getObjectStatus();
 				$response->setProperty("status", $status);
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status); //$use_case->getErrorMessage();
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} error status \"{$err}\"");
 					}
 					$response->setProperty('info', $err);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} use case was successful");
 				}
 			}
-			if ($use_case instanceof ClientUseCaseInterface) {
-				if (! $response->hasProperty("action")) {
+			if($use_case instanceof ClientUseCaseInterface) {
+				if(!$response->hasProperty("action")) {
 					$action = $use_case->getClientUseCaseName();
-					if ($action !== null) {
+					if($action !== null) {
 						$response->setProperty("action", $action);
 					}
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} the response already has an action attribute");
 					}
 					$actions = $response->getProperty("action");
-					if (! is_array($actions)) {
+					if(!is_array($actions)) {
 						$actions = [
 							$actions
 						];
@@ -67,7 +67,7 @@ class Responder extends Basic{
 					array_push($actions, $use_case->getClientUseCaseName());
 					$response->setProperty("action", $actions);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				$ucc = get_class($use_case);
 				Debug::printStackTraceNoExit("{$f} use case \"{$ucc}\" is not a ClientUseCaseinterface");
 			}
@@ -79,7 +79,7 @@ class Responder extends Basic{
 			}elseif($print){
 				Debug::print("{$f} no commands to push");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

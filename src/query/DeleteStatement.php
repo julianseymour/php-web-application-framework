@@ -71,90 +71,90 @@ class DeleteStatement extends WhereConditionalStatement
 	public function getQueryStatementString()
 	{
 		$f = __METHOD__; //DeleteStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
-		try {
+		try{
 			// DELETE
 			$string = "delete ";
 			// [LOW_PRIORITY]
-			if ($this->getLowPriorityFlag()) {
+			if($this->getLowPriorityFlag()) {
 				$string .= PRIORITY_LOW . " ";
 			}
 			// [QUICK]
-			if ($this->getQuickFlag()) {
+			if($this->getQuickFlag()) {
 				$string .= "quick ";
 			}
 			// [IGNORE]
-			if ($this->getIgnoreFlag()) {
+			if($this->getIgnoreFlag()) {
 				$string .= "ignore ";
 			}
-			if ($this->hasJoinExpressions()) {
+			if($this->hasJoinExpressions()) {
 				// tbl_name[.*] [, tbl_name[.*]] ...
 				$i = 0;
-				foreach ($this->getTableNames() as $tableName) {
-					if ($i ++ > 0) {
+				foreach($this->getTableNames() as $tableName) {
+					if($i ++ > 0) {
 						$string .= ",";
 					}
-					if ($tableName instanceof SQLInterface) {
+					if($tableName instanceof SQLInterface) {
 						$string .= $tableName->toSQL();
-					} elseif (is_string($tableName)) {
+					}elseif(is_string($tableName)) {
 						$string .= $tableName;
-					} else {
+					}else{
 						Debug::error("{$f} table name is neither string nor SQLInterface");
 					}
-					if ($this->getAccessCompatibilityFlag()) {
+					if($this->getAccessCompatibilityFlag()) {
 						$string .= ".*";
 					}
 				}
 			}
 			// FROM tbl_name
-			if ($this->hasJoinExpressions() || $this->hasTableName()) {
+			if($this->hasJoinExpressions() || $this->hasTableName()) {
 				$string .= "from ";
-				if ($this->hasJoinExpressions()) {
+				if($this->hasJoinExpressions()) {
 					$joins = [];
-					foreach ($this->getJoinExpressions() as $j) {
-						if ($j instanceof SQLInterface) {
+					foreach($this->getJoinExpressions() as $j) {
+						if($j instanceof SQLInterface) {
 							$j = $j->toSQL();
 						}
 						array_push($joins, $j);
 					}
 					$string .= implode(',', $joins);
-				} elseif ($this->hasTableName()) {
-					if ($this->hasDatabaseName()) {
+				}elseif($this->hasTableName()) {
+					if($this->hasDatabaseName()) {
 						$string .= back_quote($this->getDatabaseName()) . ".";
 					}
 					$string .= $this->getTableName();
 				}
 			}
-			if (! $this->hasJoinExpressions()) {
+			if(!$this->hasJoinExpressions()) {
 				// [[AS] tbl_alias]
-				if ($this->hasAlias()) {
+				if($this->hasAlias()) {
 					$string .= " as " . $this->getAlias();
 				}
 
 				// [PARTITION (partition_name [, partition_name] ...)]
-				if ($this->hasPartitionNames()) {
+				if($this->hasPartitionNames()) {
 					$string .= " partition " . implode(',', $this->getPartitionNames());
 				}
 			}
 			// [WHERE where_condition]
-			if ($this->hasWhereCondition()) {
+			if($this->hasWhereCondition()) {
 				$where = $this->getWhereCondition();
-				if ($where instanceof SQLInterface) {
+				if($where instanceof SQLInterface) {
 					$where = $where->toSQL();
 				}
 				$string .= " where {$where}";
 			}
-			if (! $this->hasJoinExpressions()) {
+			if(!$this->hasJoinExpressions()) {
 				// [ORDER BY ...]
-				if ($this->hasOrderBy()) {
+				if($this->hasOrderBy()) {
 					$string .= " order by " . $this->getOrderByString();
 				}
 				// [LIMIT row_count]
-				if ($this->hasLimit()) {
+				if($this->hasLimit()) {
 					$string .= " limit " . $this->getLimit();
 				}
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

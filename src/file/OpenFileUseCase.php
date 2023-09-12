@@ -31,7 +31,7 @@ abstract class OpenFileUseCase extends UseCase{
 
 	public function getRequiredMimeType():string{
 		$f = __METHOD__;
-		if (! $this->hasRequiredMimeType()) {
+		if(!$this->hasRequiredMimeType()) {
 			Debug::error("{$f} required mime type is undefined");
 		}
 		return $this->requiredMimeType;
@@ -39,7 +39,7 @@ abstract class OpenFileUseCase extends UseCase{
 
 	public function sendHeaders(Request $request): bool{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
 			if($this->hasObjectStatus() && $this->getObjectStatus() !== SUCCESS){
 				if($print){
@@ -51,7 +51,7 @@ abstract class OpenFileUseCase extends UseCase{
 				Debug::print("{$f} sending generic file headers");
 			}
 			$segments = request()->getRequestURISegments();
-			if (empty($segments)) {
+			if(empty($segments)) {
 				Debug::warning("{$f} request URI segments array is empty");
 				Debug::printArray($segments);
 				Debug::printStackTrace();
@@ -65,14 +65,14 @@ abstract class OpenFileUseCase extends UseCase{
 				$this->setRequiredMimeType($mime_code);
 			}
 			return parent::sendHeaders($request);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function echoResponse(): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if($this->hasObjectStatus() && $this->getObjectStatus() !== SUCCESS){
 				if($print){
@@ -84,27 +84,27 @@ abstract class OpenFileUseCase extends UseCase{
 				return;
 			}
 			$user = user();
-			if ($user == null) {
+			if($user == null) {
 				Debug::error("{$f} user data returned null");
 				$this->echoResponse(ERROR_NULL_USER_OBJECT);
 			}
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
 			$file = $this->acquireFileObject($mysqli);
-			if ($file == null) {
+			if($file == null) {
 				$this->setObjectStatus(ERROR_FILE_NOT_FOUND);
 				parent::echoResponse();
 				return;
 				Debug::error("{$f} whoops, file attachment returned null");
-			} elseif ($file->getObjectStatus() == ERROR_NOT_FOUND) {
+			}elseif($file->getObjectStatus() == ERROR_NOT_FOUND) {
 				Debug::error("{$f} file not found");
 			}
 			$mime = $file->getMimeType();
 			$required = $this->getRequiredMimeType();
-			if ($mime !== $required) {
+			if($mime !== $required) {
 				Debug::error("{$f} file's mime type \"{$mime}\" differs from required type \"{$required}\"");
 			}
 			$file->outputFileToBrowser($mysqli);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -13,18 +13,18 @@ class ElementSelector extends Selector
 	public function __construct($tag = null)
 	{
 		parent::__construct();
-		if (isset($tag)) {
+		if(isset($tag)) {
 			$this->setElementTag($tag);
 		}
 	}
 
 	public function pushCoselector(...$selectors)
 	{
-		if (! is_array($this->coselectors)) {
+		if(!is_array($this->coselectors)) {
 			$this->coselectors = [];
 		}
 		$i = 0;
-		foreach ($selectors as $selector) {
+		foreach($selectors as $selector) {
 			$i += array_push($this->coselectors, $selector);
 		}
 		return $i;
@@ -45,23 +45,23 @@ class ElementSelector extends Selector
 	 */
 	public function echo(bool $destroy = false): void
 	{
-		if ($this->hasElementTag()) {
+		if($this->hasElementTag()) {
 			echo $this->getElementTag();
 		}
-		if ($this->hasClassAttribute()) {
-			foreach ($this->classList as $class) {
+		if($this->hasClassAttribute()) {
+			foreach($this->classList as $class) {
 				echo ".{$class}";
 			}
 		}
-		if ($this->hasIdAttribute()) {
+		if($this->hasIdAttribute()) {
 			echo "#" . $this->getIdAttribute();
 		}
-		if (! empty($this->coselectors)) {
-			foreach ($this->coselectors as $selector) {
+		if(!empty($this->coselectors)) {
+			foreach($this->coselectors as $selector) {
 				$selector->echo();
 			}
 		}
-		if ($destroy) {
+		if($destroy) {
 			$this->dispose();
 		}
 	}
@@ -88,7 +88,7 @@ class ElementSelector extends Selector
 
 	public function attributes(array $keyvalues): ElementSelector
 	{
-		foreach ($keyvalues as $key => $value) {
+		foreach($keyvalues as $key => $value) {
 			$this->pushCoselector(new AttributeSelector($key, $value));
 		}
 		return $this;
@@ -122,7 +122,7 @@ class ElementSelector extends Selector
 
 	public function attributesContain(array $keyvalues): ElementSelector
 	{
-		foreach ($keyvalues as $key => $value) {
+		foreach($keyvalues as $key => $value) {
 			$this->pushCoselector(new AttributeContainsSelector($key, $value));
 		}
 		return $this;
@@ -136,7 +136,7 @@ class ElementSelector extends Selector
 
 	public function attributesEndWith(array $keyvalues): ElementSelector
 	{
-		foreach ($keyvalues as $key => $value) {
+		foreach($keyvalues as $key => $value) {
 			$this->pushCoselector(new AttributeEndsWithSelector($key, $value));
 		}
 		return $this;
@@ -150,7 +150,7 @@ class ElementSelector extends Selector
 
 	public function attributesStartWith(array $keyvalues): ElementSelector
 	{
-		foreach ($keyvalues as $key => $value) {
+		foreach($keyvalues as $key => $value) {
 			$this->pushCoselector(new AttributeStartsWithSelector($key, $value));
 		}
 		return $this;
@@ -163,7 +163,7 @@ class ElementSelector extends Selector
 
 	public function pseudoclass(...$ps): ElementSelector
 	{
-		foreach ($ps as $p) {
+		foreach($ps as $p) {
 			$this->pushCoselector(new PseudoclassSelector($p));
 		}
 		return $this;
@@ -171,7 +171,7 @@ class ElementSelector extends Selector
 
 	public function pseudoelement(...$ps): ElementSelector
 	{
-		foreach ($ps as $p) {
+		foreach($ps as $p) {
 			$this->pushCoselector(new PseudoelementSelector($p));
 		}
 		return $this;

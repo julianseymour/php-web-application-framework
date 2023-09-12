@@ -18,7 +18,7 @@ class ZipFileData extends CompressedFileData{
 
 	public static function zipStatus($zip_status){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($zip_status) {
 				case true:
 					// Debug::print("{$f} Success!");
@@ -58,7 +58,7 @@ class ZipFileData extends CompressedFileData{
 			Debug::error("{$f} failed to open zip file");
 			Debug::printStackTrace();
 			return $zip_status;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -66,24 +66,24 @@ class ZipFileData extends CompressedFileData{
 	public static function unzipSingleFile($zip_filename, $original_filename)
 	{
 		$f = __METHOD__; //ZipFileData::getShortClass()."(".static::getShortClass().")::unzip({$zip_filename}, {$original_filename})";
-		try {
-			if ($original_filename == null || $original_filename == "") {
+		try{
+			if($original_filename == null || $original_filename == "") {
 				Debug::error("{$f} original filename is null or empty string");
 			}
 			// Debug::print("{$f} entered; about to create open zip archive from file \"{$zip_filename}\"");
 			$zip = new ZipArchive();
 			$zip_status = static::zipStatus($zip->open($zip_filename));
-			if (true !== $zip_status) {
+			if(true !== $zip_status) {
 				Debug::error("{$f} opening zip file \"{$zip_filename}\"");
 			}
 			// Debug::print("{$f} successfully opened zip file \"{$zip_filename}\"");
 			// Debug::print("{$f} about to unzip file \"{$original_filename}\" from zip zip archive \"{$zip_filename}\"");
 			$unzipped = $zip->getFromName($original_filename);
 			$zip->close();
-			if ($unzipped === false) {
+			if($unzipped === false) {
 				Debug::error("{$f} failed to unzip file \"{$original_filename}\" from archive \"{$zip_filename}\"");
 				return null;
-			} elseif ($unzipped === null || $unzipped === "") {
+			}elseif($unzipped === null || $unzipped === "") {
 				Debug::error("{$f} unzipped \"{$original_filename}\" from archive \"{$zip_filename}\", but the file itself is null/empty string");
 			}
 			$length = strlen($unzipped);
@@ -91,7 +91,7 @@ class ZipFileData extends CompressedFileData{
 			// Debug::print("{$f} file size is {$length} bytes");
 			// Debug::print("{$f} returning normally");
 			return $unzipped;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -101,7 +101,7 @@ class ZipFileData extends CompressedFileData{
 		$f = __METHOD__; //ZipFileData::getShortClass()."(".static::getShortClass().")::extractAll()";
 		$zip = new ZipArchive();
 		$zip_status = static::zipStatus($zip->open($zip_filename));
-		if (true !== $zip_status) {
+		if(true !== $zip_status) {
 			Debug::error("{$f} opening zip file \"{$zip_filename}\"");
 		}
 		$count = $zip->count();
@@ -122,35 +122,35 @@ class ZipFileData extends CompressedFileData{
 	public static function zipSingleFile(string $temp_filename, string $original_filename, ?string $directory = null): string
 	{
 		$f = __METHOD__; //ZipFileData::getShortClass()."(".static::getShortClass().")::zip()";
-		try {
-			if ($directory === null) {
+		try{
+			if($directory === null) {
 				$directory = "tmp";
 			}
 			$file = file_get_contents($temp_filename);
-			if (! isset($file) || $file == "") {
+			if(! isset($file) || $file == "") {
 				Debug::error("{$f} file's contents are null or empty string");
-			} elseif (! isset($original_filename)) {
+			}elseif(! isset($original_filename)) {
 				Debug::error("{$f} original filename is undefined");
-			} else {
+			}else{
 				// Debug::print("{$f} about to create tempfile");
 			}
 			$zip_filename = tempnam($directory, "zip");
 			$zip = new ZipArchive();
 			$zip_status = static::zipStatus($zip->open($zip_filename, ZipArchive::OVERWRITE));
-			if (true !== $zip_status) {
+			if(true !== $zip_status) {
 				Debug::error("{$f} opening zip file \"{$zip_filename}\"");
 			}
 			// Debug::print("{$f} successfully opened zip file \"{$zip_filename}\"");
 			// Debug::print("{$f} about to add file \"{$original_filename}\" to archive \"{$zip_filename}\"");
 			$worked = $zip->addFromString($original_filename, $file);
 			$zip->close();
-			if ($worked) {
+			if($worked) {
 				// Debug::print("{$f} successfully added file \"{$original_filename}\" to zip file \"{$zip_filename}\"");
 				return $zip_filename;
 			}
 			Debug::error("{$f} failed to add file \"{$original_filename}\" to zip archive \"{$zip_filename}\"");
 			return null;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

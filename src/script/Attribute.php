@@ -22,9 +22,9 @@ class Attribute extends Basic implements JavaScriptInterface
 	public function toJavaScript(): string
 	{
 		$value = $this->getValue();
-		if ($value instanceof JavaScriptInterface) {
+		if($value instanceof JavaScriptInterface) {
 			$value = $value->toJavaScript();
-		} elseif (is_string($value) || $value instanceof StringifiableInterface) {
+		}elseif(is_string($value) || $value instanceof StringifiableInterface) {
 			$value = single_quote($value);
 		}
 		return $value;

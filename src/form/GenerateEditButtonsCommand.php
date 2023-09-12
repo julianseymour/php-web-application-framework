@@ -20,7 +20,7 @@ class GenerateEditButtonsCommand extends GenerateFormButtonsCommand
 	{
 		$f = __METHOD__; //GenerateEditButtonsCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		return "AjaxForm.generateEditButtons({$idcs}, context)";

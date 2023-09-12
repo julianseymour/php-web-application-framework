@@ -20,7 +20,7 @@ class GetTypeOfCommand extends Command implements JavaScriptInterface, ValueRetu
 	public function toJavaScript(): string
 	{
 		$value = $this->getValue();
-		if ($value instanceof JavaScriptInterface) {
+		if($value instanceof JavaScriptInterface) {
 			$value = $value->toJavaScript();
 		}
 		return "typeof {$value}";

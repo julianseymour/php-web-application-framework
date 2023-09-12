@@ -17,7 +17,7 @@ class ProfileImageData extends ImageData implements TemplateContextInterface{
 
 	public function getArrayMembershipConfiguration($config_id): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$config = parent::getArrayMembershipConfiguration($config_id);
 			switch ($config_id) {
 				case "default":
@@ -27,7 +27,7 @@ class ProfileImageData extends ImageData implements TemplateContextInterface{
 					$config['webThumbnailPath'] = true;
 					return $config;
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -43,7 +43,7 @@ class ProfileImageData extends ImageData implements TemplateContextInterface{
 	protected function beforeInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
 		$ret = parent::beforeInsertHook($mysqli);
-		if (! $this->hasUserKey()) {
+		if(!$this->hasUserKey()) {
 			Debug::error("{$f} user key is undefined");
 		}
 		Debug::print("{$f} user key is \"" . $this->getUserKey() . "\"");

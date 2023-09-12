@@ -22,7 +22,7 @@ class TimeStringCommand extends StringTransformationCommand{
 
 	public function toJavaScript(): string{
 		$ts = $this->getSubject();
-		if ($ts instanceof JavaScriptInterface) {
+		if($ts instanceof JavaScriptInterface) {
 			$ts = $ts->toJavaScript();
 		}
 		return "parseTimeStringFromTimestamp({$ts})";

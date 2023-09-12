@@ -24,7 +24,7 @@ abstract class AbstractLoginMfaOtpForm extends AjaxForm{
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "otp":
@@ -35,7 +35,7 @@ abstract class AbstractLoginMfaOtpForm extends AjaxForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -84,12 +84,12 @@ abstract class AbstractLoginMfaOtpForm extends AjaxForm{
 
 	public function dispatchCommands(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$ret = parent::dispatchCommands();
 			$command = new FocusInputCommand("mfa_otp");
 			$this->reportSubcommand($command);
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

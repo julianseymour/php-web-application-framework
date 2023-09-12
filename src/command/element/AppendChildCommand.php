@@ -19,28 +19,28 @@ class AppendChildCommand extends InsertChildCommand
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //AppendChildCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$print = false;
-			if ($this->getElementCount() > 1) {
+			if($this->getElementCount() > 1) {
 				Debug::error("{$f} unimplemented: insert multiple elements");
 			}
-			if ($this->hasParentNode()) { // && $this->getParentNode()){
+			if($this->hasParentNode()) { // && $this->getParentNode()){
 				$parent = $this->getParentNode();
-				if ($parent instanceof Element) {
+				if($parent instanceof Element) {
 					$id = $parent->getIdOverride();
-				} else {
+				}else{
 					Debug::error("{$f} parent is not an element");
 				}
-			} elseif ($this->hasReferenceElementId()) {
+			}elseif($this->hasReferenceElementId()) {
 				$id = $this->getReferenceElementId();
-			} else {
+			}else{
 				$decl = $this->getDeclarationLine();
 				Debug::error("{$f} neither of the above. Declared {$decl}");
 			}
-			if ($id instanceof JavaScriptInterface) {
+			if($id instanceof JavaScriptInterface) {
 				$id = $id->toJavaScript();
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} insertion target ID is \"{$id}\"");
 			}
 			$elements = $this->getElements();
@@ -51,15 +51,15 @@ class AppendChildCommand extends InsertChildCommand
 			 * }
 			 */
 			$element = $elements[array_keys($elements)[0]];
-			if ($element instanceof ValueReturningCommandInterface) {
+			if($element instanceof ValueReturningCommandInterface) {
 				$append_me = $element;
-			} elseif (is_object($element) && $element->hasIdOverride()) {
+			}elseif(is_object($element) && $element->hasIdOverride()) {
 				$append_me = $element->getIdOverride();
-			} else {
+			}else{
 				$gottype = is_object($element) ? $element->getClass() : gettype($element);
 				Debug::error("{$f} element is not a value-returning command, and does not have an ID override; type is \"{$gottype}\"");
 			}
-			if ($append_me instanceof JavaScriptInterface) {
+			if($append_me instanceof JavaScriptInterface) {
 				$append_me = $append_me->toJavaScript();
 			}
 			$s = "";
@@ -67,7 +67,7 @@ class AppendChildCommand extends InsertChildCommand
 			// $s .= ";\n\t";
 			$s .= "{$id}.appendChild({$append_me})";
 			return $s;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -77,9 +77,9 @@ class AppendChildCommand extends InsertChildCommand
 		$f = __METHOD__; //AppendChildCommand::getShortClass()."(".static::getShortClass().")->resolve()";
 		$print = false;
 		$elements = $this->getElements();
-		foreach ($elements as $element) {
+		foreach($elements as $element) {
 			while ($element instanceof ValueReturningCommandInterface) {
-				if ($print) {
+				if($print) {
 					$ec = $element->getClass();
 					Debug::print("{$f} element is a value returning media command of class \"{$ec}\"");
 				}

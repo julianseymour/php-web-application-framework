@@ -44,7 +44,7 @@ class SetStylePropertiesCommand extends ElementCommand implements ServerExecutab
 	public function __construct($element, $properties)
 	{
 		$f = __METHOD__; //SetStylePropertiesCommand::getShortClass()."(".static::getShortClass().")->__construct()";
-		try {
+		try{
 			parent::__construct($element);
 			/*
 			 * $arr = [];
@@ -56,7 +56,7 @@ class SetStylePropertiesCommand extends ElementCommand implements ServerExecutab
 			 * }
 			 */
 			$this->setStyleProperties($properties);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -64,29 +64,29 @@ class SetStylePropertiesCommand extends ElementCommand implements ServerExecutab
 	public function echoInnerJson(bool $destroy = false): void
 	{
 		$f = __METHOD__; //SetStylePropertiesCommand::getShortClass()."(".static::getShortClass().")->echoInnerJson()";
-		try {
+		try{
 			$properties = [];
-			foreach ($this->getStyleProperties() as $name => $property) {
+			foreach($this->getStyleProperties() as $name => $property) {
 				/*
 				 * if(is_array($property)){
 				 * Debug::error("{$f} singular property is an array");
 				 * }
 				 */
-				if ($property instanceof CssProperty) {
+				if($property instanceof CssProperty) {
 					$value = $property->getValueString();
 					/*
 					 * if($property->isImportant()){
 					 * $value = "{$value} !important";
 					 * }
 					 */
-				} else {
+				}else{
 					$value = $property;
 				}
 				$properties[$name] = $value;
 			}
 			Json::echoKeyValuePair('properties', $properties, $destroy);
 			parent::echoInnerJson($destroy);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -100,14 +100,14 @@ class SetStylePropertiesCommand extends ElementCommand implements ServerExecutab
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //SetStylePropertiesCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$string = "";
 			$e = $this->getIdCommandString();
-			if ($e instanceof JavaScriptInterface) {
+			if($e instanceof JavaScriptInterface) {
 				$e = $e->toJavaScript();
 			}
 			$i = 0;
-			foreach ($this->getStyleProperties() as $name => $property) {
+			foreach($this->getStyleProperties() as $name => $property) {
 				/*
 				 * if(is_array($p)){
 				 * Debug::error("{$f} property is an array");
@@ -115,22 +115,22 @@ class SetStylePropertiesCommand extends ElementCommand implements ServerExecutab
 				 * $name = $p->getPropertyName();
 				 * $value = $p->getPropertyValue();
 				 */
-				if ($property instanceof JavaScriptInterface) {
+				if($property instanceof JavaScriptInterface) {
 					$value = $property->toJavaScript();
-				} elseif ($property instanceof CssProperty) {
+				}elseif($property instanceof CssProperty) {
 					$value = $property->getValueString();
-				} elseif (is_string($property) || $property instanceof StringifiableInterface) { // XXX check to see if it already has quotes
+				}elseif(is_string($property) || $property instanceof StringifiableInterface) { // XXX check to see if it already has quotes
 					$value = single_quote($property);
-				} else {
+				}else{
 					$value = $property;
 				}
-				if ($i ++ > 0) {
+				if($i ++ > 0) {
 					$string .= ";\n";
 				}
 				$string .= "{$e}.style['{$name}'] = {$value}";
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			X($f, $x);
 		}
 	}
@@ -138,20 +138,20 @@ class SetStylePropertiesCommand extends ElementCommand implements ServerExecutab
 	public function resolve()
 	{
 		$f = __METHOD__; //SetStylePropertiesCommand::getShortClass()."(".static::getShortClass().")->resolve()";
-		try {
+		try{
 			$element = $this->getElement();
 			while ($element instanceof ValueReturningCommandInterface) {
 				$element = $element->evaluate();
 			}
-			foreach ($this->getStyleProperties() as $name => $value) {
-				if ($value instanceof CssProperty) {
+			foreach($this->getStyleProperties() as $name => $value) {
+				if($value instanceof CssProperty) {
 					$value = $value->getValueString();
 				}
 				$element->setStyleProperties([
 					$name => $value
 				]);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

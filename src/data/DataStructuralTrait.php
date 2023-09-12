@@ -20,7 +20,7 @@ trait DataStructuralTrait{
 	 * @return DataStructure
 	 */
 	public function setDataStructure($obj){
-		if ($obj == null) {
+		if($obj == null) {
 			unset($this->dataStructure);
 			return null;
 		}
@@ -33,8 +33,8 @@ trait DataStructuralTrait{
 	 */
 	public function getDataStructure(){
 		$f = __METHOD__;
-		if (! $this->hasDataStructure()) {
-			if ($this instanceof Datum) {
+		if(!$this->hasDataStructure()) {
+			if($this instanceof Datum) {
 				$column_name = $this->getName();
 				Debug::error("{$f} data structure is undefined for column \"{$column_name}\"");
 			}

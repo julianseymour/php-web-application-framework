@@ -28,9 +28,9 @@ class LockoutConfirmationCode extends AnonymousConfirmationCode
 
 	public static function getSentEmailStatus():int{
 		$f = __METHOD__;
-		try {
+		try{
 			return RESULT_BFP_USERNAME_LOCKOUT_START;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -38,7 +38,7 @@ class LockoutConfirmationCode extends AnonymousConfirmationCode
 	public static function getPermissionStatic(string $name, $data){
 		switch ($name) {
 			case DIRECTIVE_INSERT:
-				if (! app()->hasUserData()) {
+				if(! app()->hasUserData()) {
 					return SUCCESS;
 				}
 				return new AnonymousAccountTypePermission($name);

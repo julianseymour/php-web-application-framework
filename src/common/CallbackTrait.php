@@ -16,7 +16,7 @@ trait CallbackTrait
 	public function getCallback()
 	{
 		$f = __METHOD__; //"CallbackTrait(".static::getShortClass().")->getCallback()";
-		if (! $this->hasCallback()) {
+		if(!$this->hasCallback()) {
 			Debug::error("{$f} callback is undefined");
 		}
 		return $this->callback;

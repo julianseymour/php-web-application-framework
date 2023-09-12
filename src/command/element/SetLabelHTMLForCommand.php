@@ -24,8 +24,8 @@ class SetLabelHTMLForCommand extends ElementCommand implements ServerExecutableC
 	public function __construct($element = null, $for = null)
 	{
 		parent::__construct($element);
-		if (isset($for)) {
-			if ($for instanceof InputInterface) {
+		if(isset($for)) {
+			if($for instanceof InputInterface) {
 				$for = $for->getIdAttribute();
 			}
 			$this->setHTMLFor($for);
@@ -45,7 +45,7 @@ class SetLabelHTMLForCommand extends ElementCommand implements ServerExecutableC
 	public function getHTMLFor()
 	{
 		$f = __METHOD__; //SetLabelHTMLForCommand::getShortClass()."(".static::getShortClass().")->getHTMLFor()";
-		if (! $this->hasHTMLFor()) {
+		if(!$this->hasHTMLFor()) {
 			Debug::error("{$f} HTML for attribute is undefined");
 		}
 		return $this->htmlFor;
@@ -66,19 +66,19 @@ class SetLabelHTMLForCommand extends ElementCommand implements ServerExecutableC
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //SetLabelHTMLForCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$id = $this->getIdCommandString();
-			if ($id instanceof JavaScriptInterface) {
+			if($id instanceof JavaScriptInterface) {
 				$id = $id->toJavaScript();
 			}
 			$htmlFor = $this->getHTMLFor();
-			if ($htmlFor instanceof JavaScriptInterface) {
+			if($htmlFor instanceof JavaScriptInterface) {
 				$htmlFor = $htmlFor->toJavaScript();
-			} else {
+			}else{
 				$htmlFor = single_quote($htmlFor);
 			}
 			return "{$id}.htmlFor = {$htmlFor}";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

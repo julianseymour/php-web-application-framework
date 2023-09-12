@@ -22,7 +22,7 @@ class SetInputValueCommand extends ElementCommand implements ServerExecutableCom
 	}
 
 	public function getValue(){
-		if (! $this->hasValue()) {
+		if(!$this->hasValue()) {
 			$this->value = "";
 		}
 		return $this->value;
@@ -31,21 +31,21 @@ class SetInputValueCommand extends ElementCommand implements ServerExecutableCom
 	public function __construct($element, $value = null){
 		$f = __METHOD__;
 		$print = false;
-		if ($element === null) {
+		if($element === null) {
 			Debug::error("{$f} element is null");
-		} elseif ($print) {
+		}elseif($print) {
 			$ec = is_object($element) ? get_class($element) : gettype($element);
 			$decl = $element->getDeclarationLine();
 			Debug::print("{$f} before parent constructor, element is a(n) {$ec}, declared {$decl}");
 		}
 		parent::__construct($element);
-		if (! isset($value)) {
+		if(! isset($value)) {
 			$value = "";
 		}
 		$this->setValue($value);
-		if (! $this->hasElement()) {
+		if(!$this->hasElement()) {
 			Debug::error("{$f} element is undefined");
-		} elseif ($print) {
+		}elseif($print) {
 			$element = $this->getElement();
 			$ec = is_object($element) ? get_class($element) : gettype($element);
 			$decl = $element->getDeclarationLine();
@@ -67,17 +67,17 @@ class SetInputValueCommand extends ElementCommand implements ServerExecutableCom
 		$f = __METHOD__;
 		$print = false;
 		$id = $this->getIdCommandString();
-		if ($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface) {
 			$id = $id->toJavaScript();
 		}
 		$value = $this->getValue();
-		if ($value instanceof JavaScriptInterface) {
+		if($value instanceof JavaScriptInterface) {
 			$value = $value->toJavaScript();
-		} elseif (is_string($value) || $value instanceof StringifiableInterface) {
+		}elseif(is_string($value) || $value instanceof StringifiableInterface) {
 			$value = single_quote($value);
 		}
 		$s = "{$id}.value = {$value}";
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning \"{$s}\"");
 		}
 		return $s;
@@ -85,17 +85,17 @@ class SetInputValueCommand extends ElementCommand implements ServerExecutableCom
 
 	public function resolve(){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
 			$element = $this->getElement();
-			if ($element === null) {
+			if($element === null) {
 				$decl = $this->getDeclarationLine();
 				$did = $this->getDebugId();
 				Debug::error("{$f} element is null. Declared {$decl}. Debug ID is {$did}");
-			} elseif ($print) {
-				if ($element instanceof ValueReturningCommandInterface) {
+			}elseif($print) {
+				if($element instanceof ValueReturningCommandInterface) {
 					Debug::print("{$f} element is a value-returning command interface");
-				} else {
+				}else{
 					Debug::print("{$f} element is NOT a value-returning command interface");
 				}
 			}
@@ -103,10 +103,10 @@ class SetInputValueCommand extends ElementCommand implements ServerExecutableCom
 				$element = $element->evaluate();
 			}
 			$value = $this->getValue();
-			if ($print) {
-				if ($value instanceof ValueReturningCommandInterface) {
+			if($print) {
+				if($value instanceof ValueReturningCommandInterface) {
 					Debug::print("{$f} value is a value-returning command interface");
-				} else {
+				}else{
 					Debug::print("{$f} value is NOT a value-returning command interface");
 				}
 			}
@@ -114,7 +114,7 @@ class SetInputValueCommand extends ElementCommand implements ServerExecutableCom
 				$value = $value->evaluate();
 			}
 			return $element->setValueAttribute($value);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

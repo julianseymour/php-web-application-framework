@@ -63,7 +63,7 @@ class CssRule extends Element
 	public function echoJson(bool $destroy = false): void
 	{
 		echo json_encode($this->__toString());
-		if ($destroy) {
+		if($destroy) {
 			$this->dispose();
 		}
 	}
@@ -118,7 +118,7 @@ class CssRule extends Element
 	 */
 	public function setSelectors(...$selectors)
 	{
-		if (count($selectors) == 1 && is_array($selectors[0])) {
+		if(count($selectors) == 1 && is_array($selectors[0])) {
 			$selectors = $selectors[0];
 		} /*
 		   * elseif(count($selectors) > 1){
@@ -153,56 +153,56 @@ class CssRule extends Element
 	public function echo(bool $destroy = false): void
 	{
 		$f = __METHOD__; //CssRule::getShortClass()."(".static::getShortClass().")->echo()";
-		try {
+		try{
 			$print = false;
 			$i = 0;
-			if (! $this->hasSelectors()) {
+			if(!$this->hasSelectors()) {
 				$dl = $this->getDeclarationLine();
-				if ($this->hasStyleProperties()) {
+				if($this->hasStyleProperties()) {
 					$properties = $this->getStyleProperties();
-					if (! is_array($properties)) {
+					if(!is_array($properties)) {
 						$decl = $this->getDeclarationLine();
 						Debug::error("{$f} properties is not an array. Declared {$decl}");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} printing properties");
 						Debug::printArray($properties);
 					}
-				} else {
+				}else{
 					Debug::error("{$f} selectors and properties are both undefined; declared at {$dl}");
 				}
 				Debug::error("{$f} selectors are undefined; declared at {$dl}");
 			}
-			foreach ($this->getSelectors() as $selector) {
-				if ($i > 0) {
+			foreach($this->getSelectors() as $selector) {
+				if($i > 0) {
 					echo ",";
 				}
-				if (is_string($selector)) {
+				if(is_string($selector)) {
 					echo $selector;
-				} elseif (is_object($selector)) {
+				}elseif(is_object($selector)) {
 					$selector->echo();
-				} else {
+				}else{
 					Debug::error("{$f} selector is neither string nor object");
 				}
 				$i ++;
 			}
-			if ($destroy) {
+			if($destroy) {
 				// unset($this->selectors);
 				$this->setSelectors(null);
 			}
 			echo "{\n";
-			foreach ($this->getStyleProperties() as $property_name => $property) {
-				if ($property instanceof CssProperty) {
+			foreach($this->getStyleProperties() as $property_name => $property) {
+				if($property instanceof CssProperty) {
 					$property->echo();
-				} else {
+				}else{
 					echo "\t{$property_name}:{$property};\n";
 				}
 			}
-			if ($destroy) {
+			if($destroy) {
 				// unset($this->properties);
 				$this->setStyleProperties(null);
 			}
 			echo "}\n";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

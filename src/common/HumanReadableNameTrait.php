@@ -19,10 +19,10 @@ trait HumanReadableNameTrait{
 
 	public function getHumanReadableName(){
 		$f = __METHOD__;
-		if (! isset($this->humanReadableName)) {
-			if ($this instanceof StaticHumanReadableNameInterface) {
+		if(! isset($this->humanReadableName)) {
+			if($this instanceof StaticHumanReadableNameInterface) {
 				return $this->getHumanReadableNameStatic($this);
-			}elseif ($this instanceof Datum) {
+			}elseif($this instanceof Datum) {
 				$cn = $this->getName();
 				$dsc = $this->getDataStructureClass();
 				Debug::error("{$f} human readable name is undefined for column \"{$cn}\" of class \"{$dsc}\"");

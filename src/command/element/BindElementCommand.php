@@ -29,31 +29,31 @@ class BindElementCommand extends ElementCommand implements AllocationModeInterfa
 
 	public function __construct($element, $ds){
 		parent::__construct($element);
-		if (isset($ds)) {
+		if(isset($ds)) {
 			$this->setDataStructure($ds);
 		}
 	}
 
 	public function toJavaScript(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			$element = $this->getElement();
-			if (is_string($element)) {
+			if(is_string($element)) {
 				$binder = $element::getTemplateFunctionName();
-			} elseif ($element instanceof Element) {
+			}elseif($element instanceof Element) {
 				$binder = $element->getTemplateFunctionName();
-			} else {
+			}else{
 				Debug::error("{$f} none of the above");
 			}
 			$ds = $this->getDataStructure();
-			if ($ds instanceof DataStructure) {
+			if($ds instanceof DataStructure) {
 				// Debug::error("{$f} somehow, context is a datastructure");
 				$ds = "context";
-			} elseif ($ds instanceof JavaScriptInterface) {
+			}elseif($ds instanceof JavaScriptInterface) {
 				$ds = $ds->toJavaScript();
 			}
 			return "{$binder}({$ds})";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -94,31 +94,31 @@ class BindElementCommand extends ElementCommand implements AllocationModeInterfa
 
 	public function evaluate(?array $params = null){
 		$f = __METHOD__;
-		try {
+		try{
 			$element = $this->getElement();
 			$ds = $this->getDataStructure();
 			while ($ds instanceof ValueReturningCommandInterface) {
 				$ds = $ds->evaluate();
 			}
-			if ($element instanceof NodeBearingCommandInterface) {
+			if($element instanceof NodeBearingCommandInterface) {
 				$ec = $element->getClass();
 				Debug::error("{$f} this command's element is a node-bearing media command of class \"{$ec}\"");
 				// return $element->extractChildNodes();
-			} elseif ($element instanceof Element) {
+			}elseif($element instanceof Element) {
 				$ec = $element->getClass();
 				// Debug::print("{$f} element is an element of class \"{$ec}\"");
-				if ($element->getTemplateLoopFlag()) {
+				if($element->getTemplateLoopFlag()) {
 					// Debug::print("{$f} element of class \"{$ec}\" has template loop flag set");
 					$mode = $element->getAllocationMode();
 					$element = new $ec($mode);
-				} else {
+				}else{
 					// Debug::print("{$f} element of class \"{$ec}\" does NOT have template loop flag set");
 				}
-				if (! $element->hasContext()) {
+				if(!$element->hasContext()) {
 					$element->bindContext($ds);
 				}
 				return $element;
-			} elseif (is_string($element) && class_exists($element)) {
+			}elseif(is_string($element) && class_exists($element)) {
 				$ec = $element;
 				// Debug::print("{$f} element is the class name \"{$ec}\"");
 				$ret = new $ec($this->getAllocationMode());
@@ -126,7 +126,7 @@ class BindElementCommand extends ElementCommand implements AllocationModeInterfa
 				return $ret;
 			}
 			Debug::error("{$f} none of the above");
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

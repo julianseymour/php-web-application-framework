@@ -35,10 +35,10 @@ class ActivationForm extends AjaxForm{
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$request = request();
 			$use_case = use_case();
-			if (! $request->hasInputParameter('blob_64', $use_case)) {
+			if(!$request->hasInputParameter('blob_64', $use_case)) {
 				Debug::error("{$f} blob 64 is undefined dammit");
 			}
 
@@ -56,7 +56,7 @@ class ActivationForm extends AjaxForm{
 			$login_input->setNameAttribute("login");
 			$login_input->setValueAttribute("login");
 
-			foreach ([
+			foreach([
 				$blob_input,
 				$context_input,
 				$login_input
@@ -65,7 +65,7 @@ class ActivationForm extends AjaxForm{
 			}
 
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -78,7 +78,7 @@ class ActivationForm extends AjaxForm{
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case 'name':
@@ -95,7 +95,7 @@ class ActivationForm extends AjaxForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

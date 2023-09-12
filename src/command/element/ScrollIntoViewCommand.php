@@ -16,7 +16,7 @@ class ScrollIntoViewCommand extends ElementCommand
 	public function __construct($element = null, $alignToTop = false)
 	{
 		parent::__construct($element);
-		if ($alignToTop) {
+		if($alignToTop) {
 			$this->setAlignToTop($alignToTop);
 		}
 	}
@@ -42,7 +42,7 @@ class ScrollIntoViewCommand extends ElementCommand
 
 	public function echoInnerJson(bool $destroy = false): void
 	{
-		if ($this->getAlignToTop()) {
+		if($this->getAlignToTop()) {
 			Json::echoKeyValuePair('alignToTop', true, $destroy);
 		}
 		parent::echoInnerJson($destroy);
@@ -61,7 +61,7 @@ class ScrollIntoViewCommand extends ElementCommand
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		$align = $this->getAlignToTop() ? "true" : "false";

@@ -116,7 +116,7 @@ class NonexistentUriData extends DataStructure implements StaticTableNameInterfa
 	
 	public function setIpVersion($v){
 		$f = __METHOD__; //NonexistentUriData::getShortClass()."(".static::getShortClass().")->setIpVersion()";
-		if ($v !== 4 && $v !== 6) {
+		if($v !== 4 && $v !== 6) {
 			Debug::error("{$f} unsupported IP version \"{$v}\"");
 		}
 		return $this->setColumnValue("ipVersion", $v);

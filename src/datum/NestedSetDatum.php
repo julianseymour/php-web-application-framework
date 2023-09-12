@@ -17,7 +17,7 @@ class NestedSetDatum extends UnsignedIntegerDatum
 	public function setHandedness($hand)
 	{
 		$f = __METHOD__; //NestedSetDatum::getShortClass()."(".static::getShortClass().")->setHandedNess()";
-		if ($hand == null) {
+		if($hand == null) {
 			unset($this->handedness);
 			return null;
 		}
@@ -33,7 +33,7 @@ class NestedSetDatum extends UnsignedIntegerDatum
 	public function getHandedness()
 	{
 		$f = __METHOD__; //NestedSetDatum::getShortClass()."(".static::getShortClass().")->getHandedness()";
-		if (! $this->hasHandedness()) {
+		if(!$this->hasHandedness()) {
 			Debug::error("{$f} handedness is undefined");
 		}
 		return $this->handedness;

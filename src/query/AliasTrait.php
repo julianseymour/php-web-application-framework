@@ -11,12 +11,12 @@ trait AliasTrait
 	public function setAlias($alias)
 	{
 		$f = __METHOD__; //"AliasTrait(".static::getShortClass().")->setAlias()";
-		if ($alias == null) {
+		if($alias == null) {
 			unset($this->alias);
 			return null;
-		} elseif (! is_string($alias)) {
+		}elseif(!is_string($alias)) {
 			Debug::error("{$f} alias must be a string");
-		} elseif (empty($alias)) {
+		}elseif(empty($alias)) {
 			Debug::error("{$f} alias must not be an empty string");
 		}
 		return $this->alias = $alias;

@@ -14,9 +14,9 @@ class SearchFieldDatum extends BooleanDatum implements StaticHumanReadableNameIn
 
 	public function setSearchClass($class){
 		$f = __METHOD__;
-		if (! is_string($class)) {
+		if(!is_string($class)) {
 			Debug::error("{$f} class is not a string");
-		} elseif (! class_exists($class)) {
+		}elseif(! class_exists($class)) {
 			Debug::error("{$f} class \"{$class}\" does not exist");
 		}
 		return $this->searchClass = $class;
@@ -32,7 +32,7 @@ class SearchFieldDatum extends BooleanDatum implements StaticHumanReadableNameIn
 
 	public function getFieldName(){
 		$f = __METHOD__;
-		if (! $this->hasFieldName()) {
+		if(!$this->hasFieldName()) {
 			Debug::error("{$f} field name is undefined");
 		}
 		return $this->fieldName;
@@ -44,7 +44,7 @@ class SearchFieldDatum extends BooleanDatum implements StaticHumanReadableNameIn
 
 	public function getSearchClass(){
 		$f = __METHOD__;
-		if (! $this->hasSearchClass()) {
+		if(!$this->hasSearchClass()) {
 			Debug::error("{$f} search class is undefined");
 		}
 		return $this->searchClass;

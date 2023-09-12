@@ -24,7 +24,7 @@ class IndexHint extends Basic implements StaticPropertyTypeInterface, SQLInterfa
 	{
 		parent::__construct();
 		// $this->requirePropertyType("indexNames", "s");
-		if ($type !== null) {
+		if($type !== null) {
 			$this->setIndexHintType($type);
 		}
 	}
@@ -32,12 +32,12 @@ class IndexHint extends Basic implements StaticPropertyTypeInterface, SQLInterfa
 	public function setIndexHintType($type)
 	{
 		$f = __METHOD__; //IndexHint::getShortClass()."(".static::getShortClass().")->setIndexHintType()";
-		if ($type == null) {
+		if($type == null) {
 			unset($this->indexHintType);
 			return null;
-		} elseif (! is_string($type)) {
+		}elseif(!is_string($type)) {
 			Debug::error("{$f} index hint type must be a string");
-		} elseif (empty($type)) {
+		}elseif(empty($type)) {
 			Debug::error("{$f} index hint type cannot be empty string");
 		}
 		$type = strtolower($type);
@@ -60,7 +60,7 @@ class IndexHint extends Basic implements StaticPropertyTypeInterface, SQLInterfa
 	public function getIndexHintType()
 	{
 		$f = __METHOD__; //IndexHint::getShortClass()."(".static::getShortClass().")->getIndexHIntType()";
-		if (! $this->hasIndexHintType()) {
+		if(!$this->hasIndexHintType()) {
 			Debug::error("{$f} index hint type is undefined");
 		}
 		return $this->indexHintType;
@@ -69,12 +69,12 @@ class IndexHint extends Basic implements StaticPropertyTypeInterface, SQLInterfa
 	public function setFor($what)
 	{
 		$f = __METHOD__; //IndexHint::getShortClass()."(".static::getShortClass().")->setFor()";
-		if ($what == null) {
+		if($what == null) {
 			unset($this->forWhat);
 			return null;
-		} elseif (! is_string($what)) {
+		}elseif(!is_string($what)) {
 			Debug::error("{$f} index hint for variable must be a string");
-		} elseif (empty($what)) {
+		}elseif(empty($what)) {
 			Debug::error("{$f} empty string");
 		}
 		$what = strtolower($what);
@@ -97,7 +97,7 @@ class IndexHint extends Basic implements StaticPropertyTypeInterface, SQLInterfa
 	public function getFor()
 	{
 		$f = __METHOD__; //IndexHint::getShortClass()."(".static::getShortClass().")->getFor()";
-		if (! $this->hasFor()) {
+		if(!$this->hasFor()) {
 			Debug::error("{$f} for is undefined");
 		}
 		return $this->forWhat;
@@ -127,24 +127,24 @@ class IndexHint extends Basic implements StaticPropertyTypeInterface, SQLInterfa
 	public function toSQL(): string
 	{
 		$f = __METHOD__; //IndexHint::getShortClass()."(".static::getShortClass().")->__toString()";
-		try {
+		try{
 			// USE {INDEX|KEY} [FOR {JOIN|ORDER BY|GROUP BY}] ([index_list])
 			// {IGNORE|FORCE} {INDEX|KEY} [FOR {JOIN|ORDER BY|GROUP BY}] (index_list)
 			$type = $this->getIndexHintType();
 			$string = "{$type} index ";
-			if ($this->hasFor()) {
+			if($this->hasFor()) {
 				$string .= "for " . $this->getFor();
 			}
 			$string .= "(";
-			if ($this->hasIndexNames()) {
+			if($this->hasIndexNames()) {
 				$string .= implode(',', $this->getIndexNames());
-			} elseif ($type !== INDEX_HINT_TYPE_USE) {
+			}elseif($type !== INDEX_HINT_TYPE_USE) {
 				Debug::error("{$f} index names are requiired for ignore and force index hint types");
 				return null;
 			}
 			$string .= ")";
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

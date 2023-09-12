@@ -167,7 +167,7 @@ class ApplicationRuntime extends Basic{
 	protected $workflow;
 
 	public function __construct(?ApplicationConfiguration $config = null){
-		if ($config !== null) {
+		if($config !== null) {
 			$this->setConfigration($config);
 		}
 		$this->executionState = EXECUTION_STATE_INITIAL;
@@ -194,8 +194,8 @@ class ApplicationRuntime extends Basic{
 	public function getGlobalScope(): Scope{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasGlobalScope()) {
-			if ($print) {
+		if(!$this->hasGlobalScope()) {
+			if($print) {
 				Debug::print("{$f} instantiating a new global scope");
 			}
 			return $this->setGlobalScope(new Scope());
@@ -204,7 +204,7 @@ class ApplicationRuntime extends Basic{
 	}
 
 	public function setGlobalScope(?Scope $scope): ?Scope{
-		if ($scope === null) {
+		if($scope === null) {
 			unset($this->globalScope);
 			return null;
 		}
@@ -216,7 +216,7 @@ class ApplicationRuntime extends Basic{
 	}
 
 	public function setEntryPoint(?UseCase $entry_point): ?UseCase{
-		if ($entry_point === null) {
+		if($entry_point === null) {
 			unset($this->entryPoint);
 			return null;
 		}
@@ -224,7 +224,7 @@ class ApplicationRuntime extends Basic{
 	}
 
 	public function setPushNotifier(?PushNotifier $pm): ?PushNotifier{
-		if ($pm === null) {
+		if($pm === null) {
 			unset($this->pushNotifier);
 			return null;
 		}
@@ -236,14 +236,14 @@ class ApplicationRuntime extends Basic{
 	}
 
 	public function getPushNotifier(): PushNotifier{
-		if (! $this->hasPushNotifier()) {
+		if(!$this->hasPushNotifier()) {
 			return $this->setPushNotifier(new PushNotifier());
 		}
 		return $this->pushNotifier;
 	}
 
 	public function setConfigration(?ApplicationConfiguration $config): ?ApplicationConfiguration{
-		if ($config === null) {
+		if($config === null) {
 			unset($this->configuration);
 			return null;
 		}
@@ -256,14 +256,14 @@ class ApplicationRuntime extends Basic{
 
 	public function getConfiguration(): ApplicationConfiguration{
 		$f = __METHOD__;
-		if (! $this->hasConfiguration()) {
+		if(!$this->hasConfiguration()) {
 			Debug::error("{$f} configration is undefined");
 		}
 		return $this->configuration;
 	}
 
 	public function setModuleBundler(?ModuleBundler $bundler): ?ModuleBundler{
-		if ($bundler === null) {
+		if($bundler === null) {
 			unset($this->moduleBundler);
 			return null;
 		}
@@ -276,14 +276,14 @@ class ApplicationRuntime extends Basic{
 
 	public function getModuleBundler(): ModuleBundler{
 		$f = __METHOD__;
-		if (! $this->hasModuleBundler()) {
+		if(!$this->hasModuleBundler()) {
 			Debug::error("{$f} module bundler is undefined");
 		}
 		return $this->moduleBundler;
 	}
 
 	public function setDebugger(?Debugger $debugger): ?Debugger{
-		if ($debugger === null) {
+		if($debugger === null) {
 			unset($this->debugger);
 			return null;
 		}
@@ -296,7 +296,7 @@ class ApplicationRuntime extends Basic{
 
 	public function getDebugger(): Debugger{
 		$f = __METHOD__;
-		if (! $this->hasDebugger()) {
+		if(!$this->hasDebugger()) {
 			return $this->setDebugger(new Debugger());
 			Debug::error("{$f} debugger is undefined");
 		}
@@ -308,7 +308,7 @@ class ApplicationRuntime extends Basic{
 	}
 
 	public function getRegistry(): Registry{
-		if ($this->hasRegistry()) {
+		if($this->hasRegistry()) {
 			return $this->registry;
 		}
 		return $this->registry = new Registry();
@@ -319,7 +319,7 @@ class ApplicationRuntime extends Basic{
 	}
 
 	public function getLazyLoadHelper(): LazyLoadHelper{
-		if ($this->hasLazyLoadHelper()) {
+		if($this->hasLazyLoadHelper()) {
 			return $this->lazyLoadHelper;
 		}
 		return $this->lazyLoadHelper = new LazyLoadHelper();
@@ -330,7 +330,7 @@ class ApplicationRuntime extends Basic{
 	}
 
 	public function getDatabaseManager(): DatabaseManager{
-		if ($this->hasDatabaseManager()) {
+		if($this->hasDatabaseManager()) {
 			return $this->databaseManager;
 		}
 		return $this->databaseManager = new DatabaseManager();
@@ -345,26 +345,26 @@ class ApplicationRuntime extends Basic{
 	public function setUserData(?PlayableUser $user): ?PlayableUser{
 		$f = __METHOD__;
 		$print = false;
-		if ($user === null) {
+		if($user === null) {
 			unset($this->userData);
 			return null;
-		} elseif (! $user instanceof UserData) {
+		}elseif(!$user instanceof UserData) {
 			Debug::error("{$f} user is not a UserData");
-		} elseif ($user->getAllocationMode() !== ALLOCATION_MODE_SUBJECTIVE) {
+		}elseif($user->getAllocationMode() !== ALLOCATION_MODE_SUBJECTIVE) {
 			$decl = $user->getDeclarationLine();
 			Debug::error("{$f} incorrect allocation mode; declared {$decl}");
-		} elseif ($user->hasIdentifierValue()) {
+		}elseif($user->hasIdentifierValue()) {
 			$key = $user->getIdentifierValue();
-			if (! $this->getRegistry()->hasObjectRegisteredToKey($key)) {
+			if(!$this->getRegistry()->hasObjectRegisteredToKey($key)) {
 				$this->getRegistry()->registerObjectToKey($key, $user);
 			}
-		} elseif (! $user instanceof AnonymousUser) {
+		}elseif(!$user instanceof AnonymousUser) {
 			Debug::error("{$f} non-anonymous user lacks a key");
 		}
-		if ($user instanceof AuthenticatedUser && ! $user->hasEmailAddress()) {
+		if($user instanceof AuthenticatedUser && ! $user->hasEmailAddress()) {
 			Debug::error("{$f} authenticated user lacks an email address");
 		}
-		if ($print) {
+		if($print) {
 			$uc = $user->getClass();
 			$key = $user->hasIdentifierValue() ? $user->getIdentifierValue() : "undefined";
 			Debug::printStackTraceNoExit("{$f} setting user data to a {$uc} with key \"{$key}\"");
@@ -382,7 +382,7 @@ class ApplicationRuntime extends Basic{
 
 	public function setResponse(?XMLHttpResponse $response): ?XMLHttpResponse	{
 		$f = __METHOD__;
-		if (! $response instanceof XMLHttpResponse) {
+		if(!$response instanceof XMLHttpResponse) {
 			Debug::error("{$f} response is something other than an XML HTTP response object");
 		}
 		return $this->response = $response;
@@ -398,7 +398,7 @@ class ApplicationRuntime extends Basic{
 	 */
 	public function getUserData(): ?PlayableUser{
 		$f = __METHOD__;
-		if (! $this->hasUserData()) {
+		if(!$this->hasUserData()) {
 			Debug::error("{$f} user data is undefined");
 		}
 		return $this->userData;
@@ -418,7 +418,7 @@ class ApplicationRuntime extends Basic{
 	 */
 	public function getCurrentServerKeypair(){
 		$f = __METHOD__;
-		if (! $this->hasCurrentServerKeypair()) {
+		if(!$this->hasCurrentServerKeypair()) {
 			Debug::error("{$f} current server keypair is undefined");
 		}
 		return $this->currentServerKeypair;
@@ -431,14 +431,14 @@ class ApplicationRuntime extends Basic{
 
 	public function acquireCurrentServerName(mysqli $mysqli): string{
 		$f = __METHOD__;
-		try {
-			if (! $this->hasCurrentServerKeypair()) {
+		try{
+			if(!$this->hasCurrentServerKeypair()) {
 				$skp = $this->acquireCurrentServerKeypair($mysqli);
-			} else {
+			}else{
 				$skp = $this->getCurrentServerKeypair();
 			}
 			return $skp->getName();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -449,7 +449,7 @@ class ApplicationRuntime extends Basic{
 
 	public function advanceExecutionState(int $state): int{
 		$f = __METHOD__;
-		if (! $this->hasExecutionState() || $state > $this->executionState) {
+		if(!$this->hasExecutionState() || $state > $this->executionState) {
 			mark("Advancing execution state to {$state}");
 			return $this->executionState = $state;
 		}
@@ -460,7 +460,7 @@ class ApplicationRuntime extends Basic{
 
 	public function getExecutionState(): ?int{
 		$f = __METHOD__;
-		if (! $this->hasExecutionState()) {
+		if(!$this->hasExecutionState()) {
 			Debug::error("{$f} execution state is undefined");
 		}
 		return $this->executionState;
@@ -472,16 +472,16 @@ class ApplicationRuntime extends Basic{
 	 */
 	public function acquireCurrentServerKeypair(?mysqli $mysqli = null){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (isset($this->currentServerKeypair)) {
+			if(isset($this->currentServerKeypair)) {
 				return $this->currentServerKeypair;
-			} elseif ($this->getFlag("noKeypair")) {
+			}elseif($this->getFlag("noKeypair")) {
 				Debug::print("{$f} no keypair");
 				return null;
-			} elseif (! $mysqli instanceof mysqli) {
+			}elseif(!$mysqli instanceof mysqli) {
 				$mysqli = db()->getConnection(PublicReadCredentials::class);
-				if ($mysqli == null) {
+				if($mysqli == null) {
 					Debug::warning("{$f} mysqli object is null");
 					$this->setFlag("noKeypair", true);
 					return null;
@@ -489,19 +489,19 @@ class ApplicationRuntime extends Basic{
 			}
 			$kp = new ServerKeypair();
 			$status = $kp->load($mysqli, "isCurrentServer", 1);
-			if ($status === ERROR_NOT_FOUND) {
+			if($status === ERROR_NOT_FOUND) {
 				Debug::error("{$f} current keypair not found");
-			} elseif ($status !== SUCCESS) {
+			}elseif($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} keypair has error status \"{$err}\"");
 				$this->setObjectStatus($status);
 				return null;
-			} elseif ($print) {
+			}elseif($print) {
 				$name = $kp->getName();
 				Debug::print("{$f} returning server \"{$name}\"");
 			}
 			return $this->setCurrentServerKeypair($kp);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -514,28 +514,28 @@ class ApplicationRuntime extends Basic{
 	 */
 	public function dispatchCallbacks():int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} entered");
 			}
-			if (push()->hasQueue()) {
-				if ($print) {
+			if(push()->hasQueue()) {
+				if($print) {
 					Debug::print("{$f} push notification queue is not empty");
 				}
 				$status = push()->transmitQueue();
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} transmitPushNotificationQueue() returned error status \"{$err}\"");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} push notification queue is empty");
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning normally");
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -545,23 +545,23 @@ class ApplicationRuntime extends Basic{
 	}
 
 	public function getCache(): MultiCache{
-		if ($this->hasCache()) {
+		if($this->hasCache()) {
 			return $this->cache;
 		}
 		return $this->cache = new MultiCache();
 	}
 
 	public function getResponse(?UseCase $use_case = null): XMLHttpResponse{
-		if ($this->hasResponse()) {
+		if($this->hasResponse()) {
 			return $this->response;
-		} elseif ($use_case === null) {
+		}elseif($use_case === null) {
 			$use_case = $this->getUseCase();
 		}
 		return $this->setResponse(new XMLHttpResponse());
 	}
 
 	public function setRequest(?Request $request): ?Request{
-		if ($request === null) {
+		if($request === null) {
 			unset($this->request);
 			return null;
 		}
@@ -570,7 +570,7 @@ class ApplicationRuntime extends Basic{
 
 	public function getRequest(): ?Request{
 		$f = __METHOD__;
-		if (! $this->hasRequest()) {
+		if(!$this->hasRequest()) {
 			Debug::error("{$f} request is undefined");
 		}
 		return $this->request;
@@ -578,7 +578,7 @@ class ApplicationRuntime extends Basic{
 
 	public function getUseCase(): ?UseCase{
 		$f = __METHOD__;
-		if (! $this->hasUseCase()) {
+		if(!$this->hasUseCase()) {
 			Debug::error("{$f} use case object is undefined");
 		}
 		return $this->useCase;
@@ -591,9 +591,9 @@ class ApplicationRuntime extends Basic{
 	public function setUseCase(?UseCase $use_case): ?UseCase{
 		$f = __METHOD__;
 		$print = false;
-		if (! $use_case instanceof UseCase) {
+		if(!$use_case instanceof UseCase) {
 			Debug::error("{$f} use case is not a use case");
-		} elseiF ($print) {
+		}elseif($print) {
 			$ucc = $use_case->getClass();
 			Debug::printStackTraceNoExit("{$f} setting use case to \"{$ucc}\"");
 		}
@@ -601,7 +601,7 @@ class ApplicationRuntime extends Basic{
 	}
 
 	public function setWorkflow(?Workflow $workflow): ?Workflow{
-		if ($workflow === null) {
+		if($workflow === null) {
 			unset($this->workflow);
 			return null;
 		}
@@ -614,7 +614,7 @@ class ApplicationRuntime extends Basic{
 
 	public function getWorkflow(): Workflow{
 		$f = __METHOD__;
-		if (! $this->hasWorkflow()) {
+		if(!$this->hasWorkflow()) {
 			Debug::error("{$f} workflow is undefined");
 		}
 		return $this->workflow;

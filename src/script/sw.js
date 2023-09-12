@@ -186,7 +186,7 @@
 	});
 	
 	/*self.addEventListener('periodicsync', function(event){
-		if (event.registration.tag == 'my-tag'){
+		if(event.registration.tag == 'my-tag'){
 			event.waitUntil(
 				fireUpdateCheckEvent() //doTheWork()// "do the work" asynchronously via a Promise.
 			); 

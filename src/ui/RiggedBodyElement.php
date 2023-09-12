@@ -37,13 +37,13 @@ class RiggedBodyElement extends BodyElement{
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$context = $this->getContext();
 			$use_case = app()->getUseCase();
 			$user = app()->hasUserData() ? user() : null;
 			$mode = $this->getAllocationMode();
-			if ($use_case->hasMenu()) {
+			if($use_case->hasMenu()) {
 				$banner_class = config()->getBannerElementClass();
 				$banner = new $banner_class($mode, $user);
 				$this->appendChild($banner);
@@ -56,16 +56,16 @@ class RiggedBodyElement extends BodyElement{
 			$page_content = new PageContentElement($mode);
 			$status = $use_case->getObjectStatus(); //XXX leave this alone for now
 			$content_array = $use_case->getPageContent();
-			if (empty($content_array)) {
+			if(empty($content_array)) {
 				$page_content->appendChild(ErrorMessage::getVisualError($use_case->getObjectStatus()));
-			} elseif (! is_array($content_array)) {
+			}elseif(!is_array($content_array)) {
 				$ccn = $use_case->getClass();
 				Debug::error("{$f} {$ccn}->getPageContent should return an array of elements");
-			} else {
+			}else{
 				$page_content->appendChild(...$content_array);
 			}
 			$content_and_footer->appendChild($page_content);
-			if ($use_case->hasMenu()) {
+			if($use_case->hasMenu()) {
 				$footer_class = config()->getFooterElementClass();
 				if(is_a($footer_class, Element::class, true)){
 					if($print){
@@ -73,22 +73,22 @@ class RiggedBodyElement extends BodyElement{
 					}
 					$footer = new $footer_class($mode, $user);
 					$content_and_footer->appendChild($footer);
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} appended footer");
 					}
 				}elseif($print){
 					Debug::print("{$f} no footer class");
 				}
-			} elseif ($print) {
-				if ($user == null) {
+			}elseif($print) {
+				if($user == null) {
 					Debug::error("{$f} skipping footer because user is null");
-				} else {
+				}else{
 					Debug::print("{$f} skipping footer because this use case does not have a menu");
 				}
 			}
 			$webkit_fix->appendChild($content_and_footer);
 			$this->appendChild($webkit_fix);
-			if ($user !== null && $use_case->hasMenu()) {
+			if($user !== null && $use_case->hasMenu()) {
 				$menu_class = config()->getMenuElementClass();
 				$menu = new $menu_class($mode, $user);
 				$fixed = new DivElement($mode);
@@ -96,36 +96,36 @@ class RiggedBodyElement extends BodyElement{
 				$fixed->setIdAttribute("fixed");
 				$fixed->appendChild($menu);
 				$widget_classes = mods()->getWidgetClasses(use_case());
-				if ($print) {
-					if (empty($widget_classes)) {
+				if($print) {
+					if(empty($widget_classes)) {
 						Debug::print("{$f} there are no widget classes");
-					} else {
+					}else{
 						$count = count($widget_classes);
 						Debug::print("{$f} {$count} widget classes");
 					}
 				}
 				$fixed->appendChild(new ToolBelt($mode, $user));
-				if (false && class_exists(SessionTimeoutOverlay::class)) {
+				if(false && class_exists(SessionTimeoutOverlay::class)) {
 					$session_timeout = new SessionTimeoutOverlay($mode, $user);
 					$session_timeout->setCacheKey(SessionTimeoutOverlay::class);
 					$session_timeout->setHTMLCacheableFlag(false);
 					$fixed->appendChild($session_timeout);
 				}
-				if (class_exists(InfoBoxElement::class)) {
+				if(class_exists(InfoBoxElement::class)) {
 					$info_box = new InfoBoxElement($mode, $user);
 					$fixed->appendChild($info_box);
 				}
 				$xsrf = new AntiXsrfTokenContainer($mode, $user);
 				$fixed->appendChild($xsrf);
 				$this->appendChild($fixed);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} skipping menu");
 			}
 			if($user instanceof PlayableUser){
 				$this->appendChild(new ShortPollForm($mode, $user));
 			}
-			if (! Request::isAjaxRequest()) {
-				if ($print) {
+			if(! Request::isAjaxRequest()) {
+				if($print) {
 					Debug::print("{$f} this is not an AJAX request");
 				}
 				$this->appendChild(
@@ -135,7 +135,7 @@ class RiggedBodyElement extends BodyElement{
 						CommandBuilder::addEventListener("window.visualViewport", "resize", "windowResizeListener")
 					)
 				);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this is an AJAX request");
 			}
 			$condition = "isMobileSafari()";
@@ -149,11 +149,11 @@ class RiggedBodyElement extends BodyElement{
 					)->toJavaScript()
 				)
 			);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} generated child nodes");
 			}
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

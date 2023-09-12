@@ -13,14 +13,14 @@ class FullTableName extends Basic implements SQLInterface
 	public function __construct($db, $table)
 	{
 		parent::__construct();
-		if ($db == "*") {
+		if($db == "*") {
 			$this->setAllDatabasesFlag(true);
-		} elseif ($db !== null) {
+		}elseif($db !== null) {
 			$this->setDatabaseName($db);
 		}
-		if ($table == "*") {
+		if($table == "*") {
 			$this->setAllTablesFlag(true);
-		} elseif ($table !== null) {
+		}elseif($table !== null) {
 			$this->setTableName($table);
 		}
 	}
@@ -56,14 +56,14 @@ class FullTableName extends Basic implements SQLInterface
 	public function toSQL(): string
 	{
 		$string = "";
-		if ($this->getAllDatabasesFlag()) {
+		if($this->getAllDatabasesFlag()) {
 			return "*.*";
-		} elseif ($this->hasDatabaseName()) {
+		}elseif($this->hasDatabaseName()) {
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
-		if ($this->getAllTablesFlag() || ! $this->hasTableName()) {
+		if($this->getAllTablesFlag() || ! $this->hasTableName()) {
 			$string .= "*";
-		} else {
+		}else{
 			$string .= back_quote($this->getTableName());
 		}
 		return $string;

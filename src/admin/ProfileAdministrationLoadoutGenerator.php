@@ -38,8 +38,8 @@ class ProfileAdministrationLoadoutGenerator extends LoadoutGenerator{
 		$type = $object->getDataType();
 		switch ($type) {
 			case DATATYPE_USER:
-				if ($object->getAccountType() !== $use_case->getCorrespondentClass()::getAccountTypeStatic()) {
-					if ($print) {
+				if($object->getAccountType() !== $use_case->getCorrespondentClass()::getAccountTypeStatic()) {
+					if($print) {
 						Debug::print("{$f} non-root user object is not the correct profile type");
 					}
 					return null;
@@ -47,11 +47,11 @@ class ProfileAdministrationLoadoutGenerator extends LoadoutGenerator{
 				$doc = $use_case->getDataOperandClass();
 				$dummy = new $doc();
 				$select = $dummy->select();
-				/*if ($print) {
+				/*if($print) {
 					$qstring = $select->toSQL();
 					Debug::print("{$f} generated query \"{$qstring}\"");
 				}*/
-				if ($dummy->hasColumn("userKey")) {
+				if($dummy->hasColumn("userKey")) {
 					$params = [
 						getInputParameter("correspondentKey", use_case())
 					];
@@ -68,7 +68,7 @@ class ProfileAdministrationLoadoutGenerator extends LoadoutGenerator{
 							Debug::error("{$f} unsupported persistence mode \"{$pm}\"");
 					}
 					$select = $select->where($where);
-					if ($params) {
+					if($params) {
 						$select->withParameters($params);
 						if($print){
 							Debug::print("{$f} returning the \"{$select}\" with the following params: ".json_encode($params));

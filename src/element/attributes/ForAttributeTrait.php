@@ -25,18 +25,18 @@ trait ForAttributeTrait
 	{
 		$f = __METHOD__; //"ForAttributeTrait(".static::getShortClass().")->setForAttribute()";
 		$print = false;
-		if ($for instanceof ConcatenateCommand) {
+		if($for instanceof ConcatenateCommand) {
 			$did = $for->getDebugId();
-			if ($for->getFlag("reserved")) {
+			if($for->getFlag("reserved")) {
 				Debug::error("{$f} command with debug ID \"{$did}\" was already reserved");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} reserving command with debug ID \"{$did}\"");
 			}
 			$for->setFlag("reserved", true);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} setting for attribute to a concatenate command for label with debug ID \"{$this->debugId}\"");
 			}
-		} elseif (is_string($for)) {}
+		}elseif(is_string($for)) {}
 		return $this->setAttribute("for", $for);
 	}
 
@@ -53,7 +53,7 @@ trait ForAttributeTrait
 	public function getForAttribute()
 	{
 		$f = __METHOD__; //"ForAttributeTrait(".static::getShortClass().")->getForAttribute()";
-		if (! $this->hasForAttribute()) {
+		if(!$this->hasForAttribute()) {
 			Debug::error("{$f} for attribute is undefined");
 		}
 		return $this->getAttribute("for");

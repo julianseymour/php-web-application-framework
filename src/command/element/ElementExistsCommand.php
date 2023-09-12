@@ -18,9 +18,9 @@ class ElementExistsCommand extends ElementCommand implements ValueReturningComma
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
-		} elseif (is_string($idcs) || $idcs instanceof StringifiableInterface) {
+		}elseif(is_string($idcs) || $idcs instanceof StringifiableInterface) {
 			$idcs = single_quote($idcs);
 		}
 		return "elementExists({$idcs})";

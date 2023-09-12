@@ -16,7 +16,7 @@ class CreateUserStatement extends UserStatement
 	{
 		parent::__construct();
 		$this->requirePropertyType("roles", DatabaseRoleData::class);
-		if (isset($users)) {
+		if(isset($users)) {
 			$this->setUsers($users);
 		}
 	}
@@ -47,44 +47,44 @@ class CreateUserStatement extends UserStatement
 	public function getQueryStatementString(): string
 	{
 		$f = __METHOD__; //CreateUserStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
-		try {
+		try{
 			// CREATE USER
 			$string = "create user ";
 			// [IF NOT EXISTS]
-			if ($this->getIfNotExistsFlag()) {
+			if($this->getIfNotExistsFlag()) {
 				$string .= "if not exists";
 			}
 			// user [auth_option] [, user [auth_option]] ...
 			$count = 0;
-			foreach ($this->getUsers() as $user) {
-				if ($count > 0) {
+			foreach($this->getUsers() as $user) {
+				if($count > 0) {
 					$string .= ",";
 				}
 				$string .= $user->toSQL();
 				$count ++;
 			}
 			// [DEFAULT ROLE role [, role ] ...]
-			if ($this->hasRoles()) {
+			if($this->hasRoles()) {
 				$string .= " default role " . implode(',', $this->getRoles());
 			}
 			// [REQUIRE {NONE | tls_option [[AND] tls_option] ...}]
 			// tls_option: { SSL | X509 | CIPHER 'cipher' | ISSUER 'issuer' | SUBJECT 'subject' }
-			if ($this->getRequireNoneFlag() || $this->hasTLSOptions()) {
+			if($this->getRequireNoneFlag() || $this->hasTLSOptions()) {
 				$string .= " " . $this->getTLSOptionsString();
 			}
 			// [WITH resource_option [resource_option] ...]
-			if ($this->hasResourceOptions()) {
+			if($this->hasResourceOptions()) {
 				$string .= $this->getResourceOptionsString();
 			}
-			if ($this->hasPasswordOptions()) {
+			if($this->hasPasswordOptions()) {
 				$string .= $this->getPasswordOptionsString();
 			}
 			// [COMMENT 'comment_string' | ATTRIBUTE 'json_object']
-			if (($this->hasComment() && hasMinimumMySQLVersion("8.0.21")) || $this->hasAttribute()) {
+			if(($this->hasComment() && hasMinimumMySQLVersion("8.0.21")) || $this->hasAttribute()) {
 				$string .= $this->getCommentAttributeString();
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

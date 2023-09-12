@@ -19,7 +19,7 @@ class ProcessedDataListElement extends CompoundElement
 	
 	public function generateComponents(){
 		$f = __METHOD__;
-		try {
+		try{
 			$context = $this->getContext();
 			$print = false;
 			$classes = $context->getProcessedDataListClasses();
@@ -27,25 +27,25 @@ class ProcessedDataListElement extends CompoundElement
 			$duplicate_families = [];
 			$mode = ALLOCATION_MODE_LAZY;
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
-			foreach ($classes as $class) {
+			foreach($classes as $class) {
 				$type = $class::getDataType();
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} about to call getConditionalElementClass({$type}) for class \"{$class}\"");
 				}
 				$ciec = $context->getConditionalElementClass($type);
-				if (! is_string($ciec)) {
+				if(!is_string($ciec)) {
 					$gottype = is_object($ciec) ? $ciec->getClass() : gettype($ciec);
 					Debug::error("{$f} conditional element class returned a {$gottype}");
-				} elseif (empty($ciec)) {
+				}elseif(empty($ciec)) {
 					Debug::error("{$f} conditional element class is undefined for class \"{$class}\"");
-				} elseif (! class_exists($ciec)) {
+				}elseif(! class_exists($ciec)) {
 					Debug::error("{$f} class \"{$ciec}\" does not exist");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} conditional element class is \"{$ciec}\"");
 				}
-				if ($context->showNewItemForm()) {
+				if($context->showNewItemForm()) {
 					$ds = new $class();
-					if ($ds instanceof UserOwned) {
+					if($ds instanceof UserOwned) {
 						$owner = $context->acquireDataOperandOwner($mysqli, $ds);
 						$ds->setUserData($owner);
 					}
@@ -54,16 +54,16 @@ class ProcessedDataListElement extends CompoundElement
 					array_push($ret, $element);
 				}
 				$tree_name = $class::getPhylumName();
-				if (isset($duplicate_families[$tree_name])) {
+				if(isset($duplicate_families[$tree_name])) {
 					continue;
 				}
-				if (user()->hasForeignDataStructureList($tree_name)) {
+				if(user()->hasForeignDataStructureList($tree_name)) {
 					$nodes = user()->getForeignDataStructureList($tree_name);
-					if (! empty($nodes)) {
-						foreach ($nodes as $node) {
-							if ($node->getClass() !== $class) {
+					if(!empty($nodes)) {
+						foreach($nodes as $node) {
+							if($node->getClass() !== $class) {
 								continue;
-							} elseif ($node->getTemporaryFlag()) {
+							}elseif($node->getTemporaryFlag()) {
 								continue;
 							}
 							$e = new $ciec($mode);
@@ -75,7 +75,7 @@ class ProcessedDataListElement extends CompoundElement
 				$duplicate_families[$tree_name] = true;
 			}
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

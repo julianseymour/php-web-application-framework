@@ -20,7 +20,7 @@ class StringToUpperCaseCommand extends StringTransformationCommand
 		while ($subject instanceof Command) {
 			$subject = $subject->evaluate();
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} about to strtoupper \"{$subject}\"");
 		}
 		return strtoupper($subject);

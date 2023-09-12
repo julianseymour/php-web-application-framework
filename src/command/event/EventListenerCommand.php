@@ -41,7 +41,7 @@ abstract class EventListenerCommand extends Command implements JavaScriptInterfa
 
 	public function setEventListener($listener)
 	{
-		if ($listener == null) {
+		if($listener == null) {
 			unset($this->listener);
 			return null;
 		}
@@ -56,7 +56,7 @@ abstract class EventListenerCommand extends Command implements JavaScriptInterfa
 	public function getEventListener()
 	{
 		$f = __METHOD__; //AddEventListenerCommand::getShortClass()."(".static::getShortClass().")->getEventListener()";
-		if (! $this->hasEventListener()) {
+		if(!$this->hasEventListener()) {
 			Debug::error("{$f} event listener is undefined");
 		}
 		return $this->listener;
@@ -64,7 +64,7 @@ abstract class EventListenerCommand extends Command implements JavaScriptInterfa
 
 	public function setEventTarget($target)
 	{
-		if ($target == null) {
+		if($target == null) {
 			unset($this->target);
 			return null;
 		}
@@ -79,7 +79,7 @@ abstract class EventListenerCommand extends Command implements JavaScriptInterfa
 	public function getEventTarget()
 	{
 		$f = __METHOD__; //AddEventListenerCommand::getShortClass()."(".static::getShortClass().")->getEventTarget()";
-		if (! $this->hasEventTarget()) {
+		if(!$this->hasEventTarget()) {
 			Debug::error("{$f} event target is undefined");
 		}
 		return $this->target;

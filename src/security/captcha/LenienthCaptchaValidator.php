@@ -23,7 +23,7 @@ class LenienthCaptchaValidator extends hCaptchaValidator{
 	public function __construct($attemptClass = LoginAttempt::class){
 		$f = __METHOD__;
 		parent::__construct();
-		if (! empty($attemptClass)) {
+		if(!empty($attemptClass)) {
 			$this->setAccessAttemptClass($attemptClass);
 		}
 		$this->setAllowedStrikes(1);
@@ -31,9 +31,9 @@ class LenienthCaptchaValidator extends hCaptchaValidator{
 
 	public function setAccessAttemptClass(?string $class):?string{
 		$f = __METHOD__;
-		if (! is_string($class)) {
+		if(!is_string($class)) {
 			Debug::error("{$f} request attempt class \"{$class}\" is not a string");
-		} elseif (class_exists($class)) {
+		}elseif(class_exists($class)) {
 			return $this->requestAttemptClass = $class;
 		}
 		Debug::error("{$f} request attempt class \"{$class}\" does not exist");
@@ -45,7 +45,7 @@ class LenienthCaptchaValidator extends hCaptchaValidator{
 
 	public function getAccessAttemptClass():string{
 		$f = __METHOD__;
-		if (! $this->hasAccessAttemptClass()) {
+		if(!$this->hasAccessAttemptClass()) {
 			Debug::error("{$f} request attempt class is undefined");
 		}
 		return $this->requestAttemptClass;
@@ -53,13 +53,13 @@ class LenienthCaptchaValidator extends hCaptchaValidator{
 
 	public function setAllowedStrikes(?int $strikes):?int{
 		$f = __METHOD__;
-		if (is_array($strikes)) {
+		if(is_array($strikes)) {
 			Debug::error("{$f} strike count is an array");
-		} elseif (is_object($strikes)) {
+		}elseif(is_object($strikes)) {
 			Debug::error("{$f} strike count is an object");
-		} elseif (! is_int($strikes)) {
+		}elseif(!is_int($strikes)) {
 			Debug::error("{$f} strike count \"{$strikes}\" is not an integer");
-		} elseif ($strikes < 0) {
+		}elseif($strikes < 0) {
 			Debug::error("{$f} strike count is negative");
 		}
 		return $this->allowedStrikes = $strikes;
@@ -71,7 +71,7 @@ class LenienthCaptchaValidator extends hCaptchaValidator{
 
 	public function getAllowedStrikes():int{
 		$f = __METHOD__;
-		if (! $this->hasAllowedStrikes()) {
+		if(!$this->hasAllowedStrikes()) {
 			Debug::error("{$f} allowed strike count is undefined");
 		}
 		return $this->allowedStrikes;
@@ -79,19 +79,19 @@ class LenienthCaptchaValidator extends hCaptchaValidator{
 
 	public function getFailedRequestCount(mysqli $mysqli):int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (false && cache()->enabled() && USER_CACHE_ENABLED) {
+			if(false && cache()->enabled() && USER_CACHE_ENABLED) {
 				$key = $this->getAccessAttemptClass()::getCacheKeyFromIpAddress($_SERVER['REMOTE_ADDR']);
-				if (cache()->hasAPCu($key)) {
+				if(cache()->hasAPCu($key)) {
 					return $this->getAllowedStrikes() + 1;
-				} else {
+				}else{
 					if($print){
 						Debug::print("{$f} nothing was cached for this IP address");
 					}
 					return 0;
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} cache is disabled");
 			}
 			$ts = time() - LOCKOUT_DURATION;
@@ -115,17 +115,17 @@ class LenienthCaptchaValidator extends hCaptchaValidator{
 				Debug::print("{$f} returning count {$count} failed logins since ".getTimeStringFromTimestamp($ts));
 			}
 			return $count;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function validateFailedRequestCount(mysqli $mysqli):int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$count = $this->getFailedRequestCount($mysqli);
-			if ($count <= $this->getAllowedStrikes()) {
+			if($count <= $this->getAllowedStrikes()) {
 				if($print){
 					Debug::print("{$f} count {$count} is within allowed quota {$this->allowedStrikes}");
 				}
@@ -134,20 +134,20 @@ class LenienthCaptchaValidator extends hCaptchaValidator{
 				Debug::warning("{$f} count {$count} exceeds quota {$this->allowedStrikes}");
 			}
 			return FAILURE;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function evaluate(&$validate_me): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			if ($this->validateFailedRequestCount($mysqli) === SUCCESS) {
+			if($this->validateFailedRequestCount($mysqli) === SUCCESS) {
 				return SUCCESS;
 			}
 			return parent::evaluate($validate_me);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

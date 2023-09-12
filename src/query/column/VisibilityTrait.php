@@ -11,9 +11,9 @@ trait VisibilityTrait
 	public function setVisibility($v)
 	{
 		$f = __METHOD__; //"VisibilityTrait(".static::getShortClass().")->setVisibility()";
-		if ($v === null) {
+		if($v === null) {
 			return $this->visibility = null;
-		} elseif (! is_string($v)) {
+		}elseif(!is_string($v)) {
 			Debug::error("{$f} visiblity must be a string");
 		}
 		$v = strtolower($v);
@@ -35,7 +35,7 @@ trait VisibilityTrait
 	public function getVisibility()
 	{
 		$f = __METHOD__; //"VisibilityTrait(".static::getShortClass().")->getVisibility()";
-		if (! $this->hasVisibility()) {
+		if(!$this->hasVisibility()) {
 			Debug::error("{$f} visibility is undefined");
 		}
 		return $this->visibility;

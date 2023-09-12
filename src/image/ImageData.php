@@ -67,7 +67,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 	}
 	
 	public function getThumbnail(){
-		if ($this->hasThumbnail()) {
+		if($this->hasThumbnail()) {
 			return $this->getForeignDataStructure("thumbnail");
 		}
 		return $this->setThumbnail(new ImageThumbnail($this));
@@ -140,23 +140,23 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 	private function getImageThumbnailToWrite()
 	{
 		$f = __METHOD__;
-		try {
-			if ($this->hasResampledThumbnailFilename()) {
+		try{
+			if($this->hasResampledThumbnailFilename()) {
 				$resampled_filename = $this->getResampledThumbnailFilename();
-			} else {
+			}else{
 				$resampled_filename = $this->resampleThumbnail();
 				$this->setResampledThumbnailFilename($resampled_filename);
 			}
 			Debug::print("{$f} resampled thumbnail is \"{$resampled_filename}\"");
 			return file_get_contents($resampled_filename);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getThumbnailFilename()
 	{
-		if ($this->isTinyImage()) {
+		if($this->isTinyImage()) {
 			return $this->getFilename();
 		}
 		return $this->getThumbnail()->getFilename();
@@ -164,7 +164,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 
 	public function getFullThumbnailDirectory()
 	{
-		if ($this->isTinyImage()) {
+		if($this->isTinyImage()) {
 			return $this->getFullFileDirectory();
 		}
 		return $this->getThumbnail()->getFullFileDirectory();
@@ -172,7 +172,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 
 	public function getWebThumbnailDirectory()
 	{
-		if ($this->isTinyImage()) {
+		if($this->isTinyImage()) {
 			return $this->getWebFileDirectory();
 		}
 		return $this->getThumbnail()->getWebFileDirectory();
@@ -180,7 +180,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 
 	public function getWebThumbnailPath()
 	{
-		if ($this->isTinyImage()) {
+		if($this->isTinyImage()) {
 			return $this->getWebFilePath();
 		}
 		return $this->getThumbnail()->getWebFilePath();
@@ -188,7 +188,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 
 	public function getFullThumbnailPath()
 	{
-		if ($this->isTinyImage()) {
+		if($this->isTinyImage()) {
 			return $this->getFullFilePath();
 		}
 		return $this->getThumbnail()->getFullFilePath();
@@ -207,20 +207,20 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 	private function writeImageThumbnail()
 	{
 		$f = __METHOD__;
-		if ($this->isTinyImage()) {
+		if($this->isTinyImage()) {
 			Debug::print("{$f} image does not require resizing");
 			return SUCCESS;
 		}
 		$file = $this->getImageThumbnailToWrite();
 		$full_path = $this->getFullThumbnailPath();
 		$directory = $this->getFullThumbnailDirectory();
-		if (! is_dir($directory)) {
+		if(!is_dir($directory)) {
 			Debug::print("{$f} directory \"{$directory}\" does not exist");
 			mkdir($directory, 0755, true);
 		}
 		Debug::print("{$f} about to write to thumbnail path \"{$full_path}\"");
 		$bytes = file_put_contents($full_path, $file);
-		if ($bytes > 0) {
+		if($bytes > 0) {
 			Debug::print("{$f} successfully wrote thumbnail \"{$full_path}\"");
 			return SUCCESS;
 		}
@@ -231,33 +231,33 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 	protected function writeFile()
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! $this->isThumbnail()) {
-				if ($print) {
+			if(!$this->isThumbnail()) {
+				if($print) {
 					Debug::print("{$f} about to write image thumbnail");
 				}
 				$status = $this->writeImageThumbnail();
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} writing image thumbnail returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to call parent function");
 			}
 			$status = parent::writeFile();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} parent function returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} parent function executed successfully");
 			}
 			return $this->setObjectStatus($status);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -265,34 +265,34 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 	public function processRepackedIncomingFiles($files)
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to call parent function");
 			}
 			$status = parent::processRepackedIncomingFiles($files);
-			if ($status === ERROR_UPLOAD_NO_FILE) {
-				if ($print) {
+			if($status === ERROR_UPLOAD_NO_FILE) {
+				if($print) {
 					Debug::print("{$f} no file -- maybe the user is altering metadata for an existing file");
 				}
 				return $status;
-			} elseif ($status !== SUCCESS) {
+			}elseif($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} parent function returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} parent function executed successfully");
 			}
 			$status = $this->processImageDimensions();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} processImageDimensions returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} returning successfully");
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -300,10 +300,10 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 	protected function afterGenerateInitialValuesHook(): int
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$this->setImageType(static::getImageTypeStatic());
 			return parent::afterGenerateInitialValuesHook();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -317,14 +317,14 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 			'userAccountType',
 			'userKey'
 		];
-		foreach ($fields as $field) {
+		foreach($fields as $field) {
 			$columns[$field]->setNullable(true);
 		}
 		$fields = [
 			//'userTemporaryRole',
 			'userNameKey'
 		];
-		foreach ($fields as $field) {
+		foreach($fields as $field) {
 			$columns[$field]->setNullable(true); //volatilize();
 		}
 		$map = [
@@ -369,7 +369,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 
 	public static function resampleImage(string $uploaded_filename, string $mime_type, int $dst_w, int $dst_h):string{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$src_w = null;
 			$src_h = null;
@@ -381,62 +381,62 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 			list ($src_w, $src_h) = getimagesize($uploaded_filename);
 			$resampled_filename = @tempnam("tmp", $mime_extensions[$mime_type]);
 			$resampled_file_resource = imagecreatetruecolor($dst_w, $dst_h);
-			if ($resampled_file_resource == false) {
+			if($resampled_file_resource == false) {
 				Debug::error("{$f} imagecreatetruecolor({$dst_w}, {$dst_h}) returned false");
 			}
-			if ($mime_type === MIME_TYPE_JPEG) {
-				if ($print) {
+			if($mime_type === MIME_TYPE_JPEG) {
+				if($print) {
 					Debug::print("{$f} attachment is JPEG");
 				}
 				$uploaded_file_resource = imagecreatefromjpeg($uploaded_filename);
-			} elseif ($mime_type === MIME_TYPE_PNG) {
-				if ($print) {
+			}elseif($mime_type === MIME_TYPE_PNG) {
+				if($print) {
 					Debug::print("{$f} attachment is PNG");
 				}
 				imagealphablending($resampled_file_resource, false);
 				$uploaded_file_resource = imagecreatefrompng($uploaded_filename);
-			} elseif ($mime_type === MIME_TYPE_GIF) {
-				if ($print) {
+			}elseif($mime_type === MIME_TYPE_GIF) {
+				if($print) {
 					Debug::print("{$f} image is a GIF");
 				}
 				$uploaded_file_resource = imagecreatefromgif($uploaded_filename);
 			}
-			if (! $uploaded_file_resource) {
+			if(!$uploaded_file_resource) {
 				Debug::error("{$f} uploaded file resource returned false");
 			}
-			if (! imagecopyresampled($resampled_file_resource, $uploaded_file_resource, 0, 0, 0, 0, $dst_w, $dst_h, $src_w, $src_h)) {
+			if(! imagecopyresampled($resampled_file_resource, $uploaded_file_resource, 0, 0, 0, 0, $dst_w, $dst_h, $src_w, $src_h)) {
 				Debug::error("{$f} imagecopyresampled failed");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} imagecopyresampled succeeded");
 			}
 			switch ($mime_type) {
 				case MIME_TYPE_JPEG:
-					if (! imagejpeg($resampled_file_resource, $resampled_filename, 95)) {
+					if(! imagejpeg($resampled_file_resource, $resampled_filename, 95)) {
 						Debug::error("{$f} image jpeg failed");
 					}
 					break;
 				case MIME_TYPE_PNG:
 					imagesavealpha($resampled_file_resource, true);
 					// Note: PNG uses compression level 0-9, not quality level 0-100
-					if (! imagepng($resampled_file_resource, $resampled_filename, 9)) {
+					if(! imagepng($resampled_file_resource, $resampled_filename, 9)) {
 						Debug::error("{$f} imagepng failed");
-					} elseif (exif_imagetype($resampled_filename) !== IMAGETYPE_PNG) {
+					}elseif(exif_imagetype($resampled_filename) !== IMAGETYPE_PNG) {
 						Debug::error("{$f} not a PNG after imagepng");
 					}
 					break;
 				case MIME_TYPE_GIF:
-					if (! imagegif($resampled_file_resource, $resampled_filename)) {
+					if(! imagegif($resampled_file_resource, $resampled_filename)) {
 						Debug::error("{$f} ");
 					}
 					break;
 				default:
 					Debug::error("{$f} illegal mime type \"{$mime_type}\"");
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} put compressed/downscaled file into \"{$resampled_filename}\"");
 			}
 			return $resampled_filename;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -444,23 +444,23 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 	protected function beforeDeleteHook(mysqli $mysqli): int
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($this->isTinyImage()) {
-				if ($print) {
+			if($this->isTinyImage()) {
+				if($print) {
 					Debug::print("{$f} tiny image -- returning parent function");
 				}
 				return parent::beforeDeleteHook($mysqli);
 			}
 			$status = $this->getThumbnail()->delete($mysqli); // Thumbnail($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} delete thumbnail returned error status \"{$err}\"");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully deleted thumbnail -- about to return parent function");
 			}
 			return parent::beforeDeleteHook($mysqli);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -494,13 +494,13 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 		$f = __METHOD__;
 		$height = $that->getImageHeight();
 		$width = $that->getImageWidth();
-		if ($height > $width) {
+		if($height > $width) {
 			return ORIENTATION_PORTRAIT;
-		} elseif ($width > $height) {
+		}elseif($width > $height) {
 			return ORIENTATION_LANDSCAPE;
-		} elseif ($height === $width) {
+		}elseif($height === $width) {
 			return ORIENTATION_SQUARE;
-		} else {
+		}else{
 			Debug::error("{$f} impossible");
 		}
 	}
@@ -532,12 +532,12 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 			case "orientation":
 				return $this->hasImageHeight() && $this->hasImageWidth();
 			case "thumbnailHeight":
-				if ($this->isTinyImage()) {
+				if($this->isTinyImage()) {
 					return $this->hasImageHeight();
 				}
 				return $this->hasThumbnail() && $this->getThumbnail()->hasImageHeight();
 			case "thumbnailWidth":
-				if ($this->isTinyImage()) {
+				if($this->isTinyImage()) {
 					return $this->hasImageWidth();
 				}
 				return $this->hasThumbnail() && $this->getThumbnail()->hasImageWidth();
@@ -556,7 +556,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 			"extension" => true,
 			"orientation" => true
 		];
-		if ($that->hasColumn("focalLineRatio")) {
+		if($that->hasColumn("focalLineRatio")) {
 			$config['focalLineRatio'] = true;
 		}
 		return $config;
@@ -565,7 +565,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 	public function getArrayMembershipConfiguration($config_id): ?array
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$config = parent::getArrayMembershipConfiguration($config_id);
 			switch ($config_id) {
 				case "default":
@@ -573,7 +573,7 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 					$config = array_merge($config, static::getArrayMembershipConfigurationStatic($config_id, $this));
 					return $config;
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -581,16 +581,16 @@ class ImageData extends CleartextFileData implements StaticElementClassInterface
 	public function getFileToWrite()
 	{
 		$f = __METHOD__;
-		try {
-			if ($this->hasResampledFilename()) {
+		try{
+			if($this->hasResampledFilename()) {
 				$resampled_filename = $this->getResampledFilename();
-			} else {
+			}else{
 				$resampled_filename = $this->getCompressedFilename(); // resampleImageToMaxDimensions();
 				$this->setResampledFilename($resampled_filename);
 			}
 			Debug::print("{$f} resampled filename is \"{$resampled_filename}\"");
 			return file_get_contents($resampled_filename);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

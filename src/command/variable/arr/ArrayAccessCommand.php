@@ -18,7 +18,7 @@ class ArrayAccessCommand extends ArrayCommand implements ValueReturningCommandIn
 
 	public function setOffset($offset)
 	{
-		if ($offset === null) {
+		if($offset === null) {
 			unset($this->offset);
 			return null;
 		}
@@ -33,7 +33,7 @@ class ArrayAccessCommand extends ArrayCommand implements ValueReturningCommandIn
 	public function getOffset()
 	{
 		$f = __METHOD__; //ArrayAccessCommand::getShortClass()."(".static::getShortClass().")->getOffset()";
-		if (! $this->hasOffset()) {
+		if(!$this->hasOffset()) {
 			Debug::error("{$f} offset is undefined");
 		}
 		return $this->offset;
@@ -60,11 +60,11 @@ class ArrayAccessCommand extends ArrayCommand implements ValueReturningCommandIn
 	public function toJavaScript(): string
 	{
 		$array = $this->getArray();
-		if ($array instanceof JavaScriptInterface) {
+		if($array instanceof JavaScriptInterface) {
 			$array = $array->toJavaScript();
 		}
 		$offset = $this->getOffset();
-		if ($offset instanceof JavaScriptInterface) {
+		if($offset instanceof JavaScriptInterface) {
 			$offset = $offset->toJavaScript();
 		}
 		return "{$array}[{$offset}]";

@@ -42,7 +42,7 @@ class Paginator extends DataStructure{
 		$orderDirection->setNullable(true);
 		// $orderDirection->setChoiceGenerator(static::class);
 		array_push($columns, $limit, $total, $display_pg, $orderBy, $orderDirection, $tic);
-		foreach ($columns as $column) {
+		foreach($columns as $column) {
 			$column->setFlag("paginator", true);
 		}
 	}
@@ -75,30 +75,30 @@ class Paginator extends DataStructure{
 	public function getOrderBy(){
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasOrderBy()) {
-			if ($print) {
+		if($this->hasOrderBy()) {
+			if($print) {
 				Debug::print("{$f} order by was already defined");
 			}
 			return $this->getColumnValue("orderBy");
-		} elseif (hasInputParameter('orderBy')) {
-			if ($print) {
+		}elseif(hasInputParameter('orderBy')) {
+			if($print) {
 				Debug::print("{$f} order by is provided by GET");
 			}
 			$orderBy = getInputParameter('orderBy');
-			if (! ctype_alnum($orderBy)) {
+			if(! ctype_alnum($orderBy)) {
 				Debug::error("{$f} orderBy is non-alphanumeric");
 			}
-		} else {
-			if ($print) {
+		}else{
+			if($print) {
 				Debug::print("{$f} order by is not specified; defaulting to insertTimestamp");
 			}
 			$orderBy = "insertTimestamp";
-			if (! $this->hasOrderDirection()) {
-				if ($print) {
+			if(!$this->hasOrderDirection()) {
+				if($print) {
 					Debug::print("{$f} order direction was not defined either");
 				}
 				$this->setOrderDirection(DIRECTION_DESCENDING);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} order direction was defined, however");
 			}
 		}
@@ -112,7 +112,7 @@ class Paginator extends DataStructure{
 	public function setOrderDirection($orderDirection){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} setting order direction to \"{$orderDirection}\"");
 		}
 		return $this->setColumnValue("orderDirection", $orderDirection);
@@ -120,12 +120,12 @@ class Paginator extends DataStructure{
 
 	public function getOrderDirection(){
 		$f = __METHOD__;
-		if ($this->hasOrderDirection()) {
+		if($this->hasOrderDirection()) {
 			return $this->getColumnValue("orderDirection");
 		}
-		if (! hasInputParameter('orderDirection') || getInputParameter('orderDirection') !== DIRECTION_ASCENDING) {
+		if(! hasInputParameter('orderDirection') || getInputParameter('orderDirection') !== DIRECTION_ASCENDING) {
 			$orderDirection = DIRECTION_DESCENDING;
-		} else {
+		}else{
 			$orderDirection = DIRECTION_ASCENDING;
 		}
 		return $this->setOrderDirection($orderDirection);
@@ -136,7 +136,7 @@ class Paginator extends DataStructure{
 		$print = false;
 		$term = $this->getOrderBy();
 		$orderDirection = $this->getOrderDirection();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} ordering {$orderDirection}");
 		}
 		$orderBy = [
@@ -158,44 +158,44 @@ class Paginator extends DataStructure{
 	 */
 	public function paginateSelectStatement($select, $primitives = null, $args = null){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				$count = is_array($args) ? count($args) : 0;
 				Debug::print("{$f} pre-pagination select query is \"{$select}\" with type specifier \"{$primitives}\" and {$count} parameters");
 			}
-			if ($select->hasLimit() || $select->hasOffset()) {
+			if($select->hasLimit() || $select->hasOffset()) {
 				Debug::error("{$f} limit and offset should not be defined until after this function has finished its business");
 			}
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
-			if (isset($primitives) && isset($args)) {
+			if(isset($primitives) && isset($args)) {
 				$length = strlen($primitives);
 				for ($i = 0; $i < $length; $i ++) {
 					$type = $primitives[$i];
-					if (! array_key_exists($i, $args)) {
+					if(! array_key_exists($i, $args)) {
 						Debug::warning("{$f} there is no parameter {$i}");
 						Debug::printArray($args);
 						Debug::printStackTrace();
 					}
 					switch ($type) {
 						case 'd':
-							if ($print) {
+							if($print) {
 								Debug::print("{$f} parameter {$args[$i]} at position {$i} should be a double");
 							}
-							if (! is_float($args[$i])) {
+							if(!is_float($args[$i])) {
 								Debug::error("{$f} but it isn't");
 							}
 							break;
 						case 'i':
-							if ($print) {
+							if($print) {
 								Debug::print("{$f} parameter {$args[$i]} at position {$i} should be an integer");
 							}
-							if (! is_int($args[$i])) {
+							if(!is_int($args[$i])) {
 								Debug::error("{$f} but it isn't");
 							}
 							break;
 						case 's':
-							if ($print) {
+							if($print) {
 								Debug::print("{$f} parameter {$args[$i]} at position {$i} is a string");
 							}
 							break;
@@ -203,53 +203,53 @@ class Paginator extends DataStructure{
 							Debug::error("{$f} there are no other data types dammit");
 					}
 				}
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} all parameters check out. About to execute \"{$select}\" with type specifier \"{$primitives}\" and the following parameters");
 					Debug::printArray($args);
 				}
 				$count = $select->prepareBindExecuteGetResultCount($mysqli, $primitives, ...$args);
-			} else {
+			}else{
 				$required = $select->inferParameterCount();
-				if ($required > 0) {
-					if (! isset($primitives)) {
+				if($required > 0) {
+					if(! isset($primitives)) {
 						Debug::warning("{$f} type definition string is undefined");
 					}
-					if (! isset($args)) {
+					if(! isset($args)) {
 						Debug::warning("{$f} parameter array is undefined");
 					}
 					Debug::error("{$f} required parameter count {$required}");
 				}
 				$count = $select->executeGetResultCount($mysqli);
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} total item count of pre-pagination query \"{$select}\" is {$count}");
 			}
 			$this->setTotalItemCount($count);
-			if ($this->hasOrderBy()) {
-				if ($print) {
+			if($this->hasOrderBy()) {
+				if($print) {
 					Debug::print("{$f} order by is defined -- generating expression");
 				}
 				$select->setOrderBy(...$this->getOrderByClause());
 			}
 			$this->initialize();
-			if ($this->hasLimitPerPage()) {
+			if($this->hasLimitPerPage()) {
 				$limit = $this->getLimitPerPage();
-				if ($limit > 0) {
+				if($limit > 0) {
 					$select->setLimit($limit);
 					$pg = $this->getDisplayPage();
-					if ($pg > 0) {
+					if($pg > 0) {
 						$offset = $pg * $limit;
 						$select->setOffset($offset);
 					}
 				}
-			} else {
+			}else{
 				Debug::error("{$f} limit is undefined");
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} paginated query is \"{$select}\"");
 			}
 			return $select;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -261,34 +261,34 @@ class Paginator extends DataStructure{
 	public function getTotalPageCount(){
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasTotalPageCount()) {
-			if ($print) {
+		if($this->hasTotalPageCount()) {
+			if($print) {
 				$total = $this->getColumnValue("totalPageCount");
 				Debug::print("{$f} total page count was already defined as {$total}");
 			}
 			return $this->getColumnValue('totalPageCount');
 		}
 		$item_count = $this->getTotalItemCount();
-		if ($item_count === 0) {
+		if($item_count === 0) {
 			return 1;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} item count is {$item_count}");
 		}
 		$limit = $this->getLimitPerPage();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} limit per page is {$limit}");
 		}
-		if ($limit === 0) {
+		if($limit === 0) {
 			return $this->setTotalPageCount(1);
 		}
 		$full_pages = $this->getFullPageCount();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} full page count is {$full_pages}");
 		}
 		$total_pages = $full_pages + ($item_count % $limit === 0 ? 0 : 1);
-		if ($total_pages < 1) {
+		if($total_pages < 1) {
 			Debug::error("{$f} total page count must be a positive number");
-		} elseif ($total_pages != floor($total_pages)) {
+		}elseif($total_pages != floor($total_pages)) {
 			Debug::error("{$f} total pages must be an integer");
 		}
 		return $this->setTotalPageCount($total_pages);
@@ -296,16 +296,16 @@ class Paginator extends DataStructure{
 
 	public static function getNextPageNumbers($start, $end){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			// $start = $this->getNextPage();
 			// $end = $this->getLastPage();
-			if ($start > $end) {
+			if($start > $end) {
 				Debug::warning("{$f} next page {$start} exceeds page limit {$end}");
 				// $this->setObjectStatus(ERROR_INTEGER_OOB);
 				return [];
-			} elseif ($start === $end) {
-				if ($print) {
+			}elseif($start === $end) {
+				if($print) {
 					Debug::print("{$f} next page >= last page, returning");
 				}
 				return [
@@ -315,13 +315,13 @@ class Paginator extends DataStructure{
 			$allocated = [
 				$start => $start
 			];
-			if ($end - $start < 10) {
+			if($end - $start < 10) {
 				$start_few = 9;
-			} else {
+			}else{
 				$start_few = 4;
 			}
 			for ($i = $start + 1; $i < $end && $i <= $start + $start_few; $i ++) {
-				if (isset($allocated[$i])) {
+				if(isset($allocated[$i])) {
 					continue;
 				}
 				$allocated[$i] = $i;
@@ -330,11 +330,11 @@ class Paginator extends DataStructure{
 			for ($endy = $end; $endy >= 10; $endy = floor($endy / 10)) {
 				$magnitude *= 10;
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} highest order of magnitude is {$magnitude}");
 			}
 			$cofactor10 = floor($end / $magnitude);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} cofactor of 10 is {$cofactor10}");
 			}
 			// get $i should be the lowest order or half-order of magnitude exceeding currentpage
@@ -343,122 +343,122 @@ class Paginator extends DataStructure{
 			$coefficient = 2;
 			$tenth = floor($upper / 10);
 			$fifth = floor($upper / 20);
-			if ($i == $tenth) {
-				if ($print) {
+			if($i == $tenth) {
+				if($print) {
 					Debug::print("{$f} lower bound is 1/10 of the magnitude -- cutting it into tenths");
 				}
 				for ($i = $tenth; $i <= $upper; $i += $tenth) {
-					if (isset($allocated[$i])) {
+					if(isset($allocated[$i])) {
 						continue;
 					}
 					$allocated[$i] = $i;
 				}
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} done breaking it into tenths");
 				}
-			} elseif ($i == $fifth) {
-				if ($print) {
+			}elseif($i == $fifth) {
+				if($print) {
 					Debug::print("{$f} lower bound is 1/5 the upper bound -- cutting it into fifths");
 				}
-				if (! isset($allocated[$i])) {
+				if(! isset($allocated[$i])) {
 					$allocated[$i] = $i;
 				}
 				for ($i = $fifth; $i <= $upper; $i += $fifth) {
-					if (isset($allocated[$i])) {
+					if(isset($allocated[$i])) {
 						continue;
 					}
 					$allocated[$i] = $i;
 				}
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} done breaking it into fifths");
 				}
-			} else {
+			}else{
 				// Debug::error("{$f} unimplemented: {$i} != {$fifth} && {$i} != {$tenth}");
 				$current = $start - 1;
 				while ($i < $current) {
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} {$i} is less than {$current}");
 					}
-					if ($i * 5 < $current) {
-						if ($print) {
+					if($i * 5 < $current) {
+						if($print) {
 							Debug::print("{$f} {$i}*5 is less than {$current}");
 						}
 						$i *= 5;
 						$coefficient = 5;
-					} else {
-						if ($print) {
+					}else{
+						if($print) {
 							Debug::print("{$f} {$i}*5 is greater than or equal to {$current}");
 						}
 						$coefficient = 2;
 						break;
 					}
-					if ($i * 2 < $current) {
-						if ($print) {
+					if($i * 2 < $current) {
+						if($print) {
 							Debug::print("{$f} {$i}*2 is less than {$current}");
 						}
 						$i *= 2;
 						$coefficient = 2;
-					} else {
-						if ($print) {
+					}else{
+						if($print) {
 							Debug::print("{$f} {$i}*2 is greater than or equal to {$current}");
 						}
 						$coefficient = 5;
 						break;
 					}
 				}
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} about to get a nicest round number > {$i} && < {$upper}; coefficient is {$coefficient}");
 				}
 				for ($round = $i; $round <= $upper; $round *= $coefficient) {
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} current round number is {$round}");
 					}
-					if ($coefficient == 5) {
+					if($coefficient == 5) {
 						$coefficient = 2;
-					} else {
+					}else{
 						$coefficient = 5;
 					}
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} cofactor is now {$coefficient}");
 					}
-					if ($round <= $current) {
-						if ($print) {
+					if($round <= $current) {
+						if($print) {
 							Debug::print("{$f} {$round} is less than the display page {$current}");
 						}
 						// continue;
-					} elseif (! isset($allocated[$round])) {
-						if ($print) {
+					}elseif(! isset($allocated[$round])) {
+						if($print) {
 							Debug::print("{$f} about to generate a link for page {$round}");
 						}
 						$allocated[$round] = $round;
-					} else {
-						if ($print) {
+					}else{
+						if($print) {
 							Debug::print("{$f} page {$round} already had its link generated");
 						}
 						continue;
 					}
 					$pre = $round * $coefficient;
-					if ($pre < $upper) {
-						if ($print) {
+					if($pre < $upper) {
+						if($print) {
 							Debug::print("{$f} next iteration of the loop (page {$pre}) is within the allowed range");
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} page {$pre} exceeds the allowed range");
 					}
 				}
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to append last page link");
 			}
-			if (! isset($allocated[$end])) {
+			if(! isset($allocated[$end])) {
 				$allocated[$end] = $end;
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning the following next page numbers:");
 				Debug::printArray($allocated);
 			}
 			return $allocated;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -472,12 +472,12 @@ class Paginator extends DataStructure{
 			$pg
 		];
 		$last = $this->getLastPage();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} last page number is \"{$last}\"");
 		}
 		$next = $pg === $last ? [] : $this->getNextPageNumbers($this->getNextPage(), $last);
 		$numbers = array_merge($prev, $current, $next);
-		if ($print) {
+		if($print) {
 			Debug::debugPrint("{$f} returning the following page numbers:");
 			Debug::printArray($numbers);
 		}
@@ -486,19 +486,19 @@ class Paginator extends DataStructure{
 
 	public static function getPreviousPageNumbers($end){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$allocated = [
 				0 => 0
 			];
 			$coefficient = 2;
 			for ($i = 10; $i < $end - 9; $i *= $coefficient) {
-				if ($coefficient == 5) {
+				if($coefficient == 5) {
 					$coefficient = 2;
-				} else {
+				}else{
 					$coefficient = 5;
 				}
-				if (isset($allocated[$i])) {
+				if(isset($allocated[$i])) {
 					continue;
 				}
 				$allocated[$i] = $i;
@@ -509,17 +509,17 @@ class Paginator extends DataStructure{
 				$prev_start ++;
 			}
 			for ($i = $prev_start; $i <= $prev; $i ++) {
-				if (isset($allocated[$i])) {
+				if(isset($allocated[$i])) {
 					continue;
 				}
 				$allocated[$i] = $i;
 			}
-			if ($print) {
+			if($print) {
 				Debug::debugPrint("{$f} returning the following previous page numbers:");
 				Debug::printArray($allocated);
 			}
 			return $allocated;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -527,11 +527,11 @@ class Paginator extends DataStructure{
 	public function setTotalPageCount($total_pages){
 		$f = __METHOD__;
 		$print = false;
-		if ($total_pages < 1) {
+		if($total_pages < 1) {
 			Debug::error("{$f} total pages must be a positive number");
-		} elseif (floor($total_pages) != $total_pages) {
+		}elseif(floor($total_pages) != $total_pages) {
 			Debug::error("{$f} fuck!");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} setting total page count to {$total_pages}");
 		}
 		return $this->setColumnValue('totalPageCount', $total_pages);
@@ -544,7 +544,7 @@ class Paginator extends DataStructure{
 
 	public function getTotalItemCount(){
 		$f = __METHOD__;
-		if (! $this->hasTotalItemCount()) {
+		if(!$this->hasTotalItemCount()) {
 			$did = $this->getDebugId();
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} this should have been calculated when setting the paginated query. Debug ID is {$did}, declared {$decl}");
@@ -555,7 +555,7 @@ class Paginator extends DataStructure{
 	public function setTotalItemCount($count){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::printStackTraceNoExit("{$f} setting total item count to {$count}");
 		}
 		return $this->setColumnValue("totalItemCount", $count);
@@ -564,7 +564,7 @@ class Paginator extends DataStructure{
 	public function getFullPageCount(){
 		$f = __METHOD__;
 		$limit = $this->getLimitPerPage();
-		if ($limit === 0) {
+		if($limit === 0) {
 			$limit = 1;
 		}
 		return floor($this->getTotalItemCount() / $limit);
@@ -573,7 +573,7 @@ class Paginator extends DataStructure{
 	public function setDisplayPage($pg){
 		$f = __METHOD__;
 		$last = $this->getLastPage();
-		if (isset($last) && $pg > $last) {
+		if(isset($last) && $pg > $last) {
 			Debug::error("{$f} display page ({$pg}) exceeds last page number ({$last})");
 		}
 		return $this->setColumnValue('pg', $pg);
@@ -602,7 +602,7 @@ class Paginator extends DataStructure{
 
 	public function getPaginatedClass(){
 		$f = __METHOD__;
-		if (! $this->hasPaginatedClass()) {
+		if(!$this->hasPaginatedClass()) {
 			Debug::error("{$f} paginated class is undefined");
 		}
 		return $this->paginatedClass;
@@ -614,45 +614,45 @@ class Paginator extends DataStructure{
 	 */
 	public function initialize(){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} entered");
 			}
 			// $this->getLimitPerPage();
-			if (hasInputParameter('limit') && intval(getInputParameter('limit') > 0)) {
+			if(hasInputParameter('limit') && intval(getInputParameter('limit') > 0)) {
 				$this->setLimitPerPage(intval(getInputParameter('limit')));
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} limit per page is undefined in GET");
 			}
 			$this->getFullPageCount();
 			$this->getTotalPageCount();
 			// display page //$this->initializeDisplayPage();
-			if (hasInputParameter('jump')) {
+			if(hasInputParameter('jump')) {
 				$pg = intval(getInputParameter('jump'));
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} jumping to page #{$pg}");
 				}
-			} elseif (hasInputParameter('pg')) {
+			}elseif(hasInputParameter('pg')) {
 				$pg = intval(getInputParameter('pg'));
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} page # is {$pg}");
 				}
-			} elseif (hasInputParameter('tx_id')) {
+			}elseif(hasInputParameter('tx_id')) {
 				$tx_id = intval(getInputParameter('tx_id'));
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} transaction ID is \"{$tx_id}\"");
 				}
 				$count = $this->getTotalItemCount();
 				$reversed = $count - $tx_id;
-				if ($reversed < 0) {
+				if($reversed < 0) {
 					Debug::error("{$f} negative variable \"reversed\" ({$reversed})");
 				}
 				$limit = $this->getLimitPerPage();
 				$adjusted = ($reversed % $limit); // + 1;
 				$perpage = $limit;
 				$pg = floor($adjusted / $perpage) + floor($reversed / $limit); // *$pages_per_volume;
-				if ($pg < 0) {
+				if($pg < 0) {
 					$arr = [
 						'tx_id' => $tx_id,
 						'count' => $count,
@@ -666,16 +666,16 @@ class Paginator extends DataStructure{
 					Debug::printArray($arr);
 					Debug::error("{$f} negative page number");
 				}
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} nothing in GET parameters can be used to extrapolate the display page number");
 				}
 				$pg = 0; // $this->getStartingPage();
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to assign display page number {$pg}");
 			}
-			if ($pg < 0) {
+			if($pg < 0) {
 				Debug::warning("{$f} negative page number");
 				return $this->setObjectStatus(ERROR_INTEGER_OOB);
 			}
@@ -685,7 +685,7 @@ class Paginator extends DataStructure{
 			$this->getOrderBy();
 			// $this->setFlag("initialized", true);
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -701,9 +701,9 @@ class Paginator extends DataStructure{
 	public function getLimitPerPage(){
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasLimitPerPage()) {
+		if(!$this->hasLimitPerPage()) {
 			return $this->setLimitPerPage($this->getTotalItemCount());
-		} elseif ($print) {
+		}elseif($print) {
 			$limit = $this->getColumnValue('limit');
 			Debug::print("{$f} limit is {$limit}");
 		}

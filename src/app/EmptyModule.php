@@ -146,4 +146,8 @@ class EmptyModule extends Module{
 	public function getModuleSpecificColumns(DataStructure $ds): ?array{
 		return [];
 	}
+	
+	public function getInstallDirectories(): ?array{
+		return [];
+	}
 }

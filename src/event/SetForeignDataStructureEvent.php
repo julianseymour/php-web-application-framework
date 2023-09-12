@@ -6,7 +6,7 @@ abstract class SetForeignDataStructureEvent extends Event
 
 	public function __construct($type, $columnName, $struct, $properties = null)
 	{
-		if ($properties === null) {
+		if($properties === null) {
 			$properties = [];
 		}
 		$properties['columnName'] = $columnName;

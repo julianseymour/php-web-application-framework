@@ -14,10 +14,10 @@ class NotificationSubjectClassResolver extends IntersectionTableResolver
 		$print = false;
 		$note_classes = mods()->getTypedNotificationClasses();
 		$subject_classes = [];
-		foreach ($note_classes as $note_class) {
+		foreach($note_classes as $note_class) {
 			$subject_classes = array_merge($subject_classes, $note_class::getIntersections());
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning the following classes");
 			Debug::printArray($subject_classes);
 		}

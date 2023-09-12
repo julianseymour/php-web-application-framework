@@ -62,32 +62,32 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	public function configure(AjaxForm $form): int{
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasContext() && ! $this->hasLabelString()) {
+		if($this->hasContext() && ! $this->hasLabelString()) {
 			$datum = $this->getContext();
 			$cn = $datum->getName();
-			if ($datum->hasHumanReadableName()) {
-				if ($print) {
+			if($datum->hasHumanReadableName()) {
+				if($print) {
 					Debug::print("{$f} datum has a human-readable name");
 				}
 				$hrvn = $datum->getHumanReadableName();
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} human readable name for column \"{$cn}\" is \"{$hrvn}\"");
 				}
-				/*if ($form->hasSuperiorForm()) {
+				/*if($form->hasSuperiorForm()) {
 					$sf = $form->getSuperiorForm();
 					$si = $form->getSuperiorFormIndex();
 					$sc = $sf->getContext();
 					$sd = $sc->getColumn($si);
-					if ($sd->hasHumanReadableName()) {
+					if($sd->hasHumanReadableName()) {
 						$sv = $sd->getHumanReadableName();
 						$hrvn = new ConcatenateCommand($sv, " (", $hrvn, ")");
 					}
 				}*/
 				$this->setLabelString($hrvn);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} human readable name is undefined for column \"{$cn}\"");
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} context is undefined");
 		}
 		if(!$this->getTemplateFlag() && !$this->hasIdAttribute() && $form->hasIdAttribute() && $this->hasNameAttribute()){
@@ -105,7 +105,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	public function dispose(): void{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
 		parent::dispose();
@@ -163,7 +163,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	public function setNegotiator($negotiator){
 		$f = __METHOD__;
-		if ($negotiator == null) {
+		if($negotiator == null) {
 			unset($this->negotiator);
 			return null;
 		}
@@ -172,7 +172,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	public function getNegotiator(){
 		$f = __METHOD__;
-		if (! $this->hasNegotiator()) {
+		if(!$this->hasNegotiator()) {
 			$cn = $this->getColumnName();
 			Debug::error("{$f} input \"{$cn}\" lacks a negoatiator");
 		}
@@ -189,29 +189,29 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 		$f = __METHOD__;
 		$cn = $this->getColumnName();
 		$print = $this->getDebugFlag();
-		if ($this->hasNegotiator()) {
-			if ($print) {
+		if($this->hasNegotiator()) {
+			if($print) {
 				Debug::print("{$f} this input has an assigned negotiator");
 			}
 			$negotiator = $this->getNegotiator();
-			if ($negotiator instanceof Closure) {
+			if($negotiator instanceof Closure) {
 				return $negotiator($this, $column);
-			} elseif (is_string($negotiator) && is_a($negotiator, StaticValueNegotiationInterface::class, true)) {
-				if ($print) {
+			}elseif(is_string($negotiator) && is_a($negotiator, StaticValueNegotiationInterface::class, true)) {
+				if($print) {
 					Debug::print("{$f} negitiator is a static value negotiation interface");
 				}
 				return $negotiator::negotiateValueStatic($this, $column);
 			}
 			$nc = is_object($negotiator) ? $negotiator->getClass() : gettype($negotiator);
 			Debug::error("{$f} whoops, negotiator is a {$nc}\"");
-		} elseif ($this instanceof StaticValueNegotiationInterface) {
-			if ($print) {
+		}elseif($this instanceof StaticValueNegotiationInterface) {
+			if($print) {
 				Debug::print("{$f} this object is the negiotiator, and it is a static value negotiator interface");
 			}
 			return $this->negotiateValueStatic($this, $column);
 		}
 		$value = $this->getValueAttribute();
-		if ($print) {
+		if($print) {
 			$gottype = gettype($value);
 			Debug::print("{$f} input \"{$cn}\" is not a negitoatior, nor does it have one. Returning {$gottype} \"{$value}\"");
 		}
@@ -221,30 +221,30 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	public function processArray(array $arr): int{
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if ($arr === null) {
+		if($arr === null) {
 			Debug::error("{$f} null parameter");
 		}
 		$name = $this->getNameAttribute();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} name attribute is \"{$name}\"");
 		}
-		if (array_key_exists($name, $arr)) {
+		if(array_key_exists($name, $arr)) {
 			$value = $arr[$name];
-			if ($value === null || $value === "") {
-				if ($print) {
+			if($value === null || $value === "") {
+				if($print) {
 					Debug::print("{$f} value is empty");
 				}
-				if ($this->hasValueAttribute()) {
+				if($this->hasValueAttribute()) {
 					$this->removeValueAttribute();
 				}
 				return SUCCESS;
 			}
 			$value = $this->parseValue($value);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning \"{$value}\"");
 			}
 			$this->setValueAttribute($value);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} nothing to process for \"{$name}\"");
 			Debug::printArray($arr);
 		}
@@ -275,7 +275,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	 */
 	public function setHoneypotCount(int $decoy_count): int{
 		$f = __METHOD__;
-		try {
+		try{
 			require_class("Hunnypot");
 			$pot = new Hunnypot($this);
 			$pot->setDecoyCount($decoy_count);
@@ -287,7 +287,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 			$nonce = $pot->getNonce();
 			$after = false;
 			for ($i = 0; $i < $all_count; $i ++) {
-				if ($position === $i) {
+				if($position === $i) {
 					// Debug::print("{$f} this input's position in the list of decoys is \"{$position}\"");
 					$after = true;
 					continue;
@@ -297,8 +297,8 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 				$decoy = new $decoy_class();
 				$decoy->setDecoyFlag(true);
 				$attributes = $this->getAttributes();
-				if (! empty($attributes)) {
-					foreach (array_keys($attributes) as $attribute_key) {
+				if(!empty($attributes)) {
+					foreach(array_keys($attributes) as $attribute_key) {
 						switch ($attribute_key) {
 							case "name":
 								// Debug::print("{$f} about to generate decoy name attribute");
@@ -319,15 +319,15 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 						}
 					}
 				}
-				if ($after) {
+				if($after) {
 					$this->pushSuccessorDecoys($decoy);
-				} else {
+				}else{
 					$this->pushPredecessorDecoys($decoy);
 				}
 			}
 			// Debug::print("{$f} returning normally");
 			return $decoy_count;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -355,8 +355,8 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	public function hasValueAttribute(): bool{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->getIgnoreDatumSensitivityFlag() && $this->getSensitiveFlag()) {
-			if ($print) {
+		if(!$this->getIgnoreDatumSensitivityFlag() && $this->getSensitiveFlag()) {
+			if($print) {
 				$cn = $this->hasColumnName() ? $this->getColumnName() : CONST_UNDEFINED;
 				Debug::print("{$f} input with index \"{$cn}\" is sensitive -- returning false");
 			}
@@ -387,7 +387,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	public function getOnBlurAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasOnBlurAttribute()) {
+		if(!$this->hasOnBlurAttribute()) {
 			Debug::error("{$f} onblur attribute is undefined");
 		}
 		return $this->getAttribute("onblur");
@@ -407,7 +407,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	public function getOnPropertyChangeAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasOnPropertyChangeAttribute()) {
+		if(!$this->hasOnPropertyChangeAttribute()) {
 			Debug::error("{$f} on property change attribute is undefined");
 		}
 		return $this->getAttribute("onpropertychange");
@@ -428,7 +428,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	 */
 	public function getSensitiveFlag(): bool{
 		$f = __METHOD__;
-		if (! $this->hasContext()) {
+		if(!$this->hasContext()) {
 			// Debug::print("{$f} this object lacks a datum");
 			return false;
 		}
@@ -476,10 +476,10 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	 */
 	public function bindContext($context){
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $context->getName();
 			$print = $this->getDebugFlag();
-			if ($print) {
+			if($print) {
 				$decl = $this->getDeclarationLine();
 				$dsc = $context->hasDataStructure() ? get_short_class($context->getDataStructure()) : "unknown";
 				$did = $this->getDebugId();
@@ -487,7 +487,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 			}
 			$this->setColumnName($vn);
 			$this->setNameAttribute($vn);
-			if(! $this instanceof SelectInput && $context->hasDataStructure()){
+			if(!$this instanceof SelectInput && $context->hasDataStructure()){
 				if($print){
 					Debug::print("{$f} this is not a select input, and context has a data structure");
 				}
@@ -498,7 +498,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 				}else{
 					$format = READABILITY_WRITABLE;
 				}
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} assigning readability \"{$format}\"");
 				}
 				$get->setFormat($format);
@@ -518,7 +518,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 					$predicate = $has;
 				}
 				$set = new SetInputValueCommand($this, $get);
-				if ($print) {
+				if($print) {
 					$set->debug();
 					$has->debug();
 					$did = $set->getDebugId();
@@ -533,7 +533,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 				Debug::print("{$f} name attribute is \"{$name}\"; returning parent function");
 			}
 			return parent::bindContext($context);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -553,7 +553,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	public function getRowsAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasRowsAttribute()) {
+		if(!$this->hasRowsAttribute()) {
 			Debug::error("{$f} rows attribute is undefined");
 		}
 		return $this->getAttribute("rows");
@@ -601,41 +601,41 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	protected function generateSuccessors(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$arr = parent::generateSuccessors();
-			if ($arr === null) {
+			if($arr === null) {
 				$arr = [];
 			}
-			if ($this->hasSuccessorDecoys()) {
+			if($this->hasSuccessorDecoys()) {
 				$arr = array_merge($arr, $this->getSuccessorDecoys());
 			}
-			if ($this->hasHoneypot()) {
+			if($this->hasHoneypot()) {
 				array_push($arr, $this->honeypot);
 			}
 			// Debug::print("{$f} returning normally");
 			return $arr;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	protected function beforeRenderHook(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$ret = parent::beforeRenderHook();
-			if ($this->getContentsGeneratedFlag()) {
+			if($this->getContentsGeneratedFlag()) {
 				Debug::warning("{$f} contents already generated");
 				return $ret;
-			} elseif (! $this->hasValidators()) {
-				if ($print) {
+			}elseif(!$this->hasValidators()) {
+				if($print) {
 					Debug::print("{$f} no validators to concern ourselves with");
 				}
 				return $ret;
 			}
 			$this->generateValidatorAttributes();
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -645,12 +645,12 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	 */
 	protected function generateValidatorAttributes(): void{
 		$f = __METHOD__;
-		try {
-			if ($this->hasColumnName()) {
+		try{
+			if($this->hasColumnName()) {
 				$cn = $this->getColumnName();
-			} elseif ($this->hasNameAttribute()) {
+			}elseif($this->hasNameAttribute()) {
 				$cn = $this->getNameAttribute();
-			} else {
+			}else{
 				$cn = "undefined";
 			}
 			$print = $this->getDebugFlag();
@@ -660,7 +660,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 			$instant = [];
 			$submit = [];
 			$validators = $this->getValidators();
-			if ($print) {
+			if($print) {
 				$count = count($validators);
 				Debug::print("{$f} about to iterate through {$count} validators");
 				$validator_classes = [];
@@ -669,35 +669,35 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 				}
 				Debug::printArray($validator_classes);
 			}
-			foreach ($validators as $validator) {
+			foreach($validators as $validator) {
 				$vc = get_short_class($validator);
 				if($print){
 					Debug::print("{$f} validator class \"{$vc}\"");
 				}
 				// AjaxValidators send data to server automatically
-				if ($validator instanceof AjaxValidatorInterface) {
-					if ($this->hasAttribute("__ajaxValidator")) {
+				if($validator instanceof AjaxValidatorInterface) {
+					if($this->hasAttribute("__ajaxValidator")) {
 						$did = $this->getDebugId();
 						$decl = $this->getDeclarationLine();
 						$sc = get_short_class($this);
 						Debug::error("{$f} this input already has an ajax validator of class ".$this->getAttribute("__ajaxValidator")."; you are allowed at most one. Class is {$sc}. Debug ID is {$did}, declared {$decl}");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} applying AjaxValidator \"{$vc}\"");
 					}
 					$this->setAttribute("__ajaxValidator", $vc);
-				} elseif ($validator instanceof InstantValidatorInterface) { // non-AJAX InstantValidators
-					if (false !== array_search($vc, $instant)) {
+				}elseif($validator instanceof InstantValidatorInterface) { // non-AJAX InstantValidators
+					if(false !== array_search($vc, $instant)) {
 						Debug::error("{$f} duplicate instant validator \"{$vc}\" for input \"{$cn}\"");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} adding instant validator \"{$vc}\"");
 					}
 					array_push($instant, $vc);
-				} elseif ($validator instanceof OnSubmitValidatorInterface) {
-					if ($validator instanceof AjaxValidatorInterface) {
+				}elseif($validator instanceof OnSubmitValidatorInterface) {
+					if($validator instanceof AjaxValidatorInterface) {
 						Debug::error("{$f} {$vc} cannot implement both Ajax and OnSubmit validator interfaces");
-					} elseif (false !== array_search($vc, $submit)) {
+					}elseif(false !== array_search($vc, $submit)) {
 						Debug::error("{$f} dubplicate OnSubmit validator \"{$vc}\" for input \"{$cn}\"");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} adding OnSubmit validator \"{$vc}\"");
 					}
 					array_push($submit, $vc);
@@ -706,34 +706,34 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 			// if there are any instant validators, set the instantValidators attribute
 			// to a comma-separated list of validator names, and set this input's oninput attribute
 			// to instantValidateStatic
-			if (! empty($instant) || $this->hasAttribute("__ajaxValidator")) {
-				if ($this->hasOnInputAttribute()) {
+			if(!empty($instant) || $this->hasAttribute("__ajaxValidator")) {
+				if($this->hasOnInputAttribute()) {
 					Debug::error("{$f} input \"{$cn}\" already has an oninput attribute");
-				} elseif (! empty($instant)) {
-					if ($print) {
+				}elseif(!empty($instant)) {
+					if($print) {
 						$count = count($instant);
 						Debug::print("{$f} {$count} instant validators");
 					}
 					$this->setAttribute("__instantValidators", implode(',', $instant));
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} no instant validators; setting oninput attribute exclusively for AjaxValidator");
 				}
 				$this->setOnInputAttribute("Validator.instantValidateStatic(event, this);");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no instant validators");
 			}
 			// if there are any validators that fire only on submit, set the submitValidators attribute
 			// to a comma-separated list of validator names
-			if (! empty($submit)) {
-				if ($print) {
+			if(!empty($submit)) {
+				if($print) {
 					$count = count($submit);
 					Debug::print("{$f} {$count} OnSubmit validators");
 				}
 				$this->setAttribute("__submitValidators", implode(',', $submit));
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no OnSubmit validators");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -760,17 +760,17 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	protected function generatePredecessors(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$arr = parent::generatePredecessors();
-			if ($arr === null) {
+			if($arr === null) {
 				$arr = [];
 			}
-			if ($this->hasPredecessorDecoys()) {
+			if($this->hasPredecessorDecoys()) {
 				$arr = array_merge($arr, $this->getPredecessorDecoys());
 			}
 			// Debug::print("{$f} returning normally");
 			return $arr;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -785,7 +785,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	public function getAutofocusAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasAutofocusAttribute()) {
+		if(!$this->hasAutofocusAttribute()) {
 			Debug::error("{$f} autofocus attribute is undefined");
 		}
 		return $this->getAttribute("autofocus");
@@ -793,7 +793,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	public function getTypeAttribute(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			$attributes = [
 				INPUT_TYPE_BUTTON => 'button',
 				INPUT_TYPE_CHECKBOX => 'checkbox',
@@ -823,17 +823,17 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 				INPUT_TYPE_TEXTAREA => 'textarea'
 			];
 			$type = $this->getTypeAttributeStatic();
-			if (! isset($type)) {
+			if(! isset($type)) {
 				Debug::error("{$f} input type is undefined");
 			}
 			$error = "error";
 			$attr = array_key_exists($type, $attributes) ? $attributes[$type] : $error;
-			if ($attr == $error) {
+			if($attr == $error) {
 				Debug::error("{$f} invalid type \"{$type}\"");
 			}
 			// Debug::print("{$f} returning \"{$attr}\"");
 			return $attr;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -856,7 +856,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 
 	public function getOnInputAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasOnInputAttribute()) {
+		if(!$this->hasOnInputAttribute()) {
 			Debug::error("{$f} oninput attribute is undefined");
 		}
 		return $this->getAttribute("oninput");
@@ -870,8 +870,8 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	 */
 	public function getFormDataAppensionCommand($formdata_name = null){
 		$f = __METHOD__;
-		try {
-			if (empty($formdata_name)) {
+		try{
+			if(empty($formdata_name)) {
 				$formdata_name = "fd";
 			}
 			$name = $this->getNameAttribute();
@@ -879,7 +879,7 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 			$ds->setIdentifierName($this->getColumnName());
 			$value = new GetColumnValueCommand($ds, $this->getColumnName());
 			return new CallFunctionCommand("{$formdata_name}.append", $name, $value);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -910,69 +910,69 @@ abstract class InputElement extends ValuedElement implements InputInterface{
 	 */
 	public function subindexNameAttribute($super_column_name){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
 			$this->dispatchEvent(new BeforeSubindexEvent($super_column_name));
 			$oldname = $this->getNameAttribute();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} old name is \"{$oldname}\"; about to subindex under \"{$super_column_name}\"");
 			}
 			$array = false;
-			if (ends_with($oldname, "[]")) {
-				if ($print) {
+			if(ends_with($oldname, "[]")) {
+				if($print) {
 					Debug::print("{$f} old name attribute was already an array");
 				}
 				$tempname = substr($oldname, 0, strlen($oldname) - 2);
 				$array = true;
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} old name attribute is just a regular string");
 				}
 				$tempname = $oldname;
 			}
 			$regex = '/([A-Za-z]+[A-Za-z0-9-_;.]*(\[[A-Za-z0-9-_;.]+\])+)/';
 			// $regex = '/([A-Za-z]+[A-Za-z0-9-_;.]*(\[[A-Za-z][A-Za-z0-9-_;.]*\])+)/';
-			if (preg_match($regex, $tempname)) {
-				if ($print) {
+			if(preg_match($regex, $tempname)) {
+				if($print) {
 					Debug::print("{$f} temporary variable name \"{$tempname}\" is in the format name[index]+; about to split at []");
 				}
 				$splat = preg_split('/[\[\]]/', $tempname);
 				$newname = $super_column_name;
-				foreach ($splat as $fragment) {
-					if (empty($fragment)) {
-						if ($print) {
+				foreach($splat as $fragment) {
+					if(empty($fragment)) {
+						if($print) {
 							Debug::print("{$f} fragment is empty string, continuing");
 						}
 						continue;
 					}
-					if (ends_with($fragment, "]")) {
+					if(ends_with($fragment, "]")) {
 						Debug::error("{$f} preg_split didn't work as planned");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} appending fragment \"{$fragment}\"");
 					}
 					$newname .= "[{$fragment}]";
 				}
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} temporary variable name \"{$tempname}\" is not in the format name[index]+");
 				}
 				$newname = "{$super_column_name}[{$tempname}]";
 			}
-			if ($array) {
-				if ($print) {
+			if($array) {
+				if($print) {
 					Debug::print("{$f} appending []");
 				}
 				$newname .= "[]";
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} forgoing appension of []");
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} old name was \"{$oldname}\"; new name is \"{$newname}\"");
 			}
 			$ret = $this->setNameAttribute($newname);
 			$this->dispatchEvent(new AfterSubindexEvent($super_column_name, $oldname));
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

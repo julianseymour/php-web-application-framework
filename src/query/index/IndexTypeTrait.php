@@ -11,10 +11,10 @@ trait IndexTypeTrait
 	public function setIndexType($type)
 	{
 		$f = __METHOD__; //"IndexTypeTrait(".static::getShortClass().")->setIndexType()";
-		if ($type == null) {
+		if($type == null) {
 			unset($this->indexType);
 			return null;
-		} elseif (! is_string($type)) {
+		}elseif(!is_string($type)) {
 			Debug::error("{$f} index type must be a string");
 		}
 		$type = strtolower($type);
@@ -32,7 +32,7 @@ trait IndexTypeTrait
 	public function getIndexType()
 	{
 		$f = __METHOD__; //"IndexTypeTrait(".static::getShortClass().")->getIndexType()";
-		if (! $this->hasIndexType()) {
+		if(!$this->hasIndexType()) {
 			Debug::error("{$f} index type is undefined");
 		}
 		return $this->indexType;

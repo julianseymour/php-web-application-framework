@@ -19,14 +19,14 @@ trait ForeignKeyConstraintTrait{
 	
 	public function setOnDelete($ondelete){
 		$f = __METHOD__;
-		if ($ondelete == null) {
+		if($ondelete == null) {
 			unset($this->onDeleteReferenceOption);
 			return null;
-		} elseif (! is_string($ondelete)) {
+		}elseif(!is_string($ondelete)) {
 			Debug::error("{$f} reference option must be a string");
-		} elseif ($this instanceof AbstractDatum) { // setting a reference option implies a constraint
+		}elseif($this instanceof AbstractDatum) { // setting a reference option implies a constraint
 			$this->constrain();
-			if ($ondelete === REFERENCE_OPTION_SET_NULL) {
+			if($ondelete === REFERENCE_OPTION_SET_NULL) {
 				$this->setNullable(true);
 			}
 		}
@@ -39,7 +39,7 @@ trait ForeignKeyConstraintTrait{
 
 	public function getOnDelete(){
 		$f = __METHOD__;
-		if (! $this->hasOnDelete()) {
+		if(!$this->hasOnDelete()) {
 			Debug::error("{$f} on delete is undefined");
 		}
 		return $this->onDeleteReferenceOption;
@@ -52,14 +52,14 @@ trait ForeignKeyConstraintTrait{
 
 	public function setOnUpdate($onupdate){
 		$f = __METHOD__;
-		if ($onupdate == null) {
+		if($onupdate == null) {
 			unset($this->onUpdateReferenceOption);
 			return null;
-		} elseif (! is_string($onupdate)) {
+		}elseif(!is_string($onupdate)) {
 			Debug::error("{$f} reference option must be a string");
-		} elseif ($this instanceof AbstractDatum) { // setting a reference option implies a constraint
+		}elseif($this instanceof AbstractDatum) { // setting a reference option implies a constraint
 			$this->constrain();
-			if ($onupdate === REFERENCE_OPTION_SET_NULL) {
+			if($onupdate === REFERENCE_OPTION_SET_NULL) {
 				$this->setNullable(true);
 			}
 		}
@@ -72,7 +72,7 @@ trait ForeignKeyConstraintTrait{
 
 	public function getOnUpdate(){
 		$f = __METHOD__;
-		if (! $this->hasOnUpdate()) {
+		if(!$this->hasOnUpdate()) {
 			Debug::error("{$f} on update is undefined");
 		}
 		return $this->onUpdateReferenceOption;

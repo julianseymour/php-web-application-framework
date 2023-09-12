@@ -79,7 +79,7 @@ class TableFactor extends JoinExpression implements StaticPropertyTypeInterface,
 
 	public function setTableSubquery($subquery){
 		$f = __METHOD__;
-		if ($subquery == null) {
+		if($subquery == null) {
 			unset($this->tableSubquery);
 			return null;
 		}
@@ -93,7 +93,7 @@ class TableFactor extends JoinExpression implements StaticPropertyTypeInterface,
 
 	public function getTableSubquery(){
 		$f = __METHOD__;
-		if (! $this->hasTableSubquery()) {
+		if(!$this->hasTableSubquery()) {
 			Debug::error("{$f} table subquery is undefined");
 		}
 		return $this->tableSubquery;
@@ -106,41 +106,41 @@ class TableFactor extends JoinExpression implements StaticPropertyTypeInterface,
 
 	public function getTableReferenceString(){
 		$f = __METHOD__;
-		try {
-			if ($this->hasTableName()) {
+		try{
+			if($this->hasTableName()) {
 				// tbl_name [PARTITION (partition_names)] [[AS] alias] [index_hint_list]
 				$string = "";
-				if ($this->hasDatabaseName()) {
+				if($this->hasDatabaseName()) {
 					$string .= back_quote($this->getDatabaseName()) . ".";
 				}
 				$string .= back_quote($this->getTableName());
-				if ($this->hasPartitionNames()) {
+				if($this->hasPartitionNames()) {
 					$string .= " partition (" . implode(',', $this->getPartitionNames()) . ")";
 				}
-				if ($this->hasAlias()) {
+				if($this->hasAlias()) {
 					$string .= " " . $this->getAlias();
 				}
-				if ($this->hasIndexHintList()) {
+				if($this->hasIndexHintList()) {
 					$string .= " " . implode(',', $this->getIndexHintList());
 				}
-			} elseif ($this->hasTableSubquery()) {
+			}elseif($this->hasTableSubquery()) {
 				// [LATERAL] table_subquery [AS] alias [(col_list)]
 				$string = "";
-				if ($this->getLateralFlag()) {
+				if($this->getLateralFlag()) {
 					$string .= "lateral ";
 				}
 				$string .= $this->getTableSubquery() . " " . back_quote($this->getAlias());
-				if ($this->hasColumnNames()) {
+				if($this->hasColumnNames()) {
 					$string .= " (" . implode_back_quotes(',', $this->getColumnNames()) . ")";
 				}
-			} elseif ($this->hasJoinExpressions()) {
+			}elseif($this->hasJoinExpressions()) {
 				// ( table_references )
 				return "( " . implode(',', $this->getJoinExpressions()) . " )";
-			} else {
+			}else{
 				Debug::error("{$f} none of the above");
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

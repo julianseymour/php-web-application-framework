@@ -68,7 +68,7 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 	public function gettableFormDatabaseName(): string
 	{
 		$f = __METHOD__; //AbstractInsertStatement::getShortClass()."(".static::getShortClass().")->getTableFormDatabaseName()";
-		if (! $this->hasTableFormDatabaseName()) {
+		if(!$this->hasTableFormDatabaseName()) {
 			Debug::error("{$f} table form database name is undefined");
 		}
 		return $this->tableFormDatabaseName;
@@ -76,7 +76,7 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 
 	public function setTableFormDatabaseName(?string $db): ?string
 	{
-		if ($db == null) {
+		if($db == null) {
 			unset($this->tableFormDatabaseName);
 			return null;
 		}
@@ -93,10 +93,10 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 	public function setInsertStatementForm($form)
 	{
 		$f = __METHOD__; //InsertStatement::getShortClass()."(".static::getShortClass().")->setInsertStatementForm()";
-		if ($form == null) {
+		if($form == null) {
 			unset($this->insertStatementForm);
 			return null;
-		} elseif (! is_int($form)) {
+		}elseif(!is_int($form)) {
 			Debug::error("{$f} insert statement form must be an integer");
 		}
 		switch ($form) {
@@ -125,13 +125,13 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 	 */
 	public function getInsertStatementForm()
 	{
-		if ($this->hasInsertStatementForm()) {
+		if($this->hasInsertStatementForm()) {
 			return $this->insertStatementForm;
-		} elseif ($this->hasSelectStatement()) {
+		}elseif($this->hasSelectStatement()) {
 			return INSERT_STATEMENT_FORM_SELECT;
-		} elseif ($this->hasTableFormTableName()) {
+		}elseif($this->hasTableFormTableName()) {
 			return INSERT_STATEMENT_FORM_TABLE;
-		} elseif ($this->hasColumnExpressions()) {
+		}elseif($this->hasColumnExpressions()) {
 			return INSERT_STATEMENT_FORM_VALUES;
 		}
 		return INSERT_STATEMENT_FORM_UNDEFINED;
@@ -146,17 +146,17 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 	public function setPriority($p)
 	{
 		$f = __METHOD__; //InsertStatement::getShortClass()."(".static::getShortClass().")->setPriority()";
-		if ($p == null) {
+		if($p == null) {
 			unset($this->priorityLevel);
 			return null;
-		} elseif (! is_string($p)) {
+		}elseif(!is_string($p)) {
 			Debug::error("{$f} priority level must be a string");
 		}
 		$p = strtolower($p);
 		switch ($p) {
 			case PRIORITY_DELAYED:
 				$form = $this->getInsertStatementForm();
-				if ($form === INSERT_STATEMENT_FORM_SELECT || $form === INSERT_STATEMENT_FORM_TABLE) {
+				if($form === INSERT_STATEMENT_FORM_SELECT || $form === INSERT_STATEMENT_FORM_TABLE) {
 					Debug::error("{$f} select and table form insert statements cannot have delayed priority");
 				}
 			case PRIORITY_HIGH:
@@ -170,12 +170,12 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 	public function setRowCount($count)
 	{
 		$f = __METHOD__; //InsertStatement::getShortClass()."(".static::getShortClass().")->setRowCount()";
-		if ($count == null) {
+		if($count == null) {
 			unset($this->rowCount);
 			return null;
-		} elseif (! is_int($count)) {
+		}elseif(!is_int($count)) {
 			Debug::error("{$f} row count must be a positive integer");
-		} elseif ($count < 1) {
+		}elseif($count < 1) {
 			Debug::error("{$f} row count must be positive");
 		}
 		return $this->rowCount = $count;
@@ -188,7 +188,7 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 
 	public function getRowCount()
 	{
-		if ($this->hasRowCount()) {
+		if($this->hasRowCount()) {
 			return $this->rowCount;
 		}
 		return 1;
@@ -203,13 +203,13 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 	public function setSelectStatement(?SelectStatement $select): ?SelectStatement
 	{
 		$f = __METHOD__; //InsertStatement::getShortClass()."(".static::getShortClass().")->setSelectStatement()";
-		if ($select == null) {
-			if ($this->hasSelectStatement()) {
+		if($select == null) {
+			if($this->hasSelectStatement()) {
 				unset($this->insertStatementForm);
 			}
 			unset($this->selectStatement);
 			return null;
-		} elseif (! $select instanceof SelectStatement) {
+		}elseif(!$select instanceof SelectStatement) {
 			Debug::error("{$f} input parameter must be SelectStatement or null");
 		}
 		$form = $this->getInsertStatementForm();
@@ -233,15 +233,15 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 	public function setTableFormTableName($name)
 	{
 		$f = __METHOD__; //InsertStatement::getShortClass()."(".static::getShortClass().")->setTableFormTableName()";
-		if ($name == null) {
-			if ($this->hasTableFormTableName()) {
+		if($name == null) {
+			if($this->hasTableFormTableName()) {
 				unset($this->insertStatementForm);
 			}
 			unset($this->tableFormTableName);
 			return null;
-		} elseif (! is_string($name)) {
+		}elseif(!is_string($name)) {
 			Debug::error("{$f} table form table name must be a string");
-		} elseif (! validateTableName($name)) {
+		}elseif(! validateTableName($name)) {
 			Debug::error("{$f} invalid table name \"{$name}\"");
 		}
 		$form = $this->getInsertStatementForm();
@@ -264,7 +264,7 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 	public function getTableFormTableName()
 	{
 		$f = __METHOD__; //InsertStatement::getShortClass()."(".static::getShortClass().")->getTableFormTableName()";
-		if (! $this->hasTableFormTableName()) {
+		if(!$this->hasTableFormTableName()) {
 			Debug::error("{$f} table form table name is undefined");
 		}
 		return $this->tableFormTableName;
@@ -281,15 +281,15 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 		// SET assignment_list
 		$string = "";
 		$form = $this->getInsertStatementForm();
-		if ($form === INSERT_STATEMENT_FORM_SET) {
+		if($form === INSERT_STATEMENT_FORM_SET) {
 			$alias = $this->hasAlias() ? $this->getAlias() : null;
 			$string .= " set " . $this->getAssignmentListString($this->getColumnExpressions(), $alias);
-		} elseif ($form === INSERT_STATEMENT_FORM_SELECT) {
+		}elseif($form === INSERT_STATEMENT_FORM_SELECT) {
 			// {SELECT ... | TABLE table_name}
 			$string .= " select " . $this->getSelectStatement();
-		} elseif ($form === INSERT_STATEMENT_FORM_TABLE) {
+		}elseif($form === INSERT_STATEMENT_FORM_TABLE) {
 			$string .= " table ";
-			if ($this->hasTableFormDatabaseName()) {
+			if($this->hasTableFormDatabaseName()) {
 				$string .= back_quote($this->getTableFormDatabaseName()) . ".";
 			}
 			$string .= back_quote($this->getTableFormTableName());
@@ -313,44 +313,44 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 		$f = __METHOD__; //InsertStatement::getShortClass()."(".static::getShortClass().")->getInsertQueryStatementString()";
 		$string = "";
 		$form = $this->getInsertStatementForm();
-		if ($form === INSERT_STATEMENT_FORM_UNDEFINED) {
+		if($form === INSERT_STATEMENT_FORM_UNDEFINED) {
 			Debug::error("{$f} unable to determine insert statement form. Please assign column expressions, assignment list, select statement or table form table name");
 		}
 		// [LOW_PRIORITY | DELAYED | HIGH_PRIORITY]
-		if ($this->hasPriority()) {
+		if($this->hasPriority()) {
 			$string .= $this->getPriority() . " ";
 		}
 		// [IGNORE]
-		if ($this->getIgnoreFlag()) {
+		if($this->getIgnoreFlag()) {
 			$string .= "ignore ";
 		}
 		// [INTO] tbl_name
 		$string .= "into "; // .$this->getTableName();
-		if ($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()) {
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
 		$string .= back_quote($this->getTableName());
 		// [PARTITION (partition_name [, partition_name] ...)]
-		if ($this->hasPartitionNames()) {
+		if($this->hasPartitionNames()) {
 			$string .= "partition (" . implode(',', $this->getPartitionNames()) . ") ";
 		}
 		// [(col_name [, col_name] ...)]
-		if ($form !== INSERT_STATEMENT_FORM_SET && $this->hasColumnNames()) {
+		if($form !== INSERT_STATEMENT_FORM_SET && $this->hasColumnNames()) {
 			$string .= "(" . implode_back_quotes(',', $this->getColumnNames()) . ") ";
-		} elseif ($form === INSERT_STATEMENT_FORM_VALUES || $form === INSERT_STATEMENT_FORM_VALUES_ROW) { // {VALUES | VALUE} (value_list) [, (value_list)] ...
+		}elseif($form === INSERT_STATEMENT_FORM_VALUES || $form === INSERT_STATEMENT_FORM_VALUES_ROW) { // {VALUES | VALUE} (value_list) [, (value_list)] ...
 			$string .= "values ";
 			for ($i = 0; $i < $this->getRowCount(); $i ++) {
-				if ($i > 0) {
+				if($i > 0) {
 					$string .= ",";
 				}
-				if ($form === INSERT_STATEMENT_FORM_VALUES_ROW) {
+				if($form === INSERT_STATEMENT_FORM_VALUES_ROW) {
 					// VALUES row_constructor_list
 					$string .= "row";
 				}
 				$string .= "(";
 				$j = 0;
-				foreach ($this->getColumnExpressions() as $expr) {
-					if ($j ++ > 0) {
+				foreach($this->getColumnExpressions() as $expr) {
+					if($j ++ > 0) {
 						$string .= ",";
 					}
 					$string .= $expr;

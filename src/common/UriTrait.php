@@ -13,15 +13,15 @@ trait UriTrait
 	{
 		$f = __METHOD__; //"UriTrait(".static::getShortClass().")->setUri()";
 		$print = false;
-		if ($uri instanceof ValueReturningCommandInterface) {
-			if ($print) {
+		if($uri instanceof ValueReturningCommandInterface) {
+			if($print) {
 				Debug::print("{$f} URI is a value-returning command");
 			}
-		} elseif (! is_string($uri)) {
+		}elseif(!is_string($uri)) {
 			Debug::error("{$f} URI is not a string");
-		} elseif (empty($uri)) {
+		}elseif(empty($uri)) {
 			Debug::error("{$f} URI is empty string");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} assigning URI \"{$uri}\"");
 		}
 		return $this->uri = $uri;
@@ -35,7 +35,7 @@ trait UriTrait
 	public function getUri()
 	{
 		$f = __METHOD__; //"UriTrait(".static::getShortClass().")->getUri()";
-		if (! $this->hasURI()) {
+		if(!$this->hasURI()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} URI is undefined; declared {$decl}");
 		}

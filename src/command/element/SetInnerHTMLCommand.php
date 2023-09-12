@@ -27,7 +27,7 @@ class SetInnerHTMLCommand extends ElementCommand implements ServerExecutableComm
 	public function getInnerHTML()
 	{
 		$f = __METHOD__; //SetInnerHTMLCommand::getShortClass()."(".static::getShortClass().")->getInnerHTML()";
-		if (! $this->hasInnerHTML()) {
+		if(!$this->hasInnerHTML()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} innerHTML is undefined. eclared {$decl}");
 		}
@@ -42,20 +42,20 @@ class SetInnerHTMLCommand extends ElementCommand implements ServerExecutableComm
 	public function __construct($element, $innerHTML)
 	{
 		parent::__construct($element);
-		if ($innerHTML !== null) {
+		if($innerHTML !== null) {
 			$this->setInnerHTML($innerHTML);
 		}
 	}
 
 	public function echoInnerJson(bool $destroy = false): void
 	{
-		if ($this->hasInnerHTML()) {
+		if($this->hasInnerHTML()) {
 			$innerHTML = $this->getInnerHTML();
-		} else {
+		}else{
 			$element = $this->getElement();
-			if ($element->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY && $element->hasSavedChildren()) {
+			if($element->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY && $element->hasSavedChildren()) {
 				$innerHTML = $element->getSavedChildren($destroy); // appendSavedChildren($destroy);
-			} else {
+			}else{
 				Debug::error("{$f} innerHTML is undefined");
 			}
 		}
@@ -74,7 +74,7 @@ class SetInnerHTMLCommand extends ElementCommand implements ServerExecutableComm
 		$f = __METHOD__; //SetInnerHTMLCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
 		$print = false;
 		$id = $this->getIdCommandString();
-		if ($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface) {
 			$id = $id->toJavaScript();
 		}
 		$innerHTML = $this->getInnerHTML();
@@ -83,12 +83,12 @@ class SetInnerHTMLCommand extends ElementCommand implements ServerExecutableComm
 		 * $innerHTML = "'{$innerHTML}'";
 		 * }
 		 */
-		if ($innerHTML instanceof JavaScriptInterface) {
+		if($innerHTML instanceof JavaScriptInterface) {
 			$innerHTML = $innerHTML->toJavaScript();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} after string conversion, innerHTML is \"{$innerHTML}\"");
 			}
-		} elseif (is_string($innerHTML) || $innerHTML instanceof StringifiableInterface) {
+		}elseif(is_string($innerHTML) || $innerHTML instanceof StringifiableInterface) {
 			$q = $this->getQuoteStyle();
 			$innerHTML = "{$q}" . escape_quotes($innerHTML, $q) . "{$q}";
 		}

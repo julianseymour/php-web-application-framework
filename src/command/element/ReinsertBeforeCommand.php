@@ -20,7 +20,7 @@ class ReinsertBeforeCommand extends ReinsertElementCommand
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		$insert_here = DeclareVariableCommand::let("__insert_here", new GetElementByIdCommand($this->getReferenceElementId()));

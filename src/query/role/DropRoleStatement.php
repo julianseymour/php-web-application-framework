@@ -14,7 +14,7 @@ class DropRoleStatement extends QueryStatement
 	{
 		parent::__construct();
 		$this->requirePropertyType("roles", DatabaseRoleData::class);
-		if (isset($roles)) {
+		if(isset($roles)) {
 			$this->setRoles($roles);
 		}
 	}
@@ -30,7 +30,7 @@ class DropRoleStatement extends QueryStatement
 	{
 		// DROP ROLE [IF EXISTS] role [, role ] ...
 		$string = "drop role ";
-		if ($this->getIfExistsFlag()) {
+		if($this->getIfExistsFlag()) {
 			$string .= "if exists ";
 		}
 		$string .= implode(',', $this->getRoles());

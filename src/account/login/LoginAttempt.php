@@ -57,14 +57,14 @@ class LoginAttempt extends AccessAttempt{
 	protected function afterInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
 		$print = false;
-		if (cache()->enabled() && USER_CACHE_ENABLED) {
-			if (! $this->getLoginSuccessful()) {
+		if(cache()->enabled() && USER_CACHE_ENABLED) {
+			if(!$this->getLoginSuccessful()) {
 				$key = $this->getCacheKeyFromIpAddress($this->getInsertIpAddress());
 				cache()->setAPCu($key, time(), LOCKOUT_DURATION);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} login was successful");
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::error("{$f} cache is disabled");
 		}
 		return parent::afterInsertHook($mysqli);
@@ -80,9 +80,9 @@ class LoginAttempt extends AccessAttempt{
 	 */
 	public function failInsert(mysqli $mysqli, int $status): LoginAttempt{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($status === FAILURE) {
+			if($status === FAILURE) {
 				Debug::error("{$f} impermissably vague failure status");
 			}
 			// mark login failed
@@ -91,10 +91,10 @@ class LoginAttempt extends AccessAttempt{
 				$this->setLoginResult($status);
 			}else{
 				$count = $this->getFailedLoginCountForIpAddress($mysqli);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} failed login count for IP address: {$count}");
 				}
-				if ($count > MAX_FAILED_LOGINS_BY_IP) {
+				if($count > MAX_FAILED_LOGINS_BY_IP) {
 					$this->setLoginResult(RESULT_BFP_IP_LOCKOUT_START);
 				}else{
 					$this->setLoginResult($status);
@@ -102,25 +102,25 @@ class LoginAttempt extends AccessAttempt{
 			}
 			// insert into database
 			$status = $this->insert($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} inserting failed login attempt returned error status \"{$err}\"");
 				// $this->setObjectStatus($status);
 			}
-			if ($this->getLoginResult() === ERROR_XSRF) {
+			if($this->getLoginResult() === ERROR_XSRF) {
 				Debug::print("{$f} session expired");
 				return $this;
 			}
 			// send failed login notification, unless user has them disabled
-			if ($this->hasUserData()) {
+			if($this->hasUserData()) {
 				$user = $this->getUserData();
 				$type = SecurityNotificationData::getNotificationTypeStatic();
-				if ($user->getPushNotificationStatus($type) || $user->getEmailNotificationStatus($type)) {
-					if ($print) {
+				if($user->getPushNotificationStatus($type) || $user->getEmailNotificationStatus($type)) {
+					if($print) {
 						Debug::print("{$f} user has security notifications enabled in some way");
 					}
 					$status = $this->reload($mysqli);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} reload returned error status \"{$err}\"");
 						$this->setObjectStatus($status);
@@ -128,24 +128,24 @@ class LoginAttempt extends AccessAttempt{
 					}
 					$user->setTemporaryRole(USER_ROLE_RECIPIENT);
 					$status = $user->notify($mysqli, $this);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} sending notification returned error status \"{$err}\"");
 						// $this->setObjectStatus($status);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} notification sent successfully");
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} user has security notifications disabled");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} there is no user data, someone is trying to login as a nonexistent user");
 			}
 			// if user has exceeded failed login count, force them to fill out a captcha
-			if (Request::isXHREvent() && hasInputParameter('login')) {
+			if(Request::isXHREvent() && hasInputParameter('login')) {
 				$validator = new LenienthCaptchaValidator(LoginAttempt::class); // , 1);
-				if ($validator->validateFailedRequestCount($mysqli) !== SUCCESS) {
-					if ($print) {
+				if($validator->validateFailedRequestCount($mysqli) !== SUCCESS) {
+					if($print) {
 						Debug::print("{$f} failed request count exceeds maximum; inserting an hCaptcha");
 					}
 					$response = app()->getResponse(app()->getUseCase());
@@ -156,11 +156,11 @@ class LoginAttempt extends AccessAttempt{
 					$command->setOnDuplicateIdCommand(new NoOpCommand());
 					$response->pushCommand($command);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this is not an XHR evemt, or the user is not logging in");
 			}
 			return $this;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -180,15 +180,15 @@ class LoginAttempt extends AccessAttempt{
 	public function getReasonLoggedString():string{
 		$f = __METHOD__;
 		$print = false;
-		if ($this->isDeleted()) {
-			if ($print) {
+		if($this->isDeleted()) {
+			if($print) {
 				Debug::print("{$f} this login attempt was deleted");
 			}
 			return _("Login attempt deleted");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} this login attempt was NOT deleted");
 		}
-		if ($this->wasLoginSuccessful()) {
+		if($this->wasLoginSuccessful()) {
 			return _("Successful login");
 		}
 		return _("Failed login");
@@ -200,36 +200,36 @@ class LoginAttempt extends AccessAttempt{
 
 	protected function afterGenerateInitialValuesHook(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$successful = $this->wasLoginSuccessful();
-			if (! $successful) {
+			if(!$successful) {
 				Debug::warning("{$f} login failed; I am very disappointed in you, user");
 			}
 			$status = parent::afterGenerateInitialValuesHook();
 			$post = getInputParameters();
-			if (isset($post['name'])) {
+			if(isset($post['name'])) {
 				$name = $post['name'];
-			} else {
+			}else{
 				$session = new FullAuthenticationData();
-				if ($session->hasUsername()) {
+				if($session->hasUsername()) {
 					$name = $session->getUsername();
-				} else {
+				}else{
 					$result = $this->getLoginResult();
-					if ($result === ERROR_INVALID_MFA_OTP) {
+					if($result === ERROR_INVALID_MFA_OTP) {
 						$name = $this->getUserData()->getNormalizedName();
-					} else {
+					}else{
 						$err = ErrorMessage::getResultMessage($result);
 						Debug::error("{$f} name was not posted; this object has error status {$result} \"{$err}\"");
 					}
 				}
 			}
 			$this->setUserName(NameDatum::normalize($name));
-			if (! $this->hasUserAccountType()) {
+			if(!$this->hasUserAccountType()) {
 				$this->setUserAccountType(ACCOUNT_TYPE_UNDEFINED);
 			}
 			return $status;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -250,60 +250,60 @@ class LoginAttempt extends AccessAttempt{
 
 	protected function sendLockoutEmail(mysqli $mysqli){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$user = $this->getUserData();
-			if ($user === null) {
+			if($user === null) {
 				Debug::error("{$f} user returned null");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} about to submit lockout confirmation code");
 			}
 			return LockoutConfirmationCode::submitStatic($mysqli, $user);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function bruteforceProtection(mysqli $mysqli): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$select = $this->select("insertTimestamp")->where(new AndCommand(new WhereCondition('userName', OPERATOR_EQUALS), new WhereCondition('loginSuccessful', OPERATOR_EQUALS), new WhereCondition('insertTimestamp', OPERATOR_GREATERTHAN)))->orderBy(new OrderByClause("insertTimestamp", DIRECTION_DESCENDING))->limit(MAX_FAILED_LOGINS_BY_NAME + 2)->withTypeSpecifier('sii')->withParameters([
 				$this->getUserName(),
 				FAILURE,
 				time() - LOCKOUT_DURATION
 			]);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} failed login select statement: \"{$select}\"");
 			}
 			$count = $select->executeGetResultCount($mysqli);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} failed login count for username is {$count}");
 			}
-			if ($count > MAX_FAILED_LOGINS_BY_NAME) {
-				if ($count === MAX_FAILED_LOGINS_BY_NAME + 1) {
+			if($count > MAX_FAILED_LOGINS_BY_NAME) {
+				if($count === MAX_FAILED_LOGINS_BY_NAME + 1) {
 					$this->sendLockoutEmail($mysqli);
 				}
 				return $this->setLoginResult(RESULT_BFP_USERNAME_LOCKOUT_START);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} returning parent function");
 			}
 			return parent::bruteforceProtection($mysqli);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	protected function getFailedLoginCountForIpAddress(mysqli $mysqli):int{
 		$f = __METHOD__;
-		try {
+		try{
 			return $this->select("num", "insertTimestamp", "loginSuccessful", "loginResult", "insertIpAddress")
 				->where(new AndCommand(new WhereCondition("insertTimestamp", OPERATOR_GREATERTHAN), new WhereCondition("insertIpAddress", OPERATOR_EQUALS), new WhereCondition("loginSuccessful", OPERATOR_EQUALS)))->orderBy(new OrderByClause("insertTimestamp", DIRECTION_DESCENDING))->limit(7)->withTypeSpecifier('isi')->withParameters([
 				$this->generateExpiredTimestamp(),
 				$_SERVER['REMOTE_ADDR'],
 				static::getCautionResult()
 			])->executeGetResultCount($mysqli);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -313,7 +313,7 @@ class LoginAttempt extends AccessAttempt{
 	}
 
 	public function getUserKey():string{
-		if (! $this->hasUserKey()) {
+		if(!$this->hasUserKey()) {
 			$str = $this->getUserName();
 			$key = UserData::getKeyFromName($str);
 			return $this->setUserKey($key);
@@ -322,19 +322,19 @@ class LoginAttempt extends AccessAttempt{
 	}
 
 	protected static function isFailedLoginResult(int $login_result):bool{
-		if (false !== array_search($login_result, [
+		if(false !== array_search($login_result, [
 			SUCCESS,
 			RESULT_BFP_MFA_CONFIRM,
 			RESULT_BFP_WAIVER_SUCCESS
 		])) {
 			return true;
-		} else {
+		}else{
 			return false;
 		}
 	}
 
 	public function isPushNotificationWarranted():bool{
-		if ($this->wasLoginSuccessful()) {
+		if($this->wasLoginSuccessful()) {
 			return false;
 		}
 		return true;

@@ -19,7 +19,7 @@ class PseudoclassSelector extends Selector
 	public function echo(bool $destroy = false): void
 	{
 		echo ":{$this->pseudoclass}";
-		if ($destroy) {
+		if($destroy) {
 			$this->dispose();
 		}
 	}
@@ -33,7 +33,7 @@ class PseudoclassSelector extends Selector
 	public function __construct($pseudoclass = null)
 	{
 		parent::__construct();
-		if (isset($pseudoclass)) {
+		if(isset($pseudoclass)) {
 			$this->setPseudoclass($pseudoclass);
 		}
 	}

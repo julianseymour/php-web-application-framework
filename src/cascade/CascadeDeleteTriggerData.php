@@ -60,8 +60,8 @@ class CascadeDeleteTriggerData extends DataStructure implements StaticTableNameI
 			"instigatorDataType",
 			"instigatorSubtype"
 		];
-		foreach ($columns as $name => $column) {
-			if (! in_array($name, $keep, true)) {
+		foreach($columns as $name => $column) {
+			if(! in_array($name, $keep, true)) {
 				$column->volatilize();
 			}
 		}

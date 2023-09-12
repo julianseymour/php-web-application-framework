@@ -17,24 +17,24 @@ class NotificationsWidgetIcon extends LabelElement implements OpenAndClosableEle
 
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		$f = __METHOD__;
-		try {
+		try{
 			parent::__construct($mode, $context);
 			$this->setIdAttribute("notifications_widget_icon");
 			$this->setForAttribute("widget-notifications");
 			$this->addClassAttribute("notification_widget_label");
 			$this->addClassAttribute("widget_icon");
 			$this->setOnClickAttribute("NotificationsWidget.initializeNotificationsWidget();");
-			if (Request::isXHREvent()) {
+			if(Request::isXHREvent()) {
 				$this->setAttribute("read_multiple", "read_multiple");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function bindContext($context){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$ret = parent::bindContext($context);
 			$bell = new ImageElement();
@@ -44,19 +44,19 @@ class NotificationsWidgetIcon extends LabelElement implements OpenAndClosableEle
 			$counter->setIdAttribute("notification_count_icon");
 			$counter->addClassAttribute("notification_counter");
 			$count = $context->getColumnValue("unreadNotificationCount");
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} this user's unread notification count is {$count}");
-				iF ($count === 0) {
+				if($count === 0) {
 					Debug::print("{$f} select statement for this user is " . $context->select());
 				}
 			}
 			$counter->setInnerHTML($count);
-			if ($count < 1) {
+			if($count < 1) {
 				$counter->setStyleProperty("opacity", "0");
 			}
 			$this->appendChild($counter);
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

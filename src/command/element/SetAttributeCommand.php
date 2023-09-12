@@ -27,8 +27,8 @@ class SetAttributeCommand extends ElementCommand implements ServerExecutableComm
 	{
 		$f = __METHOD__; //SetAttributeCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct($element);
-		if (! empty($attributes)) {
-			if (! is_array($attributes)) {
+		if(!empty($attributes)) {
+			if(!is_array($attributes)) {
 				Debug::printStackTraceNoExit("{$f} received something that is not an array");
 			}
 			$this->setAttributes($attributes);
@@ -53,8 +53,8 @@ class SetAttributeCommand extends ElementCommand implements ServerExecutableComm
 	public function setAttributes($attr)
 	{
 		$f = __METHOD__; //SetAttributeCommand::getShortClass()."(".static::getShortClass().")->setAttributes()";
-		foreach ($attr as $key => $value) {
-			if ($value instanceof UseCase) {
+		foreach($attr as $key => $value) {
+			if($value instanceof UseCase) {
 				Debug::error("{$f} attempting to set attribute \"{$key}\" to a UseCase");
 			}
 		}
@@ -70,11 +70,11 @@ class SetAttributeCommand extends ElementCommand implements ServerExecutableComm
 	{
 		$f = __METHOD__; //SetAttributeCommand::getShortClass()."(".static::getShortClass().")->getAttribute()";
 		$print = false;
-		if (! $this->hasAttribute($key)) {
+		if(!$this->hasAttribute($key)) {
 			Debug::error("{$f} attribute \"{$key}\" is undefined");
 		}
 		$attr = $this->getArrayPropertyValue("attributes", $key);
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning \"{$attr}\"");
 		}
 		return $attr;
@@ -96,45 +96,45 @@ class SetAttributeCommand extends ElementCommand implements ServerExecutableComm
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //SetAttributeCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$print = false;
 			$string = "";
 			$id = $this->getIdCommandString();
-			if ($id instanceof JavaScriptInterface) {
+			if($id instanceof JavaScriptInterface) {
 				$id = $id->toJavaScript();
 			}
 			$i = 0;
-			foreach ($this->getAttributes() as $key => $value) {
-				if (is_object($value)) {
-					if ($value instanceof UseCase) {
+			foreach($this->getAttributes() as $key => $value) {
+				if(is_object($value)) {
+					if($value instanceof UseCase) {
 						Debug::error("{$f} somehow attempting to set a use case as an attribute value");
-					} elseif ($value instanceof Attribute) {
+					}elseif($value instanceof Attribute) {
 						$key = single_quote($value->getName());
 						$value = $value->toJavaScript();
-					} elseif ($value instanceof JavaScriptInterface) {
+					}elseif($value instanceof JavaScriptInterface) {
 						$value = $value->toJavaScript();
-					} elseif ($value instanceof StringifiableInterface) {
+					}elseif($value instanceof StringifiableInterface) {
 						$value = single_quote($value);
-					} else {
+					}else{
 						$avc = $value->getClass();
 						Debug::error("{$f} attribute value is an object of class \"${avc}\"");
 					}
-				} elseif (is_string($value) || $value === null) {
-					if ($value === null) {
+				}elseif(is_string($value) || $value === null) {
+					if($value === null) {
 						$value = "";
 					}
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} attribute \"{$key}\" has string value \"{$value}\"");
 					}
 					$value = single_quote($value);
 				}
-				if ($i ++ > 0) {
+				if($i ++ > 0) {
 					$string .= ";\n";
 				}
 				$string .= "{$id}.setAttribute('{$key}', {$value})";
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -142,15 +142,15 @@ class SetAttributeCommand extends ElementCommand implements ServerExecutableComm
 	public function resolve()
 	{
 		$f = __METHOD__; //SetAttributeCommand::getShortClass()."(".static::getShortClass().")->resolve()";
-		try {
+		try{
 			$element = $this->getElement();
-			foreach ($this->getAttributes() as $key => $value) {
+			foreach($this->getAttributes() as $key => $value) {
 				while ($value instanceof Command) {
 					$value = $value->evaluate();
 				}
 				$element->setAttribute($key, $value);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

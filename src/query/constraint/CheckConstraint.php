@@ -12,10 +12,10 @@ class CheckConstraint extends Constraint
 	{
 		parent::__construct();
 		$this->setExpression($expression);
-		if ($enforcement !== null) {
+		if($enforcement !== null) {
 			$this->setEnforcement($enforcement);
 		}
-		if ($symbol !== null) {
+		if($symbol !== null) {
 			$this->setSymbol($symbol);
 		}
 	}
@@ -24,8 +24,8 @@ class CheckConstraint extends Constraint
 	{
 		$string = $this->hasSymbol() ? "constraint " . $this->getSymbol() . " " : "";
 		$string .= "check (" . $this->getExpression() . ")";
-		if ($this->hasEnforcement()) {
-			if (! $this->getEnforcement()) {
+		if($this->hasEnforcement()) {
+			if(!$this->getEnforcement()) {
 				$string .= " not";
 			}
 			$string .= " enforced";

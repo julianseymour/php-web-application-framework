@@ -36,24 +36,24 @@ class ServerConfirmPasswordValidator extends ConfirmPasswordValidator{
 			// oninvalid event
 			$input->setAttribute("counterpartName", $cpname);
 			$input->setOnInputAttribute("ClientConfirmPasswordValidator.changePassword(event, this)");
-			if ($input->hasPlaceholderMode()) {
+			if($input->hasPlaceholderMode()) {
 				$confirm_input->setPlaceholderMode($input->getPlaceholderMode());
 			}
-			if ($input->hasLabelString()) {
-				if ($print) {
+			if($input->hasLabelString()) {
+				if($print) {
 					Debug::print("{$f} input has a label string");
 				}
 				$confirm_input->setLabelString(substitute(_("Confirm %1%"), $input->getLabelString()));
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} input lacks a label string");
 			}
-			if ($input->hasForm()) {
-				if ($print) {
+			if($input->hasForm()) {
+				if($print) {
 					Debug::print("{$f} input has a form");
 				}
 				$confirm_input->setForm($input->getForm());
 				$input->getForm()->reconfigureInput($confirm_input);
-			} elseif ($print) {
+			}elseif($print) {
 				$decl = $input->getDeclarationLine();
 				Debug::print("{$f} input does not have a form, instantiated {$decl}");
 			}

@@ -11,7 +11,7 @@ class ClosureValidator extends Validator
 	public function __construct(?Closure $closure = null)
 	{
 		parent::__construct();
-		if ($closure instanceof Closure) {
+		if($closure instanceof Closure) {
 			$this->setValidationClosure($closure);
 		}
 	}

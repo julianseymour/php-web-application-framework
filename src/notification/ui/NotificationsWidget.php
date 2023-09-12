@@ -50,7 +50,7 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 
 	public function getTemplateScriptContainer(){
 		$f = __METHOD__;
-		try {
+		try{
 
 			$print = false;
 
@@ -76,8 +76,8 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 			$dismiss->bindContext($dummy);
 			$hidden->appendChild($dismiss->generateTemplateFunction());
 
-			foreach (mods()->getTypedNotificationClasses() as $nc) {
-				if ($print) {
+			foreach(mods()->getTypedNotificationClasses() as $nc) {
+				if($print) {
 					Debug::print("{$f} about to generate a template function for notifications of class \"{$nc}\"");
 				}
 				$dummy = new RetrospectiveNotificationData();
@@ -88,14 +88,14 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 				$hidden->appendChild($e->generateTemplateFunction());
 			}
 			return $hidden;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$context = $this->getContext();
 			$use_case = app()->getUseCase();
@@ -129,13 +129,13 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 			$single_notification_options->setIdAttribute("notification_options-none");
 			$this->appendChild($single_notification_options, $notification_list);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	protected function getTabMutex(): TabMutex{
-		if (isset($this->tabMutex) && $this->tabMutex instanceof TabMutex) {
+		if(isset($this->tabMutex) && $this->tabMutex instanceof TabMutex) {
 			return $this->tabMutex;
 		}
 		$mutex = new TabMutex();
@@ -147,8 +147,8 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 		$options = [
 			$all
 		];
-		foreach (mods()->getTypedNotificationClasses() as $type => $class) {
-			if ($type === NOTIFICATION_TYPE_TEST) {
+		foreach(mods()->getTypedNotificationClasses() as $type => $class) {
+			if($type === NOTIFICATION_TYPE_TEST) {
 				continue;
 			}
 			$option = new Choice($type, $class::getNotificationTypeString(null));
@@ -195,7 +195,7 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 	}
 
 	public static function getLoadoutGeneratorClassStatic(): ?string{
-		if (! Request::isAjaxRequest()) {
+		if(! Request::isAjaxRequest()) {
 			return null;
 		}
 		return NotificationsWidgetLoadoutGenerator::class;

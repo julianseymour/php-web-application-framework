@@ -31,12 +31,12 @@ class DateTimeStringCommand extends DateStringCommand{
 		if(!in_array($timezone, DateTimeZone::listIdentifiers())){
 			$timezone = date_default_timezone_get();
 		}
-		if ($this->hasFormat()) {
+		if($this->hasFormat()) {
 			$format = $this->getFormat();
 			while ($format instanceof ValueReturningCommandInterface) {
 				$format = $format->evaluate();
 			}
-		} else {
+		}else{
 			$format = null;
 		}
 		return getDateTimeStringFromTimestamp($ts, $timezone, $format);
@@ -44,7 +44,7 @@ class DateTimeStringCommand extends DateStringCommand{
 
 	public function toJavaScript(): string{
 		$ts = $this->getSubject();
-		if ($ts instanceof JavaScriptInterface) {
+		if($ts instanceof JavaScriptInterface) {
 			$ts = $ts->toJavaScript();
 		}
 		return "parseTimestamp({$ts})";

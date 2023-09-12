@@ -74,9 +74,9 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 
 	public function embed(string $group_name){
 		$f = __METHOD__;
-		if (! is_string($group_name)) {
+		if(!is_string($group_name)) {
 			Debug::error("{$f} group name must be a string");
-		} elseif (empty($group_name)) {
+		}elseif(empty($group_name)) {
 			Debug::error("{$f} group name cannot be empty");
 		}
 		$this->setPersistenceMode(PERSISTENCE_MODE_EMBEDDED);
@@ -90,7 +90,7 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 
 	public function getEmbeddedName(){
 		$f = __METHOD__;
-		if (! $this->hasEmbeddedName()) {
+		if(!$this->hasEmbeddedName()) {
 			$cn = $this->getName();
 			Debug::error("{$f} embed group name is undefined for column \"{$cn}\"");
 		}
@@ -103,7 +103,7 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 	 * @return int
 	 */
 	public function getPersistenceMode(){
-		if (! $this->hasPersistenceMode()) {
+		if(!$this->hasPersistenceMode()) {
 			return CONST_UNDEFINED;
 		}
 		return $this->persistenceMode;
@@ -119,9 +119,9 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 
 	public function setEncryptionScheme($scheme){
 		$f = __METHOD__;
-		if (! is_string($scheme)) {
+		if(!is_string($scheme)) {
 			Debug::error("{$f} scheme class name is not a string");
-		} elseif (! class_exists($scheme)) {
+		}elseif(! class_exists($scheme)) {
 			Debug::error("{$f} invalid encryption scheme \"{$scheme}\"");
 		}
 		return $this->encryptionScheme = $scheme;
@@ -133,21 +133,21 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 
 	public function getEncryptionScheme(){
 		$f = __METHOD__;
-		if (! $this->hasEncryptionScheme()) {
+		if(!$this->hasEncryptionScheme()) {
 			Debug::error("{$f} encryption scheme is undefined");
 		}
 		return $this->encryptionScheme;
 	}
 
 	public function setDefaultValue($v){
-		if ($v === null) {
+		if($v === null) {
 			$this->setNullable(true);
 		}
 		return $this->defaultValue = $v;
 	}
 
 	public function getDefaultValue(){
-		if ($this->hasDefaultValue()) {
+		if($this->hasDefaultValue()) {
 			return $this->defaultValue;
 		}
 		return null;

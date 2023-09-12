@@ -32,16 +32,16 @@ class TableStatement extends QueryStatement
 	{
 		// TABLE table_name [ORDER BY column_name] [LIMIT number [OFFSET number]]
 		$string = "table ";
-		if ($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()) {
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
 		$string .= back_quote($this->getTableName());
-		if ($this->hasOrderBy()) {
+		if($this->hasOrderBy()) {
 			$string .= $this->getOrderByString();
 		}
-		if ($this->hasLimit()) {
+		if($this->hasLimit()) {
 			$string .= " limit " . $this->getLimit();
-			if ($this->hasOffset()) {
+			if($this->hasOffset()) {
 				$string .= " offset " . $this->getOffset();
 			}
 		}

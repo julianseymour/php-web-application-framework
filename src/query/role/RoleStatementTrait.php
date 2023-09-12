@@ -17,10 +17,10 @@ trait RoleStatementTrait
 	public function setRoleStatement($rs)
 	{
 		$f = __METHOD__; //"RoleStatementTrait(".static::getShortClass().")->setRoleStatment()";
-		if ($rs == null) {
+		if($rs == null) {
 			unset($this->roleStatement);
 			return null;
-		} elseif (! $rs instanceof RoleStatement) {
+		}elseif(!$rs instanceof RoleStatement) {
 			Debug::error("{$f} role statement must be an instanceof RoleStatement");
 		}
 		return $this->roleStatement = $rs;
@@ -34,7 +34,7 @@ trait RoleStatementTrait
 	public function getRoleStatment()
 	{
 		$f = __METHOD__; //"RoleStatementTrait(".static::getShortClass().")->getRoleStatement()";
-		if (! $this->hasRoleStatement()) {
+		if(!$this->hasRoleStatement()) {
 			Debug::error("{$f} role statement is undefined");
 		}
 		return $this->roleStatement;

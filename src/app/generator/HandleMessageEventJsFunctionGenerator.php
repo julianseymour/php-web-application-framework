@@ -14,14 +14,14 @@ class HandleMessageEventJsFunctionGenerator extends JavaScriptFunctionGenerator
 	public function generate($context): ?JavaScriptFunction
 	{
 		$f = __METHOD__; //HandleMessageEventJsFunctionGenerator::getShortClass()."(".static::getShortClass().")::generate()";
-		try {
+		try{
 			// $print = false;
 			$function = new JavaScriptFunction("handleMessageEvent", "response");
 			$function->setRoutineType(ROUTINE_TYPE_STATIC);
 			$intent = new GetDeclaredVariableCommand("intent");
 			$function->pushSubcommand(CommandBuilder::let("f", "handleMessageEvent"), CommandBuilder::let("intent", new GetDeclaredVariableCommand("response.getIntent()")), CommandBuilder::error(CommandBuilder::concatenate(new GetDeclaredVariableCommand("f"), ": inside handleMessageEvent with intent \"", $intent, "\"")), CommandBuilder::switch($intent, $context->getMessageEventHandlerCases(), CommandBuilder::call("error", new GetDeclaredVariableCommand("f"), CommandBuilder::concatenate("Invalid intent \"", $intent, "\""))));
 			return $function;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

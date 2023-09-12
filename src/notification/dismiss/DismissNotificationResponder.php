@@ -11,7 +11,7 @@ class DismissNotificationResponder extends Responder{
 
 	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case): void{
 		parent::modifyResponse($response, $use_case);
-		if ($use_case->getObjectStatus() === SUCCESS) {
+		if($use_case->getObjectStatus() === SUCCESS) {
 			$do = $use_case->getDataOperandObject();
 			$iec = $do->getElementClass();
 			$deleted_element = new $iec(ALLOCATION_MODE_NEVER);

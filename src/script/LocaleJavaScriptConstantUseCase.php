@@ -13,4 +13,8 @@ class LocaleJavaScriptConstantUseCase extends LocalizedJavaScriptFileUseCase{
 	public static function echoJavaScriptFileContentsStatic(string $locale):void{
 		echo CommandBuilder::const('LOCALE', $locale)->toJavaScript().";\n";
 	}
+	
+	public static function getFilename(): string{
+		return "locale.js";
+	}
 }

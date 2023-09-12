@@ -21,17 +21,17 @@ class MassDeleteUseCase extends SubsequentUseCase
 	public function execute(): int
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$doc = $this->getPredecessor()->getDataOperandClass($this);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to process mass deletion of class \"{$doc}\"");
 			}
 			$form = $this->getPredecessor()->getProcessedFormObject();
 			$dummy = $this->getPredecessor()->getDataOperandObject();
 			
 			$files = null;
-			if (request()->hasRepackedIncomingFiles()) {
+			if(request()->hasRepackedIncomingFiles()) {
 				$files = request()->getRepackedIncomingFiles();
 			}
 			$post = getInputParameters();
@@ -42,28 +42,28 @@ class MassDeleteUseCase extends SubsequentUseCase
 				return $this->setObjectStatus($status);
 			}
 			$dummy_class = $dummy->getClass();
-			if ($dummy_class !== $doc) {
+			if($dummy_class !== $doc) {
 				Debug::error("{$f} dummy class ({$dummy_class}) is not the same as data operand class ({$doc})");
 			}
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			if (! isset($mysqli)) {
+			if(! isset($mysqli)) {
 				$err = ErrorMessage::getResultMessage(ERROR_MYSQL_CONNECT);
 				Debug::error("{$f} {$err}");
-			} elseif ($dummy instanceof CounterpartKeyColumnInterface) {
-				if ($print) {
+			}elseif($dummy instanceof CounterpartKeyColumnInterface) {
+				if($print) {
 					Debug::print("{$f} data operand is an instanceof CounterpartKeyColumnInterface");
 				}
 				$dummy->setRoleAsCounterpart(COUNTERPART_ROLE_INSTIGATOR);
-				if ($dummy->getRoleAsCounterpart() !== COUNTERPART_ROLE_INSTIGATOR) {
+				if($dummy->getRoleAsCounterpart() !== COUNTERPART_ROLE_INSTIGATOR) {
 					Debug::error("{$f} immediately after role assignment, operand is not the instigator");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} data operand does not need a correspondent role");
 			}
 			$indices = $form->getMassDeletionIndices($dummy);
-			if (empty($indices)) {
+			if(empty($indices)) {
 				Debug::error("{$f} form data indices array is empty");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} about to mass delete by the following form data indices:");
 				Debug::printArray($indices);
 			}
@@ -73,7 +73,7 @@ class MassDeleteUseCase extends SubsequentUseCase
 			$where = [];
 			$params = [];
 			$typedef = "";
-			foreach ($indices as $column_name) {
+			foreach($indices as $column_name) {
 				$column = $dummy->getColumn($column_name);
 				if(
 					$column instanceof ForeignKeyDatum 
@@ -92,7 +92,7 @@ class MassDeleteUseCase extends SubsequentUseCase
 					$condition = new WhereCondition($column_name, OPERATOR_EQUALS);
 					array_push($where, $condition);
 					$value = $dummy->getColumnValue($column_name);
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} mass deleting objects with {$column_name} == {$value}");
 					}
 					array_push($params, $value);
@@ -104,15 +104,15 @@ class MassDeleteUseCase extends SubsequentUseCase
 				Debug::print("{$f} mass delete query statement is \"{$delete}\"");
 			}
 			$status = $delete->prepareBindExecuteGetStatus($mysqli, $typedef, ...$params);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} executing mass deletion query returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} mass deletion successful");
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

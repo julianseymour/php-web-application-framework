@@ -15,17 +15,17 @@ trait SignatureKeypairColumnsTrait
 	public function getSignaturePublicKey()
 	{
 		$f = __METHOD__; //"SignatureKeypairColumnsTrait(".static::getShortClass().")->getSignaturePublicKey()";
-		try {
+		try{
 			$spk = $this->getColumnValue('signaturePublicKey');
-			if (! isset($spk)) {
+			if(! isset($spk)) {
 				Debug::error("{$f} signature public key is undefined");
 			}
 			$len2 = strlen($spk);
-			if ($len2 !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) {
+			if($len2 !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) {
 				Debug::error("{$f} signature public key is incorrect length ({$len2}, should be " . SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES . ")");
 			}
 			return $spk;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -34,7 +34,7 @@ trait SignatureKeypairColumnsTrait
 	{
 		$f = __METHOD__; //"SignatureKeypairColumnsTrait(".static::getShortClass().")->setSignaturePrivateKey()";
 		$len = strlen($spk);
-		if ($len !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
+		if($len !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
 			Debug::error("{$f} signature private key is {$len} bytes, should be " . SODIUM_CRYPTO_SIGN_SECRETKEYBYTES);
 			return null;
 		}

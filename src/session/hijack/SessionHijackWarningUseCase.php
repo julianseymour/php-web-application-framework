@@ -22,13 +22,13 @@ class SessionHijackWarningUseCase extends SubsequentUseCase{
 	private static function getSessionHijackWarningElement(){
 		$f = __METHOD__;
 		$ahsd = new AntiHijackSessionData();
-		if ($ahsd->getIpAddressChanged() && $ahsd->getUserAgentChanged()) {
+		if($ahsd->getIpAddressChanged() && $ahsd->getUserAgentChanged()) {
 			$substitution = _("IP address and user agent string");
-		} elseif ($ahsd->getIpAddressChanged()) {
+		}elseif($ahsd->getIpAddressChanged()) {
 			$substitution = _("IP address");
-		} elseif ($ahsd->getUserAgentChanged()) {
+		}elseif($ahsd->getUserAgentChanged()) {
 			$substitution = _("User agent string");
-		} else {
+		}else{
 			Debug::error("{$f} none of the above");
 		}
 		$innerHTML = substitute(_("This session has been terminated because it has been accessed by a device with an incorrect %1%, and you configured your account settings to do so under these circumstances."), $substitution);

@@ -19,7 +19,7 @@ class GetCurrentUserDataCommand extends DataStructureCommand implements JavaScri
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		$cs = $this->getCommandId();
@@ -34,7 +34,7 @@ class GetCurrentUserDataCommand extends DataStructureCommand implements JavaScri
 	public function evaluate(?array $params = null)
 	{
 		$f = __METHOD__; //GetCurrentUserDataCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
-		if (! app()->hasUserData()) {
+		if(! app()->hasUserData()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} application runtime lacks a user data. This command was instantiated at {$decl}");
 		}
@@ -44,7 +44,7 @@ class GetCurrentUserDataCommand extends DataStructureCommand implements JavaScri
 	public function getDataStructure()
 	{
 		$f = __METHOD__; //GetCurrentUserDataCommand::getShortClass()."(".static::getShortClass().")->getDataStructure()";
-		if (! app()->hasUserData()) {
+		if(! app()->hasUserData()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} application runtime lacks a user data. This command was instantiated at {$decl}");
 		}
@@ -53,7 +53,7 @@ class GetCurrentUserDataCommand extends DataStructureCommand implements JavaScri
 
 	public function getIdCommandString()
 	{
-		if (! $this->hasIdCommand()) {
+		if(!$this->hasIdCommand()) {
 			return "context";
 		}
 		return $this->idCommand;

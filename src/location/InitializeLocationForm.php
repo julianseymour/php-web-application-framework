@@ -22,7 +22,7 @@ class InitializeLocationForm extends AjaxForm implements TemplateElementInterfac
 	public function generateButtons(string $name): ?array
 	{
 		$f = __METHOD__; //InitializeLocationForm::getShortClass()."(".static::getShortClass().")->generateButtons()";
-		if ($name !== DIRECTIVE_READ_MULTIPLE) {
+		if($name !== DIRECTIVE_READ_MULTIPLE) {
 			Debug::error("{$f} invalid button name \"{$name}\"");
 		}
 		return [

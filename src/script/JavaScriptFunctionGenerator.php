@@ -21,7 +21,7 @@ abstract class JavaScriptFunctionGenerator extends Basic
 
 	public function setGeneratedFunction(?JavaScriptFunction $fn): ?JavaScriptFunction
 	{
-		if ($fn == null) {
+		if($fn == null) {
 			unset($this->generatedFunction);
 			return null;
 		}
@@ -31,7 +31,7 @@ abstract class JavaScriptFunctionGenerator extends Basic
 	public function getGeneratedFunction(): JavaScriptFunction
 	{
 		$f = __METHOD__; //JavaScriptFunctionGenerator::getShortClass()."(".static::getShortClass().")->getGeneratedFunction()";
-		if (! $this->hasGeneratedFunction()) {
+		if(!$this->hasGeneratedFunction()) {
 			Debug::error("{$f} generated function is undefined");
 		}
 		return $this->generatedFunction;
@@ -44,15 +44,15 @@ abstract class JavaScriptFunctionGenerator extends Basic
 		// $context = $params[0];
 		// $params = $params[1]; //array_slice($params, 1, count($params)-1);
 		$print = false;
-		if ($print) {
-			if (isset($params)) {
+		if($print) {
+			if(isset($params)) {
 				Debug::print("{$f} about to evaluate function for the following parameters:");
 				Debug::printArray($params);
-			} else {
+			}else{
 				Debug::print("{$f} no parameters");
 			}
 		}
-		if ($this->hasGeneratedFunction()) {
+		if($this->hasGeneratedFunction()) {
 			return $this->getGeneratedFunction()->evaluate($params);
 		}
 		return $this->setGeneratedFunction($this->generate($context))
@@ -62,7 +62,7 @@ abstract class JavaScriptFunctionGenerator extends Basic
 	public function debugPrint($context)
 	{
 		$f = __METHOD__; //JavaScriptFunctionGenerator::getShortClass()."(".static::getShortClass().")->debugPrint()";
-		if (! $this->hasGeneratedFunction()) {
+		if(!$this->hasGeneratedFunction()) {
 			Debug::print("{$f} did not generate function yet");
 			$this->setGeneratedFunction($this->generate($context));
 		}

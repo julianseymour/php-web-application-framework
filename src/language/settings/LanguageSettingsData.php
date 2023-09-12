@@ -34,13 +34,13 @@ class LanguageSettingsData extends DataStructure{
 
 	public static function updateLanguageSettingsStatic($that){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$cmd = directive();
-			if ($cmd === DIRECTIVE_LANGUAGE) {
+			if($cmd === DIRECTIVE_LANGUAGE) {
 				$post = getInputParameters();
 				$lang = $post["directive"][DIRECTIVE_LANGUAGE];
-			} else {
+			}else{
 				Debug::printPost("{$f} undefined language; server command is \"{$cmd}\"");
 			}
 			$user = user();
@@ -50,12 +50,12 @@ class LanguageSettingsData extends DataStructure{
 			}else{
 				$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			}
-			if ($mysqli == null) {
+			if($mysqli == null) {
 				return $that->setObjectStatus(ERROR_MYSQL_CONNECT);
 			}
 			$user->setLanguagePreference($lang);
 			$status = $user->update($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} updating language preference returned error status \"{$err}\"");
 				return $that->setObjectStatus($status);
@@ -71,7 +71,7 @@ class LanguageSettingsData extends DataStructure{
 				Debug::print("{$f} successfully set locale to \"{$locale}\"");
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -88,17 +88,17 @@ class LanguageSettingsData extends DataStructure{
 
 	public function setLanguageCode(string $code):string{
 		$f = __METHOD__;
-		try {
-			if (! isset($code)) {
+		try{
+			if(! isset($code)) {
 				Debug::error("{$f} language code is undefined");
-			} elseif (is_int($code)) {
+			}elseif(is_int($code)) {
 				Debug::error("{$f} language code is an integer");
 			}
 			// Debug::print("{$f} setting language code to \"{$code}\"");
 			$ret = $this->setColumnValue("sessionLanguageCode", $code);
 			$ret = $this->setColumnValue("cookieLanguageCode", $code);
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

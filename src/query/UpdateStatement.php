@@ -55,7 +55,7 @@ class UpdateStatement extends WhereConditionalStatement implements StaticPropert
 	}
 
 	public function getTableReferenceCount():int{
-		if ($this->hasJoinExpressions()) {
+		if($this->hasJoinExpressions()) {
 			return $this->getJoinExpressionCount();
 		}
 		return 1;
@@ -63,60 +63,60 @@ class UpdateStatement extends WhereConditionalStatement implements StaticPropert
 
 	public function getQueryStatementString(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			// UPDATE
 			$string = "update ";
 			// [LOW_PRIORITY]
-			if ($this->getLowPriorityFlag()) {
+			if($this->getLowPriorityFlag()) {
 				$string .= "low_priority ";
 			}
 			// [IGNORE]
-			if ($this->getIgnoreFlag()) {
+			if($this->getIgnoreFlag()) {
 				$string .= "ignore ";
 			}
 			// table_reference
-			if ($this->hasJoinExpressions() || $this->hasTableName()) {
-				if ($this->hasJoinExpressions()) {
+			if($this->hasJoinExpressions() || $this->hasTableName()) {
+				if($this->hasJoinExpressions()) {
 					$joins = [];
-					foreach ($this->getJoinExpressions() as $j) {
-						if ($j instanceof SQLInterface) {
+					foreach($this->getJoinExpressions() as $j) {
+						if($j instanceof SQLInterface) {
 							$j = $j->toSQL();
 						}
 						array_push($joins, $j);
 					}
 					$string .= implode(',', $joins);
-				} elseif ($this->hasTableName()) {
-					if ($this->hasDatabaseName()) {
+				}elseif($this->hasTableName()) {
+					if($this->hasDatabaseName()) {
 						$string .= back_quote($this->getDatabaseName()) . ".";
 					}
 					$string .= back_quote($this->getTableName());
 					$string .= $this->getTableName();
-				} else {
+				}else{
 					Debug::error("{$f} missing join expressions and table name");
 				}
 			}
 			// SET assignment_list
 			$string .= " set " . $this->getAssignmentListString($this->getColumnExpressions());
 			// [WHERE where_condition]
-			if ($this->hasWhereCondition()) {
+			if($this->hasWhereCondition()) {
 				$where = $this->getWhereCondition();
-				if ($where instanceof SQLInterface) {
+				if($where instanceof SQLInterface) {
 					$where = $where->toSQL();
 				}
 				$string .= " where {$where}";
 			}
-			if ($this->getTableReferenceCount() === 1) {
+			if($this->getTableReferenceCount() === 1) {
 				// [ORDER BY ...]
-				if ($this->hasOrderBy()) {
+				if($this->hasOrderBy()) {
 					$string .= " order by " . $this->getOrderByString();
 				}
 				// [LIMIT row_count]
-				if ($this->hasLimit()) {
+				if($this->hasLimit()) {
 					$string .= " limit " . $this->getLimit();
 				}
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

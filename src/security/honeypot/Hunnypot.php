@@ -26,7 +26,7 @@ class Hunnypot extends HiddenInput
 	public function __construct($input = null)
 	{
 		parent::__construct();
-		if (isset($input)) {
+		if(isset($input)) {
 			$this->setRealInput($input);
 		}
 	}
@@ -71,10 +71,10 @@ class Hunnypot extends HiddenInput
 	public function setRealInput($input)
 	{
 		$f = __METHOD__; //Hunnypot::getShortClass()."(".static::getShortClass().")->setRealInput()";
-		try {
+		try{
 			$form = $input->getForm();
 			$cskp = app()->acquireCurrentServerKeypair(db()->getConnection(PublicReadCredentials::class));
-			if ($cskp == null) {
+			if($cskp == null) {
 				Debug::warning("{$f} current server keypair returned null");
 				return null;
 			}
@@ -85,7 +85,7 @@ class Hunnypot extends HiddenInput
 			// input[honey=\"delicious\"][pot=\"{$num}\"]:not([name=\"{$new_name}\"])
 			$input->setAttribute("honey", "delicious");
 			$form_id = $form->getIdAttribute();
-			if ($form_id === "user_new") {
+			if($form_id === "user_new") {
 				Debug::error("{$f} invalid form ID");
 			}
 			$pot_id = "{$form_id}_{$num}";
@@ -107,7 +107,7 @@ class Hunnypot extends HiddenInput
 			$input->setNameAttribute($new_name);
 			// Debug::print("{$f} returning normally");
 			return $this->realInput = $input;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -26,7 +26,7 @@ class XorEncryptionScheme extends EncryptionScheme{
 		$f = __METHOD__;
 		$value_length = strlen($value);
 		$key_length = strlen($key);
-		if ($value_length !== $key_length) {
+		if($value_length !== $key_length) {
 			Debug::error("{$f} cipher/cleartext length ({$value_length}) and key length ({$key_length}) are unequal");
 		}
 		return $value ^ $key;

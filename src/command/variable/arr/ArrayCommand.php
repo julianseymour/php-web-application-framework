@@ -18,7 +18,7 @@ abstract class ArrayCommand extends Command implements JavaScriptInterface
 
 	public function setArray($array)
 	{
-		if ($array === null) {
+		if($array === null) {
 			unset($this->array);
 			return null;
 		}
@@ -33,7 +33,7 @@ abstract class ArrayCommand extends Command implements JavaScriptInterface
 	public function getArray()
 	{
 		$f = __METHOD__; //ArrayCommand::getShortClass()."(".static::getShortClass().")->getArray()";
-		if (! $this->hasArray()) {
+		if(!$this->hasArray()) {
 			Debug::error("{$f} array is undefined");
 		}
 		return $this->array;

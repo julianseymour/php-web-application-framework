@@ -12,7 +12,7 @@ class InfoBoxCommand extends MultipleElementCommand{
 	// XXX constructor needs to evaluate whether element has predecessor/successor nodes -- if so, it needs to be wrapped, or invalid JSON will be generated
 	public function __construct(...$elements){
 		$f = __METHOD__;
-		if (count($elements) === 1 && $elements[0] instanceof Element) {
+		if(count($elements) === 1 && $elements[0] instanceof Element) {
 			$elements[0]->setSubcommandCollector($this);
 		}
 		parent::__construct(...$elements);

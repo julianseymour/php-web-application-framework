@@ -22,12 +22,12 @@ trait PasswordDerivedColumnsTrait
 	public function setKeyGenerationNonce($nonce)
 	{
 		$f = __METHOD__; //"PasswordDerivedColumnsTrait(".static::getShortClass().")->setKeyGenerationNonce()";
-		try {
-			if (empty($nonce)) {
+		try{
+			if(empty($nonce)) {
 				Debug::error("{$f} nonce is null or empty string");
 			}
 			return $this->setColumnValue('keyGenerationNonce', $nonce);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -35,17 +35,17 @@ trait PasswordDerivedColumnsTrait
 	public function getKeyGenerationNonce()
 	{
 		$f = __METHOD__; //"PasswordDerivedColumnsTrait(".static::getShortClass().")::getKeyGenerationNonce()";
-		try {
-			if (! $this->hasKeyGenerationNonce()) {
+		try{
+			if(!$this->hasKeyGenerationNonce()) {
 				Debug::error("{$f} nonce is undefined");
 			}
 			$kgn = $this->getColumnValue('keyGenerationNonce');
 			$len = strlen($kgn);
-			if ($len !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
+			if($len !== SODIUM_CRYPTO_PWHASH_SALTBYTES) {
 				Debug::error("{$f} nonce length is {$len}");
 			}
 			return $kgn;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -75,7 +75,7 @@ trait PasswordDerivedColumnsTrait
 		$f = __METHOD__; //"PasswordDerivedColumnsTrait(".static::getShortClass().")->getSignatureSeed()";
 		$crypto_sign_seed = $this->getColumnValue("signatureSeed");
 		$length = strlen($crypto_sign_seed);
-		if ($length !== SODIUM_CRYPTO_SIGN_SEEDBYTES) {
+		if($length !== SODIUM_CRYPTO_SIGN_SEEDBYTES) {
 			$shoodbi = SODIUM_CRYPTO_SIGN_SEEDBYTES;
 			Debug::error("{$f} incorrect seed length ({$length}, should be {$shoodbi}");
 		}

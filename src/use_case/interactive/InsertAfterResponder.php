@@ -17,7 +17,7 @@ class InsertAfterResponder extends CacheResponder
 		$after_me = $use_case->getInsertHereElement($inserted_object);
 		$object_element = $use_case->getElementForInsertion($inserted_object);
 		$insert = new InsertAfterCommand($after_me, $object_element);
-		if ($this->getCacheFlag()) {
+		if($this->getCacheFlag()) {
 			$insert->pushSubcommand(new CachePageContentCommand());
 		}
 		$response->pushCommand($insert);

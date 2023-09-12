@@ -16,7 +16,7 @@ class GetInputValueCommand extends ElementCommand implements ValueReturningComma
 	public function __construct($element = null, $parseType = null)
 	{
 		parent::__construct($element);
-		if (isset($parseType)) {
+		if(isset($parseType)) {
 			$this->setParseType($parseType);
 		}
 	}
@@ -24,7 +24,7 @@ class GetInputValueCommand extends ElementCommand implements ValueReturningComma
 	public function toJavaScript(): string
 	{
 		$id = $this->getIdCommandString();
-		if ($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface) {
 			$id = $id->toJavaScript();
 		}
 		return "{$id}.value";

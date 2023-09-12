@@ -10,7 +10,7 @@ trait ElementTagTrait
 
 	public function setElementTag(?string $tag): ?string
 	{
-		if ($tag === null) {
+		if($tag === null) {
 			unset($this->tag);
 			return null;
 		}
@@ -24,7 +24,7 @@ trait ElementTagTrait
 	public function getElementTag(): string
 	{
 		$f = __METHOD__; //"ElementTagTrait(".static::getShortClass().")->getElementTag()";
-		if (! $this->hasElementTag()) {
+		if(!$this->hasElementTag()) {
 			Debug::error("{$f} element tag is undefined");
 		}
 		return $this->tag;

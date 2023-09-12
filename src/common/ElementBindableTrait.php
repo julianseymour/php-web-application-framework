@@ -21,9 +21,9 @@ trait ElementBindableTrait{
 
 	public function setElementClass($class){
 		$f = __METHOD__;
-		if (! is_string($class)) {
+		if(!is_string($class)) {
 			Debug::error("{$f} class is not a string");
-		} elseif (! class_exists($class)) {
+		}elseif(! class_exists($class)) {
 			Debug::error("{$f} class \"{$class}\" does not exist");
 		}
 		return $this->elementClass = $class;
@@ -31,8 +31,8 @@ trait ElementBindableTrait{
 
 	public function getElementClass(){
 		$f = __METHOD__;
-		if (! isset($this->elementClass)) {
-			if ($this instanceof StaticElementClassInterface) {
+		if(! isset($this->elementClass)) {
+			if($this instanceof StaticElementClassInterface) {
 				return $this->getElementClassStatic($this);
 			}
 			$decl = $this->getDeclarationLine();

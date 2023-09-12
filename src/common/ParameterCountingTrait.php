@@ -13,7 +13,7 @@ trait ParameterCountingTrait
 	public function getParameterCount(): ?int
 	{
 		$f = __METHOD__; //"ParameterCountingTrait(".static::getShortClass().")->getParameterCount()";
-		if (! $this->hasParameterCount()) {
+		if(!$this->hasParameterCount()) {
 			Debug::error("{$f} parameter count is undefined");
 		}
 		return $this->parameterCount;
@@ -23,15 +23,15 @@ trait ParameterCountingTrait
 	{
 		$f = __METHOD__; //"ParameterCountingTrait(".static::getShortClass().")->setParameterCount()";
 		$print = false;
-		if ($count === null) {
-			if ($print) {
+		if($count === null) {
+			if($print) {
 				Debug::print("{$f} destroying parameter count");
 			}
 			unset($this->parameterCount);
 			return null;
-		} elseif (! is_int($count)) {
+		}elseif(!is_int($count)) {
 			Debug::error("{$f} value count must be a non-negative integer");
-		} elseif ($count < 0) {
+		}elseif($count < 0) {
 			Debug::error("{$f} value count must be non-negative");
 		}
 		return $this->parameterCount = $count;

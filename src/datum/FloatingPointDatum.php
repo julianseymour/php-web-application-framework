@@ -13,12 +13,12 @@ class FloatingPointDatum extends AbstractNumericDatum
 	public function setScale($value)
 	{
 		$f = __METHOD__; //FloatingPointDatum::getShortClass()."(".static::getShortClass().")->setScale()";
-		if ($value === null) {
+		if($value === null) {
 			unset($this->scaleValue);
 			return null;
-		} elseif (! is_int($value)) {
+		}elseif(!is_int($value)) {
 			Debug::error("{$f} input parameter must be a positive integer");
-		} elseif ($value < 0) {
+		}elseif($value < 0) {
 			Debug::error("{$f} input parameter must be positive");
 		}
 		return $this->scaleValue = $value;
@@ -32,7 +32,7 @@ class FloatingPointDatum extends AbstractNumericDatum
 	public function getScale()
 	{
 		$f = __METHOD__; //FloatingPointDatum::getShortClass()."(".static::getShortClass().")->getScale()";
-		if (! $this->hasScale()) {
+		if(!$this->hasScale()) {
 			Debug::error("{$f} scale is undefined");
 		}
 		return $this->scaleValue;
@@ -51,7 +51,7 @@ class FloatingPointDatum extends AbstractNumericDatum
 	public function getPrecision()
 	{
 		$f = __METHOD__; //FloatingPointDatum::getShortClass()."(".static::getShortClass().")->getPrecision()";
-		if (! $this->hasPrecision()) {
+		if(!$this->hasPrecision()) {
 			Debug::error("{$f} precision is undefined");
 		}
 		return $this->precision;
@@ -82,11 +82,11 @@ class FloatingPointDatum extends AbstractNumericDatum
 
 	public static function validateStatic($value): int
 	{
-		if (is_double($value)) {
+		if(is_double($value)) {
 			return SUCCESS;
-		} elseif (is_float($value)) {
+		}elseif(is_float($value)) {
 			return SUCCESS;
-		} elseif (is_int($value)) {
+		}elseif(is_int($value)) {
 			return SUCCESS;
 		}
 		return FAILURE;
@@ -105,9 +105,9 @@ class FloatingPointDatum extends AbstractNumericDatum
 	}
 
 	public function getColumnTypeString(): string{
-		if ($this->hasPrecision() && $this->getPrecision() > 24) {
+		if($this->hasPrecision() && $this->getPrecision() > 24) {
 			$string = "double";
-		} else {
+		}else{
 			$string = "float";
 		}
 		return $string;

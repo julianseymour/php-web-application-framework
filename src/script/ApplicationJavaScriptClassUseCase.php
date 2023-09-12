@@ -15,4 +15,8 @@ class ApplicationJavaScriptClassUseCase extends LocalizedJavaScriptFileUseCase{
 		echo ApplicationJavaScriptGenerator::generateJavaScriptClass(mods())."\n";
 		echo ApplicationJavaScriptGenerator::generateClassReturningFunction(mods())."\n";
 	}
+	
+	public static function getFilename(): string{
+		return "application.js";
+	}
 }

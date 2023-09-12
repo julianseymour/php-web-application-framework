@@ -20,16 +20,16 @@ class RenameUserStatement extends QueryStatement
 	public function getNameChanges()
 	{
 		$f = __METHOD__; //RenameUserStatement::getShortClass()."(".static::getShortClass().")->getNameChanges()";
-		if ($this->hasUsers()) {
+		if($this->hasUsers()) {
 			$usernames = [];
-			foreach ($this->getUsers() as $user) {
+			foreach($this->getUsers() as $user) {
 				$usernames[$user->getUsernameHostString()] = $user->getNewUsernameHostString();
 			}
-			if ($this->hasNameChanges()) {
+			if($this->hasNameChanges()) {
 				$usernames = array_merge($usernames, $this->nameChanges);
 			}
 			return $usernames;
-		} elseif (! $this->hasNameChanges()) {
+		}elseif(!$this->hasNameChanges()) {
 			Debug::error("{$f} usernames are undefined");
 		}
 		return $this->nameChanges;
@@ -40,8 +40,8 @@ class RenameUserStatement extends QueryStatement
 		// RENAME USER old_user TO new_user [, old_user TO new_user] ...
 		$string = "rename user ";
 		$i = 0;
-		foreach ($this->getNameChanges() as $oldname => $newname) {
-			if ($i ++ > 0) {
+		foreach($this->getNameChanges() as $oldname => $newname) {
+			if($i ++ > 0) {
 				$string .= ",";
 			}
 			$string .= "{$oldname} to {$newname}";

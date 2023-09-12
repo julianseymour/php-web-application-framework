@@ -67,33 +67,33 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 
 	public function unpack(mysqli $mysqli, string $recovery_key){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$status = $this->loadFromKey($mysqli, $recovery_key);
-			if ($status !== SUCCESS) {
-				if ($print) {
+			if($status !== SUCCESS) {
+				if($print) {
 					$err = ErrorMessage::getResultMessage($this->setObjectStatus($status));
 					Debug::printStackTraceNoExit("{$f} loading session recovery data with key \"{$recovery_key}\" returned error status \"{$err}\"");
 				}
 				return null;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully loaded session recovery data with key \'{$recovery_key}\"");
 			}
 			// decrypt recovery kit
 			$kit = $this->getRecoveryKit();
-			if (! is_array($kit)) {
+			if(!is_array($kit)) {
 				Debug::warning("{$f} recovery kit is not an array");
 				Debug::print($kit);
 				return null;
 				Debug::printStackTrace();
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} cookie superglobal contents at the bottom of SessionRecoveryData->unpack:");
 				Debug::printArray($_COOKIE);
 				Debug::printStackTraceNoExit();
 			}
 			return $kit;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -101,11 +101,11 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 	public function getRecoveryKit(){
 		$f = __METHOD__;
 		$kit = $this->getColumnValue("recoveryKit");
-		if (empty($kit)) {
+		if(empty($kit)) {
 			// Debug::warning("{$f} kit is empty");
 			// Debug::printArray($_COOKIE);
 			return null;
-		} elseif (! is_array($kit)) {
+		}elseif(!is_array($kit)) {
 			Debug::warning("{$f} kit is not an array");
 			Debug::print($kit);
 			Debug::printStackTrace();
@@ -144,9 +144,9 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 
 	protected static function getSessionRecoveryCookieClass(string $type):string{
 		$f = __METHOD__;
-		if (empty($type)) {
+		if(empty($type)) {
 			Debug::error("{$f} user account type is null or empty string");
-		} elseif ($type === ACCOUNT_TYPE_GUEST) {
+		}elseif($type === ACCOUNT_TYPE_GUEST) {
 			return GuestSessionRecoveryCookie::class;
 		}
 		return SessionRecoveryCookie::class;
@@ -155,20 +155,20 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 	protected function getSessionRecoveryCookie(){
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasSessionRecoveryCookie()) {
-			if ($print) {
+		if($this->hasSessionRecoveryCookie()) {
+			if($print) {
 				Debug::print("{$f} session recovery cookie is already defined");
 			}
 			return $this->getForeignDataStructure("sessionRecoveryCookie");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} session recovery cookie is undefined -- creating one now");
 		}
 		$type = $this->hasUserAccountType() ? $this->getUserAccountType() : "surprise";
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} user account type is \"{$type}\"");
 		}
 		$cookie_class = $this->getSessionRecoveryCookieClass($type);
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} about to create a new {$cookie_class}");
 		}
 		$cookie = new $cookie_class();
@@ -186,26 +186,26 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 	public function getArgonHash():string{
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasArgonHash()) {
-			if ($print) {
+		if($this->hasArgonHash()) {
+			if($print) {
 				Debug::print("{$f} hash was already defined");
 			}
 			return $this->getColumnValue("argon_hash");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} now generating argon hash");
 		}
 		$ip = $this->getBindIpAddress() ? $_SERVER['REMOTE_ADDR'] : "";
 		$user_agent = $this->getBindUserAgent() ? $_SERVER['HTTP_USER_AGENT'] : "";
 		$cookie = $this->getSessionRecoveryCookie();
-		if (! $cookie->hasCookieSecret()) {
+		if(!$cookie->hasCookieSecret()) {
 			Debug::error("{$f} cookie secret is undefined");
 		}
 		$cookie_secret = $cookie->getCookieSecret();
-		if (empty($cookie_secret)) {
+		if(empty($cookie_secret)) {
 			Debug::error("{$f} cookie secret is empty");
 		}
 		$argon_nonce = $this->getColumnValue("recoveryKitArgonNonce");
-		if (empty($argon_nonce)) {
+		if(empty($argon_nonce)) {
 			Debug::error("{$f} argon nonce is empty");
 		}
 		return $this->setArgonHash(argon_hash($ip . $user_agent . $cookie_secret, $argon_nonce));
@@ -213,7 +213,7 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 
 	protected function afterGenerateInitialValuesHook(): int{
 		$f = __METHOD__;
-		if (! $this->getCookieBakedFlag()) {
+		if(!$this->getCookieBakedFlag()) {
 			$this->generateCookie();
 		}
 		$this->generateRecoveryKit();
@@ -247,12 +247,12 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 		$print = false;
 		$cookie_class = $this->getSessionRecoveryCookieClass($this->getUserAccountType());
 		$session_cookie = new $cookie_class();
-		if (headers_sent()) {
+		if(headers_sent()) {
 			Debug::error("{$f} headers have already been sent");
 		}
 		$session_cookie->setCookieSecret(random_bytes(128));
 		$recovery_key = $this->getIdentifierValue();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} generated key \"{$recovery_key}\"");
 		}
 		$session_cookie->setRecoveryKey($recovery_key);
@@ -274,7 +274,7 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::declareColumns($columns, $ds);
 
 			
@@ -292,7 +292,7 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 			$hashed_key->setNullable(false);
 			$hashed_key->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 			array_push($columns, $bind_ip, $bind_ua, $recoveryKit, $hashed_key, $argon_hash);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -307,7 +307,7 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 
 	public function getUserKeyHash():string{
 		$f = __METHOD__;
-		if (! $this->hasUserKeyHash()) {
+		if(!$this->hasUserKeyHash()) {
 			Debug::warning("{$f} user key hash is undefined");
 			return null;
 		}
@@ -316,15 +316,15 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 
 	public function setUserData(UserData $user):UserData{
 		$f = __METHOD__;
-		try {
+		try{
 			$ret = parent::setUserData($user);
-			if (! $this->hasUserKeyHash()) {
+			if(!$this->hasUserKeyHash()) {
 				$nonce = $user->getSessionRecoveryNonce();
 				$key = $user->getIdentifierValue();
 				$this->setUserKeyHash(sha1($nonce . $key));
 			}
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -342,7 +342,7 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 			"userName",
 			"userNormalizedName"
 		];
-		foreach ($fields as $field) {
+		foreach($fields as $field) {
 			$columns[$field]->volatilize();
 		}
 	}

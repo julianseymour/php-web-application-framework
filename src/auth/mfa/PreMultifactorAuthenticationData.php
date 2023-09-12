@@ -20,7 +20,7 @@ class PreMultifactorAuthenticationData extends AuthenticationData{
 
 	public function handSessionToUser(PlayableUser $user, ?int $mode = null):PlayableUser{
 		$f = __METHOD__;
-		if (! $user instanceof AuthenticatedUser) {
+		if(!$user instanceof AuthenticatedUser) {
 			Debug::error("{$f} only authenticated users can use MFA");
 		}
 		$ret = parent::handSessionToUser($user);

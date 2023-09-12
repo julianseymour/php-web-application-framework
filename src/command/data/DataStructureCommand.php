@@ -23,7 +23,7 @@ abstract class DataStructureCommand extends Command implements JavaScriptInterfa
 	public function __construct($context = null)
 	{
 		parent::__construct();
-		if (isset($context)) {
+		if(isset($context)) {
 			$this->setDataStructure($context);
 		}
 	}
@@ -31,10 +31,10 @@ abstract class DataStructureCommand extends Command implements JavaScriptInterfa
 	public function setDataStructure($context)
 	{
 		$f = __METHOD__; //DataStructureCommand::getShortClass()."(".static::getShortClass().")->setDataStructure()";
-		if (is_string($context)) {
+		if(is_string($context)) {
 			Debug::print("{$f} context is a string, going to assume it's the key");
 			$this->setKey($context);
-		} elseif ($context instanceof DataStructure && $context->hasIdentifierValue()) {
+		}elseif($context instanceof DataStructure && $context->hasIdentifierValue()) {
 			$this->setKey($context->getIdentifierValue());
 		}
 		return $this->dataStructure = $context;
@@ -54,13 +54,13 @@ abstract class DataStructureCommand extends Command implements JavaScriptInterfa
 	{
 		$f = __METHOD__; //DataStructureCommand::getShortClass()."(".static::getShortClass().")->getIdCommandString()";
 		$print = false;
-		if (! $this->hasIdCommand()) {
-			if ($print) {
+		if(!$this->hasIdCommand()) {
+			if($print) {
 				$decl = $this->getDeclarationLine();
 				Debug::print("{$f} ID command string is undefined, declared {$decl}");
 			}
 			$context = $this->getDataStructure();
-			if ($context instanceof ValueReturningCommandInterface) {
+			if($context instanceof ValueReturningCommandInterface) {
 				return $context; // ->__toString();
 			}
 			// Debug::warning("{$f} ID command is undefined");
@@ -83,7 +83,7 @@ abstract class DataStructureCommand extends Command implements JavaScriptInterfa
 	public function getKey()
 	{
 		$f = __METHOD__; //DataStructureCommand::getShortClass()."(".static::getShortClass().")->getKey()";
-		if (! $this->hasKey()) {
+		if(!$this->hasKey()) {
 			Debug::error("{$f} key is undefined");
 		}
 		return $this->key;
@@ -92,7 +92,7 @@ abstract class DataStructureCommand extends Command implements JavaScriptInterfa
 	public function echoInnerJson(bool $destroy = false): void
 	{
 		$f = __METHOD__; //DataStructureCommand::getShortClass()."(".static::getShortClass().")->echoInnerJson()";
-		if ($this->hasKey()) {
+		if($this->hasKey()) {
 			Json::echoKeyValuePair('uniqueKey', $this->getKey(), $destroy);
 		}
 		parent::echoInnerJson($destroy);

@@ -23,13 +23,13 @@ class GenericThrottleMeter extends ThrottleMeterData
 	public function getThrottledObject()
 	{
 		$f = __METHOD__; //GenericThrottleMeter::getShortClass()."(".static::getShortClass().")->getThrottledObject()";
-		try {
-			if (! $this->hasThrottledObject()) {
+		try{
+			if(!$this->hasThrottledObject()) {
 				Debug::error("{$f} throttled object is undefined");
 				return null;
 			}
 			return $this->throttledObject;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

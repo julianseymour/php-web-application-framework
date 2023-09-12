@@ -14,9 +14,9 @@ trait FormAttributeTrait
 
 	public function setUseFormAttributeFlag($value)
 	{
-		if ($value === true && $this->hasForm()) {
+		if($value === true && $this->hasForm()) {
 			$form = $this->getForm();
-			if ($form->hasIdAttribute()) {
+			if($form->hasIdAttribute()) {
 				$this->setFormAttribute($form->getIdAttribute());
 			}
 		}
@@ -36,7 +36,7 @@ trait FormAttributeTrait
 	public function getFormAttribute()
 	{
 		$f = __METHOD__; //"FormAttributeTrait(".static::getShortClass().")->getFormAttribute()";
-		if (! $this->hasFormAttribute()) {
+		if(!$this->hasFormAttribute()) {
 			Debug::error("{$f} form attribute is undefined");
 		}
 		return $this->getAttribute("form");
@@ -49,10 +49,10 @@ trait FormAttributeTrait
 
 	public function setForm(?FormElement $form):?FormElement
 	{
-		if ($form === null) {
+		if($form === null) {
 			unset($this->form);
 			return null;
-		} elseif ($this->getUseFormAttributeFlag() && $form->hasIdAttribute()) {
+		}elseif($this->getUseFormAttributeFlag() && $form->hasIdAttribute()) {
 			$this->setFormAttribute($form->getIdAttribute());
 		}
 		return $this->form = $form;

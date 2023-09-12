@@ -21,7 +21,7 @@ class HamburgerMenuLabelElement extends LabelElement
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__; //HamburgerMenuLabelElement::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
-		try {
+		try{
 			/*
 			 * $icon = new DivElement();
 			 * $icon->addClassAttribute("close_menu_label");
@@ -56,7 +56,7 @@ class HamburgerMenuLabelElement extends LabelElement
 			// $icon->appendChild($div);
 			$this->appendChild($div); // icon);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

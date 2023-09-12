@@ -18,28 +18,28 @@ class MenuSlideLabel extends LabelElement{
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$context = $this->getContext();
 			$innerHTML = $context->getName();
-			if (empty($innerHTML)) {
+			if(empty($innerHTML)) {
 				$context_class = $context->getClass();
 				$context_name = $context->getName();
 				Debug::error("{$f} human readable name is undefined for {$context_class} \"{$context_name}\"");
 			}
 			$this->appendChild($innerHTML);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function bindContext($context){
 		$f = __METHOD__;
-		try {
+		try{
 			$key = $context->getIdentifierValue();
 			$this->setForAttribute("radio_menu-{$key}");
 			return parent::bindContext($context);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

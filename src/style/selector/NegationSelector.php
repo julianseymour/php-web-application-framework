@@ -18,7 +18,7 @@ class NegationSelector extends Selector
 	public function __construct($negate_me)
 	{
 		parent::__construct();
-		if ($negate_me !== null) {
+		if($negate_me !== null) {
 			$this->setNegatedSelector($negate_me);
 		}
 	}
@@ -31,12 +31,12 @@ class NegationSelector extends Selector
 	public function getNegatedSelector()
 	{
 		$f = __METHOD__; //NegationSelector::getShortClass()."(".static::getShortClass().")->getNegatedSelector()";
-		try {
-			if (! $this->hasNegatedSelector()) {
+		try{
+			if(!$this->hasNegatedSelector()) {
 				Debug::error("{$f} negated selector is undefined");
 			}
 			return $this->negatedSelector;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -14,7 +14,7 @@ class EmailHeaderElement extends DivElement
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__; //EmailHeaderElement::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
 			$recipient = $context->getRecipient();
@@ -53,19 +53,19 @@ class EmailHeaderElement extends DivElement
 				"background-color" => "#000", // $theme_data->getBackgroundColor1(),
 				"padding" => "8px"
 			]);
-			if (is_object($uri)) {
+			if(is_object($uri)) {
 				Debug::error("{$f} URI is an object of class " . get_class($uri) . ", declared " . $uri->getDeclarationLine());
-			} elseif (is_string($uri)) {
-				if (file_exists($uri)) {
+			}elseif(is_string($uri)) {
+				if(file_exists($uri)) {
 					$logo1->setSourceAttribute($uri);
 					$this->appendChild($logo1);
-				} else {
+				}else{
 					Debug::warning("{$f} file does not exist");
 					$this->setAllowEmptyInnerHTML(true);
 				}
 			}
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

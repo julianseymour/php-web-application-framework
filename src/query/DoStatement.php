@@ -13,7 +13,7 @@ class DoStatement extends QueryStatement
 	{
 		parent::__construct();
 		$this->requirePropertyType("expressions", ExpressionCommand::class);
-		if (isset($expressions)) {
+		if(isset($expressions)) {
 			$this->setExpressions($expressions);
 		}
 	}

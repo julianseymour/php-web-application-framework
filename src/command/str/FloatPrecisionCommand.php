@@ -29,7 +29,7 @@ class FloatPrecisionCommand extends StringTransformationCommand
 	public function getPrecision()
 	{
 		$f = __METHOD__; //FloatPrecisionCommand::getShortClass()."(".static::getShortClass().")->getPrecision()";
-		if (! $this->hasPrecision()) {
+		if(!$this->hasPrecision()) {
 			Debug::error("{$f} precision is undefined");
 		}
 		return $this->precision;
@@ -45,11 +45,11 @@ class FloatPrecisionCommand extends StringTransformationCommand
 	{
 		$f = __METHOD__; //FloatPrecisionCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
 		$subject = $this->getSubject();
-		if ($subject instanceof JavaScriptInterface) {
+		if($subject instanceof JavaScriptInterface) {
 			$subject = $subject->toJavaScript();
 		}
 		$precision = $this->getPrecision();
-		if ($precision instanceof JavaScriptInterface) {
+		if($precision instanceof JavaScriptInterface) {
 			$precision = $precision->toJavaScript();
 		}
 		return "{$subject}.toFixed({$precision})";
@@ -62,16 +62,16 @@ class FloatPrecisionCommand extends StringTransformationCommand
 		while ($subject instanceof ValueReturningCommandInterface) {
 			$subject = $subject->evaluate();
 		}
-		if (! is_numeric($subject)) {
+		if(!is_numeric($subject)) {
 			Debug::error("{$f} subject must be numeric");
 		}
 		$precision = $this->getPrecision();
 		while ($precision instanceof ValueReturningCommandInterface) {
 			$precision = $precision->evaluate();
 		}
-		if (! is_int($precision)) {
+		if(!is_int($precision)) {
 			Debug::error("{$f} precision must be an integer");
-		} elseif ($precision < 0) {
+		}elseif($precision < 0) {
 			Debug::error("{$f} precision must be a nonnegative integer");
 		}
 		return number_format((float) $subject, $precision, '.', '');

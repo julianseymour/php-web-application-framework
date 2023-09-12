@@ -13,7 +13,7 @@ trait IndirectParentScopeTrait
 
 	public function getParentScope(): Scope
 	{
-		if (! $this->hasScope()) {
+		if(!$this->hasScope()) {
 			$this->setScope(new Scope());
 		}
 		return $this->getScope()->getParentScope();
@@ -21,7 +21,7 @@ trait IndirectParentScopeTrait
 
 	public function setParentScope(?Scope $scope): ?Scope
 	{
-		if (! $this->hasScope()) {
+		if(!$this->hasScope()) {
 			$this->setScope($scope);
 		}
 		return $this->getScope()->setParentScope($scope);

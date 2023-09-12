@@ -26,7 +26,7 @@ class ClearInputCommand extends ElementCommand implements ServerExecutableComman
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		return "{$idcs}.value = null;";

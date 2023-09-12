@@ -16,11 +16,11 @@ class InsertAfterCommand extends InsertElementCommand implements ServerExecutabl
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //InsertAfterCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		if ($this->hasMultipleElements()) {
+		if($this->hasMultipleElements()) {
 			Debug::error("{$f} unimplemented: insert multiple elements");
 		}
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		$target = new GetElementByIdCommand($this->getReferenceElementId());
@@ -32,7 +32,7 @@ class InsertAfterCommand extends InsertElementCommand implements ServerExecutabl
 	{
 		$f = __METHOD__; //InsertAfterCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct($insert_here, ...$elements);
-		if (! $this->hasReferenceElementId()) {
+		if(!$this->hasReferenceElementId()) {
 			Debug::error("{$f} ID is undefined");
 		}
 	}

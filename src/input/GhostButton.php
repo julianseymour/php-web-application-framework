@@ -20,7 +20,7 @@ class GhostButton extends ButtonInput implements GhostElementInterface{
 	}
 
 	public function bindContext($context){
-		if ($context instanceof Datum && $context->hasName()) {
+		if($context instanceof Datum && $context->hasName()) {
 			$this->setColumnName($context->getName());
 		}
 		return $this->context = $context;

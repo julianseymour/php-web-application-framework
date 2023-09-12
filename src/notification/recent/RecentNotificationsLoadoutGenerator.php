@@ -21,7 +21,7 @@ class RecentNotificationsLoadoutGenerator extends LoadoutGenerator
 		$f = __METHOD__; //RecentNotificationsUseCase::getShortClass()."(".static::getShortClass().")->getRootNodeTreeSelectStatements()";
 		$print = false;
 		$statements = [];
-		if (! hasInputParameter('pushSubscriptionKey')) {
+		if(! hasInputParameter('pushSubscriptionKey')) {
 			$statements[NotificationData::getPhylumName()] = [
 				RetrospectiveNotificationData::class => RetrospectiveNotificationData::getRecentNotificationSelectStatement()->withParameters([
 					getCurrentUserKey(),
@@ -29,10 +29,10 @@ class RecentNotificationsLoadoutGenerator extends LoadoutGenerator
 					$user->getNotificationDeliveryTimestamp()
 				])
 			];
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} pushSubscriptionKey is a defined parameter, skipping recent notification check");
 		}
-		if (defined("NOTIFICATION_TYPE_MESSAGE")) {
+		if(defined("NOTIFICATION_TYPE_MESSAGE")) {
 			$statements['online'] = [
 				RetrospectiveNotificationData::class => RetrospectiveNotificationData::selectStatic()->where(new AndCommand(RetrospectiveNotificationData::whereIntersectionalHostKey(user()->getClass(), "userKey"), new WhereCondition("subtype", OPERATOR_EQUALS)))
 					->withParameters([

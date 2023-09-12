@@ -39,10 +39,10 @@ class SwitchCommand extends ControlStatementCommand implements ParentScopeInterf
 		 * $this->setExpression($expr);
 		 * }
 		 */
-		if (! empty($cases)) {
+		if(!empty($cases)) {
 			$this->setCases($cases);
 		}
-		if (! empty($default)) {
+		if(!empty($default)) {
 			$this->setDefault($default);
 		}
 	}
@@ -77,7 +77,7 @@ class SwitchCommand extends ControlStatementCommand implements ParentScopeInterf
 	public function getCases()
 	{
 		$f = __METHOD__;
-		if (! $this->hasCases()) {
+		if(!$this->hasCases()) {
 			Debug::error("{$f} cases are undefined");
 		}
 		return $this->cases;
@@ -85,7 +85,7 @@ class SwitchCommand extends ControlStatementCommand implements ParentScopeInterf
 
 	public function setDefault(...$default)
 	{
-		if (count($default) === 1 && is_array($default[0])) {
+		if(count($default) === 1 && is_array($default[0])) {
 			$default = $default[0];
 		}
 		return $this->default = $default;
@@ -99,7 +99,7 @@ class SwitchCommand extends ControlStatementCommand implements ParentScopeInterf
 	public function getDefault()
 	{
 		$f = __METHOD__;
-		if (! $this->hasDefault()) {
+		if(!$this->hasDefault()) {
 			Debug::error("{$f} default is undefined");
 		}
 		return $this->default;
@@ -109,27 +109,27 @@ class SwitchCommand extends ControlStatementCommand implements ParentScopeInterf
 	{
 		// $f = __METHOD__;
 		$expr = $this->getExpression();
-		if ($expr instanceof JavaScriptInterface) {
+		if($expr instanceof JavaScriptInterface) {
 			$expr = $expr->toJavaScript();
 		}
 		$string = "switch({$expr}){\n";
 		$cases = $this->getCases();
-		foreach (array_keys($cases) as $case) {
-			if ($case instanceof JavaScriptInterface) {
+		foreach(array_keys($cases) as $case) {
+			if($case instanceof JavaScriptInterface) {
 				$escaped = $case->toJavaScript();
-			} elseif (is_string($case) || $case instanceof StringifiableInterface) {
+			}elseif(is_string($case) || $case instanceof StringifiableInterface) {
 				$escaped = single_quote($case);
-			} else {
+			}else{
 				$escaped = $case;
 			}
 			$string .= "\tcase {$escaped}:\n";
-			foreach ($cases[$case] as $command) {
+			foreach($cases[$case] as $command) {
 				$string .= "\t\t" . $command->toJavaScript() . ";\n";
 			}
 		}
 		$string .= "\tdefault:\n";
 		$default = $this->getDefault();
-		foreach ($default as $d) {
+		foreach($default as $d) {
 			$string .= "\t\t" . $d->toJavaScript() . ";\n";
 		}
 		$string .= "}\n";
@@ -139,7 +139,7 @@ class SwitchCommand extends ControlStatementCommand implements ParentScopeInterf
 	public function resolve()
 	{
 		$commands = $this->getEvaluatedCommands();
-		foreach ($commands as $c) {
+		foreach($commands as $c) {
 			/*
 			 * if($c instanceof ReturnCommand){
 			 * $ret = $c->evaluate();
@@ -174,10 +174,10 @@ class SwitchCommand extends ControlStatementCommand implements ParentScopeInterf
 	public function case($value, ...$blocks)
 	{
 		$case = [];
-		foreach ($blocks as $b) {
+		foreach($blocks as $b) {
 			array_push($case, $b);
 		}
-		if (! is_array($this->cases)) {
+		if(!is_array($this->cases)) {
 			$this->cases = [];
 		}
 		$this->cases[$value] = $case;
@@ -193,88 +193,88 @@ class SwitchCommand extends ControlStatementCommand implements ParentScopeInterf
 	public function getEvaluatedCommands()
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$match = false;
 			$expr = $this->getExpression();
-			if ($print) {
-				if (is_object($expr)) {
+			if($print) {
+				if(is_object($expr)) {
 					$decl = $expr->getDeclarationLine();
 					$class = $expr->getClass();
 					Debug::print("{$f} expression is a {$class} declared {$decl}");
-				} else {
+				}else{
 					$gottype = gettype($expr);
 					Debug::print("{$f} expression is the {$gottype} \"{$expr}\"");
 				}
 			}
-			if ($expr instanceof Command) {
-				if ($expr instanceof ScopedCommandInterface && ! $expr->hasScope()) {
+			if($expr instanceof Command) {
+				if($expr instanceof ScopedCommandInterface && ! $expr->hasScope()) {
 					$expr->setScope($this->getScope());
 				}
 				while ($expr instanceof ValueReturningCommandInterface) {
 					$expr = $expr->evaluate();
 				}
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} after evaluation, expression is \"{$expr}\"");
 			}
 			$cases = $this->getCases();
 			$return_us = [];
 			$break = false;
-			foreach (array_keys($cases) as $case) {
-				if ($print) {
+			foreach(array_keys($cases) as $case) {
+				if($print) {
 					Debug::print("{$f} case \"{$case}\"");
 				}
-				if ($break) {
-					if ($print) {
+				if($break) {
+					if($print) {
 						Debug::print("{$f} breaking");
 					}
 					break;
 				}
-				if (! $match) {
-					if ($case !== $expr) {
-						if ($print) {
+				if(!$match) {
+					if($case !== $expr) {
+						if($print) {
 							Debug::print("{$f} case \"{$case}\" does not match expression \"{$expr}\", continuing");
 						}
 						continue;
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} case \"{$case}\" matches expression \"{$expr}\"");
 					}
 					$match = true;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} no match found yet ");
 				}
-				foreach ($cases[$case] as $command) {
-					if ($command instanceof BreakCommand) {
+				foreach($cases[$case] as $command) {
+					if($command instanceof BreakCommand) {
 						$break = true;
 						break;
 					}
 					array_push($return_us, $command);
 				}
 			}
-			if ($match) {
-				if ($print) {
+			if($match) {
+				if($print) {
 					$count = count($return_us);
 					Debug::print("{$f} returning {$count} commands");
 				}
 				return $return_us;
 			}
 			$default = $this->getDefault();
-			foreach ($default as $command) {
-				if ($command instanceof BreakCommand) {
+			foreach($default as $command) {
+				if($command instanceof BreakCommand) {
 					break;
 				}
 				array_push($return_us, $command);
 			}
-			if ($print) {
+			if($print) {
 				$count = count($return_us);
 				Debug::print("{$f} returning {$count} commands");
-				foreach ($return_us as $cmd) {
+				foreach($return_us as $cmd) {
 					Debug::print($cmd->getClass() . " declared " . $cmd->getDeclarationLine());
 				}
 			}
 			return $return_us;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

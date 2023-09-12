@@ -145,16 +145,16 @@ ScopedCommandInterface{
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			$mem = memory_get_usage();
 			Debug::print("{$f} memory at construction: {$mem}; rendering mode \"{$mode}\"");
 		}
 		// Debug::checkMemoryUsage("In element constructor", 96000000);
-		if ($this->hasClassList()) {
+		if($this->hasClassList()) {
 			Debug::error("{$f} classList has already been initialized");
 		}
 		$status = $this->beforeConstructorHook($mode, $context);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} beforeConstructorHook returned error status \"{$err}\"");
 			$this->setObjectStatus($status);
@@ -163,26 +163,26 @@ ScopedCommandInterface{
 		// $this->innerHTML/ConversionMode = ELEMENT_INNERHTML_/CONVERSION_ASSOC;
 		Debug::incrementElementConstructorCount();
 		parent::__construct($mode, $context);
-		if (! $this instanceof HTMLCommentElement && ! $this instanceof DocumentFragment) {
-			if ($this->hasDeclarationLine()) {
+		if(!$this instanceof HTMLCommentElement && ! $this instanceof DocumentFragment) {
+			if($this->hasDeclarationLine()) {
 				$decl = $this->getDeclarationLine();
 				$this->setAttribute("declared", $decl);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} declared \"{$decl}\"");
 				}
 			}
-			if ($this->hasDebugId()) {
+			if($this->hasDebugId()) {
 				$this->setAttribute("debugid", $this->getDebugId());
 			}
 			$this->setAttribute("php_class", get_short_class(static::class));
 		}
 		// Debug::checkMemoryUsage("In element constructor, declared {$decl}", 124000000);
 		$this->setAllocationMode($mode);
-		if (isset($context)) {
+		if(isset($context)) {
 			$this->bindContext($context);
 		}
 		$status = $this->afterConstructorHook($mode, $context);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} afterConstructorHook returned error status \"{$err}\"");
 			$this->setObjectStatus($status);
@@ -223,10 +223,10 @@ ScopedCommandInterface{
 	 */
 	public function saveChild(...$children): void{
 		$mode = $this->getAllocationMode();
-		if ($mode !== ALLOCATION_MODE_ULTRA_LAZY) {
+		if($mode !== ALLOCATION_MODE_ULTRA_LAZY) {
 			$this->appendChild(...$children);
 			return;
-		} elseif (! isset($this->savedChildren) || ! is_array($this->savedChildren)) {
+		}elseif(! isset($this->savedChildren) || ! is_array($this->savedChildren)) {
 			$this->savedChildren = [];
 		}
 		array_push($this->savedChildren, ...$children);
@@ -237,9 +237,9 @@ ScopedCommandInterface{
 	}
 
 	public function appendSavedChildren(bool $destroy = true){
-		if ($this->hasSavedChildren()) {
+		if($this->hasSavedChildren()) {
 			$this->appendChild(...$this->savedChildren);
-			if ($destroy) {
+			if($destroy) {
 				unset($this->savedChildren);
 			}
 		}
@@ -247,7 +247,7 @@ ScopedCommandInterface{
 
 	public function getSavedChildren(){
 		$f = __METHOD__;
-		if (! $this->hasSavedChildren()) {
+		if(!$this->hasSavedChildren()) {
 			Debug::error("{$f} saved children are undefined");
 		}
 		return $this->savedChildren;
@@ -262,10 +262,10 @@ ScopedCommandInterface{
 
 	protected function beforeConstructorHook(int $mode = ALLOCATION_MODE_UNDEFINED, $context = null): int{
 		$params = [];
-		if ($mode !== null) {
+		if($mode !== null) {
 			$params['allocationMode'] = $mode;
 		}
-		if ($context !== null) {
+		if($context !== null) {
 			$params['context'] = $context;
 		}
 		$this->dispatchEvent(new BeforeConstructorEvent($params));
@@ -274,10 +274,10 @@ ScopedCommandInterface{
 
 	protected function afterConstructorHook(int $mode = ALLOCATION_MODE_UNDEFINED, $context = null): int{
 		$params = [];
-		if ($mode !== null) {
+		if($mode !== null) {
 			$params['allocationMode'] = $mode;
 		}
-		if ($context !== null) {
+		if($context !== null) {
 			$params['context'] = $context;
 		}
 		$this->dispatchEvent(new AfterConstructorEvent($params));
@@ -294,7 +294,7 @@ ScopedCommandInterface{
 
 	public function getEnterKeyHintAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasEnterKeyHintAttribute()) {
+		if(!$this->hasEnterKeyHintAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('enterkeyhint');
@@ -315,7 +315,7 @@ ScopedCommandInterface{
 
 	public function getDraggableAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasDraggableAttribute()) {
+		if(!$this->hasDraggableAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('draggable');
@@ -353,7 +353,7 @@ ScopedCommandInterface{
 
 	public function getDirectionalityAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasDirectionalityAttribute()) {
+		if(!$this->hasDirectionalityAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('dir');
@@ -369,7 +369,7 @@ ScopedCommandInterface{
 
 	public function getContentEditableAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasContentEditableAttribute()) {
+		if(!$this->hasContentEditableAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('contenteditable');
@@ -385,7 +385,7 @@ ScopedCommandInterface{
 
 	public function getAutocapitalizeAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasAutocapitalizeAttribute()) {
+		if(!$this->hasAutocapitalizeAttribute()) {
 			Debug::error("{$f} autocapitalize attribute is undefined");
 		}
 		return $this->getAttribute("autocapitalize");
@@ -401,7 +401,7 @@ ScopedCommandInterface{
 
 	public function getAccessKeyAttriubute(){
 		$f = __METHOD__;
-		if (! $this->hasAccessKeyAttribute()) {
+		if(!$this->hasAccessKeyAttribute()) {
 			Debug::error("{$f} access key attribute is undefined");
 		}
 		return $this->getAttribute("accesskey");
@@ -417,7 +417,7 @@ ScopedCommandInterface{
 
 	public function getItemScopeAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasItemScopeAttribute()) {
+		if(!$this->hasItemScopeAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('itemscope');
@@ -433,7 +433,7 @@ ScopedCommandInterface{
 
 	public function getItemReferenceAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasItemReferenceAttribute()) {
+		if(!$this->hasItemReferenceAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('itemref');
@@ -449,7 +449,7 @@ ScopedCommandInterface{
 
 	public function getItemPropertyAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasItemPropertyAttribute()) {
+		if(!$this->hasItemPropertyAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('itemprop');
@@ -465,7 +465,7 @@ ScopedCommandInterface{
 
 	public function getItemIdAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasItemIdAttribute()) {
+		if(!$this->hasItemIdAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('itemid');
@@ -481,7 +481,7 @@ ScopedCommandInterface{
 
 	public function getIsAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasIsAttribute()) {
+		if(!$this->hasIsAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('is');
@@ -497,7 +497,7 @@ ScopedCommandInterface{
 
 	public function getInputModeAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasInputModeAttribute()) {
+		if(!$this->hasInputModeAttribute()) {
 			Debug::error("{$f} input mode attribute is undefined");
 		}
 		return $this->getAttribute("inputmode");
@@ -513,7 +513,7 @@ ScopedCommandInterface{
 
 	public function getHiddenAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasHiddenAttribute()) {
+		if(!$this->hasHiddenAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('hidden');
@@ -529,7 +529,7 @@ ScopedCommandInterface{
 
 	public function getTitleAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasTitleAttribute()) {
+		if(!$this->hasTitleAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('title');
@@ -546,7 +546,7 @@ ScopedCommandInterface{
 	public function getTabIndexAttribute()
 	{
 		$f = __METHOD__;
-		if (! $this->hasTabIndexAttribute()) {
+		if(!$this->hasTabIndexAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('tabindex');
@@ -562,7 +562,7 @@ ScopedCommandInterface{
 
 	public function getSlotAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasSlotAttribute()) {
+		if(!$this->hasSlotAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('slot');
@@ -578,7 +578,7 @@ ScopedCommandInterface{
 
 	public function getPartAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasPartAttribute()) {
+		if(!$this->hasPartAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('part');
@@ -594,7 +594,7 @@ ScopedCommandInterface{
 
 	public function getNonceAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasNonceAttribute()) {
+		if(!$this->hasNonceAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('nonce');
@@ -610,7 +610,7 @@ ScopedCommandInterface{
 
 	public function getLanguageAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasLanguageAttribute()) {
+		if(!$this->hasLanguageAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('lang');
@@ -631,7 +631,7 @@ ScopedCommandInterface{
 
 	public function getItemTypeAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasItemTypeAttribute()) {
+		if(!$this->hasItemTypeAttribute()) {
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->getAttribute('itemtype');
@@ -670,10 +670,10 @@ ScopedCommandInterface{
 	public function update(): UpdateElementCommand{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
-		if ($this->hasReplacementId()) {
+		if($this->hasReplacementId()) {
 			return new UpdateElementCommand([
 				$this->getReplacementId() => $this
 			]);
@@ -716,7 +716,7 @@ ScopedCommandInterface{
 
 	public function getSpellcheckAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasSpellcheckAttribute()) {
+		if(!$this->hasSpellcheckAttribute()) {
 			Debug::error("{$f} spellcheck attribute is undefined");
 		}
 		return $this->getAttribute("spellcheck");
@@ -732,7 +732,7 @@ ScopedCommandInterface{
 
 	public function getWrapperElement(){
 		$f = __METHOD__;
-		if (! $this->hasWrapperElement()) {
+		if(!$this->hasWrapperElement()) {
 			Debug::error("{$f} wrapper element is undefined");
 		}
 		return $this->wrapperElement;
@@ -740,52 +740,52 @@ ScopedCommandInterface{
 
 	public function setAllocationMode(?int $mode): ?int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
-			if ($mode === null) {
-				if ($print) {
+			if($mode === null) {
+				if($print) {
 					Debug::print("{$f} unsetting rendering mode");
 				}
 				unset($this->allocationMode);
 				return null;
-			} elseif (! is_int($mode)) {
+			}elseif(!is_int($mode)) {
 				Debug::error("{$f} whoops, rendering mode must be an integer");
 			}
 			switch ($mode) {
 				case ALLOCATION_MODE_FORM_TEMPLATE:
 				case ALLOCATION_MODE_TEMPLATE:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} template or form template generation mode");
 					}
 					$this->setTemplateFlag(true);
-					if (! $this->getTemplateFlag()) {
+					if(!$this->getTemplateFlag()) {
 						Debug::error("{$f} template flag is undefined");
 					}
 					break;
 				case ALLOCATION_MODE_NEVER:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} no children");
 					}
 					$this->setAllowEmptyInnerHTML(true);
 					break;
 				case ALLOCATION_MODE_ULTRA_LAZY:
-					if (! $this->isUltraLazyRenderingCompatible()) {
-						if ($print) {
+					if(!$this->isUltraLazyRenderingCompatible()) {
+						if($print) {
 							Debug::print("{$f} this element is incompatible with ultra lazy rendering mode");
 						}
 						$mode = ALLOCATION_MODE_LAZY;
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} ultra lazy rendering mode");
 					}
 					break;
 				default:
 			}
-			if ($print) {
+			if($print) {
 				$decl = $this->getDeclarationLine();
 				Debug::print("{$f} setting rendering mode to \"{$mode}\". Declared {$decl}");
 			}
 			return $this->allocationMode = $mode;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -805,12 +805,12 @@ ScopedCommandInterface{
 	{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasAttributes()) {
+		if(!$this->hasAttributes()) {
 			return false;
-		} elseif (! array_key_exists($key, $this->attributes)) {
+		}elseif(! array_key_exists($key, $this->attributes)) {
 			return false;
-		} elseif ($value === null) {
-			if ($print) {
+		}elseif($value === null) {
+			if($print) {
 				Debug::print("{$f} attribute exists but value is null");
 			}
 			return true;
@@ -829,7 +829,7 @@ ScopedCommandInterface{
 
 	public function setResponsiveStyleProperty($attr, $command)
 	{
-		if (! is_array($this->responsiveStyleProperties)) {
+		if(!is_array($this->responsiveStyleProperties)) {
 			$this->responsiveStyleProperties = [];
 		}
 		return $this->responsiveStyleProperties[$attr] = $command;
@@ -841,7 +841,7 @@ ScopedCommandInterface{
 
 	public function getResponsiveStyleProperty($key){
 		$f = __METHOD__;
-		if (! $this->hasResponsiveStyleProperty($key)) {
+		if(!$this->hasResponsiveStyleProperty($key)) {
 			Debug::error("{$f} responsive style property with key \"{$key}\" does not exist");
 		}
 		return $this->responsiveStyleProperties[$key];
@@ -863,18 +863,18 @@ ScopedCommandInterface{
 	public function reportScriptForDomInsertion($script){
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasSubcommandCollector()) {
-			if ($print) {
+		if(!$this->hasSubcommandCollector()) {
+			if($print) {
 				Debug::print("{$f} subcommand collector is undefined");
 			}
-			if ($this->hasParentNode()) {
-				if ($print) {
+			if($this->hasParentNode()) {
+				if($print) {
 					Debug::print("{$f} reporting script to parent node");
 				}
 				return $this->getParentNode()->reportScriptForDomInsertion($script);
 			}
 			Debug::error("{$f} this object lacks a subcommand collector or parent node");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} subcommand collector is defined; pushing append child command");
 		}
 		$this->getSubcommandCollector()->pushSubcommand(new AppendChildCommand("head", $script));
@@ -883,7 +883,7 @@ ScopedCommandInterface{
 
 	public function removeAttribute(string $attr_key){
 		$f = __METHOD__;
-		if (! $this->hasAttribute($attr_key)) {
+		if(!$this->hasAttribute($attr_key)) {
 			Debug::error("{$f} attribute \"{$attr_key}\" is undefined");
 		}
 		$value = $this->getAttribute($attr_key);
@@ -891,10 +891,10 @@ ScopedCommandInterface{
 		// Debug::print("{$f} attribute count prior to ejection is {$pre_count}");
 		$this->attributes = array_remove_key($this->attributes, $attr_key);
 		$post_count = count($this->attributes);
-		if ($post_count !== $pre_count - 1) {
+		if($post_count !== $pre_count - 1) {
 			$shudbi = $post_count - 1;
 			Debug::error("{$f} incorrect number of attributes ({$post_count}, should be {$shudbi})");
-		} elseif (! empty($this->attributes)) {
+		}elseif(!empty($this->attributes)) {
 			// Debug::print("{$f} about to print modified attributes");
 			// Debug::printArray($this->attributes);
 		}
@@ -918,77 +918,77 @@ ScopedCommandInterface{
 	 */
 	public final function generateContents(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
-				if ($this->hasContext()) {
+			if($print) {
+				if($this->hasContext()) {
 					$context = $this->getContext();
-					if (is_object($context)) {
+					if(is_object($context)) {
 						$cc = $context->getClass();
-						if ($context instanceof Datum) {
+						if($context instanceof Datum) {
 							$cn = $context->getName();
 							Debug::print("{$f} context is a {$cc} named \"{$cn}\"");
-						} else {
+						}else{
 							Debug::print("{$f} context is an object of class \"{$cc}\"");
 						}
-					} else {
+					}else{
 						$gottype = gettype($context);
 						Debug::print("{$f} context is a {$gottype}");
 					}
-				} else {
+				}else{
 					Debug::print("{$f} context is undefined");
 				}
 			}
-			if (! $this->getAllocatedFlag()) {
+			if(!$this->getAllocatedFlag()) {
 				$decl = $this->hasDeclarationLine() ? $this->getDeclarationLine() : "unknown";
 				Debug::error("{$f} this object was deallocated; declared \"{$decl}\"");
-			} elseif ($this->getContentsGeneratedFlag()) {
-				if ($print) {
+			}elseif($this->getContentsGeneratedFlag()) {
+				if($print) {
 					Debug::warning("{$f} contents already generated");
 				}
 				return SUCCESS;
 			}
 			$status = $this->beforeRenderHook();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} beforeRenderHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			$mode = $this->getAllocationMode();
-			if ($mode !== ALLOCATION_MODE_ULTRA_LAZY) {
+			if($mode !== ALLOCATION_MODE_ULTRA_LAZY) {
 				$predecessors = $this->generatePredecessors();
 				$this->setFlag("predecessorsGenerated", true);
-				if (! empty($predecessors)) {
-					if (is_associative($predecessors)) {
-						if ($print) {
+				if(!empty($predecessors)) {
+					if(is_associative($predecessors)) {
+						if($print) {
 							Debug::print("{$f} generatePredecessors returned an associative array");
 						}
 						$predecessors = array_values($predecessors);
 					}
 					$this->pushPredecessor(...$predecessors);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} ultra lazy rendering mode, not generating predecessors");
 			}
-			if ($mode === ALLOCATION_MODE_LAZY) {
+			if($mode === ALLOCATION_MODE_LAZY) {
 				$this->generateChildNodes();
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} child node generation only happens in generateContents if the rendering mode is lazy. This object's rendering mode is {$mode}");
 			}
-			if ($mode !== ALLOCATION_MODE_ULTRA_LAZY) {
+			if($mode !== ALLOCATION_MODE_ULTRA_LAZY) {
 				$successors = $this->generateSuccessors();
-				if (! empty($successors)) {
-					if (is_associative($successors)) {
-						if ($print) {
+				if(!empty($successors)) {
+					if(is_associative($successors)) {
+						if($print) {
 							Debug::print("{$f} generate successor nodes returned an associative array");
 						}
 						$successors = array_values($successors);
 					}
 					$this->pushSuccessor(...$successors);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} no successors were generated");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} ultra lazy rendering mode, not generating successors");
 			}
 			$this->setContentsGeneratedFlag(true);
@@ -996,13 +996,13 @@ ScopedCommandInterface{
 			
 			
 			$status = $this->afterRenderHook();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} afterRenderHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -1018,21 +1018,21 @@ ScopedCommandInterface{
 	 */
 	public function echoJson(bool $destroy = false): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
-			if ($this->getTemplateFlag()) {
+			if($this->getTemplateFlag()) {
 				Debug::print($this->__toString());
 				$decl = $this->getDeclarationLine();
 				Debug::error("{$f} should not be echoing a templated object. Declared {$decl}");
-			} elseif ($this->hasWrapperElement()) {
+			}elseif($this->hasWrapperElement()) {
 				$wrapper = $this->getWrapperElement();
 				$this->setWrapperElement(null);
 				$wrapper->appendChild($this);
 				$wrapper->echoJson($destroy);
-				if (! $destroy) {
+				if(!$destroy) {
 					$wrapper->removeChild($this);
 					$this->setWrapperElement($wrapper);
-				} elseif (! $this instanceof ReusableInterface) {
+				}elseif(!$this instanceof ReusableInterface) {
 					$this->dispose();
 					// unset($this->parentNode);
 					$this->setSuccessors(null);
@@ -1040,149 +1040,149 @@ ScopedCommandInterface{
 				return;
 			}
 			$cache = false;
-			if ($this->isCacheable() && JSON_CACHE_ENABLED) {
-				if (cache()->has($this->getCacheKey() . ".json")) {
-					if ($print) {
+			if($this->isCacheable() && JSON_CACHE_ENABLED) {
+				if(cache()->has($this->getCacheKey() . ".json")) {
+					if($print) {
 						Debug::print("{$f} this object's JSON has already been cached");
 					}
 					echo cache()->get($this->getCacheKey() . ".json");
 					return;
-				} else {
+				}else{
 					$cache = true;
 					ob_start();
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} cache this object is not cacheable");
 			}
-			if (! $this->hasParentNode()) {
+			if(!$this->hasParentNode()) {
 				// $this->echoOrphan($destroy);
-				if ($this->hasParentNode()) {
+				if($this->hasParentNode()) {
 					Debug::error("{$f} this function should not be called for elements with parent nodes");
 				}
 				$this->generateContents();
-				if ($this->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY) {
-					if ($print) {
+				if($this->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY) {
+					if($print) {
 						Debug::print("{$f} ultra lazy rendering mode -- generating predecessors/successors now");
 					}
 					$predecessors = $this->generatePredecessors();
 					$this->setFlag("predecessorsGenerated", true);
-					if (empty($predecessors)) {
+					if(empty($predecessors)) {
 						$predecessors = [];
 					}
 					$successors = $this->generateSuccessors();
-					if (empty($successors)) {
+					if(empty($successors)) {
 						$successors = [];
 					}
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} something other than ultra lazy rendering");
 					}
-					if ($this->hasPredecessors()) {
+					if($this->hasPredecessors()) {
 						$predecessors = $this->getPredecessors();
-					} else {
+					}else{
 						$predecessors = [];
 					}
-					if ($this->hasSuccessors()) {
+					if($this->hasSuccessors()) {
 						$successors = $this->getSuccessors();
-					} else {
+					}else{
 						$successors = [];
 					}
 				}
-				if ($destroy) {
+				if($destroy) {
 					$this->setPredecessors(null);
 					$this->setSuccessors(null);
 				}
-				if (! empty($predecessors) || ! empty($successors)) {
+				if(!empty($predecessors) || ! empty($successors)) {
 					$fragment = new DocumentFragment();
-					if (! empty($predecessors)) {
+					if(!empty($predecessors)) {
 						$fragment->appendChild(...array_values($predecessors));
 					}
 					$fragment->appendChild($this);
-					if (! empty($successors)) {
+					if(!empty($successors)) {
 						$fragment->appendChild(...array_values($successors));
 					}
 					$this->setParentNode($fragment);
 					$fragment->echoJson($destroy);
 					return;
 				}
-			} else {
+			}else{
 				$this->generateContents();
-				if ($this->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY) {
-					if ($print) {
+				if($this->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY) {
+					if($print) {
 						Debug::print("{$f} ultra lazy rendering mode -- generating predecessors now");
 					}
 					$predecessors = $this->generatePredecessors();
 					$this->setFlag("predecessorsGenerated", true);
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} something other than ultra lazy rendering");
 					}
-					if ($this->hasPredecessors()) {
+					if($this->hasPredecessors()) {
 						$predecessors = $this->getPredecessors();
-					} else {
+					}else{
 						$predecessors = null;
 					}
 				}
-				if ($destroy) {
+				if($destroy) {
 					$this->setPredecessors(null);
 				}
 				$successors = null;
 			}
 			// all of this was copied from the now-defunct echoJsonHelper to reduce execution depth
 			// predecessors
-			if (! empty($predecessors)) {
+			if(!empty($predecessors)) {
 				$i = 0;
-				foreach ($predecessors as $p) {
-					if ($i ++ > 0) {
+				foreach($predecessors as $p) {
+					if($i ++ > 0) {
 						echo ",";
 					}
-					if ($p instanceof Element && $this->hasParentNode()) {
+					if($p instanceof Element && $this->hasParentNode()) {
 						$p->setParentNode($this->getParentNode());
 					}
 					Json::echo($p, $destroy, false);
-					if ($destroy) {
+					if($destroy) {
 						unset($p);
 					}
 				}
-				if ($destroy) {
+				if($destroy) {
 					unset($predecessors);
 				}
 				echo ",";
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no predecessors");
 			}
 			// this
 			echo "{";
 			// all attributes, including class and inline style
-			if ($this->hasAttributes() || $this->hasClassList() || $this->hasInlineStyleAttribute()) {
+			if($this->hasAttributes() || $this->hasClassList() || $this->hasInlineStyleAttribute()) {
 				// generate class attribute
-				if ($this->hasClassAttribute()) {
-					if ($print) {
+				if($this->hasClassAttribute()) {
+					if($print) {
 						Debug::print("{$f} assigning class attribute");
 					}
 					$this->setAttribute('class', $this->getClassAttribute());
-					if ($destroy) {
+					if($destroy) {
 						unset($this->classList);
 					}
-				} elseif ($this->getFlag("requireClassAttribute")) {
+				}elseif($this->getFlag("requireClassAttribute")) {
 					Debug::error("{$f} class attribute is required");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} class attribute is undefined, but that's OK");
 				}
 				// add inline style properties to attributes
-				if ($this->hasInlineStyleAttribute()) {
+				if($this->hasInlineStyleAttribute()) {
 					$this->setAttribute('style', $this->getInlineStyleAttribute());
-					if ($destroy) {
+					if($destroy) {
 						unset($this->style);
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} inline style attribute is undefined");
 				}
 				// echo attributes
-				if ($this->hasAttributes()) {
-					foreach ($this->attributes as $attr_key => $attr) {
-						if ($attr instanceof Command) {
-							if (! $attr->getAllocatedFlag()) {
+				if($this->hasAttributes()) {
+					foreach($this->attributes as $attr_key => $attr) {
+						if($attr instanceof Command) {
+							if(!$attr->getAllocatedFlag()) {
 								Debug::warning("{$f} attribute at index \"{$attr_key}\" was deallocated");
 								$this->attributes[$attr_key] = "[deleted]";
 								$this->debugPrintRootElement();
@@ -1196,70 +1196,70 @@ ScopedCommandInterface{
 					}
 					*/
 					// InitializeFormCommand needs ID until commands are dispatched
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} no other attributes defined");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this element has no attributes, except possibly responsive style properties");
 			}
 			// responsive style properties that require client side calculation
-			if ($this->hasResponsiveStyleProperties()) {
+			if($this->hasResponsiveStyleProperties()) {
 				Json::echoKeyValuePair('responsiveStyleProperties', $this->responsiveStyleProperties, $destroy, false);
-				if ($destroy) {
+				if($destroy) {
 					unset($this->responsiveStyleProperties);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this element has no responsive style properties");
 			}
 			// echo innerHTML or childNodes
-			if ($this instanceof EmptyElement) {
-				if ($print) {
+			if($this instanceof EmptyElement) {
+				if($print) {
 					Debug::print("{$f} this is an empty element with no innerHTML");
 				}
-			} elseif ($this->hasInnerHTML()) {
-				if ($print) {
+			}elseif($this->hasInnerHTML()) {
+				if($print) {
 					Debug::print("{$f} innerHTML is defined as \"{$this->innerHTML}\"");
 				}
 				Json::echoKeyValuePair("innerHTML", $this->innerHTML, $destroy);
-				if ($destroy) {
+				if($destroy) {
 					unset($this->innerHTML);
 				}
-			} else {
+			}else{
 				$mode = $this->getAllocationMode();
-				if ($this->isEmptyElement()) {
-					if ($print) {
+				if($this->isEmptyElement()) {
+					if($print) {
 						Debug::print("{$f} element is empty");
 					}
-				} elseif ($this->hasChildNodes()) {
+				}elseif($this->hasChildNodes()) {
 					// copied from Json::echoKeyValuePair to reduce execution depth
 					echo "\"childNodes\":";
 					Json::echo($this->childNodes, $destroy, false);
 					echo ",";
 					// dispose childNodes as soon as possible
-					if ($destroy) {
-						foreach ($this->childNodes as $key => $c) {
-							if (is_object($c) && ! $c instanceof ReusableInterface) {
+					if($destroy) {
+						foreach($this->childNodes as $key => $c) {
+							if(is_object($c) && ! $c instanceof ReusableInterface) {
 								$c->dispose();
 							}
 							// unset($this->childNodes[$key]);
 						}
 						unset($this->childNodes);
 					}
-				} elseif ($mode === ALLOCATION_MODE_ULTRA_LAZY) {
-					if ($print) {
+				}elseif($mode === ALLOCATION_MODE_ULTRA_LAZY) {
+					if($print) {
 						Debug::print("{$f} ultra-lazy child generating mode");
 					}
 					echo "\"childNodes\":[";
 					$this->childElementCount = 0;
 					$this->generateChildNodes();
 					echo "],";
-				} elseif (! $this->getAllowEmptyInnerHTML()) {
+				}elseif(!$this->getAllowEmptyInnerHTML()) {
 					$mode = $this->getAllocationMode();
 					$decl = $this->getDeclarationLine();
 					$class = $this->hasClassAttribute() ? $this->getClassAttribute() : "[undefined]";
 					Debug::error("{$f} child nodes array is empty; generation mode is \"{$mode}\"; declared \"{$decl}\"; class \"{$class}\"");
 					// $this->debugPrintRootElement();
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} empty innerHTML");
 				}
 			}
@@ -1279,65 +1279,65 @@ ScopedCommandInterface{
 			}
 			echo "}";
 			// successors
-			if ($successors === null) {
+			if($successors === null) {
 				$mode = $this->getAllocationMode();
-				if ($mode === ALLOCATION_MODE_ULTRA_LAZY) {
-					if ($print) {
+				if($mode === ALLOCATION_MODE_ULTRA_LAZY) {
+					if($print) {
 						Debug::print("{$f} ultra lazy rendering mode -- generating successors now");
 					}
 					$successors = $this->generateSuccessors();
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} something other than ultra lazy rendering");
 					}
-					if ($this->hasSuccessors()) {
+					if($this->hasSuccessors()) {
 						$successors = $this->getSuccessors();
 					}
 				}
-				if ($destroy) {
+				if($destroy) {
 					$this->setSuccessors(null);
 				}
-			} elseif ($this->hasParentNode()) {
+			}elseif($this->hasParentNode()) {
 				Debug::error("{$f} you should not be passing non-null values to this function for elements with parent nodes");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this is an orphaned element");
 			}
-			if (! empty($successors)) {
-				foreach ($successors as $s) {
+			if(!empty($successors)) {
+				foreach($successors as $s) {
 					echo ",";
-					if ($s instanceof Element && $this->hasParentNode()) {
+					if($s instanceof Element && $this->hasParentNode()) {
 						$s->setParentNode($this->getParentNode());
 					}
 					Json::echo($s, $destroy, false);
-					if ($destroy) {
+					if($destroy) {
 						unset($s);
 					}
 				}
-				if ($destroy) {
+				if($destroy) {
 					unset($successors);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no successors");
 			}
 			// cleanup
-			if ($destroy && ! $this instanceof ReusableInterface) {
+			if($destroy && ! $this instanceof ReusableInterface) {
 				$this->dispose();
 				// unset($this->parentNode);
 				$this->setSuccessors(null);
 			}
 			// end of transplant from echoJsonHelper. Deal with cache insert here
-			if ($cache) {
-				if ($print) {
+			if($cache) {
+				if($print) {
 					Debug::print("{$f} about to cache JSON");
 				}
 				$json = ob_get_clean();
 				cache()->set($this->getCacheKey() . ".json", $json, time() + 30 * 60);
 				echo $json;
 				unset($json);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} nothing to cache");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -1349,60 +1349,60 @@ ScopedCommandInterface{
 
 	public function echoAttributeString(bool $destroy = false): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($this->hasClassAttribute()) {
+			if($this->hasClassAttribute()) {
 				echo " class=\"";
 				$this->echoClassAttribute($destroy);
 				echo "\"";
 			}
-			if ($this->hasAttributes()) {
-				foreach ($this->attributes as $key => $value) {
-					if ($key === "class") {
+			if($this->hasAttributes()) {
+				foreach($this->attributes as $key => $value) {
+					if($key === "class") {
 						continue;
 					}
 					echo " {$key}";
-					if ($value === null) {
-						if ($print) {
+					if($value === null) {
+						if($print) {
 							Debug::print("{$f} attribute \"{$key}\" is null");
 						}
 						continue;
-					} elseif ($this instanceof InputInterface && $key === "placeholder" && $this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK) {
-						if ($print) {
+					}elseif($this instanceof InputInterface && $key === "placeholder" && $this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK) {
+						if($print) {
 							Debug::print("{$f} skipping over a placeholder attribute that's getting replaced by its magic shrinking label");
 						}
 						echo "=\"\"";
-					} elseif ($key === "value" || $value !== null && $value !== "") {
+					}elseif($key === "value" || $value !== null && $value !== "") {
 						echo "=\"";
 						echo htmlspecialchars($value);
 						echo "\"";
 					}
 				}
 			}
-			if ($this->hasInlineStyleAttribute()) {
+			if($this->hasInlineStyleAttribute()) {
 				echo " style=\"";
 				$this->echoInlineStyleAttribute($destroy);
 				echo "\"";
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} inline style attribute is undefined");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getAttribute($key){
-		if (! $this->hasAttribute($key)) {
+		if(!$this->hasAttribute($key)) {
 			return null;
 		}
 		return $this->attributes[$key];
 	}
 
 	public function debugPrintAttributes(): void{
-		if (empty($this->attributes)) {
+		if(empty($this->attributes)) {
 			Debug::print("No attributes");
 		} else
-			foreach ($this->attributes as $name => $value) {
+			foreach($this->attributes as $name => $value) {
 				Debug::print("{$name} : {$value}");
 			}
 		Debug::printStackTraceNoExit();
@@ -1410,11 +1410,11 @@ ScopedCommandInterface{
 
 	public function debugPrintStyleProperties(): void{
 		$f = __METHOD__;
-		if (empty($this->style)) {
+		if(empty($this->style)) {
 			Debug::print("{$f} No style properties");
 		} else
-			foreach ($this->style as $name => $value) {
-				if ($value instanceof JavaScriptInterface && ! $value instanceof StringifiableInterface) {
+			foreach($this->style as $name => $value) {
+				if($value instanceof JavaScriptInterface && ! $value instanceof StringifiableInterface) {
 					$value = $value->toJavaScript();
 				}
 				Debug::print("{$name} : {$value}");
@@ -1455,10 +1455,10 @@ ScopedCommandInterface{
 	}
 
 	public function setParentNode(?Element $node): ?Element{
-		if ($node === null) {
+		if($node === null) {
 			unset($this->parentNode);
 			return null;
-		} elseif ($node->getDisableRenderingFlag()) {
+		}elseif($node->getDisableRenderingFlag()) {
 			$this->disableRendering();
 		}
 		return $this->parentNode = $node;
@@ -1494,10 +1494,10 @@ ScopedCommandInterface{
 	}
 
 	public function appendChild(...$children){
-		if (empty($children)) {
+		if(empty($children)) {
 			return null;
 		}
-		foreach ($children as $child) {
+		foreach($children as $child) {
 			$this->insertChild($child, "append");
 		}
 		return $children;
@@ -1513,110 +1513,110 @@ ScopedCommandInterface{
 	 */
 	protected function insertChild($child, $where){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::printStackTraceNoExit("{$f} entered");
 			}
-			if (! isset($this->childNodes) || ! is_array($this->childNodes)) {
+			if(! isset($this->childNodes) || ! is_array($this->childNodes)) {
 				$this->childNodes = [];
 			}
-			if (is_object($child)) {
+			if(is_object($child)) {
 				$cc = $child->getClass();
-				if ($child instanceof Element) {
+				if($child instanceof Element) {
 					$debug_ids = [];
-					foreach ($this->childNodes as $node) {
-						if ($node instanceof Element) {
+					foreach($this->childNodes as $node) {
+						if($node instanceof Element) {
 							$debug_ids[$node->getDebugId()] = $node;
 						}
 					}
-					if ($child->hasDebugId()) {
+					if($child->hasDebugId()) {
 						$did = $child->getDebugId();
-						if (array_key_exists($did, $debug_ids)) {
+						if(array_key_exists($did, $debug_ids)) {
 							$decl = $child->getDeclarationLine();
 							Debug::error("{$f} child node of class \"{$cc}\" with debug ID \"{$did}\" created {$decl} already exists; inserting {$where}");
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} child node of class \"{$cc}\" has not already been inserted");
 						}
 					}
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} inserting a child element of class \"{$cc}\" with debug ID \"{$did}\"");
 					}
-					if (! $this instanceof DocumentFragment) {
+					if(!$this instanceof DocumentFragment) {
 						$child->setParentNode($this);
 					}
-				} elseif ($child instanceof Command) {
+				}elseif($child instanceof Command) {
 					$cc = $child->getClass();
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} child is a media command of class \"{$cc}\"");
 					}
-					if ($this instanceof JavaScriptClass || $this instanceof JavaScriptFunction || $this instanceof DocumentFragment || $this instanceof ScriptElement) {
-						if ($print) {
+					if($this instanceof JavaScriptClass || $this instanceof JavaScriptFunction || $this instanceof DocumentFragment || $this instanceof ScriptElement) {
+						if($print) {
 							Debug::print("{$f} this is a javascript function");
 						}
-					} elseif ($this->getTemplateFlag()) {
-						if ($print) {
+					}elseif($this->getTemplateFlag()) {
+						if($print) {
 							Debug::print("{$f} template flag is set");
 						}
-					} elseif ($child instanceof NodeBearingCommandInterface) {
-						if ($print) {
+					}elseif($child instanceof NodeBearingCommandInterface) {
+						if($print) {
 							Debug::print("{$f} child is a node-bearing command interface of class \"{$cc}\"");
 						}
 						return $this->resolveTemplateCommand($child);
-					} elseif ($child instanceof ValueReturningCommandInterface) {
-						if ($print) {
+					}elseif($child instanceof ValueReturningCommandInterface) {
+						if($print) {
 							Debug::print("{$f} child is a value-returning media command; about to insert its evaluation");
 						}
 						while ($child instanceof ValueReturningCommandInterface) {
 							$child = $child->evaluate();
 						}
-						if ($child instanceof Element && ! $this instanceof DocumentFragment) {
+						if($child instanceof Element && ! $this instanceof DocumentFragment) {
 							$child->setParentNode($this);
 						}
-					} else {
+					}else{
 						Debug::error("{$f} something went wrong; child class is \"{$cc}\"");
 					}
-				} else {
+				}else{
 					Debug::error("{$f} child is an object of class \"{$cc}\"");
 				}
-			} elseif (is_array($child)) {
+			}elseif(is_array($child)) {
 				Debug::error("{$f} child is an array");
-			} elseif (is_string($child)) {
-				if ($print) {
+			}elseif(is_string($child)) {
+				if($print) {
 					Debug::print("{$f} child is the string \"{$child}\"");
 				}
-			} elseif (is_numeric($child)) {
-				if ($print) {
+			}elseif(is_numeric($child)) {
+				if($print) {
 					Debug::print("{$f} child is the number {$child}");
 				}
-			} else {
+			}else{
 				$gottype = gettype($child);
 				Debug::error("{$f} child is something else of type \"{$gottype}\"");
 			}
-			if ($child instanceof Command && ! $this->getTemplateFlag() && ! $this instanceof JavaScriptClass && ! $this instanceof JavaScriptFunction && ! $this instanceof ScriptElement) {
+			if($child instanceof Command && ! $this->getTemplateFlag() && ! $this instanceof JavaScriptClass && ! $this instanceof JavaScriptFunction && ! $this instanceof ScriptElement) {
 				$class = $child->getClass();
 				Debug::error("{$f} child object is an instance of \"{$class}\"");
 			}
 			$mode = $this->getAllocationMode();
-			if ($this->getContentsGeneratedFlag() && ($mode === ALLOCATION_MODE_ULTRA_LAZY) && $this->getFlag("predecessorsGenerated")) {
-				if (! $this->getFlag("predecessorsGenerated")) {
+			if($this->getContentsGeneratedFlag() && ($mode === ALLOCATION_MODE_ULTRA_LAZY) && $this->getFlag("predecessorsGenerated")) {
+				if(!$this->getFlag("predecessorsGenerated")) {
 					Debug::warning("{$f} predecessors have not been generated --- you cannot insert children at this time");
 					$this->announceYourself();
 					Debug::printStackTrace();
 				}
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} ultra lazy rendering mode");
 				}
-				if (is_string($child)) {
+				if(is_string($child)) {
 					echo $child;
 					unset($child);
 					return null;
-				} elseif (Request::isXHREvent() || Request::isFetchEvent()) {
-					if ($this->childElementCount ++ > 0) {
+				}elseif(Request::isXHREvent() || Request::isFetchEvent()) {
+					if($this->childElementCount ++ > 0) {
 						echo ",";
 					}
 					$child->echoJson(true);
-				} else {
+				}else{
 					$child->echo(true);
 				}
 				unset($child);
@@ -1634,16 +1634,16 @@ ScopedCommandInterface{
 				}
 
 			return $child;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function prepend(...$children){
-		if (empty($children)) {
+		if(empty($children)) {
 			return null;
 		}
-		foreach ($children as $child) {
+		foreach($children as $child) {
 			$this->insertChild($child, "prepend");
 		}
 		return $children;
@@ -1654,7 +1654,7 @@ ScopedCommandInterface{
 	}
 
 	public function getChildNodeCount(): int{
-		if (! is_array($this->childNodes)) {
+		if(!is_array($this->childNodes)) {
 			return 0;
 		}
 		return count($this->childNodes);
@@ -1663,7 +1663,7 @@ ScopedCommandInterface{
 	public function debugPrintRootElement(): void{
 		$f = __METHOD__;
 		$this->announceYourself();
-		if ($this->hasParentNode()) {
+		if($this->hasParentNode()) {
 			$this->parentNode->debugPrintRootElement();
 		}
 		Debug::error("{$f} end of the line");
@@ -1675,7 +1675,7 @@ ScopedCommandInterface{
 	 * @return string
 	 */
 	public final function getInnerHTML(){
-		if (isset($this->innerHTML)) {
+		if(isset($this->innerHTML)) {
 			return $this->innerHTML;
 		}
 		ob_start();
@@ -1716,49 +1716,49 @@ ScopedCommandInterface{
 		$f = __METHOD__;
 		$sc = $this->getShortClass();
 		Debug::print("{$f} class is {$sc}, declared " . $this->getDeclarationLine());
-		if (isset($this->debugId)) {
+		if(isset($this->debugId)) {
 			Debug::print("{$f} debug ID is \"{$this->debugId}\"");
-		} else {
+		}else{
 			Debug::print("{$f} debug ID is undefined");
 		}
-		if ($this->hasClassAttribute()) {
+		if($this->hasClassAttribute()) {
 			$class = $this->getClassAttribute();
 			Debug::print("{$f} my class attribute is \"{$class}\"");
 			$class = null;
-		} else {
+		}else{
 			Debug::warning("{$f} element has no class attribute");
 		}
-		if (! $this->hasAttributes()) {
+		if(!$this->hasAttributes()) {
 			Debug::print("{$f} attributes array is empty");
 			return;
 		}
-		if ($this->hasIdAttribute()) {
+		if($this->hasIdAttribute()) {
 			$id = $this->getIdAttribute();
 			Debug::print("{$f} my ID attribute is \"{$id}\"");
 			$id = null;
-		} else {
+		}else{
 			Debug::warning("{$f} element has no ID attribute");
 		}
-		if ($this->hasContext()) {
+		if($this->hasContext()) {
 			$context = $this->getContext();
 			$class = $context->getClass();
 			// Debug::print("{$f} context is an object of class \"{$class}\"");
-			if ($context instanceof DataStructure) {
-				if ($context->hasIdentifierValue()) {
+			if($context instanceof DataStructure) {
+				if($context->hasIdentifierValue()) {
 					$key = $context->getIdentifierValue();
 					Debug::print("{$f} context {$class} has key \"{$key}\"");
-				} else {
+				}else{
 					Debug::print("{$f} context {$class} does not have a key");
 				}
 			}
 		}else{
 			Debug::print("{$f} this element does not have a context");
 		}
-		if ($this->hasAttribute("value")) {
+		if($this->hasAttribute("value")) {
 			$value = $this->getValueAttribute();
 			Debug::print("{$f} my value is \"{$value}\"");
 			$value = null;
-		} else {
+		}else{
 			Debug::warning("{$f} element has no value attribute");
 		}
 	}
@@ -1773,56 +1773,56 @@ ScopedCommandInterface{
 	 */
 	public function echoInnerHTML(bool $destroy = false): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($this->hasInnerHTML()) {
+			if($this->hasInnerHTML()) {
 				$html = $this->innerHTML;
 				$gottype = is_object($html) ? $html->getClass() : gettype($html);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} innerHTML is a {$gottype}");
 				}
 				while ($html instanceof ValueReturningCommandInterface) {
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} innerHTML is a " . $html->getClass());
 					}
 					$html = $html->evaluate();
 				}
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} innerHTML is defined as \"{$this->innerHTML}\"");
 				}
 				echo $html;
-				if ($destroy) {
+				if($destroy) {
 					unset($this->innerHTML);
 				}
 				return;
 			}
 			$mode = $this->getAllocationMode();
-			if ($mode === ALLOCATION_MODE_ULTRA_LAZY) {
-				if ($print) {
+			if($mode === ALLOCATION_MODE_ULTRA_LAZY) {
+				if($print) {
 					Debug::print("{$f} ultra lazy rendering mode");
 				}
-				if (! $this->hasChildNodes()) {
+				if(!$this->hasChildNodes()) {
 					$this->generateChildNodes();
 					return;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} child nodes are already defined; most likely this is an intermediate node that is child to a complex parent");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} some other rendering mode besides ultra lazy");
 			}
 			$children = $this->getChildNodes();
-			if (empty($children)) {
-				if ($mode === ALLOCATION_MODE_LAZY) {
-					if ($print) {
+			if(empty($children)) {
+				if($mode === ALLOCATION_MODE_LAZY) {
+					if($print) {
 						Debug::print("{$f} child generation mode is lazy");
 					}
 					$children = $this->generateChildNodes();
-					if (empty($children) && ! $this->getAllowEmptyInnerHTML()) {
+					if(empty($children) && ! $this->getAllowEmptyInnerHTML()) {
 						Debug::warning("{$f} childNodes array is still empty");
 						echo "ERROR: debug ID {$this->debugId}";
 						$this->debugPrintRootElement();
 					}
-				} elseif (! $this->getAllowEmptyInnerHTML()) {
+				}elseif(!$this->getAllowEmptyInnerHTML()) {
 					$decl = $this->hasDeclarationLine() ? $this->getDeclarationLine() : "unknown";
 					Debug::warning("{$f} child nodes array is empty; generation mode is \"{$mode}\"; created \"{$decl}\"");
 					$this->debugPrintRootElement();
@@ -1830,55 +1830,55 @@ ScopedCommandInterface{
 					return; // $this->debugPrintRootElement();
 				}
 			}
-			if ($this->hasChildNodes()) {
+			if($this->hasChildNodes()) {
 				$children = $this->getChildNodes();
-				foreach ($children as $child) {
-					if (is_object($child)) {
+				foreach($children as $child) {
+					if(is_object($child)) {
 						$cc = $child->getClass();
-						if ($child instanceof Command) {
-							if ($print) {
+						if($child instanceof Command) {
+							if($print) {
 								Debug::print("{$f} about to echo a child command of class {$cc}");
 							}
-							if (! $this instanceof ScriptElement) {
+							if(!$this instanceof ScriptElement) {
 								Debug::error("{$f} only script element can echo a command as its innerHTML");
 							}
 							echo $child->toJavaScript() . ";\n";
 							continue;
-						} elseif (! $child instanceof Element) {
+						}elseif(!$child instanceof Element) {
 							$class = $child->getClass();
 							Debug::warning("{$f} child object is an instance of \"{$class}\"");
 							$this->debugPrintRootElement();
-						} elseif (! $child->getAllocatedFlag()) {
+						}elseif(!$child->getAllocatedFlag()) {
 							$did = $child->getDebugId();
 							$decl = $child->getDeclarationLine();
 							Debug::warning("{$f} child object of class \"{$cc}\" with debug ID \"{$did}\" declared {$decl} was already deleted");
 							$this->debugPrintRootElement();
 							return;
 						}
-						if (! $child->getAllocatedFlag()) {
+						if(!$child->getAllocatedFlag()) {
 							Debug::error("{$f} child of class \"{$cc}\" was already deallocated");
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} inducing a child of class \"{$cc}\" to echo itself");
 						}
 						$child->echo($destroy);
-					} elseif (is_string($child) || is_numeric($child)) {
-						if ($print) {
+					}elseif(is_string($child) || is_numeric($child)) {
+						if($print) {
 							Debug::print("{$f} echoing a child string");
 						}
 						echo $child;
 					}
 				}
 			}
-			if ($destroy) {
+			if($destroy) {
 				unset($this->childNodes);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function setAttributes($keyvalues): array{
-		foreach ($keyvalues as $key => $value) {
+		foreach($keyvalues as $key => $value) {
 			$this->setAttribute($key, $value);
 		}
 		return $keyvalues;
@@ -1895,28 +1895,28 @@ ScopedCommandInterface{
 	public function setInnerHTML($innerHTML){
 		$f = __METHOD__;
 		$print = false && $this->getDebugFlag();
-		if (! $this->getTemplateFlag()) {
+		if(!$this->getTemplateFlag()) {
 			while ($innerHTML instanceof ValueReturningCommandInterface) {
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} innerHTML is a " . $innerHTML->getClass());
-					if ($innerHTML instanceof ColumnValueCommand) {
+					if($innerHTML instanceof ColumnValueCommand) {
 						Debug::print("{$f} innerHTML column name is " . $innerHTML->getColumnName());
 					}
 				}
 				$innerHTML = $innerHTML->evaluate();
-				if ($print) {
-					if (is_string($innerHTML)) {
+				if($print) {
+					if(is_string($innerHTML)) {
 						Debug::print("{$f} innerHTML is the string \"{$innerHTML}\"");
-					} else {
+					}else{
 						$gottype = is_object($innerHTML) ? $innerHTML->getClass() : gettype($innerHTML);
 						Debug::print("{$f} after evaluation, innerHTML is a {$gottype}");
 					}
 				}
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} template flag is set -- skipping media command evaluation");
 		}
-		if ($this->hasChildNodes()) {
+		if($this->hasChildNodes()) {
 			$this->setChildNodes([]);
 		}
 		return $this->innerHTML = $innerHTML;
@@ -1927,7 +1927,7 @@ ScopedCommandInterface{
 	}
 
 	public function initializeAttributesArray(): void{
-		if (! isset($this->attributes) || ! is_array($this->attributes)) {
+		if(! isset($this->attributes) || ! is_array($this->attributes)) {
 			$this->attributes = [];
 		}
 	}
@@ -1939,7 +1939,7 @@ ScopedCommandInterface{
 
 	public function getOnClickAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasOnClickAttribute()) {
+		if(!$this->hasOnClickAttribute()) {
 			Debug::error("{$f} onclick attribute is undefined");
 		}
 		return $this->getAttribute("onclick");
@@ -1975,7 +1975,7 @@ ScopedCommandInterface{
 
 	public function getContext(){
 		$f = __METHOD__;
-		if (! $this->hasContext()) {
+		if(!$this->hasContext()) {
 			$decl = $this->hasDeclarationLine() ? $this->getDeclarationLine() : "[undefined]";
 			Debug::error("{$f} context is undefined. Declared {$decl}");
 		}
@@ -1993,8 +1993,8 @@ ScopedCommandInterface{
 	public function pushSuccessor(...$successors){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
-			foreach ($successors as $s) {
+		if($print) {
+			foreach($successors as $s) {
 				Debug::print("{$f} pushing successor \"{$s}\"");
 			}
 		}
@@ -2049,7 +2049,7 @@ ScopedCommandInterface{
 	public function dispatchCommands(): int{
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasDispatchedCommands()) {
+		if($this->hasDispatchedCommands()) {
 			if($print){
 				Debug::print("{$f} commands were already dispatched");
 			}
@@ -2067,7 +2067,7 @@ ScopedCommandInterface{
 
 	public function getSubcommandCollector(){
 		$f = __METHOD__;
-		if (! $this->hasSubcommandCollector()) {
+		if(!$this->hasSubcommandCollector()) {
 			Debug::error("{$f} subcommand collector is undefined");
 		}
 		return $this->subcommandCollector;
@@ -2085,65 +2085,65 @@ ScopedCommandInterface{
 	 */
 	public function reportSubcommand($command){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$push_to_use_case = false;
-			if ($this->hasSubcommandCollector()) {
+			if($this->hasSubcommandCollector()) {
 				$collector = $this->getSubcommandCollector();
-				if ($print) {
+				if($print) {
 					$sccc = $collector->getClass();
 					Debug::print("{$f} subcommand collector is a {$sccc}");
 				}
 				return $collector->reportSubcommand($command);
-			} elseif ($this->getCatchReportedSubcommandsFlag()) {
-				if ($print) {
+			}elseif($this->getCatchReportedSubcommandsFlag()) {
+				if($print) {
 					Debug::print("{$f} catch reported subcommands flag is set");
 				}
 				$this->pushReportedSubcommands($command);
-			} elseif ($this->hasParentNode()) {
-				if ($print) {
+			}elseif($this->hasParentNode()) {
+				if($print) {
 					Debug::print("{$f} parent node is set");
 				}
 				// had to prevent the function from getting called on parent node to limit execution depth //return $this->getParentNode()->reportSubcommand($command);
 				$parent_node = $this->getParentNode();
 				while (true) {
-					if ($parent_node->hasSubcommandCollector()) {
+					if($parent_node->hasSubcommandCollector()) {
 						$collector = $parent_node->getSubcommandCollector();
-						if ($print) {
+						if($print) {
 							$sccc = $collector->getClass();
 							Debug::print("{$f} parent node's subcommand collector is a {$sccc}");
 						}
 						return $collector->reportSubcommand($command);
-					} elseif ($parent_node->getCatchReportedSubcommandsFlag()) {
-						if ($print) {
+					}elseif($parent_node->getCatchReportedSubcommandsFlag()) {
+						if($print) {
 							Debug::print("{$f} parent node's catch reported subcommands flag is set");
 						}
 						$parent_node->pushReportedSubcommands($command);
 						return $command;
-					} elseif ($parent_node->hasParentNode()) {
+					}elseif($parent_node->hasParentNode()) {
 						$parent_node = $parent_node->getParentNode();
-					} else {
+					}else{
 						$push_to_use_case = true;
 						break;
 					}
 				}
-			} else {
+			}else{
 				$push_to_use_case = true;
 			}
-			if ($push_to_use_case) {
+			if($push_to_use_case) {
 				$uc = app()->getUseCase();
-				if ($print) {
+				if($print) {
 					$did = $uc->getDebugId();
 					Debug::print("{$f} parent node is undefined; pushing subcommand directly to use case with debug ID \"{$did}\"");
 				}
-				if (app()->getResponse(app()->getUseCase())->getRefuseCommandsFlag()) {
+				if(app()->getResponse(app()->getUseCase())->getRefuseCommandsFlag()) {
 					Debug::warning("{$f} response is refusing media commands");
 					$this->debugPrintRootElement();
 				}
 				$uc->pushCommand($command);
 			}
 			return $command;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -2158,11 +2158,11 @@ ScopedCommandInterface{
 
 	public /*final*/ function __toString(): ?string{
 		$f = __METHOD__;
-		try {
+		try{
 			ob_start();
 			$this->echo(false);
 			return ob_get_clean();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -2181,10 +2181,10 @@ ScopedCommandInterface{
 	public function setSuccessors($nodes){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
-			if (! is_array($nodes)) {
+		if($print) {
+			if(!is_array($nodes)) {
 				Debug::print("{$f} empty!");
-			} else {
+			}else{
 				Debug::print("{$f} setting successors to the following array:");
 				Debug::printArray($nodes);
 			}
@@ -2203,13 +2203,13 @@ ScopedCommandInterface{
 	public function unshiftSuccessors(...$values): int{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
-			if ($this->hasSuccessors()) {
+		if($print) {
+			if($this->hasSuccessors()) {
 				Debug::print("{$f} successors already exist");
-			} else {
+			}else{
 				Debug::print("{$f} no successors");
 			}
-			foreach ($values as $value) {
+			foreach($values as $value) {
 				Debug::print("{$f} unshifting \"{$value}\"");
 			}
 		}
@@ -2227,13 +2227,13 @@ ScopedCommandInterface{
 	public function unshiftPredecessors(...$values): int{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
-			if ($this->hasPredecessors()) {
+		if($print) {
+			if($this->hasPredecessors()) {
 				Debug::print("{$f} predecessors already exist");
-			} else {
+			}else{
 				Debug::print("{$f} no predecessors");
 			}
-			foreach ($values as $value) {
+			foreach($values as $value) {
 				Debug::print("{$f} unshifting \"{$value}\"");
 			}
 		}
@@ -2295,68 +2295,68 @@ ScopedCommandInterface{
 
 	private function echoPredecessors(bool $destroy = false){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$mode = $this->getAllocationMode();
-			if ($mode === ALLOCATION_MODE_ULTRA_LAZY) {
-				if ($print) {
+			if($mode === ALLOCATION_MODE_ULTRA_LAZY) {
+				if($print) {
 					Debug::print("{$f} generating ultra lazy predecessors");
 				}
 				$predecessors = $this->generatePredecessors();
 				$this->setFlag("predecessorsGenerated", true);
-			} elseif ($this->hasPredecessors()) {
+			}elseif($this->hasPredecessors()) {
 				$predecessors = $this->getPredecessors();
-				if ($destroy) {
+				if($destroy) {
 					$this->setPredecessors(null);
 				}
-			} else {
+			}else{
 				$predecessors = null;
 			}
-			if (isset($predecessors) && is_array($predecessors) && ! empty($predecessors)) {
-				foreach ($predecessors as $predecessor) {
-					if (is_object($predecessor)) {
-						if ($predecessor instanceof Element) {
-							if (! $predecessor->getAllocatedFlag()) {
+			if(isset($predecessors) && is_array($predecessors) && ! empty($predecessors)) {
+				foreach($predecessors as $predecessor) {
+					if(is_object($predecessor)) {
+						if($predecessor instanceof Element) {
+							if(!$predecessor->getAllocatedFlag()) {
 								Debug::error("{$f} predecessor was already deallocated");
 							}
 							$predecessor->echo($destroy);
-						} elseif ($predecessor instanceof ValueReturningCommandInterface) {
-							if ($print) {
+						}elseif($predecessor instanceof ValueReturningCommandInterface) {
+							if($print) {
 								Debug::print("{$f} predecessor is a value-returning media command");
 							}
 							echo $predecessor->evaluate();
-						} else {
+						}else{
 							$pc = $predecessor->getClass();
 							Debug::error("{$f} predecessor is an object of class \"{$pc}\"");
 						}
-					} elseif (is_array($predecessor)) {
+					}elseif(is_array($predecessor)) {
 						Debug::error("{$f} predecessor is an array");
-					} else {
+					}else{
 						echo $predecessor;
 					}
-					if ($destroy) {
+					if($destroy) {
 						unset($predecessor);
 					}
 				}
-				if ($destroy) {
+				if($destroy) {
 					unset($predecessors);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no predecessor nodes");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getElementTag(): string{
 		$f = __METHOD__;
-		try {
-			if ($this->hasElementTag()) {
+		try{
+			if($this->hasElementTag()) {
 				return $this->tag;
 			}
 			return static::getElementTagStatic();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -2369,48 +2369,48 @@ ScopedCommandInterface{
 	 */
 	public function echo(bool $destroy = false): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! $this->getAllocatedFlag()) {
+			if(!$this->getAllocatedFlag()) {
 				Debug::warning("{$f} this object was already deleted");
 				$this->debugPrintRootElement();
-			} elseif ($this->hasWrapperElement()) {
+			}elseif($this->hasWrapperElement()) {
 				$wrapper = $this->getWrapperElement();
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} this element has a wrapper -- echoing it now");
-					if ($wrapper->hasStyleProperties()) {
+					if($wrapper->hasStyleProperties()) {
 						Debug::print("{$f} wrapper has the following inline style properties:");
 						Debug::printArray($wrapper->getStyleProperties());
-					} else {
+					}else{
 						Debug::print("{$f} wrapper does not have style properties");
 					}
 				}
 				$this->setWrapperElement(null);
 				$wrapper->appendChild($this);
 				$wrapper->echo($destroy);
-				if (! $destroy) {
+				if(!$destroy) {
 					$wrapper->removeChild($this);
 					$this->setWrapperElement($wrapper);
 				}
 				return;
 			}
-			if ($this->getHTMLCacheableFlag() && $this->isCacheable() && HTML_CACHE_ENABLED) {
+			if($this->getHTMLCacheableFlag() && $this->isCacheable() && HTML_CACHE_ENABLED) {
 				$cache_key = $this->getCacheKey() . ".html";
-				if (cache()->has($cache_key)) {
-					if ($print) {
+				if(cache()->has($cache_key)) {
+					if($print) {
 						Debug::print("{$f} cached HTML is defined for key \"{$cache_key}\"");
 					}
 					echo cache()->getFile($cache_key);
 					return;
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} HTML is not yet cached");
 					}
 					$cache = true;
 					ob_start();
 				}
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} this object is not cacheable");
 				}
 				$cache = false;
@@ -2419,36 +2419,36 @@ ScopedCommandInterface{
 			$this->echoPredecessors($destroy);
 			$tag = $this->getElementTag();
 			echo "<{$tag}";
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to echo attribute string");
 			}
 			$this->echoAttributeString($destroy);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} echoed attribute string");
 			}
-			if ($this->isEmptyElement()) {
+			if($this->isEmptyElement()) {
 				echo "/";
 			}
 			echo ">";
-			if (! $this->isEmptyElement()) {
+			if(!$this->isEmptyElement()) {
 				$this->echoInnerHTML($destroy);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} echoed inner HTML");
 				}
 				echo "</{$tag}>\n";
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this is an empty element");
 			}
-			if ($destroy) {
+			if($destroy) {
 				unset($this->attributes);
 			}
 			$this->echoSuccessors($destroy);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} echoed successors");
 			}
-			if ($cache) {
+			if($cache) {
 				$cache_key = $this->getCacheKey() . ".html";
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} about to update cache for key \"{$cache_key}\"");
 				}
 				$html = ob_get_clean();
@@ -2456,19 +2456,19 @@ ScopedCommandInterface{
 				cache()->set($cache_key, $html, time() + 30 * 60);
 				echo $html;
 				unset($html);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} nothing to cache");
 			}
 			// flush();
-			if (Request::isAjaxRequest()) {
+			if(Request::isAjaxRequest()) {
 				$this->dispatchCommands();
 			}
-			if ($destroy && ! $this instanceof ReusableInterface) {
+			if($destroy && ! $this instanceof ReusableInterface) {
 				$this->dispose();
 				// $this->setDeletedFlag(true);
 			}
 			return;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -2479,72 +2479,72 @@ ScopedCommandInterface{
 
 	private function echoSuccessors(bool $destroy = false): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$mode = $this->getAllocationMode();
-			if ($mode === ALLOCATION_MODE_ULTRA_LAZY) {
-				if ($print) {
+			if($mode === ALLOCATION_MODE_ULTRA_LAZY) {
+				if($print) {
 					Debug::print("{$f} generating ultra lazy successors");
 				}
 				$successors = $this->generateSuccessors();
-			} elseif ($this->hasSuccessors()) {
-				if ($print) {
+			}elseif($this->hasSuccessors()) {
+				if($print) {
 					Debug::print("{$f} successors are already defined");
 				}
 				$successors = $this->getSuccessors();
-				if ($destroy) {
+				if($destroy) {
 					$this->setSuccessors(null);
 				}
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} there are no successors, and this is not ultra lazy rendering mode");
 				}
 				$successors = null;
 			}
-			if (isset($successors) && is_array($successors) && ! empty($successors)) {
+			if(isset($successors) && is_array($successors) && ! empty($successors)) {
 				$count = count($successors);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} {$count} successors");
-					foreach ($successors as $s) {
+					foreach($successors as $s) {
 						Debug::print("{$f} {$s}");
 					}
 				}
-				foreach ($successors as $successor) {
-					if (is_object($successor)) {
-						if ($successor instanceof Element) {
+				foreach($successors as $successor) {
+					if(is_object($successor)) {
+						if($successor instanceof Element) {
 							$class = $successor->getClass();
-							if (! $successor->getAllocatedFlag()) {
+							if(!$successor->getAllocatedFlag()) {
 								$decl = $successor->hasDeclarationLine() ? $successor->getDeclarationLine() : "unknown";
 								Debug::error("{$f} successor of class \"{$class}\" was deallocated; it was declared at {$decl}");
-							} elseif ($print) {
+							}elseif($print) {
 								Debug::print("{$f} successor of class \"{$class}\" was NOT deallocated");
 							}
 							$successor->echo($destroy);
-						} elseif ($successor instanceof ValueReturningCommandInterface) {
-							if ($print) {
+						}elseif($successor instanceof ValueReturningCommandInterface) {
+							if($print) {
 								Debug::print("{$f} successor is a value-returning media command");
 							}
 							echo $successor->evaluate();
-						} else {
+						}else{
 							$sc = $successor->getClass();
 							Debug::error("{$f} successor is an object of class \"{$sc}\"");
 						}
-					} elseif (is_array($successor)) {
+					}elseif(is_array($successor)) {
 						Debug::error("{$f} successor is an array");
-					} else {
+					}else{
 						echo $successor;
 					}
-					if ($destroy) {
+					if($destroy) {
 						unset($successor);
 					}
 				}
-				if ($destroy) {
+				if($destroy) {
 					unset($successors);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no successor nodes");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -2565,55 +2565,55 @@ ScopedCommandInterface{
 	 */
 	public function bindContext($context){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! isset($context)) {
+			if(! isset($context)) {
 				Debug::error("{$f} context is undefined");
-			} elseif ($context instanceof UseCase && ! $this->allowUseCaseAsContext()) {
+			}elseif($context instanceof UseCase && ! $this->allowUseCaseAsContext()) {
 				Debug::error("{$f} context is a use case");
 			}
-			if ($print) {
-				if ($this->hasContext()) {
+			if($print) {
+				if($this->hasContext()) {
 					$context = $this->getContext();
-					if (is_object($context)) {
+					if(is_object($context)) {
 						$cc = $context->getClass();
-						if ($context instanceof Datum) {
+						if($context instanceof Datum) {
 							$cn = $context->getName();
 							Debug::print("{$f} context is a {$cc} named \"{$cn}\"");
-						} else {
+						}else{
 							Debug::print("{$f} context is an object of class \"{$cc}\"");
 						}
-					} else {
+					}else{
 						$gottype = gettype($context);
 						Debug::print("{$f} context is a {$gottype}");
 					}
-				} else {
+				}else{
 					Debug::print("{$f} context is undefined");
 				}
 			}
-			if ($context instanceof ValueReturningCommandInterface) {
+			if($context instanceof ValueReturningCommandInterface) {
 				while ($context instanceof ValueReturningCommandInterface) {
 					$context = $context->evaluate();
 				}
 			}
-			if (isset($this->context)) {
+			if(isset($this->context)) {
 				Debug::error("{$f} context is already assigned. You can assign the same context to multiple elements but not multiple contexts to the same element");
 			}
 			$this->context = $context;
 			$mode = $this->getAllocationMode();
 			switch ($mode) {
 				case ALLOCATION_MODE_EMAIL:
-					if ($context instanceof SpamEmail) {
+					if($context instanceof SpamEmail) {
 						$this->setEmbeddedImageCollector($context);
 					}
 					$this->generateChildNodes();
 					break;
 				case ALLOCATION_MODE_FORM:
 				case ALLOCATION_MODE_FORM_TEMPLATE:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} form rendering mode");
 					}
-					if ($this instanceof InputInterface && $this->hasForm() && $this->getForm() instanceof RepeatingFormInterface) {
+					if($this instanceof InputInterface && $this->hasForm() && $this->getForm() instanceof RepeatingFormInterface) {
 						$this->generateChildNodes();
 					}
 					break;
@@ -2624,13 +2624,13 @@ ScopedCommandInterface{
 					$this->generateChildNodes(); // XXX why is this not generate contents?
 					break;
 				default:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} rendering mode \"{$mode}\", skipping child node generation");
 					}
 					break;
 			}
 			return $context;
-		} catch (Exception $x) {}
+		}catch(Exception $x) {}
 	}
 
 	public function setResizeAttribute($resize){
@@ -2639,7 +2639,7 @@ ScopedCommandInterface{
 
 	public static function getUriStatic(): ?string{
 		$f = __METHOD__;
-		if (! isset(static::$uriStatic)) {
+		if(! isset(static::$uriStatic)) {
 			Debug::error("{$f} input form URI is undefined");
 		}
 		return static::$uriStatic;
@@ -2651,7 +2651,7 @@ ScopedCommandInterface{
 
 	public function getEmbeddedImageCollector(){
 		$f = __METHOD__;
-		if (! $this->hasEmbeddedImageCollector()) {
+		if(!$this->hasEmbeddedImageCollector()) {
 			Debug::error("{$f} embedded image collector is undefined");
 		}
 		return $this->embeddedImageCollector;
@@ -2664,13 +2664,13 @@ ScopedCommandInterface{
 	public function reportEmbeddedImage($data){
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasEmbeddedImageCollector()) {
-			if ($print) {
+		if($this->hasEmbeddedImageCollector()) {
+			if($print) {
 				Debug::print("{$f} this element has a designated embedded image collector");
 			}
 			return $this->getEmbeddedImageCollector()->reportEmbeddedImage($data);
-		} elseif ($this->hasParentNode()) {
-			if ($print) {
+		}elseif($this->hasParentNode()) {
+			if($print) {
 				Debug::print("{$f} going to ask parent node");
 			}
 			return $this->getParentNode()->reportEmbeddedImage($data);
@@ -2691,24 +2691,24 @@ ScopedCommandInterface{
 	public function echoInlineStyleAttribute(bool $destroy = false): void{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasInlineStyleAttribute()) {
+		if(!$this->hasInlineStyleAttribute()) {
 			Debug::error("{$f} inline style attribute is undefined");
 		}
-		foreach ($this->style as $key => $value) {
-			if ($print) {
+		foreach($this->style as $key => $value) {
+			if($print) {
 				Debug::print("{$f} echoing attribute \"{$key}\" value \"{$value}\"");
-				if ($key === "debug") {
+				if($key === "debug") {
 					$decl = $this->getDeclarationLine();
 					Debug::print("{$f} declared line \"{$decl}\"");
 				}
 			}
-			if ($value instanceof Command) {
+			if($value instanceof Command) {
 				$decl = $value->getDeclarationLine();
 				Debug::error("{$f} value is a command, instantiated {$decl}");
 			}
 			echo "{$key}:{$value};";
 		}
-		if ($destroy) {
+		if($destroy) {
 			unset($this->style);
 		}
 	}
@@ -2723,7 +2723,7 @@ ScopedCommandInterface{
 
 	public function getStyleProperties(): ?array{
 		$f = __METHOD__;
-		if (! $this->hasStyleProperties()) {
+		if(!$this->hasStyleProperties()) {
 			Debug::error("{$f} inline style properties are undefined");
 		}
 		return $this->style;
@@ -2737,13 +2737,13 @@ ScopedCommandInterface{
 	
 	public function getInlineStyleAttribute(): ?string{
 		$f = __METHOD__;
-		if (! $this->hasInlineStyleAttribute()) {
+		if(!$this->hasInlineStyleAttribute()) {
 			Debug::error("{$f} inline style attribute is undefined");
-		} elseif ($this->hasAttribute("style")) {
+		}elseif($this->hasAttribute("style")) {
 			return $this->getAttribute("style");
 		}
 		$attr = "";
-		foreach ($this->style as $key => $value) {
+		foreach($this->style as $key => $value) {
 			$attr .= "{$key}:{$value};";
 		}
 		return $attr;
@@ -2751,10 +2751,10 @@ ScopedCommandInterface{
 
 	public function setAttribute(string $key, $value = null){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
-			if ($value instanceof Attribute) {
-				if (! $this->getTemplateFlag()) {
+			if($value instanceof Attribute) {
+				if(!$this->getTemplateFlag()) {
 					$key = $value->getName();
 					while ($key instanceof ValueReturningCommandInterface) {
 						$key = $key->evaluate();
@@ -2764,34 +2764,34 @@ ScopedCommandInterface{
 						$value = $value->evaluate();
 					}
 				}
-			} elseif (! preg_match('([A-Za-z0-9_]+)', $key)) {
+			}elseif(! preg_match('([A-Za-z0-9_]+)', $key)) {
 				Debug::error("{$f} key \"{$key}\" is not alphanumeric");
-			} elseif (strlen($key) < 1) {
+			}elseif(strlen($key) < 1) {
 				Debug::error("{$f} key \"{$key}\" is zero length");
-			} elseif ($value instanceof ValueReturningCommandInterface && ! $this->getTemplateFlag()) {
+			}elseif($value instanceof ValueReturningCommandInterface && ! $this->getTemplateFlag()) {
 				$class = get_class($value);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} value is a value returning command of class \"{$class}\", and the template flag is not set");
 				}
 				$value = $value->evaluate();
-				if ($value instanceof ValueReturningCommandInterface) {
+				if($value instanceof ValueReturningCommandInterface) {
 					$class = $value->getClass();
 					Debug::error("{$f} evalutation returned a command of class \"{$class}\"");
 				}
 			}
 			if($print){
-				if ($value instanceof Command){
+				if($value instanceof Command){
 					$err = "{$f} value for attribute \"{$key}\" is a command";
 				}elseif($value instanceof Attribute){
 					$err = "{$f} valus for attribute \'{$key}\" is an Attribute";
-				} else {
+				}else{
 					$err = "{$f} setting attribute \"{$key}\" to \"{$value}\"";
 				}
-				if ($this instanceof InputInterface) {
-					if ($this->hasNameAttribute()) {
+				if($this instanceof InputInterface) {
+					if($this->hasNameAttribute()) {
 						$name = $this->getNameAttribute();
 						$err .= " for input with name \"{$name}\"";
-					} else {
+					}else{
 						$err .= " for unnamed input";
 					}
 				}
@@ -2804,51 +2804,51 @@ ScopedCommandInterface{
 				Debug::error("{$f} command should have been evaluated by now");
 			}
 			return $this->attributes[$key] = $value;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function setStyleProperty(string $key, $value){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$f = __METHOD__; //Element::getShortClass()."(".static::getShortClass().")->setStyleProperty()";
-			if (! $this->getTemplateFlag()) {
+			if(!$this->getTemplateFlag()) {
 				while ($key instanceof ValueReturningCommandInterface) {
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} template flag is not set, key is a value returning command");
 					}
 					$key = $key->evaluate();
 				}
 				while ($value instanceof ValueReturningCommandInterface) {
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} template flag is not set, value is a value returning command");
 					}
 					$value = $value->evaluate();
 				}
 			}
-			if (! $this->hasStyleProperties()) {
+			if(!$this->hasStyleProperties()) {
 				$this->style = [];
 			}
-			if ($value === null) {
+			if($value === null) {
 				$this->style = array_remove_key($this->style, $key);
 				return null;
 			}
 			return $this->style[$key] = $value;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function setStyleProperties(?array $keyvalues): ?array{
-		if ($keyvalues == null) {
+		if($keyvalues == null) {
 			unset($this->style);
 			return null;
-		} elseif (! $this->hasStyleProperties()) {
+		}elseif(!$this->hasStyleProperties()) {
 			$this->style = [];
 		}
-		foreach ($keyvalues as $key => $value) {
+		foreach($keyvalues as $key => $value) {
 			$this->setStyleProperty($key, $value);
 		}
 		return $keyvalues;
@@ -2860,12 +2860,12 @@ ScopedCommandInterface{
 
 	public function getAttributes(...$keys): ?array{
 		$f = __METHOD__;
-		if (! is_array($this->attributes)) {
+		if(!is_array($this->attributes)) {
 			Debug::error("{$f} attributes array was not defined");
-		} elseif (isset($keys) && count($keys) > 0) {
+		}elseif(isset($keys) && count($keys) > 0) {
 			$ret = [];
-			foreach ($keys as $key) {
-				if (! $this->hasAttribute($key)) {
+			foreach($keys as $key) {
+				if(!$this->hasAttribute($key)) {
 					Debug::warning("{$f} attribute \"{$key}\" is undefined");
 					continue;
 				}
@@ -2886,7 +2886,7 @@ ScopedCommandInterface{
 
 	public function getIdAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasIdAttribute()) {
+		if(!$this->hasIdAttribute()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} ID attribute is undefined; declared {$decl}");
 		}
@@ -2899,7 +2899,7 @@ ScopedCommandInterface{
 	}
 
 	public function hasClassAttribute(): bool{
-		if ($this->hasClassList()) {
+		if($this->hasClassList()) {
 			return true;
 		}
 		return $this->hasAttribute("class");
@@ -2911,21 +2911,21 @@ ScopedCommandInterface{
 
 	public function echoClassAttribute(bool $destroy = false): void{
 		$f = __METHOD__; 
-		if ($this->hasAttribute("class")) {
+		if($this->hasAttribute("class")) {
 			echo $this->getAttribute("class");
 		}
-		if (! $this->hasClassList()) {
+		if(!$this->hasClassList()) {
 			return;
 		}
 		$i = 0;
-		foreach ($this->classList as $class) {
-			if ($i > 0) {
+		foreach($this->classList as $class) {
+			if($i > 0) {
 				echo " ";
 			}
 			echo $class;
 			$i ++;
 		}
-		if ($destroy) {
+		if($destroy) {
 			unset($this->classList);
 		}
 	}
@@ -2938,22 +2938,22 @@ ScopedCommandInterface{
 	public function getClassAttribute(){
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasAttribute("class")) {
-			if ($print) {
+		if($this->hasAttribute("class")) {
+			if($print) {
 				$ret = $this->getAttribute("class");
 				Debug::print("{$f} class is specifically defined as \"{$ret}\"");
 			}
 			return $this->getAttribute("class");
-		} elseif (! $this->hasClassList()) {
+		}elseif(!$this->hasClassList()) {
 			Debug::error("{$f} class list is undefined");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} imploding class list");
 		}
 		return implode(' ', $this->classList);
 	}
 
 	public function getClassList(): ?array{
-		if (isset($this->classList) && is_array($this->classList) && ! empty($this->classList)) {
+		if(isset($this->classList) && is_array($this->classList) && ! empty($this->classList)) {
 			return $this->classList;
 		}
 		return null;
@@ -2964,11 +2964,11 @@ ScopedCommandInterface{
 	}
 
 	public function addClassAttribute(...$classes): void{
-		if (! is_array($this->classList)) {
+		if(!is_array($this->classList)) {
 			$this->classList = [];
 		}
-		foreach ($classes as $class) {
-			if (false === array_search($class, $this->classList)) {
+		foreach($classes as $class) {
+			if(false === array_search($class, $this->classList)) {
 				array_push($this->classList, $class);
 			}
 		}
@@ -2986,7 +2986,7 @@ ScopedCommandInterface{
 
 	public function getDocumentFragment(): DocumentFragment{
 		$f = __METHOD__;
-		if (! $this->hasDocumentFragment()) {
+		if(!$this->hasDocumentFragment()) {
 			Debug::error("{$f} document fragment is undefined");
 		}
 		return $this->documentFragment;
@@ -3007,10 +3007,10 @@ ScopedCommandInterface{
 	 */
 	public final function generateTemplateFunction(): ?JavaScriptFunction{
 		$f = __METHOD__;
-		try {
+		try{
 			$generator = new TemplateElementFunctionGenerator();
 			return $generator->generate($this);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -3025,7 +3025,7 @@ ScopedCommandInterface{
 
 	public function getIdOverride(){
 		$f = __METHOD__;
-		if (! $this->hasIdOverride()) {
+		if(!$this->hasIdOverride()) {
 			Debug::error("{$f} ID override is undefined");
 		}
 		return $this->variableName;
@@ -3042,7 +3042,7 @@ ScopedCommandInterface{
 
 	public function getResponsiveStyleProperties(): array{
 		$f = __METHOD__;
-		if (! $this->hasResponsiveStyleProperties()) {
+		if(!$this->hasResponsiveStyleProperties()) {
 			Debug::error("{$f} responsive style properties are undefined");
 		}
 		return $this->responsiveStyleProperties;
@@ -3055,7 +3055,7 @@ ScopedCommandInterface{
 	 * @return string
 	 */
 	public function incrementVariableName(int &$counter): ?string{
-		if ($this->hasIdOverride()) {
+		if($this->hasIdOverride()) {
 			return $this->getIdOverride();
 		}
 		$vname = $this->setIdOverride("e{$counter}");
@@ -3065,7 +3065,7 @@ ScopedCommandInterface{
 
 	public function setLocalDeclarations(?array $values): ?array{
 		$f = __METHOD__;
-		if ($values !== null && ! is_array($values)) {
+		if($values !== null && ! is_array($values)) {
 			Debug::error("{$f} local declarations must be an associative array");
 		}
 		return $this->setArrayProperty("localDeclarations", $values);
@@ -3138,14 +3138,14 @@ ScopedCommandInterface{
 	 */
 	public function getResolvedKey($context = null): GetDeclaredVariableCommand{
 		$f = __METHOD__;
-		try {
+		try{
 			// $print = false;
-			if ($context == null) {
+			if($context == null) {
 				$context = $this->getContext();
 			}
 			$keyname = $context->getIdentifierName();
 			$scope = $this->getResolvedScope();
-			if ($scope->hasLocalValue($keyname)) {
+			if($scope->hasLocalValue($keyname)) {
 				return $scope->getDeclaredVariableCommand($keyname);
 			}
 			$this->resolveTemplateCommand(
@@ -3162,7 +3162,7 @@ ScopedCommandInterface{
 				)->else($scope->redeclare($keyname, "new"))
 			);
 			return $scope->getDeclaredVariableCommand($keyname);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -3180,125 +3180,125 @@ ScopedCommandInterface{
 	 */
 	public function resolveTemplateCommand(...$commands): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
 			$mode = $this->getAllocationMode();
-			foreach ($commands as $command) {
-				if (is_array($command)) {
+			foreach($commands as $command) {
+				if(is_array($command)) {
 					Debug::error("{$f} command is an array");
 				}
-				if ($command instanceof DeclareVariableCommand) { // variable declarations go at the top
-					if ($print) {
+				if($command instanceof DeclareVariableCommand) { // variable declarations go at the top
+					if($print) {
 						Debug::print("{$f} command is a DeclareVariableCommand");
 					}
-					if ($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) {
-						if ($print) {
+					if($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) {
+						if($print) {
 							Debug::print("{$f} command is a declare variable command, and this is a templated object");
 						}
 						$this->pushLocalDeclarations($command);
-					} else {
-						if ($print) {
+					}else{
+						if($print) {
 							Debug::print("{$f} command is a declare variable command, but this is not templated");
 						}
 						$command->resolve();
 					}
-				} elseif ($command instanceof NodeBearingCommandInterface) { // extract child nodes from node-bearing commands
+				}elseif($command instanceof NodeBearingCommandInterface) { // extract child nodes from node-bearing commands
 					$cc = $command->getClass();
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} command is a \"{$cc}\"");
 					}
-					if (($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) && ! $command->extractAnyway()) {
-						if ($print) {
+					if(($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) && ! $command->extractAnyway()) {
+						if($print) {
 							Debug::print("{$f} command is nodebearing, and it isn't flagged to force extraction");
 						}
 						$this->appendChild($command);
-					} else {
-						if ($print) {
+					}else{
+						if($print) {
 							Debug::print("{$f} command is nodebearing, and either this object is not templated or the command is flagged to force extraction");
 						}
 						// $children = [];
 						$mode = $this->getAllocationMode();
 						$children = $command->extractChildNodes($mode);
-						if (! empty($children)) {
-							if ($print) {
+						if(!empty($children)) {
+							if($print) {
 								$count = count($children);
 								Debug::print("{$f} extracted {$count} child nodes");
 							}
-							foreach ($children as $child) {
+							foreach($children as $child) {
 								$ccc = is_object($child) ? $child->getClass() : gettype($child);
-								if ($child instanceof Command) {
-									if ($child instanceof ValueReturningCommandInterface) {
-										if ($print) {
+								if($child instanceof Command) {
+									if($child instanceof ValueReturningCommandInterface) {
+										if($print) {
 											Debug::print("{$f} child is a value returning media command of class \"{$ccc}\"");
 										}
 										while ($child instanceof ValueReturningCommandInterface) {
-											if ($child instanceof AllocationModeInterface) {
+											if($child instanceof AllocationModeInterface) {
 												$child->setAllocationMode($mode);
 											}
 											$child = $child->evaluate();
 										}
 										// array_push($children, $child); //[$child_key] = $child;
 										$ccc = is_object($child) ? $child->getClass() : gettype($child);
-										if ($print) {
+										if($print) {
 											Debug::print("{$f} after evaluation, child is now a \"{$ccc}\"");
 										}
-									} else {
+									}else{
 										Debug::error("{$f} media command \"{$cc}\" returned a child command of class \"{$ccc}\"");
 									}
-								} elseif ($print) {
+								}elseif($print) {
 									Debug::print("{$f} child is a {$ccc}");
 								}
-								if ($print) {
+								if($print) {
 									Debug::print("{$f} appending a {$ccc}");
 								}
 								$this->appendChild($child);
 							}
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::warning("{$f} extracted child nodes array is empty");
 						}
 					}
-				} elseif ($command instanceof IfCommand || $command instanceof SwitchCommand) { // treated just like declared variables, but check for node-bearing conditonals/switch commands first
-					if ($print) {
+				}elseif($command instanceof IfCommand || $command instanceof SwitchCommand) { // treated just like declared variables, but check for node-bearing conditonals/switch commands first
+					if($print) {
 						Debug::print("{$f} command is an if or switch statement");
 					}
-					if ($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) {
-						if ($print) {
+					if($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) {
+						if($print) {
 							Debug::print("{$f} pushing a local declaration");
 						}
 						$this->pushLocalDeclarations($command);
-					} else {
-						if ($print) {
+					}else{
+						if($print) {
 							Debug::print("{$f} resolving command");
 						}
 						$command->resolve();
 					}
-				} elseif ($command instanceof ServerExecutableCommandInterface) { // everything else that can be resolved server side
-					if ($print) {
+				}elseif($command instanceof ServerExecutableCommandInterface) { // everything else that can be resolved server side
+					if($print) {
 						$cc = $command->getClass();
 						Debug::print("{$f} {$cc} is server executable");
 					}
-					if ($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) {
-						if (! $command->getResolvedFlag()) {
-							if ($print) {
+					if($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) {
+						if(!$command->getResolvedFlag()) {
+							if($print) {
 								Debug::printStackTraceNoExit("{$f} appending a template command of class \"{$cc}\"");
 							}
 							$this->appendChild($command);
 							$command->setResolvedFlag(true);
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} template command of class \"{$cc}\" has already been resolved");
 						}
-					} else {
+					}else{
 						$command->resolve();
 					}
-				} elseif (! is_object($command)) {
+				}elseif(!is_object($command)) {
 					$gottype = gettype($command);
 					Debug::error("{$f} received a {$gottype}");
-				} else {
+				}else{
 					$class = $command->getClass();
 					Debug::error("{$f} this function doesn't yet support resolution of {$class} commands");
 				}
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -3308,7 +3308,7 @@ ScopedCommandInterface{
 	}
 
 	public function setReplacementId(?string $id): ?string{
-		if ($id == null) {
+		if($id == null) {
 			unset($this->replacementId);
 			return null;
 		}
@@ -3321,20 +3321,20 @@ ScopedCommandInterface{
 
 	public function getReplacementId(): string{
 		$f = __METHOD__;
-		if (! $this->hasReplacementId()) {
+		if(!$this->hasReplacementId()) {
 			Debug::error("{$f} replacement ID is undefined");
 		}
 		return $this->replacementId;
 	}
 
 	public function getArrayKey(int $count){
-		if ($this->hasReplacementId()) {
+		if($this->hasReplacementId()) {
 			return $this->getReplacementId();
-		} elseif ($this->hasIdAttribute()) {
+		}elseif($this->hasIdAttribute()) {
 			$id = $this->getIdAttribute();
-			if (is_string($id)) {
+			if(is_string($id)) {
 				return $id;
-			} elseif ($id instanceof ValueReturningCommandInterface && ! $this->getTemplateFlag()) {
+			}elseif($id instanceof ValueReturningCommandInterface && ! $this->getTemplateFlag()) {
 				while ($id instanceof ValueReturningCommandInterface) {
 					$id = $id->evaluate();
 				}
@@ -3361,17 +3361,17 @@ ScopedCommandInterface{
 	protected final function getResolvedScope(): Scope{
 		$f = __METHOD__;
 		$print = false;
-		if (isset($this->scope)) {
+		if(isset($this->scope)) {
 			return $this->scope;
 		}
 		$context = $this->hasContext() ? $this->getContext() : null;
 		$scope = new Scope();
 		$commands = $this->getScopeResolutionCommands($context, $scope);
-		if (! is_array($commands) || empty($commands)) {
-			if ($print) {
+		if(!is_array($commands) || empty($commands)) {
+			if($print) {
 				Debug::warning("{$f} don't call this function unless there are actual commands to resolve");
 			}
-		} else {
+		}else{
 			$this->resolveTemplateCommand(...$commands);
 		}
 		return $this->setScope($scope);
@@ -3387,7 +3387,7 @@ ScopedCommandInterface{
 
 	public function dispose(): void{
 		parent::dispose();
-		if ($this->hasContext() && $this->getDisposeContextFlag() && $this->context instanceof DisposableInterface) {
+		if($this->hasContext() && $this->getDisposeContextFlag() && $this->context instanceof DisposableInterface) {
 			$this->context->dispose();
 		}
 		$this->setLocalDeclarations(null);

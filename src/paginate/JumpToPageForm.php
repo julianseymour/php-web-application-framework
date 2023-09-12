@@ -14,14 +14,14 @@ class JumpToPageForm extends AjaxForm{
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$span = new SpanElement($this->getAllocationMode());
 			$span->setInnerHTML(_("Jump to page"));
 			$this->appendChild($span);
 			return [
 				$span
 			];
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -62,7 +62,7 @@ class JumpToPageForm extends AjaxForm{
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
 			$jump = new NumberInput($mode);
@@ -74,14 +74,14 @@ class JumpToPageForm extends AjaxForm{
 			$limit->setNameAttribute("limit");
 			$limit->setValueAttribute($lim);
 			$inputs = parent::getAdHocInputs();
-			foreach ([
+			foreach([
 				$jump,
 				$limit
 			] as $input) {
 				$inputs[$input->getNameAttribute()] = $input;
 			}
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

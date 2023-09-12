@@ -21,7 +21,7 @@ class AlterDatabaseStatement extends QueryStatement
 	public function __construct($databaseName = null)
 	{
 		parent::__construct();
-		if ($databaseName !== null) {
+		if($databaseName !== null) {
 			$this->setDatabaseName($databaseName);
 		}
 	}
@@ -29,14 +29,14 @@ class AlterDatabaseStatement extends QueryStatement
 	public function setReadOnly($value)
 	{
 		$f = __METHOD__; //AlterDatabaseStatement::getShortClass()."(".static::getShortClass().")->setReadOnly()";
-		if ($value == null && $value !== 0) {
+		if($value == null && $value !== 0) {
 			unset($this->readOnlyValue);
 			return null;
-		} elseif (is_int($value)) {
-			if ($value !== 1 && $value !== 0) {
+		}elseif(is_int($value)) {
+			if($value !== 1 && $value !== 0) {
 				Debug::error("{$f} invalid read only value \"{$value}\"");
 			}
-		} elseif (is_string($value)) {
+		}elseif(is_string($value)) {
 			$value = strtolower($value);
 			switch ($value) {
 				case "0":
@@ -46,7 +46,7 @@ class AlterDatabaseStatement extends QueryStatement
 				default:
 					Debug::error("{$f} invalid read only value \"{$value}\"");
 			}
-		} else {
+		}else{
 			Debug::error("{$f} neither of the above");
 		}
 		$this->setRequiredMySQLVersion("8.0.22");
@@ -60,7 +60,7 @@ class AlterDatabaseStatement extends QueryStatement
 
 	public function getReadOnly()
 	{
-		if (! $this->hasReadOnly()) {
+		if(!$this->hasReadOnly()) {
 			return CONST_DEFAULT;
 		}
 		return $this->readOnlyValue;
@@ -76,23 +76,23 @@ class AlterDatabaseStatement extends QueryStatement
 	{
 		// ALTER {DATABASE | SCHEMA} [db_name] alter_option ...
 		$string = "alter database ";
-		if ($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()) {
 			$string .= $this->getDatabaseName();
 		}
 		// [DEFAULT] CHARACTER SET [=] charset_name
-		if ($this->hasCharacterSet()) {
+		if($this->hasCharacterSet()) {
 			$string .= " character set " . $this->getCharacterSet();
 		}
 		// | [DEFAULT] COLLATE [=] collation_name
-		if ($this->hasCollationName()) {
+		if($this->hasCollationName()) {
 			$string .= " collate " . $this->getCollationName();
 		}
 		// | [DEFAULT] ENCRYPTION [=] {'Y' | 'N'}
-		if ($this->hasEncryption()) {
+		if($this->hasEncryption()) {
 			$string .= " encryption " . $this->getEncryption();
 		}
 		// | READ ONLY [=] {DEFAULT | 0 | 1}
-		if ($this->hasReadOnly() && hasMinimumMySQLVersion("8.0.22")) {
+		if($this->hasReadOnly() && hasMinimumMySQLVersion("8.0.22")) {
 			$string .= " read only " . $this->getReadOnly();
 		}
 		return $string;

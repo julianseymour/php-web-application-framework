@@ -29,12 +29,12 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 		// $this->requirePropertyType("columnNames", 's');
 		$this->setJoinType($joinType);
 		$this->setJoinExpression($joinExpression);
-		if ($spec !== null) {
-			if (is_array($spec)) {
+		if($spec !== null) {
+			if(is_array($spec)) {
 				$this->setColumnNames($spec);
-			} elseif (is_string($spec) || $spec instanceof ExpressionCommand) {
+			}elseif(is_string($spec) || $spec instanceof ExpressionCommand) {
 				$this->setSearchCondition($spec);
-			} else {
+			}else{
 				$gottype = is_object($spec) ? $spec->getClass() : gettype($spec);
 				Debug::error("{$f} neither of the above \"{$gottype}\"");
 			}
@@ -52,13 +52,13 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	public function setJoinType($type){
 		$f = __METHOD__;
-		if ($type == null) {
+		if($type == null) {
 			unset($this->joinType);
 			unset($this->searchCondition);
 			return null;
-		} elseif (! is_string($type)) {
+		}elseif(!is_string($type)) {
 			Debug::error("{$f} join type must be a string");
-		} elseif (empty($type)) {
+		}elseif(empty($type)) {
 			Debug::error("{$f} join type cannot be the empty string");
 		} else
 			switch ($type) {
@@ -85,7 +85,7 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	public function getJoinType(){
 		$f = __METHOD__;
-		if (! $this->hasJoinType()) {
+		if(!$this->hasJoinType()) {
 			Debug::error("{$f} join type is undefined");
 		}
 		return $this->joinType;
@@ -126,7 +126,7 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	public function getJoinExpression(){
 		$f = __METHOD__;
-		if (! $this->hasJoinExpression()) {
+		if(!$this->hasJoinExpression()) {
 			Debug::error("{$f} join expression is undefined");
 		}
 		return $this->joinExpression;
@@ -134,8 +134,8 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	public function setJoinExpression($tr){
 		$f = __METHOD__;
-		if ($tr instanceof JoinedTable) {
-			if ($this->hasJoinType()) {
+		if($tr instanceof JoinedTable) {
+			if($this->hasJoinType()) {
 				$type = $this->getJoinType();
 				switch ($type) {
 					case JOIN_TYPE_LEFT:
@@ -145,7 +145,7 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 						Debug::error("{$f} cannot use a JoinedTable except for non-natural left/right joins");
 				}
 			}
-		} elseif ($tr instanceof TableFactor && $tr->getEscapeFlag()) {
+		}elseif($tr instanceof TableFactor && $tr->getEscapeFlag()) {
 			Debug::error("{$f} you cannot escape table references that are part of a JoinedTable");
 		}
 		return $this->joinExpression = $tr;
@@ -153,7 +153,7 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	public function setSearchCondition($sc){
 		$f = __METHOD__;
-		if ($sc == null) {
+		if($sc == null) {
 			unset($this->searchCondition);
 			return null;
 		}
@@ -167,7 +167,7 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	public function getSearchCondition(){
 		$f = __METHOD__;
-		if (! $this->hasSearchCondition()) {
+		if(!$this->hasSearchCondition()) {
 			Debug::error("{$f} search condition is undefined");
 		}
 		return $this->searchCondition;
@@ -175,9 +175,9 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	public function getTableReferenceString(){
 		$f = __METHOD__;
-		try {
+		try{
 			$join = $this->getJoinExpression();
-			if ($join instanceof SQLInterface) {
+			if($join instanceof SQLInterface) {
 				$join = $join->toSQL();
 			}
 			$string = $this->getJoinTypeString() . " {$join}";
@@ -188,28 +188,28 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 				case JOIN_TYPE_JOIN:
 				case JOIN_TYPE_STRAIGHT:
 					// table_reference {[INNER | CROSS] JOIN | STRAIGHT_JOIN} table_factor [{ON search_condition | USING (join_column_list)}]
-					if ($this->hasSearchCondition()) {
+					if($this->hasSearchCondition()) {
 						$sc = $this->getSearchCondition();
-						if ($sc instanceof SQLInterface) {
+						if($sc instanceof SQLInterface) {
 							$sc = $sc->toSQL();
 						}
 						$string .= " on {$sc}";
-					} elseif ($this->hasColumnNames()) {
+					}elseif($this->hasColumnNames()) {
 						$string .= " using " . implode_back_quotes(',', $this->getColumnNames());
 					}
 					break;
 				case JOIN_TYPE_LEFT:
 				case JOIN_TYPE_RIGHT:
 					// table_reference {LEFT|RIGHT} [OUTER] JOIN table_reference {ON search_condition | USING (join_column_list)}
-					if ($this->hasSearchCondition()) {
+					if($this->hasSearchCondition()) {
 						$sc = $this->getSearchCondition();
-						if ($sc instanceof SQLInterface) {
+						if($sc instanceof SQLInterface) {
 							$sc = $sc->toSQL();
 						}
 						$string .= " on {$sc}";
-					} elseif ($this->hasColumnNames()) {
+					}elseif($this->hasColumnNames()) {
 						$string .= " using " . implode_back_quotes(',', $this->getColumnNames());
-					} else {
+					}else{
 						Debug::error("{$f} left/right outer joins must have either a search condition or join column list");
 					}
 					break;
@@ -223,7 +223,7 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 					Debug::error("{$f} invalid join type \"{$type}\"");
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

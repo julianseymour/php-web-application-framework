@@ -48,10 +48,10 @@ class ForeignKeyConstraint extends Constraint implements ArrayKeyProviderInterfa
 	public function setMatch($type)
 	{
 		$f = __METHOD__; //ForeignKeyConstraint::getShortClass()."(".static::getShortClass().")->setMatch()";
-		if ($type == null) {
+		if($type == null) {
 			unset($this->matchType);
 			return null;
-		} elseif (! is_string($type)) {
+		}elseif(!is_string($type)) {
 			Debug::error("{$f} match type must be a string");
 		}
 		$type = strtolower($type);
@@ -74,7 +74,7 @@ class ForeignKeyConstraint extends Constraint implements ArrayKeyProviderInterfa
 	public function getMatch()
 	{
 		$f = __METHOD__; //ForeignKeyConstraint::getShortClass()."(".static::getShortClass().")->getMatch()";
-		if (! $this->hasMatch()) {
+		if(!$this->hasMatch()) {
 			Debug::error("{$f} match type is undefined");
 		}
 		return $this->matchType;
@@ -89,7 +89,7 @@ class ForeignKeyConstraint extends Constraint implements ArrayKeyProviderInterfa
 	public function toSQL(): string
 	{
 		$f = __METHOD__; //ForeignKeyConstraint::getShortClass()."(".static::getShortClass().")->toSQL()";
-		try {
+		try{
 
 			// reference_definition:
 			// [CONSTRAINT [symbol]] FOREIGN KEY [index_name] (col_name,...) REFERENCES tbl_name (key_part,...) [MATCH FULL | MATCH PARTIAL | MATCH SIMPLE] [ON DELETE ref_opt] [ON UPDATE ref_opt]
@@ -97,37 +97,37 @@ class ForeignKeyConstraint extends Constraint implements ArrayKeyProviderInterfa
 			// RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT
 
 			$string = parent::toSQL() . "foreign key ";
-			if ($this->hasIndexName()) {
+			if($this->hasIndexName()) {
 				$string .= $this->getIndexName() . " ";
 			}
 			$columnNames = implode_back_quotes(',', $this->getColumnNames());
 			$dbtable = "";
-			if ($this->hasDatabaseName()) {
+			if($this->hasDatabaseName()) {
 				$dbtable .= back_quote($this->getDatabaseName()) . ".";
 			}
 			$dbtable .= back_quote($this->getTableName());
 			$keyparts = [];
-			foreach ($this->getKeyParts() as $kp) {
-				if ($kp instanceof SQLInterface) {
+			foreach($this->getKeyParts() as $kp) {
+				if($kp instanceof SQLInterface) {
 					$kp = $kp->toSQL();
 				}
 				array_push($keyparts, $kp);
 			}
 			$keyparts = implode_back_quotes(',', $keyparts); // XXX reassigning an string to something initially declared as an array rubs me the wrong way
 			$string .= "({$columnNames}) references {$dbtable} ({$keyparts})";
-			if ($this->hasMatch()) {
+			if($this->hasMatch()) {
 				$string .= " match " . $this->getMatch();
 			}
-			if ($this->hasOnDelete()) {
+			if($this->hasOnDelete()) {
 				$onDelete = $this->getOnDelete();
 				$string .= " on delete {$onDelete}";
 			}
-			if ($this->hasOnUpdate()) {
+			if($this->hasOnUpdate()) {
 				$onUpdate = $this->getOnUpdate();
 				$string .= " on update {$onUpdate}";
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

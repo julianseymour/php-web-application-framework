@@ -170,7 +170,7 @@ class FlushStatement extends QueryStatement
 
 	public function relayLogs(...$values)
 	{
-		if (isset($values)) {
+		if(isset($values)) {
 			$this->setChannelRelayLogs($values);
 		}
 		return $this->withFlag("relay logs", true);
@@ -244,7 +244,7 @@ class FlushStatement extends QueryStatement
 	public function setExportFlag($value = true)
 	{
 		$f = __METHOD__; //FlushStatement::getShortClass()."(".static::getShortClass().")->setEcportFlag()";
-		if ($value && ! $this->hasTableNames()) {
+		if($value && ! $this->hasTableNames()) {
 			Debug::error("{$f} do not call this function unless table names have already been defined");
 		}
 		return $this->setFlag("export", $value);
@@ -295,10 +295,10 @@ class FlushStatement extends QueryStatement
 		// FLUSH
 		$string = "flush ";
 		// [NO_WRITE_TO_BINLOG | LOCAL]
-		if ($this->getLocalFlag()) {
+		if($this->getLocalFlag()) {
 			$string .= "local ";
 		}
-		if ($this->getTablesFlag()) {
+		if($this->getTablesFlag()) {
 			// tables_option: {
 			// TABLES
 			// | TABLES tbl_name [, tbl_name] ...
@@ -307,65 +307,65 @@ class FlushStatement extends QueryStatement
 			// | TABLES tbl_name [, tbl_name] ... FOR EXPORT
 			// }
 			$string .= "tables";
-			if ($this->hasTableNames()) {
+			if($this->hasTableNames()) {
 				$string .= " " . implode(',', $this->getTableNames());
 			}
-			if ($this->getReadLockFlag()) {
+			if($this->getReadLockFlag()) {
 				$string .= " with read lock";
-			} elseif ($this->getExportFlag()) {
+			}elseif($this->getExportFlag()) {
 				$string .= " for export";
 			}
-		} else {
+		}else{
 			// BINARY LOGS
-			if ($this->getBinaryLogsFlag()) {
+			if($this->getBinaryLogsFlag()) {
 				$string .= " binary logs";
 			}
 			// | ENGINE LOGS
-			if ($this->getEngineLogsFlag()) {
+			if($this->getEngineLogsFlag()) {
 				$string .= " engine logs";
 			}
 			// | ERROR LOGS
-			if ($this->getErrorLogsFlag()) {
+			if($this->getErrorLogsFlag()) {
 				$string .= " error logs";
 			}
 			// | GENERAL LOGS
-			if ($this->getGeneralLogsFlag()) {
+			if($this->getGeneralLogsFlag()) {
 				$string .= " general logs";
 			}
 			// | HOSTS
-			if ($this->getHostsFlag()) {
+			if($this->getHostsFlag()) {
 				$string .= " hosts";
 			}
 			// | LOGS
-			if ($this->getLogsFlag()) {
+			if($this->getLogsFlag()) {
 				$string .= " logs";
 			}
 			// | PRIVILEGES
-			if ($this->getPrivilegesFlag()) {
+			if($this->getPrivilegesFlag()) {
 				$string .= " privileges";
 			}
 			// | OPTIMIZER_COSTS
-			if ($this->getOptimizerCostsFlag()) {
+			if($this->getOptimizerCostsFlag()) {
 				$string .= " optimizer costs";
 			}
 			// | RELAY LOGS [FOR CHANNEL channel]
-			if ($this->hasChannelRelayLogs()) {
-				foreach ($this->getChannelRelayLogs() as $channel) {
+			if($this->hasChannelRelayLogs()) {
+				foreach($this->getChannelRelayLogs() as $channel) {
 					$string .= " relay logs for {$channel}";
 				}
-			} elseif ($this->getRelayLogsFlag()) {
+			}elseif($this->getRelayLogsFlag()) {
 				$string .= " relay logs";
 			}
 			// | SLOW LOGS
-			if ($this->getSlowLogsFlag()) {
+			if($this->getSlowLogsFlag()) {
 				$string .= " slow logs";
 			}
 			// | STATUS
-			if ($this->getStatusFlag()) {
+			if($this->getStatusFlag()) {
 				$string .= " status";
 			}
 			// | USER_RESOURCES
-			if ($this->getUserResourcesFlag()) {
+			if($this->getUserResourcesFlag()) {
 				$string .= " user_resources";
 			}
 		}

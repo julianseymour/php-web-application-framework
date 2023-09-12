@@ -16,64 +16,64 @@ abstract class UserFingerprint extends UserOwned
 	/*
 	 * public static function fingerprint($server){
 	 * $tmp = new IncidentReport();
-	 * if (isset($server['REMOTE_ADDR'])){
+	 * if(isset($server['REMOTE_ADDR'])){
 	 * $tmp->remoteAddr = $server['REMOTE_ADDR'];
 	 * }
-	 * if (isset($server['HTTP_X_FORWARDED_FOR'])){
+	 * if(isset($server['HTTP_X_FORWARDED_FOR'])){
 	 * $tmp->httpXForwardedFor = $server['HTTP_X_FORWARDED_FOR'];
 	 * }
-	 * if (isset($server['HTTP_ACCEPT'])){
+	 * if(isset($server['HTTP_ACCEPT'])){
 	 * $tmp->httpAccept = $server['HTTP_ACCEPT'];
 	 * }
-	 * if (isset($server['HTTP_ACCEPT_ENCODING'])){
+	 * if(isset($server['HTTP_ACCEPT_ENCODING'])){
 	 * $tmp->httpAcceptEncoding = $server['HTTP_ACCEPT_ENCODING'];
 	 * }
-	 * if (isset($server['SERVER_PROTOCOL'])){
+	 * if(isset($server['SERVER_PROTOCOL'])){
 	 * $tmp->serverProtocol = $server['SERVER_PROTOCOL'];
 	 * }
-	 * if (isset($server['REQUEST_METHOD'])){
+	 * if(isset($server['REQUEST_METHOD'])){
 	 * $tmp->requestMethod = $server['REQUEST_METHOD'];
 	 * }
-	 * if (isset($server['REQUEST_TIME_FLOAT'])){
+	 * if(isset($server['REQUEST_TIME_FLOAT'])){
 	 * $tmp->requestTimeFloat = $server['REQUEST_TIME_FLOAT'];
 	 * }
-	 * else if (isset($server['REQUEST_TIME']))
+	 * else if(isset($server['REQUEST_TIME']))
 	 * {
 	 * $tmp->requestTime = $server['REQUEST_TIME'];
 	 * }
-	 * if (isset($server['QUERY_STRING'])){
+	 * if(isset($server['QUERY_STRING'])){
 	 * $tmp->queryString = $server['QUERY_STRING'];
 	 * }
-	 * if (isset($server['HTTP_ACCEPT_LANGUAGE'])){
+	 * if(isset($server['HTTP_ACCEPT_LANGUAGE'])){
 	 * $tmp->httpAcceptLanguage = $server['HTTP_ACCEPT_LANGUAGE'];
 	 * }
-	 * if (isset($server['HTTP_CONNECTION'])){
+	 * if(isset($server['HTTP_CONNECTION'])){
 	 * $tmp->httpConnection = $server['HTTP_CONNECTION'];
 	 * }
-	 * if (isset($server['HTTP_HOST'])){
+	 * if(isset($server['HTTP_HOST'])){
 	 * $tmp->httpHost = $server['HTTP_HOST'];
 	 * }
-	 * if (isset($server['HTTP_USER_AGENT'])){
+	 * if(isset($server['HTTP_USER_AGENT'])){
 	 * $tmp->httpUserAgent = $server['HTTP_USER_AGENT'];
 	 * //$browser = get_browser($tmp->httpUserAgent);
 	 * //print_r($browser);
 	 * }
-	 * if (isset($server['HTTPS'])){
+	 * if(isset($server['HTTPS'])){
 	 * $tmp->https = $server['HTTPS'];
 	 * }
-	 * if (isset($server['REMOTE_HOST'])){
+	 * if(isset($server['REMOTE_HOST'])){
 	 * $tmp->remoteHost = $server['REMOTE_HOST'];
 	 * }
-	 * if (isset($server['REMOTE_PORT'])){
+	 * if(isset($server['REMOTE_PORT'])){
 	 * $tmp->remotePort = $server['REMOTE_PORT'];
 	 * }
-	 * if (isset($server['REMOTE_USER'])){
+	 * if(isset($server['REMOTE_USER'])){
 	 * $tmp->remoteUser = $server['REMOTE_USER'];
 	 * }
-	 * else if (isset($server['REDIRECT_REMOTE_USER'])){
+	 * else if(isset($server['REDIRECT_REMOTE_USER'])){
 	 * $tmp->redirectRemoteUser = $server['REDIRECT_REMOTE_USER'];
 	 * }
-	 * if (isset($server['REQUEST_URI'])){
+	 * if(isset($server['REQUEST_URI'])){
 	 * $tmp->requestUri = $server['REQUEST_URI'];
 	 * }
 	 * print_r($tmp);
@@ -102,14 +102,14 @@ abstract class UserFingerprint extends UserOwned
 	protected function afterGenerateInitialValuesHook(): int
 	{
 		$f = __METHOD__; //UserFingerprint::getShortClass()."(".static::getShortClass().")->afterGenerateInitialValuesHook()";
-		if ($this->hasColumn("userAgent")) {
-			if (! isset($_SERVER['HTTP_USER_AGENT'])) {
+		if($this->hasColumn("userAgent")) {
+			if(! isset($_SERVER['HTTP_USER_AGENT'])) {
 				Debug::warning("{$f} HTTP user agent is undefined");
-			} else {
+			}else{
 				$this->setUserAgent($_SERVER['HTTP_USER_AGENT']);
 			}
 		}
-		if ($this->hasColumn("reasonLogged") && ! $this->hasReasonLogged()) {
+		if($this->hasColumn("reasonLogged") && ! $this->hasReasonLogged()) {
 			$this->setReasonLogged(BECAUSE_NOREASON);
 		}
 		return parent::afterGenerateInitialValuesHook();
@@ -145,8 +145,8 @@ abstract class UserFingerprint extends UserOwned
 	{
 		$f = __METHOD__;
 		$config = parent::getArrayMembershipConfiguration($config_id);
-		foreach (array_keys($config) as $column_name) {
-			if (! $this->hasColumn($column_name)) {
+		foreach(array_keys($config) as $column_name) {
+			if(!$this->hasColumn($column_name)) {
 				Debug::error("{$f} datum \"{$column_name}\" does not exist");
 			}
 		}
@@ -154,7 +154,7 @@ abstract class UserFingerprint extends UserOwned
 		// Debug::printArray($config);
 		switch ($config_id) {
 			case "default":
-				if ($this->hasColumn("reasonLoggedString")) {
+				if($this->hasColumn("reasonLoggedString")) {
 					$config['reasonLoggedString'] = true;
 				}
 			default:
@@ -170,9 +170,9 @@ abstract class UserFingerprint extends UserOwned
 		$user_agent = new TextDatum("userAgent"); // we could use the name field for this, but we'll need that for filtering by login username as well
 		$user_agent->setNullable(true);
 		$closure = function (TextDatum $d) {
-			if (isset($_SERVER['HTTP_USER_AGENT'])) {
+			if(isset($_SERVER['HTTP_USER_AGENT'])) {
 				$d->setValue($_SERVER['HTTP_USER_AGENT']);
-			} else {
+			}else{
 				$d->setValue("");
 			}
 		};
@@ -211,7 +211,7 @@ abstract class UserFingerprint extends UserOwned
 
 	public static function getReasonLoggedStringStatic($reason){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($reason) {
 				case BECAUSE_USER:
 					return _("User submitted");
@@ -241,7 +241,7 @@ abstract class UserFingerprint extends UserOwned
 				default:
 					return _("No reason");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -255,7 +255,7 @@ abstract class UserFingerprint extends UserOwned
 	}
 
 	public function generateExpiredTimestamp(){
-		if ($this->hasInsertTimestamp()) {
+		if($this->hasInsertTimestamp()) {
 			return $this->getExpiredTimestamp();
 		}
 		return $this->generateInsertTimestamp() - LOCKOUT_DURATION;

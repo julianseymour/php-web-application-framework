@@ -27,15 +27,15 @@ trait MultipleColumnDefiningTrait{
 
 	public function reportColumns(): void{
 		$f = __METHOD__;
-		try {
-			if (! $this->hasColumns()) {
+		try{
+			if(!$this->hasColumns()) {
 				Debug::print("{$f} no columns to report");
 			}
-			foreach ($this->getColumns() as $name => $column) {
+			foreach($this->getColumns() as $name => $column) {
 				$v = $column->hasValue() ? $column->getValue() : "[undefined]";
 				Debug::print("{$f} {$name} : {$v}");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -59,9 +59,9 @@ trait MultipleColumnDefiningTrait{
 
 	public function setColumns(?array $columns): array{
 		$f = __METHOD__;
-		if ($this instanceof QueryStatement) {
-			foreach ($columns as $column) {
-				if ($column->getPersistenceMode() !== PERSISTENCE_MODE_DATABASE) {
+		if($this instanceof QueryStatement) {
+			foreach($columns as $column) {
+				if($column->getPersistenceMode() !== PERSISTENCE_MODE_DATABASE) {
 					Debug::error("{$f} don't give this function datums that are not stored in the database");
 				}
 			}
@@ -94,8 +94,8 @@ trait MultipleColumnDefiningTrait{
 	 */
 	public function getColumn(string $column_name): Datum{
 		$f = __METHOD__;
-		try {
-			if (! $this->hasColumn($column_name)) {
+		try{
+			if(!$this->hasColumn($column_name)) {
 				Debug::warning("{$f} column \"{$column_name}\" is undefined for object of class ".get_short_class($this));
 				$columns = $this->getArrayPropertyKeys("columns");
 				Debug::printArray($columns);
@@ -103,7 +103,7 @@ trait MultipleColumnDefiningTrait{
 			}
 			// Debug::print("{$f} returning normally");
 			return $this->getArrayPropertyValue("columns", $column_name);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -116,19 +116,19 @@ trait MultipleColumnDefiningTrait{
 	 */
 	public function addColumnValue(string $field, $value){
 		$f = __METHOD__;
-		try {
-			if (! $this->hasColumn($field)) {
+		try{
+			if(!$this->hasColumn($field)) {
 				$did = $this->getDebugId();
 				$decl = $this->getDeclarationLine();
 				return Debug::error("{$f} datum \"{$field}\" does not exist for object with debug Id \"{$did}\", declared {$decl}");
 			}
 			$datum = $this->getColumn($field);
 			$primitive = $datum->getTypeSpecifier();
-			if ($primitive !== 'i' && $primitive !== 'd') {
+			if($primitive !== 'i' && $primitive !== 'd') {
 				Debug::error("{$f} illegal static binding primitive \"{$primitive}\"");
 			}
 			return $datum->addValue($value);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -147,22 +147,22 @@ trait MultipleColumnDefiningTrait{
 
 	public function setColumnValue(string $field, $value){
 		$f = __METHOD__;
-		try {
+		try{
 			// Debug::print("{$f} entered; about to call getColumn({$field})");
 			$datum = $this->getColumn($field);
 			// Debug::print("{$f} returned from getColumn({$field})");
-			if (! isset($datum)) {
+			if(! isset($datum)) {
 				Debug::warning("{$f} datum \"{$field}\" is undefined");
 				$this->debugPrintColumns();
 				Debug::error("{$f} exit");
 			}
 			$value = $datum->setValue($value);
-			if (! isset($value) && ! $datum->isNullable()) {
+			if(! isset($value) && ! $datum->isNullable()) {
 				// Debug::warning("{$f} setValue for datum \"{$field}\" returned null");
 			}
 			// Debug::print("{$f} returning normally");
 			return $value;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -181,14 +181,14 @@ trait MultipleColumnDefiningTrait{
 
 	public function columnToString(string $column_name): string{
 		$f = __METHOD__;
-		if (! $this->hasColumn($column_name)) {
+		if(!$this->hasColumn($column_name)) {
 			Debug::error("{$f} datum \"{$column_name}\" does not exist");
 		}
 		return $this->getColumn($column_name)->__toString();
 	}
 
 	public function hasConcreteColumn(string $column_name): bool{
-		if (! $this->hasColumn($column_name)) {
+		if(!$this->hasColumn($column_name)) {
 			return false;
 		}
 		$datum = $this->getColumn($column_name);
@@ -196,11 +196,11 @@ trait MultipleColumnDefiningTrait{
 	}
 
 	public function debugPrintColumns(?string $msg = null, bool $exit = true): void{
-		if (isset($msg)) {
+		if(isset($msg)) {
 			Debug::warning($msg);
 		}
-		foreach ($this->getColumns() as $c) {
-			if ($c instanceof VirtualDatum) {
+		foreach($this->getColumns() as $c) {
+			if($c instanceof VirtualDatum) {
 				continue;
 			}
 			$column_name = $c->getName();
@@ -216,9 +216,9 @@ trait MultipleColumnDefiningTrait{
 		$f = __METHOD__;
 		$print = false;
 		$datum = $this->getColumn($column_name);
-		if ($datum == null) {
+		if($datum == null) {
 			Debug::error("{$f} datum is undefined");
-		} elseif ($print) {
+		}elseif($print) {
 			$value = $datum->getValue();
 			Debug::print("{$f} returning \"{$value}\"");
 		}
@@ -228,17 +228,17 @@ trait MultipleColumnDefiningTrait{
 	public function hasColumnValue(string $column_name): bool{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasColumn($column_name)) {
-			if ($print) {
+		if(!$this->hasColumn($column_name)) {
+			if($print) {
 				Debug::print("{$f} this object lacks a datum \"{$column_name}\"");
 			}
 			return false;
 		}
 		$datum = $this->getColumn($column_name);
-		if ($print) {
-			if ($datum->hasValue()) {
+		if($print) {
+			if($datum->hasValue()) {
 				Debug::print("{$f} yes, this object has a value at column \"{$column_name}\"");
-			} else {
+			}else{
 				Debug::print("{$f} no, this object does not have a value at column \"{$column_name}\"");
 			}
 		}
@@ -247,15 +247,15 @@ trait MultipleColumnDefiningTrait{
 
 	public function sumColumnValues(...$column_names){
 		$f = __METHOD__;
-		if (empty($column_names)) {
+		if(empty($column_names)) {
 			Debug::error("{$f} column names array is empty");
 		}
 		$sum = 0;
-		foreach ($column_names as $cn) {
+		foreach($column_names as $cn) {
 			$column = $this->getColumn($cn);
-			if (! $column instanceof AbstractNumericDatum) {
+			if(!$column instanceof AbstractNumericDatum) {
 				Debug::error("{$f} column \"{$cn}\" is not numeric");
-			} elseif (! $column->hasValue() && ! $column->hasDefaultValue()) {
+			}elseif(!$column->hasValue() && ! $column->hasDefaultValue()) {
 				Debug::error("{$f} column \"{$cn}\" lacks a value");
 			}
 			$sum += $column->getValue();
@@ -272,7 +272,7 @@ trait MultipleColumnDefiningTrait{
 	}
 
 	public function unsetFilteredColumns(...$filters): int{
-		foreach ($this->getFilteredColumns(...$filters) as $column) {
+		foreach($this->getFilteredColumns(...$filters) as $column) {
 			$column->unsetValue();
 		}
 		return SUCCESS;
@@ -289,39 +289,39 @@ trait MultipleColumnDefiningTrait{
 		$f = __METHOD__;
 		$print = false;
 		$force = false;
-		if (! empty($column_names)) {
-			if ($print) {
+		if(!empty($column_names)) {
+			if($print) {
 				Debug::print("{$f} column names are defined");
 			}
 			$first = array_keys($column_names)[0];
-			if (is_array($column_names[$first])) {
+			if(is_array($column_names[$first])) {
 				$column_names = $column_names[$first];
 			}
 			$force = true;
-		} else {
-			if ($print) {
+		}else{
+			if($print) {
 				Debug::print("{$f} column names undefined, assuming you want to destroy everything");
 			}
 			$column_names = $this->getColumnNames();
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} about to unset the following columns:");
 			Debug::printArray($column_names);
 			// Debug::printStackTrace();
 		}
-		foreach ($column_names as $column_name) {
+		foreach($column_names as $column_name) {
 			$column = $this->getColumn($column_name);
 			if($column instanceof VirtualDatum){
 				if($print){
 					Debug::print("{$f} column \"{$column_name}\" is a virtual datum");
 				}
 				continue;
-			}elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} unsetting column \"{$column_name}\"");
 			}
 			$column->unsetValue($force);
-			if (! $column instanceof BooleanDatum && ! $column instanceof EnumeratedDatumInterface) {
-				if ($this->hasColumnValue($column_name)) {
+			if(!$column instanceof BooleanDatum && ! $column instanceof EnumeratedDatumInterface) {
+				if($this->hasColumnValue($column_name)) {
 					Debug::error("{$f} Datum->unset doesn't work for shit -- column \"{$column_name}\" still has a value");
 				}
 			}
@@ -336,19 +336,19 @@ trait MultipleColumnDefiningTrait{
 	public function regenerateColumns($column_names): int{
 		$f = __METHOD__;
 		$print = false;
-		if (empty($column_names)) {
+		if(empty($column_names)) {
 			Debug::error("{$f} indices array is empty");
 		}
-		foreach ($column_names as $column_name) {
-			if (! $this->hasColumn($column_name)) {
+		foreach($column_names as $column_name) {
+			if(!$this->hasColumn($column_name)) {
 				Debug::error("{$f} this object does not have a datum at column \"{$column_name}\"");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} about to regenerate datum at column \"{$column_name}\"");
 			}
 			$datum = $this->getColumn($column_name);
 			$datum->regenerate();
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning normally");
 		}
 		return SUCCESS;
@@ -363,10 +363,10 @@ trait MultipleColumnDefiningTrait{
 	public function processArray(array $arr): int{
 		$f = __METHOD__;
 		$print = false;
-		foreach ($arr as $key => $value) {
-			if (! $this->hasColumn($key)) {
+		foreach($arr as $key => $value) {
+			if(!$this->hasColumn($key)) {
 				Debug::error("{$f} invalid column \"{$key}\"");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} about to set column \"{$key}\" to \"{$value}\"");
 			}
 			$this->setColumnValue($key, $value);
@@ -381,7 +381,7 @@ trait MultipleColumnDefiningTrait{
 	public function ejectColumnValue(string $field){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} ejecting value from column \"{$field}\"");
 		}
 		return $this->getColumn($field)->ejectValue();
@@ -394,8 +394,8 @@ trait MultipleColumnDefiningTrait{
 	public function getFilteredColumns(...$filters): array{
 		$columns = $this->getColumns();
 		$ret = [];
-		foreach ($columns as $column_name => $column) {
-			if ($column->applyFilter(...$filters)) {
+		foreach($columns as $column_name => $column) {
+			if($column->applyFilter(...$filters)) {
 				$ret[$column_name] = $column;
 			}
 		}
@@ -405,10 +405,10 @@ trait MultipleColumnDefiningTrait{
 	public function hasKeyListDatum($phylum){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
-			if (! $this->hasColumn($phylum)) {
+		if($print) {
+			if(!$this->hasColumn($phylum)) {
 				Debug::print("{$f} no datum at index \"{$phylum}\"");
-			} elseif (! $this->getColumn($phylum) instanceof KeyListDatum) {
+			}elseif(!$this->getColumn($phylum) instanceof KeyListDatum) {
 				Debug::print("{$f} datum at index \"{$phylum}\" is not a child key list");
 			}
 		}

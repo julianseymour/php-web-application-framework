@@ -17,7 +17,7 @@ abstract class CodeBlocksCommand extends Command implements JavaScriptInterface,
 	public function __construct(...$blocks)
 	{
 		parent::__construct();
-		if (isset($blocks)) {
+		if(isset($blocks)) {
 			$this->pushCodeBlocks(...$blocks);
 		}
 	}
@@ -56,12 +56,12 @@ abstract class CodeBlocksCommand extends Command implements JavaScriptInterface,
 	{
 		$f = __METHOD__; //CodeBlocksCommand::getShortClass()."(".static::getShortClass().")->resolveCodeBlocks()";
 		$print = false;
-		foreach ($this->getCodeBlocks() as $b) {
-			if ($print) {
+		foreach($this->getCodeBlocks() as $b) {
+			if($print) {
 				$bc = $b->getClass();
 				Debug::print("{$f} resolving a code block of class \"{$bc}\"");
 			}
-			if ($b instanceof ElementCommand || $b instanceof MultipleElementCommand) {
+			if($b instanceof ElementCommand || $b instanceof MultipleElementCommand) {
 				$b->setTemplateLoopFlag(true);
 			}
 			$b->resolve();

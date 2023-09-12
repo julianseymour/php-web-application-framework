@@ -11,10 +11,10 @@ trait AlgorithmOptionTrait
 	public function setAlgorithm($alg)
 	{
 		$f = __METHOD__; //"AlgorithmOptionTrait(".static::getShortClass().")->setAlgorithm()";
-		if ($alg == null) {
+		if($alg == null) {
 			unset($this->algorithmType);
 			return null;
-		} elseif (! is_string($alg)) {
+		}elseif(!is_string($alg)) {
 			Debug::error("{$f} algorithm must be a string");
 		}
 		return $this->algorithmType = $alg;
@@ -28,7 +28,7 @@ trait AlgorithmOptionTrait
 	public function getAlgorithm()
 	{
 		$f = __METHOD__; //"AlgorithmOptionTrait(".static::getShortClass().")->getAlgorithm()";
-		if (! $this->hasAlgorithm()) {
+		if(!$this->hasAlgorithm()) {
 			Debug::error("{$f} algorithm is undefined");
 		}
 		return $this->algorithmType;

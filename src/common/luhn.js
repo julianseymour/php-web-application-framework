@@ -9,10 +9,10 @@ function luhn(imei){
 		while (imei > 9){
 			let digit = imei % 10;
 			//console.log(f+": current digit is "+digit);
-			if (double){
+			if(double){
 				digit *= 2;
 				//console.log(f+": digit is now "+digit);
-				if (digit > 9) digit -= 9;
+				if(digit > 9) digit -= 9;
 			}
 			double = double ? false : true;
 			sum += digit;
@@ -20,7 +20,7 @@ function luhn(imei){
 			//console.log(f+": sum is now "+sum+"; imei is now "+imei);
 		}
 		sum += imei;
-		if ((sum*9)%10==check && (sum+check)%10==0){
+		if((sum*9)%10==check && (sum+check)%10==0){
 			//console.log(f+": check digit "+check+" OK");
 			return true;
 		}else{

@@ -1,6 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
+use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
@@ -15,7 +17,6 @@ use JulianSeymour\PHPWebApplicationFramework\input\DateIntervalInput;
 use JulianSeymour\PHPWebApplicationFramework\input\FancyCheckbox;
 use JulianSeymour\PHPWebApplicationFramework\input\ToggleInput;
 use JulianSeymour\PHPWebApplicationFramework\input\choice\Choice;
-use JulianSeymour\PHPWebApplicationFramework\input\choice\FancyMultipleRadioButtons;
 use JulianSeymour\PHPWebApplicationFramework\ui\ExpanderElement;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
@@ -85,7 +86,7 @@ class SearchForm extends AjaxForm{
 		$vn = $context->getName();
 		switch ($vn) {
 			case "orderBy":
-				if ($ds->getSearchClassCount() > 1) {
+				if($ds->getSearchClassCount() > 1) {
 					Debug::error("{$f} this class is not setup to allow reordering of search results for multiple searchable classes");
 				}
 				$classes = $ds->getSearchClasses();
@@ -97,7 +98,7 @@ class SearchForm extends AjaxForm{
 				$searchable_class = $fields->getSearchClass();
 				$dumdum = new $searchable_class();
 				$orderby = $ds->hasOrderBy() ? $ds->getOrderBy() : null;
-				foreach ($dumdum->getFilteredColumns(COLUMN_FILTER_SORTABLE) as $ovn => $column) {
+				foreach($dumdum->getFilteredColumns(COLUMN_FILTER_SORTABLE) as $ovn => $column) {
 					$options[$ovn] = new Choice($ovn, $column->getHumanReadableName(), $orderby !== null && $orderby === $ovn);
 				}
 				unset($dumdum);
@@ -117,11 +118,11 @@ class SearchForm extends AjaxForm{
 		$contents = [];
 		$subcontainer = $this->getSearchOptionsElement();
 		$context = $this->getContext();
-		if ($context->hasSearchableTimestamps()) {
+		if($context->hasSearchableTimestamps()) {
 			$searchable = $context->getSearchableTimestamps();
 			$indices = array_keys($searchable);
 			$mode = $this->getAllocationMode();
-			foreach ($indices as $index) {
+			foreach($indices as $index) {
 				$input = new DateIntervalInput($mode, $searchable[$index]);
 				$prefix = new SpanElement($mode);
 				$prefix->setInnerHTML($searchable[$index]->getHumanReadableName());
@@ -134,18 +135,18 @@ class SearchForm extends AjaxForm{
 			}
 		}
 		$ret = [];
-		foreach ($inputs as $name => $input) {
-			if (is_array($input)) {
+		foreach($inputs as $name => $input) {
+			if(is_array($input)) {
 				array_push($contents, ...$this->getInternalFormElementsHelper($input));
-			} elseif ($input instanceof AjaxForm) {
+			}elseif($input instanceof AjaxForm) {
 				array_push($contents, ...$this->getInternalFormElementsHelper([
 					$input
 				]));
-			} elseif (false === array_search($name, [
+			}elseif(false === array_search($name, [
 				"searchQuery"
 			])) {
 				array_push($contents, $input);
-			} else {
+			}else{
 				array_push($ret, $input);
 			}
 		}
@@ -156,8 +157,8 @@ class SearchForm extends AjaxForm{
 
 	public function getFormDataIndices(): ?array{
 		$f = __METHOD__;
-		try {
-			if (! $this->hasContext()) {
+		try{
+			if(!$this->hasContext()) {
 				Debug::error("{$f} context is undefined");
 			}
 			$context = $this->getContext();
@@ -168,45 +169,48 @@ class SearchForm extends AjaxForm{
 				//"searchMode" => FancyMultipleRadioButtons::class
 			];
 			$columns = $context->getColumns();
-			foreach ($columns as $c) {
+			foreach($columns as $c) {
 				$vn = $c->getName();
-				if ($c->getFlag("paginator")) {
+				if($c->getFlag("paginator")){
 					// Debug::print("{$f} index \"{$vn}\" points to a datum contributed by Paginator");
-				} elseif (false !== array_search($vn, [
+				}elseif(false !== array_search($vn, [
 					"autoSearch",
 					"caseSensitive",
 					"searchMode"
-				])) {
+				])){
 					continue;
-				} elseif (array_key_exists($vn, $indices)) {
+				}elseif(array_key_exists($vn, $indices)){
 					// Debug::print("{$f} index \"{$vn}\" is already part of the array");
 					continue;
-				} elseif ($c instanceof BooleanDatum) {
+				}elseif($c instanceof BooleanDatum) {
 					$indices[$vn] = FancyCheckbox::class;
-				} elseif ($c instanceof ForeignKeyDatum) {
-					$indices[$vn] = SearchFieldsForm::class; // Subordinate/FormInput::class;
-				} else {
+				}elseif($c instanceof ForeignKeyDatum) {
+					$indices[$vn] = SearchFieldsForm::class;
+				}else{
 					Debug::error("{$f} index \"{$vn}\" is neither of the above");
 				}
 			}
 			return $indices;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
-			if ($input->hasContext() && $input->getContext() instanceof SearchFieldDatum) {
+			if($input->hasContext() && $input->getContext() instanceof SearchFieldDatum){
 				$input->setCheckedAttribute("checked");
 				$div = new DivElement($mode);
-				if ($context->getSearchClassCount() === 1) {
+				if($context->getSearchClassCount() === 1) {
 					$div->addClassAttribute("hidden");
 				}
 				$input->setWrapperElement($div);
+				if(app()->getFlag("debug")){
+					$div->setAttribute("context_declared", $input->getContext()->getDeclarationLine());
+				}
 			}
 			$vn = $input->getColumnName();
 			switch ($vn) {
@@ -255,7 +259,7 @@ class SearchForm extends AjaxForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

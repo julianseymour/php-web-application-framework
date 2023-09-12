@@ -26,7 +26,7 @@ abstract class JoinExpression extends Basic implements SQLInterface{
 	public final function toSQL(): string{
 		$string = $this->getEscapeFlag() ? "{ OJ " : "";
 		$string .= $this->getTableReferenceString();
-		if ($this->getEscapeFlag()) {
+		if($this->getEscapeFlag()) {
 			$string .= " }";
 		}
 		return $string;

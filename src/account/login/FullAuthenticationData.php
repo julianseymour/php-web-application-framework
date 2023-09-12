@@ -52,55 +52,55 @@ class FullAuthenticationData extends AuthenticationData{
 	 */
 	public function handSessionToUser(PlayableUser $user, ?int $mode = null):PlayableUser{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if($print){
 				Debug::printStackTraceNoExit("{$f} entered");
 			}
-			if (! $user->hasNotificationDeliveryTimestamp()) {
+			if(!$user->hasNotificationDeliveryTimestamp()) {
 				$user->setNotificationDeliveryTimestamp(time());
 			}
-			if ($mode === null) {
+			if($mode === null) {
 				$mode = $this->getPreviousLoginMode();
 			}
 			switch ($mode) {
 				case LOGIN_TYPE_PARTIAL:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} completing a multifactor authentication login");
 					}
 					$partial = new PreMultifactorAuthenticationData();
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} about to transfer pre-MFA authentication data to full session");
 					}
-					if (! $partial->hasDeterministicSecretKey()) {
+					if(!$partial->hasDeterministicSecretKey()) {
 						Debug::error("{$f} pre-MFA authentication data lacks a DSK");
-					} elseif (! $partial->hasUserKey()) {
+					}elseif(!$partial->hasUserKey()) {
 						Debug::error("{$f} pre-MFA authentication data lacks a user key");
-					} elseif (! $partial->hasUserAccountType()) {
+					}elseif(!$partial->hasUserAccountType()) {
 						Debug::error("{$f} pre-MFA authentication data lacks a user account type");
 					}
 					$this->setUsername($partial->ejectUsername());
 					$this->setUserKey($partial->ejectUserKey());
 					$dsk = $partial->ejectDeterministicSecretKey();
-					if (empty($dsk)) {
+					if(empty($dsk)) {
 						Debug::error("{$f} DSK is empty");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} deterministic secret key is \"{$dsk}\"");
 					}
 					$this->setDeterministicSecretKey($dsk);
 					$this->setUserAccountType($partial->ejectUserAccountType());
 					$user = parent::handSessionToUser($user);
-					if (! $user instanceof AnonymousUser) {
+					if(!$user instanceof AnonymousUser) {
 						$this->setFullLoginFlag(true);
 					}
 					break;
 				case LOGIN_TYPE_FULL:
 				case LOGIN_TYPE_UNDEFINED:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} going straight to fully authenticated");
 					}
 					$user = parent::handSessionToUser($user);
-					if (! $user instanceof AnonymousUser) {
+					if(!$user instanceof AnonymousUser) {
 						$this->setFullLoginFlag(true);
 					}
 					break;
@@ -110,22 +110,22 @@ class FullAuthenticationData extends AuthenticationData{
 			$cookie = new ReauthenticationCookie();
 			$reauth_hash = $this->generateReauthenticationHash(random_bytes(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES), $cookie->generateReauthenticationKey());
 			app()->setUserData($user);
-			if ($print) {
+			if($print) {
 				$user_class = $user->getClass();
 				$user_key = $user->getIdentifierValue();
-				if ($user->hasPrivateKey()) {
+				if($user->hasPrivateKey()) {
 					$pk = $user->getPrivateKey();
-					if ($pk == null) {
+					if($pk == null) {
 						Debug::error("{$f} hasPrivateKey doesn't work for shit");
 					}
 					Debug::print("{$f} user of class \"{$user_class}\" with key \"{$user_key}\" has a private key defined, and it's \"{$pk}\"");
-				} else {
+				}else{
 					Debug::error("{$f} user of class \"{$user_class}\" with key \"{$user_key}\" does NOT have a private key defined");
 				}
 				$spk = $user->getSignaturePrivateKey();
-				if ($user->hasSignaturePrivateKey()) {
+				if($user->hasSignaturePrivateKey()) {
 					Debug::print("{$f} user of class \"{$user_class}\" with key \"{$user_key}\" has a signature private key defined");
-				} else {
+				}else{
 					Debug::print("{$f} user of class \"{$user_class}\" with key \"{$user_key}\" does NOT have a signature private key defined");
 				}
 				$dsk = $this->getDeterministicSecretKey();
@@ -134,7 +134,7 @@ class FullAuthenticationData extends AuthenticationData{
 			}
 			$this->setSignature($user->signMessage($reauth_hash));
 			return $user;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

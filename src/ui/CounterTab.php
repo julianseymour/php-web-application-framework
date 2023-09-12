@@ -35,7 +35,7 @@ class CounterTab extends LabelElement
 		$this->appendChild($innerHTML);
 		$counter = new SpanElement();
 		$counter->addClassAttribute("notification_counter");
-		if (is_object($innerHTML) && ! $innerHTML instanceof StringifiableInterface) {
+		if(is_object($innerHTML) && ! $innerHTML instanceof StringifiableInterface) {
 			$type = $innerHTML->getClass(); // gettype($innerHTML);
 			Debug::print("{$f} innerHTML is type \"{$type}\"");
 		}

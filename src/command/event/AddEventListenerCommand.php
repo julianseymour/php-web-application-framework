@@ -49,23 +49,23 @@ class AddEventListenerCommand extends EventListenerCommand implements ServerExec
 	{
 		$f = __METHOD__; //AddEventListenerCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
 		$et = $this->getEventTarget();
-		if ($et instanceof JavaScriptInterface) {
+		if($et instanceof JavaScriptInterface) {
 			$et = $et->toJavaScript();
-		} elseif ($et instanceof Element) {
-			if (! $et->hasIdAttribute()) {
+		}elseif($et instanceof Element) {
+			if(!$et->hasIdAttribute()) {
 				Debug::error("{$f} element lacks an ID attribute");
 			}
 			$et = new GetElementByIdCommand($et->getIdAttribute());
 			$et = $et->toJavaScript();
 		}
 		$type = $this->getType();
-		if (is_string($type)) {
+		if(is_string($type)) {
 			$type = single_quote($type);
-		} elseif ($type instanceof JavaScriptInterface) {
+		}elseif($type instanceof JavaScriptInterface) {
 			$type = $type->toJavaScript();
 		}
 		$listener = $this->getEventListener();
-		if ($listener instanceof JavaScriptInterface) {
+		if($listener instanceof JavaScriptInterface) {
 			$listener = $listener->toJavaScript();
 		}
 		return "{$et}.addEventListener({$type}, {$listener})";
@@ -74,19 +74,19 @@ class AddEventListenerCommand extends EventListenerCommand implements ServerExec
 	public function resolve()
 	{
 		$target = $this->getEventTarget();
-		if ($target instanceof ValueReturningCommandInterface) {
+		if($target instanceof ValueReturningCommandInterface) {
 			while ($target instanceof ValueReturningCommandInterface) {
 				$target = $target->evaluate();
 			}
 		}
 		$type = $this->getType();
-		if ($type instanceof ValueReturningCommandInterface) {
+		if($type instanceof ValueReturningCommandInterface) {
 			while ($type instanceof ValueReturningCommandInterface) {
 				$type = $type->evaluate();
 			}
 		}
 		$listener = $this->getEventListener();
-		if ($listener instanceof ValueReturningCommandInterface) {
+		if($listener instanceof ValueReturningCommandInterface) {
 			while ($listener instanceof ValueReturningCommandInterface) {
 				$listener = $listener->evaluate();
 			}

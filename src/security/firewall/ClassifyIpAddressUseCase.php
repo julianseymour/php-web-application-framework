@@ -19,14 +19,14 @@ class ClassifyIpAddressUseCase extends ValidConfirmationCodeUseCase{
 
 	public function execute(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$confirmation_code = $this->getPredecessor()->getConfirmationCodeObject();
-			if (! $confirmation_code->hasIpAddressObject()) {
+			if(!$confirmation_code->hasIpAddressObject()) {
 				Debug::error("{$f} confirmation code lacks a listed IP address object");
 			}
 			$server_cmd = directive();
-			if ($server_cmd !== DIRECTIVE_VALIDATE) {
+			if($server_cmd !== DIRECTIVE_VALIDATE) {
 				Debug::error("{$f} invalid server command");
 			}
 			$listed_ip = $confirmation_code->getIpAddressObject();
@@ -43,13 +43,13 @@ class ClassifyIpAddressUseCase extends ValidConfirmationCodeUseCase{
 						Debug::print("{$f} about to ban IP address");
 					}
 					$list = POLICY_BLOCK;
-					if (! user() instanceof AnonymousUser) {
+					if(! user() instanceof AnonymousUser) {
 						$datum = $listed_ip->getColumn("list");
 						$backup_status = $datum->getObjectStatus();
 						$datum->setObjectStatus(SUCCESS);
 						$status = $datum->validate($list);
 						$datum->setObjectStatus($backup_status);
-						if ($status !== SUCCESS) {
+						if($status !== SUCCESS) {
 							$err = ErrorMessage::getResultMessage($status);
 							Debug::warning("{$f} datum->dispatchEvent() returned error status \"{$err}\"");
 							return $this->setObjectStatus($status);
@@ -64,13 +64,13 @@ class ClassifyIpAddressUseCase extends ValidConfirmationCodeUseCase{
 			}
 			$listed_ip->setList($list);
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			if (! isset($mysqli)) {
+			if(! isset($mysqli)) {
 				$err = ErrorMessage::getResultMessage($this->setObjectStatus(ERROR_MYSQL_CONNECT));
 				Debug::warning("{$f} {$err}");
 				return $this->getObjectStatus();
 			}
 			$status = $listed_ip->update($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} updating list returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -86,7 +86,7 @@ class ClassifyIpAddressUseCase extends ValidConfirmationCodeUseCase{
 			}
 			Debug::printPost("{$f} nothing meaningful was posted");
 			return $this->setObjectStatus(ERROR_DISPATCH_NOTHING);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

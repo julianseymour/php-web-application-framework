@@ -18,8 +18,8 @@ class EmailAddressDatum extends TextDatum implements StaticHumanReadableNameInte
 
 	public static function normalize(string $email):string{
 		$f = __METHOD__;
-		try {
-			if (empty($email)) {
+		try{
+			if(empty($email)) {
 				Debug::error("{$f} empty input parameter");
 			}
 			$print = false;
@@ -30,14 +30,14 @@ class EmailAddressDatum extends TextDatum implements StaticHumanReadableNameInte
 			$suffix = $splat_at[1];
 			// 2. if it's a gmail address, remove all .s from the first part
 			// $tld = explode('.', $suffix)[0];
-			if (true) { // too many sites use gmail //$tld === "gmail"){
+			if(true) { // too many sites use gmail //$tld === "gmail"){
 				$search = '.';
 				$replace = "";
 				$prefix = str_replace($search, $replace, $prefix);
 			}
 			// 3. condition for subaddressing
-			if (substr_count($prefix, '+') > 0) {
-				if ($print) {
+			if(substr_count($prefix, '+') > 0) {
+				if($print) {
 					Debug::print("{$f} email address has a + sign; this is a sub address");
 				}
 				$splat_plus = explode($prefix, '+');
@@ -45,11 +45,11 @@ class EmailAddressDatum extends TextDatum implements StaticHumanReadableNameInte
 			}
 			// 4. concatenate
 			$normal = "{$prefix}@{$suffix}";
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning \"{$normal}\"");
 			}
 			return $normal;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -23,7 +23,7 @@ class ShortPollForm extends AjaxForm{
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$inputs = parent::getAdHocInputs();
 			$mode = $this->getAllocationMode();
 			$ii = new NumberInput($mode);
@@ -44,13 +44,13 @@ class ShortPollForm extends AjaxForm{
 			$push_sub->setIdAttribute("pushSubscriptionKey");
 			$push_sub->setValueAttribute("");
 
-			foreach ([
+			foreach([
 				$ii,
 				$swi
 			] as $input) {
 				$inputs[$input->getNameAttribute()] = $input;
 			}
-			foreach ([
+			foreach([
 				$push_sub,
 				$dirty_bit
 			] as $input) {
@@ -58,14 +58,14 @@ class ShortPollForm extends AjaxForm{
 			}
 
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "notificationDeliveryTimestamp":
@@ -80,7 +80,7 @@ class ShortPollForm extends AjaxForm{
 				default:
 					return parent::reconfigureInput($input);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

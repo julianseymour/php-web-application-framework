@@ -68,7 +68,7 @@ class ChangeEmailAddressForm extends ExpandingMenuNestedForm implements Confirma
 		$validator = new AntiXsrfTokenValidator($this->getActionAttribute());
 		// app()->getUseCase(), $this->getActionAttribute());
 		$value = null;
-		if (hasInputParameter("emailAddress")) {
+		if(hasInputParameter("emailAddress")) {
 			$value = getInputParameter("emailAddress");
 		}
 		$validator->setCovalidateWhen(CONST_AFTER);

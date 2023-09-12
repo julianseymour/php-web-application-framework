@@ -18,17 +18,17 @@ class ColumnAlias extends Command implements SQLInterface, StringifiableInterfac
 
 	public function __construct($expr = null, ?string $alias = null){
 		parent::__construct();
-		if ($expr !== null) {
+		if($expr !== null) {
 			$this->setExpression($expr);
 		}
-		if ($alias !== null) {
+		if($alias !== null) {
 			$this->setAlias($alias);
 		}
 	}
 
 	public function toSQL(): string{
 		$expr = $this->getExpression();
-		if ($expr instanceof SQLInterface) {
+		if($expr instanceof SQLInterface) {
 			$expr = $expr->toSQL();
 		}
 		return "({$expr}) as " . back_quote($this->getAlias());
@@ -63,7 +63,7 @@ class ColumnAlias extends Command implements SQLInterface, StringifiableInterfac
 
 	public function getSuperflatWhereConditionArray(): ?array{
 		$f = __METHOD__;
-		if (! $this->hasWhereConditionalExpression()) {
+		if(!$this->hasWhereConditionalExpression()) {
 			Debug::error("{$f} expression is undefined");
 		}
 		return $this->getExpression()->getSuperflatWhereConditionArray();
@@ -71,7 +71,7 @@ class ColumnAlias extends Command implements SQLInterface, StringifiableInterfac
 
 	public function getConditionalColumnNames(): array{
 		$f = __METHOD__;
-		if (! $this->hasWhereConditionalExpression()) {
+		if(!$this->hasWhereConditionalExpression()) {
 			Debug::error("{$f} expression is undefined");
 		}
 		return $this->getExpression()->getConditionalColumnNames();
@@ -79,7 +79,7 @@ class ColumnAlias extends Command implements SQLInterface, StringifiableInterfac
 
 	public function getFlatWhereConditionArray(): ?array{
 		$f = __METHOD__;
-		if (! $this->hasWhereConditionalExpression()) {
+		if(!$this->hasWhereConditionalExpression()) {
 			Debug::error("{$f} expression is undefined");
 		}
 		return $this->getExpression()->getFlatWhereConditionArray();
@@ -88,8 +88,8 @@ class ColumnAlias extends Command implements SQLInterface, StringifiableInterfac
 	public function hasWhereConditionalExpression(): bool{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasExpression()) {
-			if ($print) {
+		if(!$this->hasExpression()) {
+			if($print) {
 				Debug::print("{$f} expression is undefined");
 			}
 			return false;
@@ -99,7 +99,7 @@ class ColumnAlias extends Command implements SQLInterface, StringifiableInterfac
 
 	public function getParameters(): ?array{
 		$f = __METHOD__;
-		if (! $this->hasWhereConditionalExpression()) {
+		if(!$this->hasWhereConditionalExpression()) {
 			Debug::error("{$f} this is not a where conditional expression");
 		}
 		return $this->getExpression()->getParameters();
@@ -115,7 +115,7 @@ class ColumnAlias extends Command implements SQLInterface, StringifiableInterfac
 
 	public function getTypeSpecifier(): string{
 		$f = __METHOD__;
-		if (! $this->hasWhereConditionalExpression()) {
+		if(!$this->hasWhereConditionalExpression()) {
 			Debug::error("{$f} expression is not where conditional");
 		}
 		return $this->getExpression()->getTypeSpecifier();

@@ -18,7 +18,7 @@ class SessionTimeoutOverlay extends DivElement
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
 	{
 		$f = __METHOD__;
-		if ($context instanceof UseCase) {
+		if($context instanceof UseCase) {
 			Debug::error("{$f} context is a use case");
 		}
 		parent::__construct($mode, $context);
@@ -29,7 +29,7 @@ class SessionTimeoutOverlay extends DivElement
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$context = $this->getContext();
 			$mode = $this->getAllocationMode();
 			$session_timeout_1 = new DivElement($mode);
@@ -57,7 +57,7 @@ class SessionTimeoutOverlay extends DivElement
 			$session_timeout_2->setHrefAttribute(request()->getRequestURI());
 			$this->appendChild($session_timeout_2);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

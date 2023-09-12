@@ -60,7 +60,7 @@ class AnonymousUser extends PlayableUser{
 		$this->setSerialNumber(0);
 		$this->generateKey();
 		$this->processPasswordData(PasswordData::generate(base64_encode(random_bytes(32))));
-		if (! $this->hasKeyGenerationNonce()) {
+		if(!$this->hasKeyGenerationNonce()) {
 			Debug::error("{$f} key generation nonce is undefined");
 		}
 		$this->disable();
@@ -88,18 +88,18 @@ class AnonymousUser extends PlayableUser{
 
 	public final function getName(): string{
 		$f = __METHOD__;
-		try {
-			if (isset($this->name)) {
+		try{
+			if(isset($this->name)) {
 				return $this->name;
 			}
 			$anonymous = _("Anonymous");
-			if (! $this->hasSerialNumber()) {
+			if(!$this->hasSerialNumber()) {
 				return $anonymous;
 			}
 			$num = $this->getSerialNumber();
 			$name = "{$anonymous} #{$num}";
 			return $name;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -120,7 +120,7 @@ class AnonymousUser extends PlayableUser{
 	public function filterIpAddress(mysqli $mysqli, ?string $ip_address = null, bool $skip_insert = false): int{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::warning("{$f} not implemented: global blacklist");
 		}
 		return SUCCESS;
@@ -128,19 +128,19 @@ class AnonymousUser extends PlayableUser{
 
 	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			// Debug::print("{$f} entered");
 			parent::reconfigureColumns($columns, $ds);
 			$indices = [
 				'subtype'
 			];
-			foreach ($indices as $index) {
+			foreach($indices as $index) {
 				$columns[$index]->volatilize();
 			}
 			$columns[static::getIdentifierNameStatic()]->setNullable(true);
 			$columns[static::getIdentifierNameStatic()]->setDefaultValue(null);
 			// Debug::print("{$f} returning normally");
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -204,12 +204,12 @@ class AnonymousUser extends PlayableUser{
 
 	public function __construct(?int $mode = ALLOCATION_MODE_EAGER){
 		$f = __METHOD__;
-		try {
+		try{
 			// Debug::print("{$f} entered; about to call parent function");
 			parent::__construct($mode);
 			$this->setAccountType($this->getAccountTypeStatic());
 			$session = new LanguageSettingsData();
-			if ($session->hasLanguageCode()) {
+			if($session->hasLanguageCode()) {
 				// Debug::print("{$f} language code is already defined");
 				$this->setLanguagePreference($session->getLanguageCode());
 				return;
@@ -218,23 +218,23 @@ class AnonymousUser extends PlayableUser{
 			$language = default_lang_ip($ip);
 			$session->setLanguageCode($this->setLanguagePreference($language));
 			// Debug::print("{$f} returned from parent function");
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function setIdentifierValue($key): string{
 		$f = __METHOD__;
-		try {
+		try{
 			// Debug::print("{$f} entered");
-			if (! isset($key)) {
+			if(! isset($key)) {
 				Debug::error("{$f} key \"{$key}\" is invalid");
-			} elseif ($this->hasIdentifierValue()) {
+			}elseif($this->hasIdentifierValue()) {
 				Debug::error("{$f} key was already set");
 			}
 			// Debug::print("{$f} returning parent function");
 			return parent::setIdentifierValue($key);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -251,25 +251,25 @@ class AnonymousUser extends PlayableUser{
 
 	public function initializeAnonymousSession(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$session = new FullAuthenticationData();
-			if ($session->hasDeterministicSecretKey()) {
+			if($session->hasDeterministicSecretKey()) {
 				$session->ejectDeterministicSecretKey();
 			}
 			$lsd = new LanguageSettingsData();
 			$this->setRegionCode($lsd->getRegionCode());
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			if (! isset($mysqli)) {
+			if(! isset($mysqli)) {
 				Debug::warning("{$f} mysqli object returned null");
 				$this->generateKey();
 				$this->setEnabled(false);
 				$session->handSessionToUser($this, LOGIN_TYPE_UNDEFINED);
 				return SUCCESS;
-			} else {
+			}else{
 				$this->generateKey();
 				$this->setNotificationDeliveryTimestamp($this->generateInsertTimestamp());
-				if ($print) {
+				if($print) {
 					$key = $this->getIdentifierValue();
 					Debug::print("{$f} generated key \"{$key}\"");
 				}
@@ -278,17 +278,17 @@ class AnonymousUser extends PlayableUser{
 				$this->setReceptivity(DATA_MODE_RECEPTIVE);
 				$this->processPasswordData($password_data);
 				$this->setReceptivity(DATA_MODE_DEFAULT);
-				if (! $this->hasKeyGenerationNonce()) {
+				if(!$this->hasKeyGenerationNonce()) {
 					Debug::error("{$f} key generation nonce is undefined");
 				}
-				if (cache()->enabled() && USER_CACHE_ENABLED) {
+				if(cache()->enabled() && USER_CACHE_ENABLED) {
 					$columns = $this->getFilteredColumns(COLUMN_FILTER_DATABASE, COLUMN_FILTER_VALUED);
 					$cached_values = [];
-					foreach ($columns as $column_name => $column) {
+					foreach($columns as $column_name => $column) {
 						$cached_values[$column_name] = $column->getDatabaseEncodedValue();
 					}
 					$this->setCacheValue($cached_values);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} user cache is disabled");
 				}
 				$session->handSessionToUser($this, LOGIN_TYPE_UNDEFINED);
@@ -297,11 +297,11 @@ class AnonymousUser extends PlayableUser{
 					app()->getWorkflow()->addEventListener(EVENT_AFTER_RESPOND, function (AfterRespondEvent $event, Workflow $target) use ($f, $print, $user) {
 						$mysqli = db()->reconnect(PublicWriteCredentials::class);
 						$status = $user->throttledInsert($mysqli);
-						if ($status !== SUCCESS) {
+						if($status !== SUCCESS) {
 							$err = ErrorMessage::getResultMessage($status);
 							Debug::warning("{$f} throttledInsert returned error status \"{$err}\"");
 							$user->setObjectStatus($status);
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} throttledInsert successful");
 						}
 					});
@@ -315,20 +315,20 @@ class AnonymousUser extends PlayableUser{
 				$this->setSessionRecoveryData($recovery);
 			}
 			$has_session = $session->hasUserKey();
-			if (! $has_session) {
+			if(!$has_session) {
 				Debug::error("{$f} user key is undefined");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} user key is " . $session->getUserKey());
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getSessionRecoveryData(): SessionRecoveryData{
 		$f = __METHOD__;
-		if (! $this->hasSessionRecoveryData()) {
+		if(!$this->hasSessionRecoveryData()) {
 			Debug::error("{$f} session recovery data is undefined");
 		}
 		return $this->getForeignDataStructure("sessionRecoveryKey");
@@ -344,7 +344,7 @@ class AnonymousUser extends PlayableUser{
 
 	public function throttledInsert(mysqli $mysqli): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$meter = new GenericThrottleMeter();
 			$meter->setLimitPerMinute(1);
@@ -354,17 +354,17 @@ class AnonymousUser extends PlayableUser{
 			$meter->setLimitPerMonth(40);
 			$meter->setLimitPerYear(50);
 			$query = $this->select();
-			if ($meter->meter($mysqli, time(), OPERATOR_LESSTHANEQUALS, $query->where("insertIpAddress")
+			if($meter->meter($mysqli, time(), OPERATOR_LESSTHANEQUALS, $query->where("insertIpAddress")
 				->withTypeSpecifier('s')
 				->withParameters([
 				$_SERVER['REMOTE_ADDR']
 			]))) {
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} user is probably not trying to flood the server with billions of fake sessions");
 				}
 				app()->setUserData($this);
 				$status = $this->insert($mysqli);
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} database write operation returned failure status \"{$err}\"");
 					return $this->setObjectStatus($status);
@@ -373,19 +373,19 @@ class AnonymousUser extends PlayableUser{
 				$recovery = $this->getSessionRecoveryData(); // new SessionRecoveryData();
 				                                             // $recovery->setUserData($this);
 				$status = $recovery->insert($mysqli);
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} inserting session recovery data returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} successfully inserted session recovery data");
 				}
-			} else {
+			}else{
 				Debug::warning("{$f} too many users with this IP address, skipping creation of a new session");
 				$this->setEnabled(false);
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -396,14 +396,14 @@ class AnonymousUser extends PlayableUser{
 
 	public function loadFailureHook(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			// Debug::print("{$f} user does not exist -- deleting cookie now");
 			unset($_COOKIE['anonSessionToken']);
 			unset($_SESSION['anonSessionToken']);
 			// Debug::print("{$f} you need to initialize another session once you get back to getAnonymousUser");
 			return $this->setObjectStatus(ERROR_NOT_FOUND);
 			return parent::loadFailureHook();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

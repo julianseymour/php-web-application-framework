@@ -12,10 +12,10 @@ trait LockOptionTrait
 	public function setLockOption(bool $lock = true): bool
 	{
 		$f = __METHOD__; //"LockOptionTrait(".static::getShortClass().")->setLockOption()";
-		if ($lock == null) {
+		if($lock == null) {
 			unset($this->lockOption);
 			return null;
-		} elseif (! is_string($lock)) {
+		}elseif(!is_string($lock)) {
 			Debug::error("{$f} lock option must be a string");
 		}
 		$lock = strtolower($lock);
@@ -30,7 +30,7 @@ trait LockOptionTrait
 	public function getLockOption(): bool
 	{
 		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->getLockOption()";
-		if (! $this->hasLockOption()) {
+		if(!$this->hasLockOption()) {
 			Debug::error("{$f} lock option is undefined");
 		}
 		return $this->lockOption;

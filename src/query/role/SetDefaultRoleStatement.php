@@ -13,11 +13,11 @@ class SetDefaultRoleStatement extends RoleStatement
 	{
 		$f = __METHOD__; //SetDefaultRoleStatement::getShortClass()."(".static::getShortClass().")->getRoleStatementString()";
 		$string = "default role ";
-		if ($this->hasRoleType()) {
+		if($this->hasRoleType()) {
 			$string .= $this->getRoleType();
-		} elseif ($this->hasRoles()) {
+		}elseif($this->hasRoles()) {
 			$string .= " " . implode(',', $this->getRoles());
-		} else {
+		}else{
 			Debug::error("{$f} neither of the above");
 			return null;
 		}

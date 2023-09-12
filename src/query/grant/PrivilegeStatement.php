@@ -51,7 +51,7 @@ abstract class PrivilegeStatement extends QueryStatement{
 	}
 
 	public function withPrivileges(...$values): PrivilegeStatement{
-		if (count($values) == 1 && is_array($values[0])) {
+		if(count($values) == 1 && is_array($values[0])) {
 			$values = $values[0];
 		}
 		$this->setPrivileges([
@@ -62,10 +62,10 @@ abstract class PrivilegeStatement extends QueryStatement{
 
 	public function setObjectType($type){
 		$f = __METHOD__;
-		if ($type == null) {
+		if($type == null) {
 			unset($this->objectType);
 			return null;
-		} elseif (! is_string($type)) {
+		}elseif(!is_string($type)) {
 			Debug::error("{$f} object type must be a string");
 		}
 		$type = strtolower($type);
@@ -86,7 +86,7 @@ abstract class PrivilegeStatement extends QueryStatement{
 
 	public function getObjectType(){
 		$f = __METHOD__;
-		if (! $this->hasObjectType()) {
+		if(!$this->hasObjectType()) {
 			Debug::error("{$f} object type is undefined");
 		}
 		return $this->objectType;
@@ -113,12 +113,12 @@ abstract class PrivilegeStatement extends QueryStatement{
 
 	public function setProxyUser($user_or_role){
 		$f = __METHOD__;
-		if ($user_or_role == null) {
+		if($user_or_role == null) {
 			unset($this->proxyUser);
 			return null;
-		} elseif ($user_or_role instanceof DatabaseRoleData) {
+		}elseif($user_or_role instanceof DatabaseRoleData) {
 			$user_or_role = $user_or_role->getUsernameHostString();
-		} elseif (! is_string($user_or_role)) {
+		}elseif(!is_string($user_or_role)) {
 			Debug::error("{$f} user or role must be a string in the format 'username'@'hostname'");
 		}
 		return $this->proxyUser = $user_or_role;
@@ -130,7 +130,7 @@ abstract class PrivilegeStatement extends QueryStatement{
 
 	public function getProxyUser(){
 		$f = __METHOD__;
-		if (! $this->hasProxyUser()) {
+		if(!$this->hasProxyUser()) {
 			Debug::error("{$f} proxy user is undefined");
 		}
 		return $this->proxyUser;

@@ -44,7 +44,7 @@ class CipherDatum extends EncryptionComponentDatum
 	{
 		$f = __METHOD__; //CipherDatum::getShortClass()."(".static::getShortClass().")->parseOriginal()";
 		$print = false;
-		if ($print) {
+		if($print) {
 			$odc = $this->getOriginalDatumClass();
 			Debug::print("{$f} returning {$odc}::parseString()");
 		}

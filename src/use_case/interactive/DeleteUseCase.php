@@ -16,11 +16,11 @@ class DeleteUseCase extends SubsequentUseCase
 	public function execute(): int
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$object = $this->getPredecessor()->getDataOperandObject();
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			if (! isset($mysqli)) {
+			if(! isset($mysqli)) {
 				$err = ErrorMessage::getResultMessage(ERROR_MYSQL_CONNECT);
 				Debug::error("{$f} {$err}");
 			}
@@ -34,11 +34,11 @@ class DeleteUseCase extends SubsequentUseCase
 					Debug::warning("{$f} deleting object returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} deletion successful");
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

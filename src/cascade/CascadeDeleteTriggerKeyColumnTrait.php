@@ -32,15 +32,15 @@ trait CascadeDeleteTriggerKeyColumnTrait{
 		$f = __METHOD__;
 		$print = false;
 		$delete = QueryBuilder::delete()->from(CascadeDeleteTriggerData::getDatabaseNameStatic(), CascadeDeleteTriggerData::getTableNameStatic())->where(CascadeDeleteTriggerData::whereIntersectionalHostKey(static::class, "instigatorKey"))->withTypeSpecifier('ss')->withParameters($this->getIdentifierValue(), "instigatorKey");
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} cascade delete query is \"{$delete}\"");
 		}
 		$status = $delete->executeGetStatus($mysqli);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::error("{$f} executing cascade delete query statement \"{$delete}\" returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} successfully executed cascase delete query statement");
 		}
 		return SUCCESS;
@@ -97,12 +97,12 @@ trait CascadeDeleteTriggerKeyColumnTrait{
 	public function generateCascadeDeleteTriggerData(mysqli $mysqli): CascadeDeleteTriggerData{
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasCascadeDeleteTriggerData()) {
+		if($this->hasCascadeDeleteTriggerData()) {
 			Debug::error("{$f} do not call this if the data has already been generated");
 			return $this->getCascadeDeleteTriggerData();
-		} elseif ($this->hasColumn("cascadeDeleteTriggerKey")) {
+		}elseif($this->hasColumn("cascadeDeleteTriggerKey")) {
 			Debug::print("{$f} cascade delete trigger key column already exists");
-		} else {
+		}else{
 			$column = new ForeignKeyDatum("cascadeDeleteTriggerKey", RELATIONSHIP_TYPE_ONE_TO_ONE);
 			$column->setForeignDataStructureClass(CascadeDeleteTriggerData::class);
 			$column->volatilize();
@@ -114,7 +114,7 @@ trait CascadeDeleteTriggerKeyColumnTrait{
 		$select = CascadeDeleteTriggerData::selectStatic()->where(CascadeDeleteTriggerData::whereIntersectionalForeignKey(static::class, "instigatorKey"))
 			->withTypeSpecifier('ss')
 			->withParameters($this->getIdentifierValue(), "instigatorKey");
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} select statement is \"{$select}\"");
 		}
 		$result = $select->executeGetResult($mysqli);
@@ -122,20 +122,20 @@ trait CascadeDeleteTriggerKeyColumnTrait{
 		switch ($rows) {
 			case 0:
 				$result->free_result();
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} there were no results");
 				}
 				$cdtd->generateKey();
 				$this->addEventListener(EVENT_BEFORE_INSERT_FOREIGN, function (BeforeInsertForeignDataStructuresEvent $event, DataStructure $target) use ($f){
 					$when = $event->getProperty('when');
-					if ($when !== CONST_AFTER) {
+					if($when !== CONST_AFTER) {
 						return SUCCESS;
 					}
 					$cdtd = $target->getForeignDataStructure("cascadeDeleteTriggerKey");
 					$mysqli = db()->getConnection(PublicWriteCredentials::class);
 					$cdtd->setPermission(DIRECTIVE_INSERT, SUCCESS);
 					$status = $cdtd->insert($mysqli);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} inserting CascadeDeleteTriggerData returned error status \"{$err}\"");
 						return $target->setObjectStatus($status);
@@ -144,13 +144,13 @@ trait CascadeDeleteTriggerKeyColumnTrait{
 				});
 				break;
 			case 1:
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} there was 1 result");
 				}
 				$results = $result->fetch_all(MYSQLI_ASSOC);
 				$result->free_result();
 				$status = $cdtd->processQueryResultArray($mysqli, $results[0]);
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} processing query results array for CascadeDeleteTriggerData returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);

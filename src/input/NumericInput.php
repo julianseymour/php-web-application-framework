@@ -57,15 +57,15 @@ abstract class NumericInput extends KeypadInput
 	public function bindContext($context)
 	{
 		$f = __METHOD__; //NumericInput::getShortClass()."(".static::getShortClass().")->bindContext()";
-		if ($context instanceof AbstractNumericDatum) {
-			if ($context->hasMinimumValue()) {
+		if($context instanceof AbstractNumericDatum) {
+			if($context->hasMinimumValue()) {
 				$this->setMinimumAttribute($context->getMinimumValue());
 			}
-			if ($context->hasMaximumValue()) {
+			if($context->hasMaximumValue()) {
 				$this->setMaximumAttribute($context->getMaxmimumValue());
 			}
-			if ($context instanceof FloatingPointDatum) {
-				if ($context->hasPrecision()) {
+			if($context instanceof FloatingPointDatum) {
+				if($context->hasPrecision()) {
 					$this->setStepAttribute($context->getPrecision());
 				}
 			}

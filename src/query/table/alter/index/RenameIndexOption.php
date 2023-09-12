@@ -33,7 +33,7 @@ class RenameIndexOption extends IndexNameOption
 	public function getNewIndexName()
 	{
 		$f = __METHOD__; //RenameIndexOption::getShortClass()."(".static::getShortClass().")->getNewIndexName()";
-		if (! $this->hasNewIndexName()) {
+		if(!$this->hasNewIndexName()) {
 			Debug::error("{$f} new index name is undefined");
 		}
 		return $this->newIndexName;

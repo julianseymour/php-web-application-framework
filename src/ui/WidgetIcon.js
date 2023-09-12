@@ -42,7 +42,7 @@ class WidgetIcon extends Basic{
 		let f = "hideWidget("+id+")";
 		try{
 			let w = document.getElementById(id);
-			if (w == null){
+			if(w == null){
 				console.error(f+": element with ID \""+id+"\" not found");
 			}else{
 				setElementOpacity(w, 0);
@@ -57,7 +57,7 @@ class WidgetIcon extends Basic{
 		let f = "unhideWidget("+id+")";
 		try{
 			let w = document.getElementById(id);
-			if (w == null){
+			if(w == null){
 				console.error(f+": element with ID \""+id+"\" not found");
 			}else{
 				setElementOpacity(w, 1);

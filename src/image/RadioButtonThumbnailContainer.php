@@ -12,7 +12,7 @@ class RadioButtonThumbnailContainer extends RadioButtonInput
 	protected function generateSuccessors(): array{
 		$f = __METHOD__; //RadioButtonThumbnailContainer::getShortClass()."(".static::getShortClass().")->generateSuccessors()";
 		$value = $this->getValueAttribute();
-		if (empty($value)) {
+		if(empty($value)) {
 			$span = new SpanElement();
 			$span->setAllowEmptyInnerHTML(true);
 			$span->setInnerHTML("Nothing");
@@ -25,8 +25,8 @@ class RadioButtonThumbnailContainer extends RadioButtonInput
 			->getDataStructure();
 		$tree_name = ImageData::getPhylumName();
 		$images = $ds->hasForeignDataStructureList($tree_name) ? $ds->getForeignDataStructureList($tree_name) : [];
-		foreach ($images as $image) {
-			if ($image->getIdentifierValue() === $this->getValueAttribute()) {
+		foreach($images as $image) {
+			if($image->getIdentifierValue() === $this->getValueAttribute()) {
 				Debug::print("{$f} value match -- about to print thumbnail");
 				$img = new ImageElement();
 				$img->setSourceAttribute($image->getWebThumbnailPath());

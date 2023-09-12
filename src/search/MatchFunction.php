@@ -25,12 +25,12 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 
 	public function setSearchModifier($sm){
 		$f = __METHOD__;
-		if ($sm == null) {
+		if($sm == null) {
 			unset($this->searchModifier);
 			return null;
-		} elseif (! is_string($sm)) {
+		}elseif(!is_string($sm)) {
 			Debug::error("{$f} search modifier must be a string");
-		} elseif (empty($sm)) {
+		}elseif(empty($sm)) {
 			Debug::error("{$f} empty string");
 		}
 		$sm = strtolower($sm);
@@ -52,7 +52,7 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 
 	public function getSearchModifier(){
 		$f = __METHOD__;
-		if (! $this->hasSearchModifier()) {
+		if(!$this->hasSearchModifier()) {
 			Debug::error("{$f} search modifier is undefined");
 		}
 		return $this->searchModifier;
@@ -66,26 +66,26 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 	public function getExpression(){
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasExpression()) {
-			if (! $this->hasParameterCount()) {
+		if(!$this->hasExpression()) {
+			if(!$this->hasParameterCount()) {
 				Debug::error("{$f} parameter count is undefined");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} expression is undefined; auto generating one from parameter count");
 			}
 			$count = $this->getParameterCount();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} parameter count {$count}");
 			}
 			$string = '?';
-			if ($count == 1) {
+			if($count == 1) {
 				return $string;
 			}
 			$string = str_pad($string, (2 * $count) - 1, ",?");
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning \"{$string}\"");
 			}
 			return $string;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} expression was already defined");
 		}
 		return $this->expression;
@@ -93,12 +93,12 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 
 	public function toSQL(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			// MATCH (col1,col2,...)
 			$string = "match (" . implode_back_quotes(',', $this->getColumnNames()) . ") ";
 			// AGAINST (expr [search_modifier])
 			$expression = $this->getExpression();
-			if ($expression instanceof SQLInterface) {
+			if($expression instanceof SQLInterface) {
 				$expression = $expression->toSQL();
 			}
 			$string .= "against ({$expression}";
@@ -108,12 +108,12 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 			// | IN BOOLEAN MODE
 			// | WITH QUERY EXPANSION
 			// }
-			if ($this->hasSearchModifier()) {
+			if($this->hasSearchModifier()) {
 				$string .= $this->getSearchModifier();
 			}
 			$string .= ")";
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

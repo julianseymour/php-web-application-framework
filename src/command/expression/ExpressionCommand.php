@@ -36,7 +36,7 @@ abstract class ExpressionCommand extends Command implements ValueReturningComman
 
 	public function setOperator($operator)
 	{
-		if ($operator == null) {
+		if($operator == null) {
 			unset($this->operator);
 			return null;
 		}
@@ -51,9 +51,9 @@ abstract class ExpressionCommand extends Command implements ValueReturningComman
 	public function getOperator()
 	{
 		$f = __METHOD__; //ExpressionCommand::getShortClass()."(".static::getShortClass().")->getOperator()";
-		if (! $this->hasOperator()) {
+		if(!$this->hasOperator()) {
 			Debug::error("{$f} operator is undefined");
-		} elseif ($this->isNegated()) {
+		}elseif($this->isNegated()) {
 			return static::negateOperator($this->operator);
 		}
 		return $this->operator; // hasOperator() ? $this->operator : OPERATOR_EQUALSEQUALS;

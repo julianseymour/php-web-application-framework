@@ -21,7 +21,7 @@ class Registry extends Basic
 	public function deregister(...$keys)
 	{
 		$f = __METHOD__; //Registry::getShortClass()."(".static::getShortClass().")->deregister()";
-		if (is_array($this->globalKeyMap)) {
+		if(is_array($this->globalKeyMap)) {
 			$this->globalKeyMap = array_remove_keys($this->globalKeyMap, ...$keys); // $this->globalKeyMap[$key] = null;
 			return SUCCESS;
 		}
@@ -33,19 +33,19 @@ class Registry extends Basic
 	{
 		$f = __METHOD__; //Registry::getShortClass()."(".static::getShortClass().")->update()";
 		$print = false;
-		if (! $object->isRegistrable()) {
+		if(!$object->isRegistrable()) {
 			Debug::error("{$f} object is not registrable");
-		} elseif (! is_int($key) && ! is_string($key)) {
+		}elseif(!is_int($key) && ! is_string($key)) {
 			$gottype = gettype($key);
 			Debug::error("{$f} key is a \"{$gottype}\"");
-		} elseif (empty($key)) {
+		}elseif(empty($key)) {
 			Debug::error("{$f} empty key");
-		} elseif (! isset($object)) {
+		}elseif(! isset($object)) {
 			Debug::error("{$f} object is null; use deregister({$key}) to unmap");
-		} elseif (! is_array($this->globalKeyMap)) {
+		}elseif(!is_array($this->globalKeyMap)) {
 			$this->globalKeyMap = [];
 		}
-		if ($print) {
+		if($print) {
 			$dsc = $object->getClass();
 			Debug::printStackTraceNoExit("{$f} mapping a {$dsc} to key \"{$key}\"");
 		}
@@ -68,27 +68,27 @@ class Registry extends Basic
 	public function registerObjectToKey($key, $object)
 	{
 		$f = __METHOD__; //Registry::getShortClass()."(".static::getShortClass().")->registerObjectToKey()";
-		try {
+		try{
 			$print = false;
-			if (empty($key)) {
+			if(empty($key)) {
 				Debug::error("{$f} empty key");
-			} elseif (! isset($object)) {
+			}elseif(! isset($object)) {
 				Debug::error("{$f} object is null; use deregister({$key}) to unmap");
-			} elseif (! is_array($this->globalKeyMap)) {
+			}elseif(!is_array($this->globalKeyMap)) {
 				$this->globalKeyMap = [];
-			} elseif (array_key_exists($key, $this->globalKeyMap)) {
+			}elseif(array_key_exists($key, $this->globalKeyMap)) {
 				$decl1 = $this->globalKeyMap[$key]->getDeclarationLine();
 				$did1 = $this->globalKeyMap[$key]->getDebugId();
 				$decl2 = $object->getDeclarationLine();
 				$did2 = $object->getDebugId();
 				Debug::error("{$f} something with debug ID {$did1} was already mapped to key \"{$key}\", and it was declared {$decl1}. The new object has debug ID {$did2} and was declared {$decl2}");
 			}
-			if ($print) {
+			if($print) {
 				$dsc = $object->getClass();
 				Debug::printStackTraceNoExit("{$f} mapping a {$dsc} to key \"{$key}\"");
 			}
 			return $this->globalKeyMap[$key] = $object;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -97,25 +97,25 @@ class Registry extends Basic
 	{
 		$f = __METHOD__; //Registry::getShortClass()."(".static::getShortClass().")->hasObjectRegisteredToKey()";
 		$print = false;
-		if (! is_int($key) && ! is_string($key)) {
+		if(!is_int($key) && ! is_string($key)) {
 			$gottype = gettype($key);
 			Debug::error("{$f} key is a \"{$gottype}\"");
-		} elseif ($print) {
-			if (isset($this->globalKeyMap)) {
-				if (is_array($this->globalKeyMap)) {
-					if (array_key_exists($key, $this->globalKeyMap)) {
-						if ($this->globalKeyMap[$key] !== null) {
+		}elseif($print) {
+			if(isset($this->globalKeyMap)) {
+				if(is_array($this->globalKeyMap)) {
+					if(array_key_exists($key, $this->globalKeyMap)) {
+						if($this->globalKeyMap[$key] !== null) {
 							Debug::print("{$f} value mapped to key \"{$key}\" is not null");
-						} else {
+						}else{
 							Debug::print("{$f} value mapped to key \"{$key}\" is null");
 						}
-					} else {
+					}else{
 						Debug::print("{$f} key \"{$key}\" is not mapped to anything");
 					}
-				} else {
+				}else{
 					Debug::print("{$f} global key map is not an array");
 				}
-			} else {
+			}else{
 				Debug::print("{$f} global key map is undefined");
 			}
 		}
@@ -132,18 +132,18 @@ class Registry extends Basic
 
 	public function getRegisteredObjectFromKey($key): ?DataStructure{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($key === "N/A") {
+			if($key === "N/A") {
 				Debug::error("{$f} not applicable");
-			} elseif ($this->hasObjectRegisteredToKey($key)) {
+			}elseif($this->hasObjectRegisteredToKey($key)) {
 				return $this->globalKeyMap[$key];
 			}
 			if($print){
 				Debug::warning("{$f} key \"{$key}\" is not mapped");
 			}
 			return null;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

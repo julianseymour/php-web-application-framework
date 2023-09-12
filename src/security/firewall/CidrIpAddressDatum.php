@@ -12,14 +12,14 @@ class CidrIpAddressDatum extends IpAddressDatum{
 		$value = $input->getValueAttribute(); // arr[$name];
 		Debug::print("{$f} posted value is \"{$value}\"");
 		$data = $this->getDataStructure();
-		if (preg_match(REGEX_IPv4_ADDRESS, $value)) {
+		if(preg_match(REGEX_IPv4_ADDRESS, $value)) {
 			if($print){
 				Debug::print("{$f} posted value is an IPv4 address");
 			}
 			$version = 4;
 			$mask = 32;
 			$ip_address = $value;
-		} elseif (preg_match(REGEX_IPv4_CIDR, $value)) {
+		}elseif(preg_match(REGEX_IPv4_CIDR, $value)) {
 			if($print){
 				Debug::print("{$f} posted value is an IPv4 CIDR range");
 			}
@@ -27,7 +27,7 @@ class CidrIpAddressDatum extends IpAddressDatum{
 			$ip_address = $splat[0];
 			$mask = intval($splat[1]);
 			$version = 4;
-		} elseif (preg_match(REGEX_IPv6_ADDRESS, $value)) {
+		}elseif(preg_match(REGEX_IPv6_ADDRESS, $value)) {
 			if($print){
 				Debug::print("{$f} posted value is an IPv6 address");
 			}
@@ -35,7 +35,7 @@ class CidrIpAddressDatum extends IpAddressDatum{
 			$ip_address = $value;
 			$mask = 128;
 			//return $this->setObjectStatus(ERROR_IPv6_UNSUPPORTED);
-		} elseif (preg_match(REGEX_IPv6_CIDR, $value)) {
+		}elseif(preg_match(REGEX_IPv6_CIDR, $value)) {
 			if($print){
 				Debug::print("{$f} posted value is an IPv6 CIDR range");
 			}
@@ -44,7 +44,7 @@ class CidrIpAddressDatum extends IpAddressDatum{
 			$ip_address = $splat[0];
 			$mask = intval($splat[1]);
 			//return $this->setObjectStatus(ERROR_IPv6_UNSUPPORTED);
-		} else {
+		}else{
 			if($print){
 				Debug::print("{$f} invalid IP address \"{$value}\"");
 			}

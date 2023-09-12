@@ -17,7 +17,7 @@ class LockOption extends AlterOption
 	public function setLock($lock)
 	{
 		$f = __METHOD__; //LockOption::getShortClass()."(".static::getShortClass().")->setLock()";
-		if (! is_string($lock)) {
+		if(!is_string($lock)) {
 			Debug::error("{$f} lock is not a string");
 		}
 		$lock = strtolower($lock);
@@ -40,7 +40,7 @@ class LockOption extends AlterOption
 
 	public function getLock()
 	{
-		if (! $this->hasLock()) {
+		if(!$this->hasLock()) {
 			return LOCK_OPTION_DEFAULT;
 		}
 		return $this->lock;

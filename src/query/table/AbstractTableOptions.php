@@ -59,7 +59,7 @@ abstract class AbstractTableOptions extends AlterOption
 	public function getDataDirectoryName()
 	{
 		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->getDataDirectoryName()";
-		if (! $this->hasDataDirectoryName()) {
+		if(!$this->hasDataDirectoryName()) {
 			Debug::error("{$f} data directory name is undefined");
 		}
 		return $this->dataDirectoryName;
@@ -78,7 +78,7 @@ abstract class AbstractTableOptions extends AlterOption
 	public function getIndexDirectoryName()
 	{
 		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->getIndexDirectoryName()";
-		if (! $this->hasIndexDirectoryName()) {
+		if(!$this->hasIndexDirectoryName()) {
 			Debug::error("{$f} index directory name is undefined");
 		}
 		return $this->indexDirectoryName;
@@ -99,14 +99,14 @@ abstract class AbstractTableOptions extends AlterOption
 	public function setMinimumRowCount($count)
 	{
 		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->setMinimumRowCount()";
-		if ($count === null) {
+		if($count === null) {
 			unset($this->minimumRowCount);
 			return null;
-		} elseif (! is_int($count)) {
+		}elseif(!is_int($count)) {
 			Debug::error("{$f} minimum row count must be a positive integer");
-		} elseif ($count <= 0) {
+		}elseif($count <= 0) {
 			Debug::error("{$f} minimum row count must be positive");
-		} elseif ($this->hasMaximumRowCount() && $count > $this->getMaximumRowCount()) {
+		}elseif($this->hasMaximumRowCount() && $count > $this->getMaximumRowCount()) {
 			Debug::error("{$f} minimum row count cannot exceed the maximum");
 		}
 		return $this->minimumRowCount = $count;
@@ -120,7 +120,7 @@ abstract class AbstractTableOptions extends AlterOption
 	public function getMinimumRowCount()
 	{
 		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->getMinimumRowCount()";
-		if (! $this->hasMinimumRowCount()) {
+		if(!$this->hasMinimumRowCount()) {
 			Debug::error("{$f} minimum row count is undefined");
 		}
 		return $this->minimumRowCount;
@@ -129,14 +129,14 @@ abstract class AbstractTableOptions extends AlterOption
 	public function setMaximumRowCount($count)
 	{
 		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->setMaximumRowCount()";
-		if ($count === null) {
+		if($count === null) {
 			unset($this->maximumRowCount);
 			return null;
-		} elseif (! is_int($count)) {
+		}elseif(!is_int($count)) {
 			Debug::error("{$f} maximum row count must be a positive integer");
-		} elseif ($count <= 0) {
+		}elseif($count <= 0) {
 			Debug::error("{$f} maximum row count must be positive");
-		} elseif ($this->hasMinimumRowCount() && $count < $this->getMinimumRowCount()) {
+		}elseif($this->hasMinimumRowCount() && $count < $this->getMinimumRowCount()) {
 			Debug::error("{$f} maximum row count cannot be less than minimum");
 		}
 		return $this->maximumRowCount = $count;
@@ -150,7 +150,7 @@ abstract class AbstractTableOptions extends AlterOption
 	public function getMaximumRowCount()
 	{
 		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->getMaximumRowCount()";
-		if (! $this->hasMaximumRowCount()) {
+		if(!$this->hasMaximumRowCount()) {
 			Debug::error("{$f} maximum row count is undefined");
 		}
 		return $this->maximumRowCount;

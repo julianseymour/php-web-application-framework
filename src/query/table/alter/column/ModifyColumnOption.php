@@ -14,7 +14,7 @@ class ModifyColumnOption extends AlterOption
 	{
 		parent::__construct();
 		$this->setColumnDefinition($columnDefinition);
-		if ($position !== null) {
+		if($position !== null) {
 			$this->setColumnPosition($position, $afterColumnName);
 		}
 	}
@@ -23,7 +23,7 @@ class ModifyColumnOption extends AlterOption
 	{
 		$definition = $this->getColumnDefinition();
 		$string = "modify {$definition}";
-		if ($this->hasColumnPositon()) {
+		if($this->hasColumnPositon()) {
 			$string .= $this->getColumnPositionString();
 		}
 		return $string;

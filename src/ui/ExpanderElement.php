@@ -79,7 +79,7 @@ class ExpanderElement extends Element
 	public function getTriggerInputType()
 	{
 		$f = __METHOD__; //ExpanderElement::getShortClass()."(".static::getShortClass().")->getTriggerInputType()";
-		if (! $this->hasTriggerInputType()) {
+		if(!$this->hasTriggerInputType()) {
 			Debug::error("{$f} trigger input type is undefined");
 		}
 		return $this->triggerInputType;
@@ -102,7 +102,7 @@ class ExpanderElement extends Element
 
 	public function getExpandLabelString()
 	{
-		if (! $this->hasExpandLabelString()) {
+		if(!$this->hasExpandLabelString()) {
 			return _("Expand");
 		}
 		return $this->expandLabelString;
@@ -120,7 +120,7 @@ class ExpanderElement extends Element
 
 	public function getCollapseLabelString()
 	{
-		if (! $this->hasCollapseLabelString()) {
+		if(!$this->hasCollapseLabelString()) {
 			return _("Collapse");
 		}
 		return $this->collapseLabelString;
@@ -134,7 +134,7 @@ class ExpanderElement extends Element
 	public function getTriggerInputClass()
 	{
 		$f = __METHOD__; //ExpanderElement::getShortClass()."(".static::getShortClass().")->getTriggerInputClass()";
-		try {
+		try{
 			$type = $this->getTriggerInputType();
 			switch ($type) {
 				case INPUT_TYPE_CHECKBOX:
@@ -144,7 +144,7 @@ class ExpanderElement extends Element
 				default:
 					Debug::error("{$f} invalid form input type \"{$type}\"");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -157,7 +157,7 @@ class ExpanderElement extends Element
 	public function getExpandTriggerInputIdAttribute()
 	{
 		$f = __METHOD__; //ExpanderElement::getShortClass()."(".static::getShortClass().")->getExpandTriggerInputIdAttribute()";
-		if (! $this->hasExpandTriggerInputIdAttribute()) {
+		if(!$this->hasExpandTriggerInputIdAttribute()) {
 			Debug::error("{$f} expand trigger input ID attribute is undefined");
 		}
 		return $this->expandId;
@@ -186,20 +186,20 @@ class ExpanderElement extends Element
 	public function getCollapseTriggerInputIdAttribute()
 	{
 		$f = __METHOD__; //ExpanderElement::getShortClass()."(".static::getShortClass().")->getCollapseTriggerInputIdAttribute()";
-		try {
+		try{
 			$type = $this->getTriggerInputType();
 			switch ($type) {
 				case INPUT_TYPE_CHECKBOX:
 					return $this->getExpandTriggerInputIdAttribute();
 				case INPUT_TYPE_RADIO:
-					if (! $this->hasCollapseTriggerInputIdAttribute()) {
+					if(!$this->hasCollapseTriggerInputIdAttribute()) {
 						Debug::error("{$f} collapse trigger ID attribute is undefined");
 					}
 					return $this->collapseId;
 				default:
 					Debug::error("{$f} invalid form input type \"{$type}\"");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -227,7 +227,7 @@ class ExpanderElement extends Element
 	public function getTriggerInputNameAttribute()
 	{
 		$f = __METHOD__; //ExpanderElement::getShortClass()."(".static::getShortClass().")->getTriggerInputNameAttribute()";
-		if (! $this->hasTriggerInputNameAttribute()) {
+		if(!$this->hasTriggerInputNameAttribute()) {
 			Debug::error("{$f} trigger input name attribute is undefined");
 		}
 		return $this->triggerInputName;
@@ -257,7 +257,7 @@ class ExpanderElement extends Element
 	public function collapse()
 	{
 		$input = $this->getTriggerInput();
-		if ($input->hasCheckedAttribute()) {
+		if($input->hasCheckedAttribute()) {
 			$input->removeCheckedAttribute();
 		}
 		return $this;
@@ -265,14 +265,14 @@ class ExpanderElement extends Element
 
 	public function getTriggerInput()
 	{
-		if ($this->hasTriggerInput()) {
+		if($this->hasTriggerInput()) {
 			return $this->triggerInput;
 		}
 		$mode = $this->getAllocationMode();
 		$tic = $this->getTriggerInputClass();
 		$input = new $tic($mode);
 		$input->addClassAttribute("hidden");
-		if ($this->getTriggerInputType() === INPUT_TYPE_RADIO) {
+		if($this->getTriggerInputType() === INPUT_TYPE_RADIO) {
 			$input->setNameAttribute($this->getTriggerInputNameAttribute());
 		}
 		$input->setIdAttribute($this->getExpandTriggerInputIdAttribute());
@@ -294,7 +294,7 @@ class ExpanderElement extends Element
 		$label_container->addClassAttribute("label_container");
 		$open_label = $this->createExpandLabelElement();
 		$label_container->appendChild($open_label);
-		if ($this->getCollapseLabelStatus()) {
+		if($this->getCollapseLabelStatus()) {
 			$close_label = $this->createCollapseLabelElement();
 			$label_container->appendChild($close_label);
 		}
@@ -319,25 +319,25 @@ class ExpanderElement extends Element
 		$f = __METHOD__; //ExpanderElement::getShortClass()."(".static::getShortClass().")->createCollapseLabelElement()";
 		$print = false;
 		$mode = $this->getAllocationMode();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} child generation mode is \"{$mode}\"");
 		}
 		$close_label = new LabelElement($mode);
 		$close_label->addClassAttribute("collapse_label");
 		$close_label->setInnerHTML($this->getCollapseLabelString());
 		$for = $this->getCollapseTriggerInputIdAttribute();
-		if ($this->getTriggerInputType() === INPUT_TYPE_CHECKBOX) {
-			if (is_object($for)) {
-				if ($print) {
+		if($this->getTriggerInputType() === INPUT_TYPE_CHECKBOX) {
+			if(is_object($for)) {
+				if($print) {
 					$idc = $for->getClass();
 					Debug::print("{$f} this is a checkbox-based expander -- about to replicate command of class \"{$idc}\"");
 				}
 				$for = $for->replicate();
 				$id = new ConcatenateCommand("collapse_label-", $for->replicate());
-			} else {
+			}else{
 				$id = new ConcatenateCommand("collapse_label-", $for);
 			}
-		} else {
+		}else{
 			$id = new ConcatenateCommand("collapse_label-", $for);
 		}
 		$close_label->setForAttribute($for);
@@ -353,7 +353,7 @@ class ExpanderElement extends Element
 	public function getEstimatedHeight(): string
 	{
 		$f = __METHOD__; //ExpanderElement::getShortClass()."(".static::getShortClass().")->getEstimatedHeight()";
-		if (! $this->hasEstimatedHeight()) {
+		if(!$this->hasEstimatedHeight()) {
 			Debug::error("{$f} estimated height is undefined");
 		}
 		return $this->estimatedHeight;
@@ -361,7 +361,7 @@ class ExpanderElement extends Element
 
 	public function setEstimatedHeight(?string $height): ?string
 	{
-		if ($height == null) {
+		if($height == null) {
 			unset($this->estimatedHeight);
 			return null;
 		}
@@ -370,13 +370,13 @@ class ExpanderElement extends Element
 
 	protected function createExpandingContainer()
 	{
-		if ($this->hasExpandingContainer()) {
+		if($this->hasExpandingContainer()) {
 			return $this->expandingContainer;
 		}
 		$mode = $this->getAllocationMode();
 		$expandme = new DivElement($mode);
 		$expandme->addClassAttribute("expand_me");
-		if ($this->hasEstimatedHeight()) {
+		if($this->hasEstimatedHeight()) {
 			$expandme->setStyleProperty("max-height", $this->getEstimatedHeight());
 			$expandme->setStyleProperty("overflow", "auto");
 		}
@@ -391,27 +391,27 @@ class ExpanderElement extends Element
 	public function setExpanderContents($contents)
 	{
 		$f = __METHOD__; //ExpanderElement::getShortClass()."(".static::getShortClass().")->setExpanderContents()";
-		try {
+		try{
 			$label_container = $this->createLabelContainer();
 			$this->appendChild($label_container);
 			$expandme = $this->createExpandingContainer();
-			if (is_array($contents)) {
-				foreach ($contents as $c) {
-					if ($c instanceof Command) {
+			if(is_array($contents)) {
+				foreach($contents as $c) {
+					if($c instanceof Command) {
 						$expandme->resolveTemplateCommand($c);
-					} else {
+					}else{
 						$expandme->appendChild($c);
 					}
 				}
-			} elseif ($contents instanceof Command) {
+			}elseif($contents instanceof Command) {
 				$expandme->resolveTemplateCommand($contents);
-			} else {
+			}else{
 				$expandme->appendChild($contents);
 			}
 			$this->appendChild($expandme);
 			$this->setExpanderContentsDefined(true);
 			return $contents;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -16,10 +16,10 @@ abstract class AbstractDropTableStatement extends QueryStatement
 	public function setReferenceOption($refopt)
 	{
 		$f = __METHOD__; //AbstractDropTableStatement::getShortClass()."(".static::getShortClass().")->setReferenceOption()";
-		if ($refopt == null) {
+		if($refopt == null) {
 			unset($this->referenceOption);
 			return null;
-		} elseif (! is_string($refopt)) {
+		}elseif(!is_string($refopt)) {
 			Debug::error("{$f} reference option must be a string");
 		}
 		$refopt = strtolower($refopt);
@@ -42,7 +42,7 @@ abstract class AbstractDropTableStatement extends QueryStatement
 	public function getReferenceOption()
 	{
 		$f = __METHOD__; //AbstractDropTableStatement::getShortClass()."(".static::getShortClass().")->getReferenceOption()";
-		if (! $this->hasReferenceOption()) {
+		if(!$this->hasReferenceOption()) {
 			Debug::error("{$f} reference option is undefined");
 		}
 		return $this->referenceOption;

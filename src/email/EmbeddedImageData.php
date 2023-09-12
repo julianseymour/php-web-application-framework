@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\email;
 
 use function JulianSeymour\PHPWebApplicationFramework\array_remove_key;
@@ -11,24 +12,21 @@ use finfo;
  *
  * @author j
  */
-class EmbeddedImageData extends ImageData
-{
+class EmbeddedImageData extends ImageData{
 
 	protected $src;
 
 	protected $webFileDirectory;
 
-	public function __construct($src = null)
-	{
+	public function __construct($src = null){
 		parent::__construct();
-		if ($src !== null) {
+		if($src !== null) {
 			$this->setSourceAttribute($src);
 		}
 	}
 
-	public function setSourceAttribute($src)
-	{
-		$f = __METHOD__; //EmbeddedImageData::getShortClass()."(".static::getShortClass().")->setSourceAttribute()";
+	public function setSourceAttribute($src){
+		$f = __METHOD__;
 		$finfo = new finfo(FILEINFO_MIME_TYPE);
 		$mime_type = $finfo->file("/var/www/html{$src}");
 		switch ($mime_type) {
@@ -54,7 +52,7 @@ class EmbeddedImageData extends ImageData
 
 	public function getSourceAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasSourceAttribute()) {
+		if(!$this->hasSourceAttribute()) {
 			Debug::error("{$f} src attribute is undefined");
 		}
 		return $this->src;
@@ -66,7 +64,7 @@ class EmbeddedImageData extends ImageData
 
 	public function getWebFileDirectory():string{
 		$f = __METHOD__;
-		if (! $this->hasWebFileDirectory()) {
+		if(!$this->hasWebFileDirectory()) {
 			Debug::error("{$f} web file directory is undefined");
 		}
 		return $this->webFileDirectory;

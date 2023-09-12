@@ -40,7 +40,7 @@ class Base64Datum extends TextDatum implements StaticElementClassInterface
 	public function parseValueFromSuperglobalArray($value)
 	{
 		$f = __METHOD__; //Base64Datum::getShortClass()."(".static::getShortClass().")->parseValueFromSuperglobalArray()";
-		if (! is_base64($value)) {
+		if(!is_base64($value)) {
 			Debug::error("{$f} value is not base 64");
 		}
 		return base64_decode($value);

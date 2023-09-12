@@ -30,36 +30,36 @@ class CreateElementCommand extends Command implements AllocationModeInterface, J
 	public function __construct($tag = null, $type = null, $mode = null){
 		$f = __METHOD__;
 		parent::__construct();
-		if (isset($tag)) {
-			if (is_string($tag) && is_a($tag, Element::class, true)) {
-				if (method_exists($tag, "getElementTagStatic")) {
+		if(isset($tag)) {
+			if(is_string($tag) && is_a($tag, Element::class, true)) {
+				if(method_exists($tag, "getElementTagStatic")) {
 					$tag = $tag::getElementTagStatic();
-				} else {
+				}else{
 					Debug::error("{$f} element class does not have a static tag");
 				}
 			}
 			$this->setElementTag($tag);
 		}
-		if (isset($type)) {
+		if(isset($type)) {
 			$this->setType($type);
 		}
-		if (isset($mode)) {
+		if(isset($mode)) {
 			$this->setAllocationMode($mode);
 		}
 	}
 
 	public function toJavaScript(): string{
 		$tag = $this->getElementTag();
-		if ($tag instanceof JavaScriptInterface) {
+		if($tag instanceof JavaScriptInterface) {
 			$tag = $tag->toJavaScript();
-		} elseif (is_string($tag) || $tag instanceof StringifiableInterface) {
+		}elseif(is_string($tag) || $tag instanceof StringifiableInterface) {
 			$tag = single_quote($tag);
 		}
 		return "document.createElement({$tag})";
 	}
 
 	public function setType($type){
-		if ($type === null) {
+		if($type === null) {
 			unset($this->type);
 			return null;
 		}
@@ -72,7 +72,7 @@ class CreateElementCommand extends Command implements AllocationModeInterface, J
 
 	public function getType(){
 		$f = __METHOD__;
-		if (! $this->hasType()) {
+		if(!$this->hasType()) {
 			Debug::error("{$f} type is undefined");
 		}
 		return $this->type;
@@ -80,24 +80,24 @@ class CreateElementCommand extends Command implements AllocationModeInterface, J
 
 	public function evaluate(?array $params = null){
 		$tag = $this->getElementTag();
-		if ($tag instanceof ValueReturningCommandInterface) {
+		if($tag instanceof ValueReturningCommandInterface) {
 			while ($tag instanceof ValueReturningCommandInterface) {
 				$tag = $tag->evaluate();
 			}
 		}
-		if ($this->hasType()) {
+		if($this->hasType()) {
 			$type = $this->getType();
-			if ($type instanceof ValueReturningCommandInterface) {
+			if($type instanceof ValueReturningCommandInterface) {
 				while ($type instanceof ValueReturningCommandInterface) {
 					$type = $type->evaluate();
 				}
 			}
-		} else {
+		}else{
 			$type = null;
 		}
-		if ($this->hasAllocationMode()) {
+		if($this->hasAllocationMode()) {
 			$mode = $this->getAllocationMode();
-		} else {
+		}else{
 			$mode = ALLOCATION_MODE_UNDEFINED;
 		}
 		return Document::createElement($tag, $type, $mode);

@@ -20,7 +20,7 @@ class CreateTextNodeCommand extends Command implements JavaScriptInterface, Valu
 	public function __construct($text = null)
 	{
 		parent::__construct();
-		if (isset($text)) {
+		if(isset($text)) {
 			$this->setTextContent($text);
 		}
 	}
@@ -29,9 +29,9 @@ class CreateTextNodeCommand extends Command implements JavaScriptInterface, Valu
 	{
 		$f = __METHOD__; //CreateTextNodeCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
 		$text = $this->getTextContent();
-		if ($text instanceof JavaScriptInterface) {
+		if($text instanceof JavaScriptInterface) {
 			$text = $text->toJavaScript();
-		} elseif (is_string($text) || $text instanceof StringifiableInterface) {
+		}elseif(is_string($text) || $text instanceof StringifiableInterface) {
 			$q = $this->getQuoteStyle();
 			$text = "{$q}" . escape_quotes($text, $q) . "{$q}";
 		}

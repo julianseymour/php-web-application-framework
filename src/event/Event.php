@@ -19,8 +19,8 @@ class Event extends Basic
 	public function __construct($type, $properties = null)
 	{
 		$this->setEventType($type);
-		if (! empty($properties)) {
-			foreach ($properties as $key => $value) {
+		if(!empty($properties)) {
+			foreach($properties as $key => $value) {
 				$this->setProperty($key, $value);
 			}
 		}
@@ -28,7 +28,7 @@ class Event extends Basic
 
 	public function setEventTimestamp($value = null)
 	{
-		if ($value === null) {
+		if($value === null) {
 			$value = microtime(true);
 		}
 		return $this->setProperty("timestamp", $value);
@@ -41,7 +41,7 @@ class Event extends Basic
 
 	public function setListenerId($id)
 	{
-		if ($id === null) {
+		if($id === null) {
 			unset($this->listenerId);
 			return null;
 		}
@@ -56,7 +56,7 @@ class Event extends Basic
 	public function getListenerId()
 	{
 		$f = __METHOD__; //Event::getShortClass()."(".static::getShortClass().")->getListenerId()";
-		if (! $this->hasListenerId()) {
+		if(!$this->hasListenerId()) {
 			Debug::error("{$f} listener ID is undefined");
 		}
 		return $this->listenerId;
@@ -75,7 +75,7 @@ class Event extends Basic
 	public function getEventType()
 	{
 		$f = __METHOD__; //Event::getShortClass()."(".static::getShortClass().")->getEventType()";
-		if (! $this->hasEventType()) {
+		if(!$this->hasEventType()) {
 			Debug::error("{$f} event type string is undefined");
 		}
 		return $this->eventType;
@@ -89,7 +89,7 @@ class Event extends Basic
 	public function getTarget()
 	{
 		$f = __METHOD__; //Event::getShortClass()."(".static::getShortClass().")->getTarget()";
-		if (! $this->hasTarget()) {
+		if(!$this->hasTarget()) {
 			Debug::error("{$f} target is undefined");
 		}
 		return $this->target;

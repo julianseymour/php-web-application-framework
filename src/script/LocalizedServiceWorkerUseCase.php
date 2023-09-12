@@ -11,22 +11,12 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 class LocalizedServiceWorkerUseCase extends JavaScriptFileUseCase{
 	
-	public function getImplicitParameter(string $name){
-		$f = __METHOD__;
-		switch($name){
-			case "filename":
-				return "service-worker.js";
-			default:
-				Debug::error("{$f} undefined implicit parameter \"{$name}\"");
-		}
-	}
-	
 	public function hasImplicitParameter(string $name):bool{
 		return $name === "filename";
 	}
 	
 	public function getActionAttribute():string{
-		return "/service-worker.js";
+		return "/sw.js";
 	}
 	
 	public function echoJavaScriptFileContents():void{
@@ -62,7 +52,11 @@ class LocalizedServiceWorkerUseCase extends JavaScriptFileUseCase{
 			)
 		]);
 		echo $cache_content->toJavaScript().";\n";
-		echo php2string(FRAMEWORK_INSTALL_DIRECTORY."/script/service-worker.js")."\n";
+		echo php2string(FRAMEWORK_INSTALL_DIRECTORY."/script/sw.js")."\n";
 		echo "}catch(x){console.error(x.toString()); console.trace(); }\n";
+	}
+	
+	public static function getFilename(): string{
+		return "sw.js";
 	}
 }

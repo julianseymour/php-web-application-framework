@@ -21,7 +21,7 @@ class FormDataSubmissionFunctionGenerator extends JavaScriptFunctionGenerator
 	public function generate($form): ?JavaScriptFunction
 	{
 		$f = __METHOD__; //FormDataSubmissionFunctionGenerator::getShortClass()."(".static::getShortClass().")::generate()";
-		try {
+		try{
 			$print = false;
 			$class = get_short_class($form);
 			$func = new JavaScriptFunction("submit{$class}", "context");
@@ -32,8 +32,8 @@ class FormDataSubmissionFunctionGenerator extends JavaScriptFunctionGenerator
 			$fd->setEscapeType(null);
 			$func->pushSubcommand($fd);
 			$inputs = $form->getInputs();
-			foreach ($inputs as $input) {
-				if (! $input->hasColumnName()) {
+			foreach($inputs as $input) {
+				if(!$input->hasColumnName()) {
 					continue;
 				}
 				$func->pushSubcommand($input->getFormDataAppensionCommand("fd")
@@ -41,7 +41,7 @@ class FormDataSubmissionFunctionGenerator extends JavaScriptFunctionGenerator
 			}
 			$method = $form->getMethodAttribute();
 			$action = $form->getActionAttribute();
-			if (! $form->skipAntiXsrfTokenInputs()) {
+			if(!$form->skipAntiXsrfTokenInputs()) {
 				$mode = ALLOCATION_MODE_TEMPLATE;
 				$xsrf_token = $form->getAntiXsrfTokenInput($mode);
 				$secondary_hmac = $form->getSecondaryHmacInput($mode, $form->getActionAttribute());
@@ -52,11 +52,11 @@ class FormDataSubmissionFunctionGenerator extends JavaScriptFunctionGenerator
 			$fd = new GetDeclaredVariableCommand("fd");
 			$func->pushSubcommand(IfCommand::if(new CallFunctionCommand("isWebWorker"))->then(new CallFunctionCommand("fetch_client", $action, $fd, $callback_success, $callback_error))
 				->else(new CallFunctionCommand("fetch_xhr", $method, $action, $fd, $callback_success, $callback_error)));
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning \"{$func}\"");
 			}
 			return $func;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -34,7 +34,7 @@ class RegexReplaceCommand extends StringTransformationCommand
 
 	public function getLimit(): int
 	{
-		if (! $this->hasLimit()) {
+		if(!$this->hasLimit()) {
 			return - 1;
 		}
 		return $this->limitCount;
@@ -45,31 +45,31 @@ class RegexReplaceCommand extends StringTransformationCommand
 		$f = __METHOD__; //RegexReplaceCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
 		$print = false;
 		$pattern = $this->getPattern();
-		if ($pattern instanceof ValueReturningCommandInterface) {
+		if($pattern instanceof ValueReturningCommandInterface) {
 			while ($pattern instanceof ValueReturningCommandInterface) {
 				$pattern = $pattern->evaluate();
 			}
 		}
 		$replacement = $this->getReplacement();
-		if ($replacement instanceof ValueReturningCommandInterface) {
+		if($replacement instanceof ValueReturningCommandInterface) {
 			while ($replacement instanceof ValueReturningCommandInterface) {
 				$replacement = $replacement->evaluate();
 			}
 		}
 		$subject = $this->getSubject();
-		if ($subject instanceof ValueReturningCommandInterface) {
+		if($subject instanceof ValueReturningCommandInterface) {
 			while ($subject instanceof ValueReturningCommandInterface) {
 				$subject = $subject->evaluate();
 			}
 		}
 		$limit = $this->getLimit();
-		if ($limit instanceof ValueReturningCommandInterface) {
+		if($limit instanceof ValueReturningCommandInterface) {
 			while ($limit instanceof ValueReturningCommandInterface) {
 				$limit = $limit->evaluate();
 			}
 		}
 		$limit = - 1; // javascript string.replace() does not have this argument
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} replacing pattern \"{$pattern}\" with \"{$replacement}\" in string \"{$subject}\"");
 		}
 		return preg_replace($pattern, $replacement, $subject, $limit, $this->count);
@@ -78,13 +78,13 @@ class RegexReplaceCommand extends StringTransformationCommand
 	public function toJavaScript(): string
 	{
 		$subject = $this->getSubject();
-		if ($subject instanceof JavaScriptInterface) {
+		if($subject instanceof JavaScriptInterface) {
 			$subject = $subject->toJavaScript();
-		} elseif (is_string($subject) || $subject instanceof StringifiableInterface) {
+		}elseif(is_string($subject) || $subject instanceof StringifiableInterface) {
 			$subject = single_quote($subject);
 		}
 		$pattern = $this->getPattern();
-		if ($pattern instanceof JavaScriptInterface) {
+		if($pattern instanceof JavaScriptInterface) {
 			$pattern = $pattern->toJavaScript();
 		} /*
 		   * elseif(is_string($pattern)){
@@ -93,9 +93,9 @@ class RegexReplaceCommand extends StringTransformationCommand
 		   */
 		// XXX this is only needed for attribute names
 		$replacement = $this->getReplacement();
-		if ($replacement instanceof JavaScriptInterface) {
+		if($replacement instanceof JavaScriptInterface) {
 			$replacement = $replacement->toJavaScript();
-		} elseif (is_string($replacement) || $replacement instanceof StringifiableInterface) {
+		}elseif(is_string($replacement) || $replacement instanceof StringifiableInterface) {
 			$replacement = single_quote($replacement);
 		}
 		return "{$subject}.replace({$pattern}, {$replacement})";
@@ -103,7 +103,7 @@ class RegexReplaceCommand extends StringTransformationCommand
 
 	public function setPattern($pattern)
 	{
-		if ($pattern == null) {
+		if($pattern == null) {
 			unset($this->pattern);
 			return null;
 		}
@@ -118,7 +118,7 @@ class RegexReplaceCommand extends StringTransformationCommand
 	public function getPattern()
 	{
 		$f = __METHOD__; //RegexReplaceCommand::getShortClass()."(".static::getShortClass().")->getPattern()";
-		if (! $this->hasPattern()) {
+		if(!$this->hasPattern()) {
 			Debug::error("{$f} pattern is undefined");
 		}
 		return $this->pattern;
@@ -126,7 +126,7 @@ class RegexReplaceCommand extends StringTransformationCommand
 
 	public function getCount(): int
 	{
-		if (! $this->hasCount()) {
+		if(!$this->hasCount()) {
 			return 0;
 		}
 		return $this->count;
@@ -139,7 +139,7 @@ class RegexReplaceCommand extends StringTransformationCommand
 
 	public function setReplacement($replacement)
 	{
-		if ($replacement == null) {
+		if($replacement == null) {
 			unset($this->replacement);
 			return null;
 		}
@@ -155,8 +155,8 @@ class RegexReplaceCommand extends StringTransformationCommand
 	{
 		$f = __METHOD__; //RegexReplaceCommand::getShortClass()."(".static::getShortClass().")->getReplacement()";
 		$print = false;
-		if (! $this->hasReplacement()) {
-			if ($print) {
+		if(!$this->hasReplacement()) {
+			if($print) {
 				Debug::print("{$f} replacement is not defined");
 			}
 			return "";

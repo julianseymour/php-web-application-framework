@@ -30,7 +30,7 @@ class MfaQrCodeElement extends DivElement{
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$children = [];
 			$context = $this->getContext();
 			$img = new ImageElement();
@@ -57,14 +57,14 @@ class MfaQrCodeElement extends DivElement{
 			$this->appendChild($qr_label_c);
 			array_push($children, $qr_label_c);
 			return $children;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getRevealQrCodeCheckboxInput()
 	{
-		if (isset($this->revealQrCodeCheckboxInput)) {
+		if(isset($this->revealQrCodeCheckboxInput)) {
 			return $this->revealQrCodeCheckboxInput;
 		}
 		$input = new CheckboxInput();

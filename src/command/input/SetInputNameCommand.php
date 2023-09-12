@@ -32,21 +32,21 @@ class SetInputNameCommand extends ElementCommand implements ServerExecutableComm
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //SetInputNameCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$e = $this->getIdCommandString();
-			if ($e instanceof JavaScriptInterface) {
+			if($e instanceof JavaScriptInterface) {
 				$e = $e->toJavaScript();
 			}
 			$name = $this->getName();
-			if ($name instanceof JavaScriptInterface) {
+			if($name instanceof JavaScriptInterface) {
 				$name = $name->toJavaScript();
-			} elseif (is_string($name) || $name instanceof StringifiableInterface) {
+			}elseif(is_string($name) || $name instanceof StringifiableInterface) {
 				$q = $this->getQuoteStyle();
 				$name = escape_quotes($name, $q);
 				$name = "{$q}{$name}{$q}";
 			}
 			return "{$e}.name = {$name}";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -63,7 +63,7 @@ class SetInputNameCommand extends ElementCommand implements ServerExecutableComm
 		while ($name instanceof ValueReturningCommandInterface) {
 			$name = $name->evaluate();
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} evaluated \"{$name}\"");
 		}
 		$element->setNameAttribute($name);

@@ -23,7 +23,7 @@ trait ReturnTypeTrait
 	{
 		return $this->hasReturnType() ? $this->returnType : TYPE_UNKNOWN;
 		$f = __METHOD__; //CreateRoutineStatement::getShortClass()."(".static::getShortClass().")->getReturnType()";
-		if (! $this->hasReturnType()) {
+		if(!$this->hasReturnType()) {
 			Debug::error("{$f} return type is undefined");
 		}
 		return $this->returnType;
@@ -32,10 +32,10 @@ trait ReturnTypeTrait
 	public function setReturnType(?string $type): ?string
 	{
 		$f = __METHOD__; //CreateRoutineStatement::getShortClass()."(".static::getShortClass().")->setReturnType()";
-		if ($type === null) {
+		if($type === null) {
 			unset($this->returnType);
 			return null;
-		} elseif (! is_string($type)) {
+		}elseif(!is_string($type)) {
 			Debug::error("{$f} return type name must be a string");
 		}
 		$type = strtolower($type);

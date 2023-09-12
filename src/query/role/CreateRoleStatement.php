@@ -14,7 +14,7 @@ class CreateRoleStatement extends QueryStatement
 	{
 		parent::__construct();
 		$this->requirePropertyType("roles", DatabaseRoleData::class);
-		if (isset($roles)) {
+		if(isset($roles)) {
 			$this->setRoles($roles);
 		}
 	}
@@ -23,7 +23,7 @@ class CreateRoleStatement extends QueryStatement
 	{
 		// CREATE ROLE [IF NOT EXISTS] role [, role ] ...
 		$string = "create role ";
-		if ($this->getIfNotExistsFlag()) {
+		if($this->getIfNotExistsFlag()) {
 			$string .= "if not exists ";
 		}
 		$string .= implode(',', $this->getRoles());

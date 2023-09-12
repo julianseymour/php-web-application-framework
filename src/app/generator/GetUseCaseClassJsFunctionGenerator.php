@@ -20,7 +20,7 @@ class GetUseCaseClassJsFunctionGenerator extends JavaScriptFunctionGenerator
 		];
 		$switch = new SwitchCommand(new GetDeclaredVariableCommand("id"));
 
-		foreach ($context->getClientUseCaseDictionary() as $code => $className) {
+		foreach($context->getClientUseCaseDictionary() as $code => $className) {
 			$declarations[$className] = new GetDeclaredVariableCommand($className);
 			$switch->case($code, CommandBuilder::return(new GetDeclaredVariableCommand("classNames['{$className}']")));
 		}

@@ -34,7 +34,7 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 	public static function let($name, $value = null, $scope = null): DeclareVariableCommand{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::printStackTraceNoExit("{$f} entered; variable name is \"{$name}\"");
 		}
 		$cmd = new DeclareVariableCommand($name, $value, $scope);
@@ -46,7 +46,7 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 	{
 		$f = __METHOD__; //DeclareVariableCommand::getShortClass()."(".static::getShortClass().")::var()";
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
 		$cmd = new DeclareVariableCommand($name, $value, $scope);
@@ -57,7 +57,7 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 	public static function declare($name, $type = null): DeclareVariableCommand
 	{
 		$cmd = new DeclareVariableCommand($name);
-		if ($type !== null) {
+		if($type !== null) {
 			return $cmd->withType($type);
 		}
 		return $cmd;
@@ -80,19 +80,19 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 		$f = __METHOD__; //DeclareVariableCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		$print = false;
 		parent::__construct();
-		if ($name === null || $name === "") {
+		if($name === null || $name === "") {
 			Debug::error("{$f} name is null or empty string");
-		} elseif ($name instanceof Element) {
+		}elseif($name instanceof Element) {
 			$name = $name->getIdOverride();
 		}
 		$this->setVariableName($name);
-		if (isset($value)) {
+		if(isset($value)) {
 			$this->setValue($value);
 		}
-		if (isset($scope)) {
+		if(isset($scope)) {
 			$this->setScope($scope);
-			if ($this->hasVariableName() && $this->hasValue()) {
-				if ($print) {
+			if($this->hasVariableName() && $this->hasValue()) {
+				if($print) {
 					$did = $this->getDebugId();
 					Debug::print("{$f} setting variable \"{$name}\"; debug ID is \"{$did}\"");
 				}
@@ -147,7 +147,7 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 	public function setValue($value)
 	{
 		$this->value = $value;
-		if ($this->hasScope() && $this->hasVariableName()) {
+		if($this->hasScope() && $this->hasVariableName()) {
 			$this->getScope()->setLocalValue($this->getVariableName(), $value);
 		}
 		$this->setFlag("valueAssigned", true);
@@ -173,15 +173,15 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 	{
 		$string = "{\n";
 		$count = 0;
-		foreach ($arr as $key => $value) {
-			if (is_array($value)) {
+		foreach($arr as $key => $value) {
+			if(is_array($value)) {
 				$value = static::arrayToObjectString($value);
-			} elseif ($value instanceof Command) {
+			}elseif($value instanceof Command) {
 				$value = $value->toJavaScript();
-			} elseif (is_string($value) || $value instanceof StringifiableInterface) {
+			}elseif(is_string($value) || $value instanceof StringifiableInterface) {
 				$value = "'" . escape_quotes($value, QUOTE_STYLE_SINGLE) . "'";
 			}
-			if ($count > 0) {
+			if($count > 0) {
 				$string .= ",\n\t";
 			}
 			$string .= "{$key}:{$value}";
@@ -196,22 +196,22 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 		$f = __METHOD__; //DeclareVariableCommand::getShortClass()."(".static::getShortClass().")::getArrayDeclarationString()";
 		$string = "[\n";
 		$count = 0;
-		foreach ($arr as $key => $value) {
-			if (is_array($value)) {
+		foreach($arr as $key => $value) {
+			if(is_array($value)) {
 				$value = static::getArrayDeclarationString($value);
-			} elseif ($value instanceof Command) {
+			}elseif($value instanceof Command) {
 				$value = $value->toJavaScript();
-			} elseif (is_string($value) || $value instanceof StringifiableInterface) {
+			}elseif(is_string($value) || $value instanceof StringifiableInterface) {
 				$value = "'" . escape_quotes($value, QUOTE_STYLE_SINGLE) . "'";
 			}
-			if ($count > 0) {
+			if($count > 0) {
 				$string .= ",\n\t";
 			}
-			if (is_string($key)) {
+			if(is_string($key)) {
 				$string .= "{$key} => {$value}";
-			} elseif (is_int($key)) {
+			}elseif(is_int($key)) {
 				$string .= "{$value}";
-			} else {
+			}else{
 				$gottype = gettype($key);
 				Debug::error("{$f} key is a \"{$gottype}\"");
 			}
@@ -225,39 +225,39 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 		$f = __METHOD__;
 		$print = false;
 		$string = "";
-		if ($this->hasScopeType()) {
+		if($this->hasScopeType()) {
 			$st = $this->getScopeType();
-			if ($st instanceof JavaScriptInterface) {
+			if($st instanceof JavaScriptInterface) {
 				$st = $st->toJavaScript();
 			}
 			$string .= "{$st} ";
 		}
 		$name = $this->getVariableName();
 		$string .= "{$name}";
-		if (! $this->hasValue()) {
+		if(!$this->hasValue()) {
 			return $string;
 		}
 		$value = $this->getValue();
-		if ($value instanceof JavaScriptInterface) {
+		if($value instanceof JavaScriptInterface) {
 			$value = $value->toJavaScript();
-		} elseif (is_array($value)) {
-			if ($this->hasEscapeType() && $this->getEscapeType() === ESCAPE_TYPE_OBJECT) {
+		}elseif(is_array($value)) {
+			if($this->hasEscapeType() && $this->getEscapeType() === ESCAPE_TYPE_OBJECT) {
 				$value = static::arrayToObjectString($value);
-			} else {
+			}else{
 				$value = static::getArrayDeclarationString($value);
 			}
-		} elseif (is_string($value) || $value instanceof StringifiableInterface) {
-			if ($print) {
-				if (is_string($value)) {
+		}elseif(is_string($value) || $value instanceof StringifiableInterface) {
+			if($print) {
+				if(is_string($value)) {
 					Debug::print("{$f} value is a string");
-				} else {
+				}else{
 					$type = $value->getClass();
 					Debug::print("{$f} value is a \"{$type}\"");
 				}
 			}
 			$q = $this->getQuoteStyle();
 			$value = "{$q}" . escape_quotes($value, $q) . "{$q}";
-		} elseif (is_bool($value)) {
+		}elseif(is_bool($value)) {
 			$value = $value ? "true" : "false";
 		}
 		$string .= " = {$value}";
@@ -267,8 +267,8 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 	public function evaluate(?array $params = null)
 	{
 		$f = __METHOD__; //DeclareVariableCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
-		if (! $this->hasValue()) {
-			if ($this->getNullFlag()) {
+		if(!$this->hasValue()) {
+			if($this->getNullFlag()) {
 				return null;
 			}
 			$name = $this->getVariableName();
@@ -287,12 +287,12 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 	{
 		$f = __METHOD__; //DeclareVariableCommand::getShortClass()."(".static::getShortClass().")->resolve()";
 		$print = false;
-		if (! $this->hasValue()) {
-			if ($this->getScopeType() === SCOPE_TYPE_LET) {
-				if ($print) {
+		if(!$this->hasValue()) {
+			if($this->getScopeType() === SCOPE_TYPE_LET) {
+				if($print) {
 					Debug::print("{$f} nothing is wrong, it's doing what it's supposed to");
 				}
-			} else {
+			}else{
 				Debug::error("{$f} cannot assign value to scope");
 			}
 			return null;
@@ -302,14 +302,14 @@ class DeclareVariableCommand extends Command implements JavaScriptInterface, Sco
 
 	public function toSQL(): string
 	{
-		if (! $this->hasValue()) { // $this->hasType()){
+		if(!$this->hasValue()) { // $this->hasType()){
 			$string = "declare " . $this->getVariableName() . " " . $this->getType() . ";\n";
 			return $string;
 		}
 		$value = $this->getValue();
-		if ($value instanceof SQLInterface) {
+		if($value instanceof SQLInterface) {
 			$value = $value->toSQL();
-		} elseif (is_string($value) || $value instanceof StringifiableInterface) {
+		}elseif(is_string($value) || $value instanceof StringifiableInterface) {
 			$value = single_quote($value);
 		}
 		$string = "set " . $this->getVariableName() . " = {$value};\n";

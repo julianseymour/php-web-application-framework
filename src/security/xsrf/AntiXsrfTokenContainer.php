@@ -27,9 +27,9 @@ class AntiXsrfTokenContainer extends DivElement
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__; //AntiXsrfTokenContainer::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
-		try {
+		try{
 			$session = new AntiXsrfTokenData();
-			if (! $session->hasAntiXsrfToken()) {
+			if(!$session->hasAntiXsrfToken()) {
 				Debug::error("{$f} session is uninitialized");
 				$session->initializeSessionToken(1);
 			}
@@ -38,7 +38,7 @@ class AntiXsrfTokenContainer extends DivElement
 			$input->setIdAttribute("xsrf_token");
 			$this->appendChild($input);
 			$forms = mods()->getClientRenderedFormClasses();
-			foreach ($forms as $form) {
+			foreach($forms as $form) {
 				$input = new HiddenInput();
 				$action = $form::getActionAttributeStatic();
 				$secondary_hmac = $session->getSecondaryHmac($action);
@@ -48,7 +48,7 @@ class AntiXsrfTokenContainer extends DivElement
 				$this->appendChild($input);
 			}
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -30,23 +30,23 @@ class Administrator extends AuthenticatedUser{
 
 	public function getVirtualColumnValue($index){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($index) {
 				case "messageBody":
 					return _("New conversation");
 				default:
 					return parent::getVirtualColumnValue($index);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getArrayMembershipConfiguration($config_id): array{
 		$f = __METHOD__;
-		try {
+		try{
 			$config = parent::getArrayMembershipConfiguration($config_id);
-			if (is_string($config_id)) {
+			if(is_string($config_id)) {
 				switch ($config_id) {
 					case CONST_DEFAULT:
 					default:
@@ -54,7 +54,7 @@ class Administrator extends AuthenticatedUser{
 				}
 			}
 			return $config;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

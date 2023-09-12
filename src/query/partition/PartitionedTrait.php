@@ -12,8 +12,8 @@ trait PartitionedTrait
 	public function setPartitionDefinitions($partitionDefinitions)
 	{
 		$f = __METHOD__; //"PartitionedTrait(".static::getShortClass().")->setPartitionDefinitions()";
-		foreach ($partitionDefinitions as $partitionDefinition) {
-			if (! $partitionDefinition instanceof PartitionDefinition) {
+		foreach($partitionDefinitions as $partitionDefinition) {
+			if(!$partitionDefinition instanceof PartitionDefinition) {
 				Debug::error("{$f} this function accepts only arrays of PartitionDefintions");
 			}
 		}
@@ -23,8 +23,8 @@ trait PartitionedTrait
 	public function pushPartitionDefinitions(...$partitionDefinitions)
 	{
 		$f = __METHOD__; //"PartitionedTrait(".static::getShortClass().")->pushPartitionDefinitions()";
-		foreach ($partitionDefinitions as $partitionDefinition) {
-			if (! $partitionDefinition instanceof PartitionDefinition) {
+		foreach($partitionDefinitions as $partitionDefinition) {
+			if(!$partitionDefinition instanceof PartitionDefinition) {
 				Debug::error("{$f} this function accepts only arrays of PartitionDefintions");
 			}
 		}

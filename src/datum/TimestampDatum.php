@@ -42,54 +42,54 @@ class TimestampDatum extends SignedIntegerDatum implements StaticElementClassInt
 
 	public function cast($v){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (is_string($v)) {
-				if ($print) {
+			if(is_string($v)) {
+				if($print) {
 					Debug::print("{$f} casting the string \"{$v}\"");
 				}
-				if (preg_match('/^0|^\-?([1-9]+[0-9]*)$/', $v)) {
-					if ($print) {
+				if(preg_match('/^0|^\-?([1-9]+[0-9]*)$/', $v)) {
+					if($print) {
 						Debug::print("{$f} the regular expression is satisfied; value is probably a unix timestamp");
 					}
 					$v = intval($v);
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} regular expression is not satisfied");
 					}
 					$datetimezone = new DateTimeZone(user()->getTimezone());
-					try {
+					try{
 						$datetime = new DateTime($v, $datetimezone);
 						$parsed = $datetime->getTimestamp();
-						if ($print) {
+						if($print) {
 							Debug::error("{$f} parsed value \"{$parsed}\" from DateTimeZone of value \"{$v}\"; this is the wrong venue for content negotiation");
 						}
-					} catch (Exception $y) {
+					}catch(Exception $y) {
 						Debug::error("{$f} something went wrong constructing a DateTime: \"{$y}\"");
 					}
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} value is not a string");
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} cast to \"{$v}\"");
 			}
 			return $v;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function processInput($input){
 		$f = __METHOD__;
-		try {
-			if (! $this->getUpdateToCurrentTimeFlag()) {
+		try{
+			if(!$this->getUpdateToCurrentTimeFlag()) {
 				return parent::processInput($input);
 			}
 			$this->setValue(time());
 			$this->setUpdateFlag(true);
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -99,7 +99,7 @@ class TimestampDatum extends SignedIntegerDatum implements StaticElementClassInt
 	}
 
 	public function getHumanReadableName(){
-		if (! isset($this->humanReadableName)) {
+		if(! isset($this->humanReadableName)) {
 			return _("Timestamp");
 		}
 		return parent::getHumanReadableName();

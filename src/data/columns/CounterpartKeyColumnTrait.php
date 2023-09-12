@@ -28,7 +28,7 @@ trait CounterpartKeyColumnTrait{
 
 	public static function getOppositeRoleStatic($role){
 		$f = __METHOD__;
-		if (! isset($role)) {
+		if(! isset($role)) {
 			Debug::error("{$f} role is undefined");
 		}
 		switch ($role) {
@@ -102,7 +102,7 @@ trait CounterpartKeyColumnTrait{
 	public function setCounterpartObject($obj)
 	{
 		$f = __METHOD__; //f(CounterpartKeyColumnTrait::class);
-		if (! $obj->hasIdentifierValue()) {
+		if(!$obj->hasIdentifierValue()) {
 			Debug::error("{$f} counterpart does not have a key");
 		}
 		return $this->setForeignDataStructure('counterpartKey', $obj);
@@ -130,7 +130,7 @@ trait CounterpartKeyColumnTrait{
 
 	protected static function declareCounterpartKeyColumn(?string $name = null): ForeignKeyDatum
 	{
-		if ($name === null) {
+		if($name === null) {
 			$name = "counterpartKey";
 		}
 		$counterpartKey = new ForeignKeyDatum($name);
@@ -147,46 +147,46 @@ trait CounterpartKeyColumnTrait{
 	protected function generateCounterpartIfInstigator(mysqli $mysqli): int
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$role = $this->getRoleAsCounterpart();
-			if ($role !== COUNTERPART_ROLE_INSTIGATOR) {
-				if (! $this->hasCounterpartKey()) {
+			if($role !== COUNTERPART_ROLE_INSTIGATOR) {
+				if(!$this->hasCounterpartKey()) {
 					Debug::error("{$f} this object lacks a counterpart key");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} this object is not the instigator relative to its counterpart");
 				}
 				return SUCCESS;
-			} elseif (! $this->hasCorrespondentObject()) {
-				if (! $this->hasCorrespondentKey()) {
+			}elseif(!$this->hasCorrespondentObject()) {
+				if(!$this->hasCorrespondentKey()) {
 					Debug::error("{$f} correspondent key is undefined");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} correspondent object is undefined -- about to acquire it");
 				}
 				$this->acquireCorrespondentObject($mysqli);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} already have correspondent object");
 			}
-			if (! $this->hasIdentifierValue()) {
+			if(!$this->hasIdentifierValue()) {
 				$this->generateKey();
 			}
 			$counterpart = $this->generateCounterpartObject($mysqli);
-			if (! $counterpart->hasIdentifierValue()) {
+			if(!$counterpart->hasIdentifierValue()) {
 				$counterpart->generateKey();
 			}
 			$counterpart->setInsertFlag(true);
 			$this->setCounterpartObject($counterpart);
 			$counterpart->setCounterpartObject($this);
-			if (! $counterpart->hasCounterpartKey()) {
+			if(!$counterpart->hasCounterpartKey()) {
 				Debug::error("{$f} counterpart lacks a reference to this object");
-			} elseif (! $this->hasCounterpartKey()) {
+			}elseif(!$this->hasCounterpartKey()) {
 				Debug::error("{$f} this object lacks a counterpart key");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} both counterpart keys are defined");
 			}
 			$this->setPostInsertForeignDataStructuresFlag(true);
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

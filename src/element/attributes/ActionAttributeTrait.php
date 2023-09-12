@@ -15,13 +15,13 @@ trait ActionAttributeTrait
 
 	public function getActionAttribute(){
 		$f = __METHOD__; //"ActionAttributeTrait(".static::getShortClass().")->getActionAttribute()";
-		try {
-			if (! $this->hasActionAttribute()) {
+		try{
+			if(!$this->hasActionAttribute()) {
 				$decl = $this->getDeclarationLine();
 				Debug::error("{$f} action attribute is undefined; declared {$decl}");
 			}
 			return $this->getAttribute("action");
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -29,7 +29,7 @@ trait ActionAttributeTrait
 	public function setActionAttribute($action)
 	{
 		$f = __METHOD__; //"ActionAttributeTrait(".static::getShortClass().")->setActionAttribute()";
-		if (! isset($action) || empty($action)) {
+		if(! isset($action) || empty($action)) {
 			$this->removeAttribute("action");
 			return null;
 		}

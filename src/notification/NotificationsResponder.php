@@ -15,22 +15,22 @@ class NotificationsResponder extends Responder{
 
 	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			parent::modifyResponse($response, $use_case);
 			$tree_name = NotificationData::getPhylumName();
-			if (! user()->hasForeignDataStructureList($tree_name)) {
-				if ($print) {
+			if(! user()->hasForeignDataStructureList($tree_name)) {
+				if($print) {
 					Debug::print("{$f} there are no notifications");
 				}
 				return;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} about to push notifications");
 			}
 			$notifications = array_reverse(user()->getForeignDataStructureList($tree_name));
-			foreach ($notifications as $note) {
+			foreach($notifications as $note) {
 				$note_key = $note->getIdentifierValue();
-				if (! $note->hasSubjectData()) {
+				if(!$note->hasSubjectData()) {
 					if($print){
 						Debug::print("{$f} notification with key \"{$note_key}\" is missing target object");
 					}
@@ -38,13 +38,13 @@ class NotificationsResponder extends Responder{
 				}
 				$target = $note->getSubjectData();
 				$status = $target->getObjectStatus();
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} notification target has object status \"{$err}\"");
 					continue;
 				}
 				$config = $note->getArrayMembershipConfiguration(CONST_DEFAULT);
-				if ($print) {
+				if($print) {
 					$note_class = $note->getClass();
 					Debug::print("{$f} got the following array configuration for a {$note_class}:");
 					Debug::printArray($config);
@@ -52,10 +52,10 @@ class NotificationsResponder extends Responder{
 				$note->configureArrayMembership($config);
 				$response->pushDataStructure($note);
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning normally");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -66,9 +66,9 @@ class AlterUserStatement extends UserStatement
 
 	public function defaultRole(...$role)
 	{
-		if (count($role) === 1) {
+		if(count($role) === 1) {
 			$role = $role[0];
-			if (is_string($role)) {
+			if(is_string($role)) {
 				switch (strtolower($role)) {
 					case "all":
 						$this->setAllDefaultRolesFlag(true);
@@ -86,14 +86,14 @@ class AlterUserStatement extends UserStatement
 	public function getQueryStatementString()
 	{
 		$f = __METHOD__; //AlterUserStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
-		try {
+		try{
 			// ALTER USER
 			$string = "alter user ";
 			// [IF EXISTS]
-			if ($this->getIfExistsFlag()) {
+			if($this->getIfExistsFlag()) {
 				$string . "if exists ";
 			}
-			if ($this->getCurrentUserFlag()) {
+			if($this->getCurrentUserFlag()) {
 				// ALTER USER [IF EXISTS]
 				// USER() user_func_auth_option
 				// user_func_auth_option: {
@@ -101,35 +101,35 @@ class AlterUserStatement extends UserStatement
 				// | DISCARD OLD PASSWORD
 				// }
 				$string .= "user() " . $this->getUser(0)->getAuthOptionString();
-			} elseif ($this->hasRoleStatement()) {
+			}elseif($this->hasRoleStatement()) {
 				// ALTER USER [IF EXISTS] user [DEFAULT ROLE {NONE | ALL | role [, role ] ...}]
-				if ($this->getUserCount() !== 1) {
+				if($this->getUserCount() !== 1) {
 					Debug::error("{$f} cannot set default roles for multiple users");
 				}
 				$user = $this->getUser(0);
 				$string .= $user . " " . $this->getRoleStatement()->getRoleStatementString();
-			} else {
+			}else{
 				// user [auth_option] [, user [auth_option]] ...
 				$string .= implode(',', $this->getUsers());
 				// [REQUIRE {NONE | tls_option [[AND] tls_option] ...}]
-				if ($this->getRequireNoneFlag() || $this->hasTLSOptions()) {
+				if($this->getRequireNoneFlag() || $this->hasTLSOptions()) {
 					$string .= " " . $this->getTLSOptionsString();
 				}
 				// [WITH resource_option [resource_option] ...]
-				if ($this->hasResourceOptions()) {
+				if($this->hasResourceOptions()) {
 					$string .= $this->getResourceOptionsString();
 				}
 				// [password_option | lock_option] ...
-				if ($this->hasPasswordOptions()) {
+				if($this->hasPasswordOptions()) {
 					$string .= $this->getPasswordOptionsString();
 				}
 				// [COMMENT 'comment_string' | ATTRIBUTE 'json_object']
-				if (($this->hasComment() && hasMinimumMySQLVersion("8.0.21")) || $this->hasAttribute()) {
+				if(($this->hasComment() && hasMinimumMySQLVersion("8.0.21")) || $this->hasAttribute()) {
 					$string .= $this->getCommentAttributeString();
 				}
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -86,8 +86,7 @@ class MultilingualStringDatumBundle extends DatumBundle implements StaticElement
 		//aliased coolumn for automatically loading the correct localized string
 			$localized = $this->generateTranslatedStringValueDatum();
 		//updates the aliased column when the foreign data structure is set
-			$closure1 = function(AfterSetForeignDataStructureEvent $event, DataStructure $target) 
-			use ($column_name, $f, $print){
+			$closure1 = function(AfterSetForeignDataStructureEvent $event, DataStructure $target) use ($column_name, $f, $print){
 				$cn = $event->getColumnName();
 				if($cn !== "{$column_name}Key"){
 					return SUCCESS;
@@ -101,9 +100,9 @@ class MultilingualStringDatumBundle extends DatumBundle implements StaticElement
 						$struct->getForeignDataStructure($lang)->getColumnValue('value')
 					);
 				}else{
+					$did = $struct->getDebugId();
 					if($print){
-						$did = $struct->getDebugId();
-						//Debug::print("{$f} multilingual string data with debug ID {$did} does not have a link to its translated string data  \"{$lang}\"");
+						Debug::print("{$f} multilingual string data with debug ID {$did} does not have a link to its translated string data  \"{$lang}\"");
 					}
 					$closure2 = function(AfterSetForeignDataStructureEvent $event, MultilingualStringData $msd) use ($target, $column_name, $lang, $f, $print, $did){
 						if($event->getColumnName() !== $lang){

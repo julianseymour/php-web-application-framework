@@ -60,7 +60,7 @@ abstract class AbstractSessionForm extends ExpandingMenuNestedForm
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$mode = $this->getAllocationMode();
 			$vn = $input->getColumnName();
@@ -101,13 +101,13 @@ abstract class AbstractSessionForm extends ExpandingMenuNestedForm
 			// $key = $this->getContext()->getUserKey();
 			$input->setIdAttribute($this->getIdAttribute() . "-" . $input->getNameAttribute());
 			$label = $input->getLabelElement(); // must be called otherwise it will not have a label in time for its getSuccessors call
-			if (! $label->hasAttributes()) {
+			if(!$label->hasAttributes()) {
 				Debug::error("{$f} label has no attributes");
-			} elseif ($print) {
+			}elseif($print) {
 				// Debug::print("{$f} generated label does indeed have attributes");
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -51,7 +51,7 @@ class AccountSettingsElement extends DivElement{
 			MfaSettingsForm::class,
 			SessionHijackPreventionSettingsForm::class
 		];
-		foreach ($form_classes as $form_class) {
+		foreach($form_classes as $form_class) {
 			$form = new MenuExpandingFormWrapper($mode);
 			$form->setNestedFormClass($form_class);
 			$form->bindContext($context);
@@ -60,9 +60,9 @@ class AccountSettingsElement extends DivElement{
 
 		$recovery_cookie = new SessionRecoveryCookie();
 		$recovery_cookie->setReceptivity(DATA_MODE_SEALED);
-		if ($recovery_cookie->hasValidRecoveryData()) {
+		if($recovery_cookie->hasValidRecoveryData()) {
 			$srd = $recovery_cookie->getSessionRecoveryData();
-		} else {
+		}else{
 			$srd = new SessionRecoveryData();
 		}
 		$srd->setUserData($context);
@@ -80,7 +80,7 @@ class AccountSettingsElement extends DivElement{
 			// ThemeSettingsForm::class,
 			TimezoneSettingsForm::class
 		];
-		foreach ($form_classes as $form_class) {
+		foreach($form_classes as $form_class) {
 			$form = new MenuExpandingFormWrapper($mode);
 			$form->setNestedFormClass($form_class);
 			$form->bindContext($context);
@@ -92,7 +92,7 @@ class AccountSettingsElement extends DivElement{
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$slide_deselect = new LabelElement($mode);
 			$slide_deselect->addClassAttribute("slide_menu_label", "background_color_1", "slide_deselect");
@@ -109,7 +109,7 @@ class AccountSettingsElement extends DivElement{
 			$setlist->appendChild($radio_settings_none);
 			$this->appendChild($setlist);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

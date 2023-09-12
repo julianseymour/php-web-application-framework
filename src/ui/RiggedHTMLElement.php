@@ -38,7 +38,7 @@ class RiggedHTMLElement extends HTMLElement{
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$context = $this->getContext();
 			// body must be bound first because its contents may affect the head element
@@ -48,11 +48,11 @@ class RiggedHTMLElement extends HTMLElement{
 			$head->bindContext($context);
 			$this->appendChild($head);
 			$this->appendChild($body);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} generated child nodes");
 			}
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

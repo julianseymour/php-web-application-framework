@@ -52,9 +52,9 @@ abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterf
 
 	public function bruteforceProtection(mysqli $mysqli): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! $this->hasUserData()) {
+			if(!$this->hasUserData()) {
 				Debug::error("{$f} true client object is undefined");
 			}
 			// 1. bad apple: if this IP address has made recent attempts on multiple accounts
@@ -67,14 +67,14 @@ abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterf
 			}
 			// 2. bad apple: if this IP address has already attempted and failed too many times for this account,
 			$count = $this->getFailedAttemptCount($mysqli);
-			if ($count > MAX_FAILED_LOGINS_BY_IP) {
+			if($count > MAX_FAILED_LOGINS_BY_IP) {
 				if($print){
 					Debug::print("{$f} BFP failed by IP address");
 				}
 				return $this->setLoginResult(RESULT_BFP_IP_LOCKOUT_START);
 			}
 			return SUCCESS; // do not set result here -- it can still fail, and this will prematurely mark it as successful
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -82,9 +82,9 @@ abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterf
 	public function getCidrNotation(){
 		$f = __METHOD__;
 		$ip = $_SERVER['REMOTE_ADDR'];
-		if (preg_match(REGEX_IPv4_ADDRESS, $ip)) {
+		if(preg_match(REGEX_IPv4_ADDRESS, $ip)) {
 			return "{$ip}/32";
-		} elseif (preg_match(REGEX_IPv6_ADDRESS, $ip)) {
+		}elseif(preg_match(REGEX_IPv6_ADDRESS, $ip)) {
 			return "{$ip}/128";
 		}
 		Debug::error("{$f} this application only supports IP versions 4 and 6");
@@ -93,15 +93,15 @@ abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterf
 	// XXX TODO left off here -- select from the intersection table instead
 	public function getMultipleUserAttemptCount(mysqli $mysqli){
 		$f = __METHOD__;
-		try {
-			if (! $this->hasUserKey()) {
+		try{
+			if(!$this->hasUserKey()) {
 				Debug::error("{$f} user data is undefined");
 			}
 			$orderby = new OrderByClause("insertTimestamp", DIRECTION_DESCENDING);
 			$where2 = new WhereCondition('insertIpAddress', OPERATOR_EQUALS);
 			$where3 = new WhereCondition("insertTimestamp", OPERATOR_GREATERTHAN);
 			return static::selectStatic(null, "insertTimestamp")->where(new AndCommand(new WhereCondition('uniqueKey', OPERATOR_IN, null, static::selectStatic(null, 'uniqueKey')->where($this->whereIntersectionalHostKey(config()->getNormalUserClass(), "userKey", OPERATOR_LESSTHANGREATERTHAN))), $where2, $where3))->orderBy($orderby)->limit(5)->union(static::selectStatic(null, "insertTimestamp")->where(new AndCommand(new WhereCondition('uniqueKey', OPERATOR_IN, null, static::selectStatic(null, 'uniqueKey')->where($this->whereIntersectionalHostKey(config()->getAdministratorClass(), "userKey", OPERATOR_LESSTHANGREATERTHAN))), $where2, $where3))->orderBy($orderby)->limit(5))->prepareBindExecuteGetResultCount($mysqli, 'sssisssi', $this->getUserKey(), "userKey", $_SERVER['REMOTE_ADDR'], $this->getExpiredTimestamp(), $this->getUserKey(), "userKey", $_SERVER['REMOTE_ADDR'], $this->getExpiredTimestamp());
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -116,17 +116,17 @@ abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterf
 
 	public function getLoginSuccessful(){
 		$f = __METHOD__;
-		try {
+		try{
 			$field = 'loginSuccessful';
 			$success = $this->getColumnValue($field);
-			if ($success === null) {
+			if($success === null) {
 				// Debug::print("{$f} success flag is super null, about to call wasLoginSuccessful");
 				$value = $this->wasLoginSuccessful();
 				return $this->setColumnValue($field, $value);
 			}
 			// Debug::print("{$f} returning normally");
 			return $success;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -137,29 +137,29 @@ abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterf
 
 	protected static function wasLoginSuccessfulStatic($result){ // XXX refactor to LoginAttempt
 		$f = __METHOD__;
-		try {
+		try{
 			// $result = $this->getLoginResult();
-			if ($result === null || $result === "") {
+			if($result === null || $result === "") {
 				Debug::error("{$f} login result is empty");
 			}
 			$haystack = [
 				RESULT_BFP_MFA_CONFIRM,
 				SUCCESS
 			];
-			if (false === array_search($result, $haystack)) {
+			if(false === array_search($result, $haystack)) {
 				Debug::warning("{$f} no, this login with result \"{$result}\" was not successful");
 				return false; // $this->setLoginSuccessful(FAILURE);
 			}
 			// Debug::print("{$f} yes, this login was successful");
 			return true;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function wasLoginSuccessful(){
 		$f = __METHOD__;
-		if ($this->hasColumnValue("loginSuccessful")) {
+		if($this->hasColumnValue("loginSuccessful")) {
 			return $this->getColumnValue('loginSuccessful');
 		}
 		$result = $this->getLoginResult();
@@ -169,7 +169,7 @@ abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterf
 
 	public function setLoginResult($result){
 		$f = __METHOD__;
-		if ($result === FAILURE) {
+		if($result === FAILURE) {
 			Debug::error("{$f} not specific enough");
 		}
 		$this->setColumnValue('loginResult', $result);
@@ -195,13 +195,13 @@ abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterf
 
 	public function getFailedAttemptCount(mysqli $mysqli){
 		$f = __METHOD__;
-		try {
+		try{
 			return $this->select("insertTimestamp")->where(new AndCommand(new WhereCondition('insertIpAddress', OPERATOR_EQUALS), new WhereCondition('loginSuccessful', OPERATOR_EQUALS), new WhereCondition('insertTimestamp', OPERATOR_GREATERTHAN)))->orderBy(new OrderByClause("insertTimestamp", DIRECTION_DESCENDING))->limit(MAX_FAILED_WAIVERS_BY_IP + 1)->withTypeSpecifier('sii')->withParameters([
 				$_SERVER['REMOTE_ADDR'],
 				FAILURE,
 				$this->getExpiredTimestamp()
 			])->executeGetResultCount($mysqli);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -212,19 +212,19 @@ abstract class AccessAttempt extends RequestEvent implements StaticSubtypeInterf
 	 * @return int
 	 */
 	public function initializeAccessAttempt(mysqli $mysqli){
-		$f = __METHOD__;try {
+		$f = __METHOD__;try{
 			$this->generateInsertTimestamp();
 			$this->setInsertIpAddress($_SERVER['REMOTE_ADDR']);
 			$this->setUserAgent($_SERVER['HTTP_USER_AGENT']);
 			$status = $this->getObjectStatus();
-			if ($status !== SUCCESS && $status !== STATUS_UNINITIALIZED) {
+			if($status !== SUCCESS && $status !== STATUS_UNINITIALIZED) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			// Debug::print("{$f} returning normally");
 			return $this->setObjectStatus(SUCCESS);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

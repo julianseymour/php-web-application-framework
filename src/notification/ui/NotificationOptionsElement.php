@@ -46,7 +46,7 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 
 	public function getHiddenCheckboxInput(){
 		$f = __METHOD__;
-		if ($this->hasHiddenCheckboxInput()) {
+		if($this->hasHiddenCheckboxInput()) {
 			return $this->hiddenCheckboxInput;
 		}
 		$mode = $this->getAllocationMode();
@@ -99,7 +99,7 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 	}
 
 	public function getLabelContainer(){
-		if (! $this->hasLabelContainer()) {
+		if(!$this->hasLabelContainer()) {
 			$mode = $this->getAllocationMode();
 			$lc = new SpanElement($mode);
 			$lc->addClassAttribute("single_notification_options_label_container");
@@ -139,7 +139,7 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$unpin_form_class = $this->getUnpinNotificationFormClass();
 			$pin_form_class = $this->getPinNotificationFormClass();
 			$context = $this->getContext();
@@ -159,7 +159,7 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 			$label5->setForAttribute(new ConcatenateCommand($widget, "_options-none"));
 			$this->appendChild($label5);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

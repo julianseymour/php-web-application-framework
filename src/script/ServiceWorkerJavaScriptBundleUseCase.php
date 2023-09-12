@@ -16,4 +16,8 @@ class ServiceWorkerJavaScriptBundleUseCase extends LocalizedJavaScriptFileUseCas
 			JavaScriptFileRouter::getUseCaseFromFilename($fn)->echoResponse();
 		}
 	}
+	
+	public static function getFilename(): string{
+		return "sw_bundle.js";
+	}
 }

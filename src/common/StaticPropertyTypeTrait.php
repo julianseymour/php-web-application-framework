@@ -11,7 +11,7 @@ trait StaticPropertyTypeTrait
 	public static function getPropertyTypeStatic($key, ?StaticPropertyTypeInterface $object = null)
 	{
 		$types = static::declarePropertyTypes($object);
-		if (array_key_exists($key, $types)) {
+		if(array_key_exists($key, $types)) {
 			return $types[$key];
 		}
 		return null;

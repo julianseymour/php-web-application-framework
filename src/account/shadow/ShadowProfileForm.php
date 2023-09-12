@@ -44,12 +44,12 @@ class ShadowProfileForm extends AjaxForm{
 	public function getFormDataIndices(): ?array{
 		$session = new LanguageSettingsData();
 		$lang = $session->getLanguageCode();
-		if (Internationalization::lastNameFirst($lang)) {
+		if(Internationalization::lastNameFirst($lang)) {
 			$indices = [
 				'lastName' => TextInput::class,
 				'firstName' => TextInput::class
 			];
-		} else {
+		}else{
 			$indices = [
 				'firstName' => TextInput::class,
 				'lastName' => TextInput::class

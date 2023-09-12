@@ -24,13 +24,13 @@ class CreateRoutineStatement extends RoutineStatement implements StaticPropertyT
 
 	public function __construct(?Routine $routine = null){
 		parent::__construct();
-		if ($routine !== null) {
+		if($routine !== null) {
 			$this->setRoutine($routine);
 		}
 	}
 
 	public function getDelimiter(): string{
-		if (! $this->hasDelimiter()) {
+		if(!$this->hasDelimiter()) {
 			return "//";
 		}
 		return $this->delimiter;
@@ -41,15 +41,15 @@ class CreateRoutineStatement extends RoutineStatement implements StaticPropertyT
 	}
 
 	public function setRoutine(?Routine $routine): ?Routine{
-		if ($routine == null) {
+		if($routine == null) {
 			unset($this->routine);
 			return null;
-		} elseif ($routine instanceof Routine) {
+		}elseif($routine instanceof Routine) {
 			$this->setName($routine->getName());
-			if ($routine->hasParameters()) {
+			if($routine->hasParameters()) {
 				$this->setParameters($routine->getParameters());
 			}
-			if ($routine->hasReturnType()) {
+			if($routine->hasReturnType()) {
 				$this->setReturnType($routine->getReturnType());
 			}
 		}
@@ -58,7 +58,7 @@ class CreateRoutineStatement extends RoutineStatement implements StaticPropertyT
 
 	public function getRoutine(){
 		$f = __METHOD__;
-		if (! $this->hasRoutine()) {
+		if(!$this->hasRoutine()) {
 			Debug::error("{$f} routine body is undefined");
 		}
 		return $this->routine;
@@ -67,7 +67,7 @@ class CreateRoutineStatement extends RoutineStatement implements StaticPropertyT
 	protected function getCharacteristics(): string{
 		$string = parent::getCharacteristics();
 		// [NOT] DETERMINISTIC
-		if (! $this->getDeterministicFlag()) {
+		if(!$this->getDeterministicFlag()) {
 			$string .= "not ";
 		}
 		$string .= "deterministic ";
@@ -76,34 +76,34 @@ class CreateRoutineStatement extends RoutineStatement implements StaticPropertyT
 
 	public function getQueryStatementString(){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$string = "";
 			// $string .= "delimiter ".$this->getDelimiter()."\n";
 			// CREATE
 			$string .= "create ";
 			// [DEFINER = user]
-			if ($this->hasDefiner()) {
+			if($this->hasDefiner()) {
 				$definer = $this->getDefiner();
-				if ($definer instanceof SQLInterface) {
+				if($definer instanceof SQLInterface) {
 					$definer = $definer->toSQL();
 				}
 				$string .= "{$definer} ";
 			}
 			// {FUNCTION | PROCEDURE} sp_name ([parameter[,...]])
-			if ($this->hasReturnType()) {
+			if($this->hasReturnType()) {
 				$string .= "function ";
-			} else {
+			}else{
 				$string .= "procedure ";
 			}
 			$string .= $this->getName() . " (";
-			if ($this->hasParameters()) {
+			if($this->hasParameters()) {
 				$i = 0;
-				foreach ($this->getParameters() as $p) {
-					if ($i ++ > 0) {
+				foreach($this->getParameters() as $p) {
+					if($i ++ > 0) {
 						$string .= ",";
 					}
-					if ($p instanceof SQLInterface) {
+					if($p instanceof SQLInterface) {
 						$p = $p->toSQL();
 					}
 					$string .= $p;
@@ -111,24 +111,24 @@ class CreateRoutineStatement extends RoutineStatement implements StaticPropertyT
 			}
 			$string .= ") ";
 			// RETURNS type
-			if ($this->hasReturnType()) {
+			if($this->hasReturnType()) {
 				$string .= "returns " . $this->getReturnType() . " ";
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} return type is undefined");
 			}
 			$string .= $this->getCharacteristics();
 			// routine_body
 			$routine = $this->getRoutine();
-			if ($routine instanceof SQLInterface) {
+			if($routine instanceof SQLInterface) {
 				$routine = $routine->toSQL();
 			}
 			$string .= $routine;
 			// $string .= $this->getDelimiter();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning \"{$string}\"");
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

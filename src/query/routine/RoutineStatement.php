@@ -31,19 +31,19 @@ abstract class RoutineStatement extends QueryStatement{
 	protected function getCharacteristics(){
 		$string = "";
 		// COMMENT 'string'
-		if ($this->hasComment()) {
+		if($this->hasComment()) {
 			$string .= "comment " . single_quote($this->getComment()) . " ";
 		}
 		// LANGUAGE SQL
-		if ($this->getLanguageFlag()) {
+		if($this->getLanguageFlag()) {
 			$string .= "language SQL ";
 		}
 		// { CONTAINS SQL | NO SQL | READS SQL DATA | MODIFIES SQL DATA }
-		if (false) {
+		if(false) {
 			// XXX TODO
 		}
 		// SQL SECURITY { DEFINER | INVOKER }
-		if ($this->hasSQLSecurity()) {
+		if($this->hasSQLSecurity()) {
 			$string .= "SQL security " . $this->getSQLSecurity() . " ";
 		}
 		return $string;

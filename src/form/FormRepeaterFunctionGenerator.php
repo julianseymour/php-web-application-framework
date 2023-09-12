@@ -29,24 +29,24 @@ class FormRepeaterFunctionGenerator extends AbstractTemplateFunctionGenerator{
 
 	public function __construct(?string $formClass){
 		parent::__construct();
-		if (! empty($formClass)) {
+		if(!empty($formClass)) {
 			$this->setFormClass($formClass);
 		}
 	}
 
 	public function setFormClass(?string $formClass){
 		$f = __METHOD__;
-		if ($formClass === null) {
+		if($formClass === null) {
 			unset($this->formClass);
 			return null;
-		} elseif (! is_string($formClass)) {
+		}elseif(!is_string($formClass)) {
 			$gottype = is_object($formClass) ? $formClass->getClass() : gettype($formClass);
 			Debug::error("{$f} form class is a {$gottype}");
-		} elseif (empty($formClass)) {
+		}elseif(empty($formClass)) {
 			Debug::error("{$f} form class is an empty string");
-		} elseif (! class_exists($formClass)) {
+		}elseif(! class_exists($formClass)) {
 			Debug::error("{$f} class \"{$formClass}\" does not exist");
-		} elseif (! is_a($formClass, AjaxForm::class, true)) {
+		}elseif(!is_a($formClass, AjaxForm::class, true)) {
 			Debug::error("{$f} form class \"{$formClass}\" is not an AjaxForm");
 		}
 		return $this->formClass = $formClass;
@@ -58,7 +58,7 @@ class FormRepeaterFunctionGenerator extends AbstractTemplateFunctionGenerator{
 
 	public function getFormClass(): string{
 		$f = __METHOD__;
-		if (! $this->hasFormClass()) {
+		if(!$this->hasFormClass()) {
 			Debug::error("{$f} form class is undefined");
 		}
 		return $this->formClass;
@@ -66,7 +66,7 @@ class FormRepeaterFunctionGenerator extends AbstractTemplateFunctionGenerator{
 
 	public function generate($context): ?JavaScriptFunction{
 		$f = __METHOD__;
-		try {
+		try{
 			$form_class = get_short_class($this->getFormClass());
 			$function = new JavaScriptFunction("repeat{$form_class}", "event", "button");
 			$function->setRoutineType(ROUTINE_TYPE_FUNCTION);
@@ -104,7 +104,7 @@ class FormRepeaterFunctionGenerator extends AbstractTemplateFunctionGenerator{
 				new InsertBeforeCommand(new GetDeclaredVariableCommand("button"), $context)
 			);
 			return $function;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			return x($f, $x);
 		}
 	}

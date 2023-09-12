@@ -71,7 +71,7 @@ class PublicFilesUseCase extends InteractiveUseCase{
 	}
 
 	public function getResponder(int $status): ?Responder{
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			return parent::getResponder($status);
 		}
 		switch (directive()) {
@@ -85,12 +85,12 @@ class PublicFilesUseCase extends InteractiveUseCase{
 	public function getPageContent(): ?array{
 		$arr = [];
 		$user = user();
-		if ($user instanceof Administrator) {
+		if($user instanceof Administrator) {
 			array_push($arr, new PublicFileUploadForm(ALLOCATION_MODE_LAZY, new PublicFileData()));
 		}
 		$ec = $this->getConditionalElementClass(PublicFileData::getDataType());
-		if ($user->hasForeignDataStructureList(PublicFileData::getPhylumName())) {
-			foreach ($user->getForeignDataStructureList(PublicFileData::getPhylumName()) as $file) {
+		if($user->hasForeignDataStructureList(PublicFileData::getPhylumName())) {
+			foreach($user->getForeignDataStructureList(PublicFileData::getPhylumName()) as $file) {
 				array_push($arr, new $ec(ALLOCATION_MODE_LAZY, $file));
 			}
 		}

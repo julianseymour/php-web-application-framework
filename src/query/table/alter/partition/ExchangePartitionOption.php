@@ -20,7 +20,7 @@ class ExchangePartitionOption extends AlterOption
 		parent::__construct();
 		$this->setPartitionName($partitionName);
 		$this->setTableName($tableName);
-		if ($validate !== null) {
+		if($validate !== null) {
 			$this->setValidation($validate);
 		}
 	}
@@ -28,10 +28,10 @@ class ExchangePartitionOption extends AlterOption
 	public function setPartitionName($partitionName)
 	{
 		$f = __METHOD__; //ExchangePartitionOption::getShortClass()."(".static::getShortClass().")->setPartitionName()";
-		if ($partitionName == null) {
+		if($partitionName == null) {
 			unset($this->partitionName);
 			return null;
-		} elseif (! is_string($this->partitionName)) {
+		}elseif(!is_string($this->partitionName)) {
 			Debug::error("{$f} partition name is not a string");
 		}
 		return $this->partitionName = $partitionName;
@@ -45,7 +45,7 @@ class ExchangePartitionOption extends AlterOption
 	public function getPartitionName()
 	{
 		$f = __METHOD__; //ExchangePartitionOption::getShortClass()."(".static::getShortClass().")->getPartitionName()";
-		if (! $this->hasPartitionName()) {
+		if(!$this->hasPartitionName()) {
 			Debug::error("{$f} partiton name is undefined");
 		}
 		return $this->partitionName;
@@ -55,7 +55,7 @@ class ExchangePartitionOption extends AlterOption
 	{
 		// EXCHANGE PARTITION partition_name WITH TABLE tbl_name [{WITH | WITHOUT} VALIDATION]
 		$string = "exchange partition " . $this->getPartitionName() . " with table ";
-		if ($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()) {
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
 		$string .= back_quote($this->getTableName()) . ($this->validate !== null ? "with" . (! $this->getValidation() ? "out" : "") . " validation" : "");

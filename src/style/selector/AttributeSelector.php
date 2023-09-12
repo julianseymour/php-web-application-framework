@@ -54,7 +54,7 @@ class AttributeSelector extends Selector
 	{
 		echo "[";
 		echo $this->getAttributeName();
-		if ($this->hasAttributeValue()) {
+		if($this->hasAttributeValue()) {
 			static::echoOperator();
 			$this->echoAttributeValue();
 		}
@@ -64,9 +64,9 @@ class AttributeSelector extends Selector
 	public function __construct($name = null, $value = null)
 	{
 		parent::__construct();
-		if (isset($name)) {
+		if(isset($name)) {
 			$this->setAttributeName($name);
-			if (isset($value)) {
+			if(isset($value)) {
 				$this->setAttributeValue($value);
 			}
 		}

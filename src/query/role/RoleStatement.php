@@ -17,7 +17,7 @@ abstract class RoleStatement extends QueryStatement
 	{
 		parent::__construct();
 		$this->requirePropertyType("roles", DatabaseRoleData::class);
-		if (isset($roles)) {
+		if(isset($roles)) {
 			$this->setRoles($roles);
 		}
 	}
@@ -25,21 +25,21 @@ abstract class RoleStatement extends QueryStatement
 	public function setRoleType($type)
 	{
 		$f = __METHOD__; //RoleStatement::getShortClass()."(".static::getShortClass().")->setRoleType()";
-		if ($type == null) {
+		if($type == null) {
 			unset($this->roleType);
 			return null;
-		} elseif (! is_string($type)) {
+		}elseif(!is_string($type)) {
 			Debug::error("{$f} as user role type must be a string");
 		}
 		$type = strtolower($type);
 		switch ($type) {
 			case "all except":
-				if ($this instanceof SetRoleStatement) {
+				if($this instanceof SetRoleStatement) {
 					$this->setAllExceptFlag(true);
 					return $type;
 				}
 			case CONST_DEFAULT:
-				if ($this instanceof SetDefaultRoleStatement) {
+				if($this instanceof SetDefaultRoleStatement) {
 					Debug::error("{$f} SetDefaultRoleStatement does not support default role type or 'all except'");
 				}
 			case CONST_NONE:
@@ -59,7 +59,7 @@ abstract class RoleStatement extends QueryStatement
 	public function getRoleType()
 	{
 		$f = __METHOD__; //RoleStatement::getShortClass()."(".static::getShortClass().")->getRoleType()";
-		if (! $this->hasRoleType()) {
+		if(!$this->hasRoleType()) {
 			Debug::error("{$f} as user role type is undefined");
 		}
 		return $this->roleType;
@@ -68,16 +68,16 @@ abstract class RoleStatement extends QueryStatement
 	public function setTemporaryRole(...$role)
 	{
 		$f = __METHOD__; //RoleStatement::getShortClass()."(".static::getShortClass().")->setTemporaryRole()";
-		if (count($role) > 1) {
+		if(count($role) > 1) {
 			return $this->withRoles($role);
 		}
 		$role = $role[0];
-		if (is_array($role)) {
+		if(is_array($role)) {
 			return $this->withRole(...$role);
-		} elseif (! is_string($role)) {
-			if ($role instanceof DatabaseRoleData) {
+		}elseif(!is_string($role)) {
+			if($role instanceof DatabaseRoleData) {
 				$role = $role->getUsername();
-			} else {
+			}else{
 				Debug::error("{$f} role name is not a string");
 			}
 		}

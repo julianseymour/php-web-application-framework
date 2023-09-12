@@ -11,7 +11,7 @@ trait RoutineTypeTrait
 	public function setRoutineType(?string $type): ?string
 	{
 		$f = __METHOD__; //"RoutineTypeTrait(".static::getShortClass().")->setRoutineType()";
-		if ($type == null) {
+		if($type == null) {
 			unset($this->routineType);
 			return null;
 		}
@@ -37,7 +37,7 @@ trait RoutineTypeTrait
 	public function getRoutineType(): string
 	{
 		$f = __METHOD__; //"RoutineTypeTrait(".static::getShortClass().")->getRoutineType()";
-		if (! $this->hasRoutineType()) {
+		if(!$this->hasRoutineType()) {
 			Debug::error("{$f} routine type is undefined");
 		}
 		return $this->routineType;

@@ -6,7 +6,7 @@ class AfterSubindexEvent extends SubindexEvent
 
 	public function __construct($index, $oldname, $properties = null)
 	{
-		if (! isset($properties) || ! is_array($properties)) {
+		if(! isset($properties) || ! is_array($properties)) {
 			$properties = [];
 		}
 		$properties['oldName'] = $oldname;

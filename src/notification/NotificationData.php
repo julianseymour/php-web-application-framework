@@ -70,11 +70,11 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public function getVirtualColumnValue(string $column_name){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($column_name) {
 				case "actions":
 					$arr = $this->getTypedNotificationClass()::getNotificationActionsStatic($this);
-					if ($this->isDismissable()) {
+					if($this->isDismissable()) {
 						array_push($arr, [
 							"action" => "dismiss",
 							"title" => _("Dismiss")
@@ -93,7 +93,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 					// Debug::warning("{$f} invalid virtual datum index \"{$column_name}\"; returning parent function");
 					return parent::getVirtualColumnValue($column_name);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -135,11 +135,11 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	 */
 	public function setUserData(UserData $user):UserData{
 		$f = __METHOD__;
-		try {
+		try{
 			$ndt = $user->getNotificationDeliveryTimestamp();
 			$this->setOldDeliveryTimestamp($ndt);
 			return parent::setUserData($user);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -168,7 +168,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public function requiresAttention():bool{
 		$f = __METHOD__;
-		if (! $this->hasSubjectData()) {
+		if(!$this->hasSubjectData()) {
 			Debug::error("{$f} target object is undefined");
 		}
 		$target = $this->getSubjectData();
@@ -178,23 +178,23 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	protected function beforeInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasNotificationState()) {
+		if(!$this->hasNotificationState()) {
 			$this->setNotificationState(NOTIFICATION_STATE_UNREAD);
 		}
-		if ($this->hasCorrespondentKey()) {
+		if($this->hasCorrespondentKey()) {
 			$ck = $this->getCorrespondentKey();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} correspondent key is \"{$ck}\"");
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} this notification does not have a correspondent key");
 		}
 
-		if ($print) {
-			if ($this->hasCorrespondentAccountType()) {
+		if($print) {
+			if($this->hasCorrespondentAccountType()) {
 				$type = $this->getCorrespondentAccountType();
 				Debug::print("{$f} correspondent account type is \"{$type}\"");
-			} else {
+			}else{
 				Debug::print("{$f} this notification does not have a correspondent account type");
 			}
 		}
@@ -207,19 +207,19 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public function acquireCorrespondentObject(mysqli $mysqli){
 		$f = __METHOD__;
-		try {
+		try{
 			// Debug::print("{$f} entered");
-			if ($this->getNotificationType() === NOTIFICATION_TYPE_SECURITY) {
+			if($this->getNotificationType() === NOTIFICATION_TYPE_SECURITY) {
 				Debug::error("{$f} this should not get called for security notifications");
 			}
 			// Debug::print("{$f} about to call parent function");
 			$correspondent = parent::acquireCorrespondentObject($mysqli);
-			if (! isset($correspondent)) {
+			if(! isset($correspondent)) {
 				Debug::error("{$f} acquireCorrespondentObject returned null");
 			}
 			// Debug::print("{$f} returning a perfectly valid correspondent object");
 			return $correspondent;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -244,7 +244,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::reconfigureColumns($columns, $ds);
 			$indices = [
 				// "correspondentName",
@@ -252,8 +252,8 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 				// "userName",
 				"userTemporaryRole"
 			];
-			foreach ($indices as $column_name) {
-				if (! array_key_exists($column_name, $columns)) {
+			foreach($indices as $column_name) {
+				if(! array_key_exists($column_name, $columns)) {
 					Debug::printArray(array_keys($columns));
 					Debug::error("{$f} column \"{$column_name}\" does not exist");
 				}
@@ -266,7 +266,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 			$columns['correspondentNameKey']->setNullable(true);
 			$columns['userNameKey']->setNullable(true);
 			// $columns['userKey']->setAutoloadFlag();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, x);
 		}
 	}
@@ -277,7 +277,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 			if($this->getTypedNotificationClass()::noCorrespondent()){
 				// Debug::print("{$f} this is a security notification, it doesn't have a correspondent");
 				return _("N/A");
-			} elseif (! $this->hasCorrespondentKey()) {
+			}elseif(!$this->hasCorrespondentKey()) {
 				return _("Deleted correspondent");
 			}
 			return parent::getCorrespondentName();
@@ -300,9 +300,9 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public function getName():string{
 		$f = __METHOD__;
-		try {
+		try{
 			return substitute(_("Notification #%1%"), $this->getSerialNumber());
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -313,7 +313,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::declareColumns($columns, $ds);
 			$type = new StringEnumeratedDatum("subtype");
 			$type->setValidEnumerationMap(array_keys(mods()->getTypedNotificationClasses()));
@@ -351,7 +351,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 			$actions = new VirtualDatum("actions");
 			array_push($columns, $type, $count, $state, $pin_timestamp, $dismissable, $link_uri, $preview, $title, $actions, $subjectKey, $oldTimestamp);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -399,12 +399,12 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	public function excludeFromPhylumArray(){
 		$f = __METHOD__;
 		$print = false;
-		if ($this->getNotificationState() === NOTIFICATION_STATE_DISMISSED) {
-			if ($print) {
+		if($this->getNotificationState() === NOTIFICATION_STATE_DISMISSED) {
+			if($print) {
 				Debug::print("{$f} this notification was dismissed; ecxlude it");
 			}
 			return true;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} this notification has not been dismissed; include it");
 		}
 		return false;
@@ -419,11 +419,11 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		$print = false;
 		$sub_id = $config_id === "push" ? CONST_DEFAULT : $config_id;
 		$config = parent::getArrayMembershipConfiguration($sub_id);
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} parent function returned the following array:");
 			Debug::printArray($config);
 		}
-		if (array_key_exists("name", $config)) {
+		if(array_key_exists("name", $config)) {
 			Debug::error("{$f} notifications don't have names");
 		}
 		$class = $this->getTypedNotificationClass();
@@ -478,15 +478,15 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	public function getPushNotificationDeliverable(): string{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this instanceof NotificationData) {
+		if(!$this instanceof NotificationData) {
 			Debug::error("{$f} you were supposed to send a notification data structure");
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} about to send push notification");
 		}
 		$recipient = $this->getUserData();
 		$ck = $this->getUserKey();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} about to encrypt user key \"{$ck}\"");
 		}
 		$arr = [
@@ -500,18 +500,18 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public static function getPermissionStatic(string $name, $data){
 		$f = __METHOD__;
-		try {
-			if ($data->hasPermission($name)) {
+		try{
+			if($data->hasPermission($name)) {
 				return $data->getPermission($name);
 			}
 			switch ($name) {
 				case DIRECTIVE_INSERT:
 					return new Permission($name, function (PlayableUser $user, NotificationData $notification) {
-						if ($user instanceof Administrator) {
+						if($user instanceof Administrator) {
 							return SUCCESS;
-						} elseif ($notification->isOwnedBy($user)) {
+						}elseif($notification->isOwnedBy($user)) {
 							return SUCCESS;
-						} elseif ($user->getIdentifierValue() === $notification->getCorrespondentKey()) {
+						}elseif($user->getIdentifierValue() === $notification->getCorrespondentKey()) {
 							return SUCCESS;
 						}
 						return FAILURE;
@@ -521,7 +521,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 				default:
 					return parent::getPermissionStatic($name, $data);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

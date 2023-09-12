@@ -22,13 +22,13 @@ abstract class StringTransformationCommand extends Command implements JavaScript
 	{
 		$f = __METHOD__; //StringTransformationCommand::getShortClass()."(".static::getShortClass().")->setSubject()";
 		$print = false;
-		if ($subject === null || is_string($subject) && $subject === "") {
+		if($subject === null || is_string($subject) && $subject === "") {
 			Debug::error("{$f} subject is null or empty string");
 		}
-		if ($print) {
-			if (is_string($subject)) {
+		if($print) {
+			if(is_string($subject)) {
 				Debug::print("{$f} setting subject to \"{$subject}\"");
-			} else {
+			}else{
 				Debug::print("{$f} subject is not a string");
 			}
 		}
@@ -43,7 +43,7 @@ abstract class StringTransformationCommand extends Command implements JavaScript
 	public function getSubject()
 	{
 		$f = __METHOD__; //StringTransformationCommand::getShortClass()."(".static::getShortClass().")->getSubject()";
-		if (! $this->hasSubject()) {
+		if(!$this->hasSubject()) {
 			Debug::error("{$f} subject \"{$this->subject}\" is undefined");
 		}
 		return $this->subject;
@@ -52,7 +52,7 @@ abstract class StringTransformationCommand extends Command implements JavaScript
 	public function toJavaScript(): string
 	{
 		$subject = $this->getSubject();
-		if ($subject instanceof JavaScriptInterface) {
+		if($subject instanceof JavaScriptInterface) {
 			$subject = $subject->toJavaScript();
 		}
 		$command = $this->getCommandId();

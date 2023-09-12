@@ -46,79 +46,79 @@ implements EchoJsonInterface, StaticPropertyTypeInterface{
 	 */
 	public function pushDataStructure(...$data){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! is_array($this->dataStructures)) {
+			if(!is_array($this->dataStructures)) {
 				$this->dataStructures = [];
 			}
 			$count = 0;
-			foreach ($data as $ds) {
+			foreach($data as $ds) {
 				$member_count = $ds->getFilteredColumnCount(COLUMN_FILTER_ARRAY_MEMBER);
 				$a2rc = $ds->getFilteredColumnCount(COLUMN_FILTER_ADD_TO_RESPONSE);
 				$key = $ds->getIdentifierValue();
-				if ($member_count === 0 && $a2rc === 0) {
+				if($member_count === 0 && $a2rc === 0) {
 					$dsc = $ds->getClass();
 					$decl = $ds->getDeclarationLine();
 					Debug::error("{$f} \"{$dsc}\" with key \"{$key}\" has no array member-flagged columns. It was declared {$decl}");
-				} elseif ($print) {
+				}elseif($print) {
 					$phylum = $ds->getPhylumName();
 					Debug::print("{$f} assigning object from family \"{$phylum}\" with key \"{$key}\"");
 				}
-				if ($member_count > 0) {
+				if($member_count > 0) {
 					$this->dataStructures[$key] = $ds;
 					$count ++;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} no columns configured as array members");
 				}
-				if ($a2rc > 0) {
+				if($a2rc > 0) {
 					$columns = $ds->getFilteredColumns(COLUMN_FILTER_FOREIGN);
-					if (! empty($columns)) {
-						foreach ($columns as $column_name => $column) {
-							if (! $column->getAddToResponseFlag() || ($column instanceof ForeignKeyDatum && ! $ds->hasForeignDataStructure($column_name)) || ($column instanceof KeyListDatum && ! $ds->hasForeignDataStructureList($column_name))) {
-								if ($print) {
+					if(!empty($columns)) {
+						foreach($columns as $column_name => $column) {
+							if(!$column->getAddToResponseFlag() || ($column instanceof ForeignKeyDatum && ! $ds->hasForeignDataStructure($column_name)) || ($column instanceof KeyListDatum && ! $ds->hasForeignDataStructureList($column_name))) {
+								if($print) {
 									Debug::print("{$f} no relations for column \"{$column_name}\", or it lacks an add to response flag");
-									if ($column_name === "lineItems") {
-										if ($column->getAddToResponseFlag()) {
+									if($column_name === "lineItems") {
+										if($column->getAddToResponseFlag()) {
 											Debug::print("{$f} add to response flag is set");
-										} else {
+										}else{
 											Debug::print("{$f} add to response flag is not set");
 										}
 									}
 								}
 								continue;
-							} elseif ($print) {
+							}elseif($print) {
 								Debug::print("{$f} foreign data structure at column \"{$column_name}\" is flagged as an addon whenever pushing this data structure to a response");
 							}
-							if ($column instanceof ForeignKeyDatum) {
+							if($column instanceof ForeignKeyDatum) {
 								$count += $this->pushDataStructure($ds->getForeignDataStructure($column_name));
-							} elseif ($column instanceof KeyListDatum) {
-								if ($ds->hasForeignDataStructureList($column_name)) {
+							}elseif($column instanceof KeyListDatum) {
+								if($ds->hasForeignDataStructureList($column_name)) {
 									$count += $this->pushDataStructure(...array_values($ds->getForeignDataStructureList($column_name)));
 								}
-							} else {
+							}else{
 								Debug::error("{$f} impossible");
 							}
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} no foreign columns");
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} no foreign data structures to add to response");
 				}
 			}
 			return $count;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function hasDataStructure($data){
 		$f = __METHOD__;
-		if ($data instanceof DataStructure) {
+		if($data instanceof DataStructure) {
 			$key = $data->getIdentifierValue();
-		} elseif (is_string($data)) {
+		}elseif(is_string($data)) {
 			$key = $data;
-		} else {
+		}else{
 			Debug::error("{$f} neither string nor DataStructure");
 		}
 		return is_array($this->dataStructures) && array_key_exists($key, $this->dataStructures);
@@ -151,48 +151,48 @@ implements EchoJsonInterface, StaticPropertyTypeInterface{
 
 	public function echoInnerJson(bool $destroy = false): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$this->setRefuseCommandsFlag(true);
-			if (! $this->getOmitCurrentUserFlag()) {
+			if(!$this->getOmitCurrentUserFlag()) {
 				Json::echoKeyValuePair("currentUserKey", getCurrentUserKey());
 			}
-			if (is_array($this->properties) && ! empty($this->properties)) {
-				foreach ($this->getProperties() as $key => $value) {
-					if ($key === "commands" || $key === "dataStrutures" || $key === "status") {
+			if(is_array($this->properties) && ! empty($this->properties)) {
+				foreach($this->getProperties() as $key => $value) {
+					if($key === "commands" || $key === "dataStrutures" || $key === "status") {
 						continue;
 					}
 					Json::echoKeyValuePair($key, $value, $destroy);
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no properties");
 			}
-			if ($this->hasCommands()) {
+			if($this->hasCommands()) {
 				$commands = $this->getCommands();
-				if ($print) {
+				if($print) {
 					$count = count($commands);
 					Debug::print("{$f} {$count} commands");
-					foreach ($commands as $command) {
+					foreach($commands as $command) {
 						$command->debugPrintSubcommands();
 					}
 				}
 				Json::echoKeyValuePair('commands', $commands, $destroy);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no commands");
 			}
-			if (is_array($this->dataStructures) && ! empty($this->dataStructures)) {
+			if(is_array($this->dataStructures) && ! empty($this->dataStructures)) {
 				Json::echoKeyValuePair('dataStructures', $this->dataStructures, $destroy);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no data structures");
 			}
-			if (! $this->hasProperty("status")) {
+			if(!$this->hasProperty("status")) {
 				$this->setProperty("status", SUCCESS);
 			}
 			Json::echoKeyValuePair("status", $this->getProperty("status"), $destroy, false);
-			if ($destroy) {
+			if($destroy) {
 				$this->dispose();
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

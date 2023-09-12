@@ -31,17 +31,17 @@ class SelectInput extends InputElement
 		$print = false;
 		$ret = parent::configure($form);
 		$datum = $this->getContext();
-		if (! $this->hasPredecessors() && $datum->hasHumanReadableName()) {
+		if(!$this->hasPredecessors() && $datum->hasHumanReadableName()) {
 			$span = new SpanElement($this->getAllocationMode());
 			$span->setInnerHTML($datum->getHumanReadableName());
 			$this->pushPredecessor($span);
 		}
-		if ($this->hasOptions()) {
-			if ($print) {
+		if($this->hasOptions()) {
+			if($print) {
 				Debug::print("{$f} options are defined");
 			}
 			return $this->getOptions()->configure($form);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} this object does not have options");
 		}
 		if(!$datum->isNullable() && !$datum->hasDefaultValue()){
@@ -55,7 +55,7 @@ class SelectInput extends InputElement
 	}
 
 	public function setOptions(?MultipleOptions $options): ?MultipleOptions{
-		if ($options == null) {
+		if($options == null) {
 			unset($this->options);
 			return null;
 		}
@@ -74,38 +74,38 @@ class SelectInput extends InputElement
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
-				if ($this->hasContext()) {
+			if($print) {
+				if($this->hasContext()) {
 					$context = $this->getContext();
-					if (is_object($context)) {
+					if(is_object($context)) {
 						$cc = $context->getClass();
-						if ($context instanceof Datum) {
+						if($context instanceof Datum) {
 							$cn = $context->getName();
 							Debug::print("{$f} context is a {$cc} named \"{$cn}\"");
-						} else {
+						}else{
 							Debug::print("{$f} context is an object of class \"{$cc}\"");
 						}
-					} else {
+					}else{
 						$gottype = gettype($context);
 						Debug::print("{$f} context is a {$gottype}");
 					}
-				} else {
+				}else{
 					Debug::print("{$f} context is undefined");
 				}
 			}
-			if ($this->hasChildNodes()) {
-				if ($print) {
+			if($this->hasChildNodes()) {
+				if($print) {
 					Debug::print("{$f} child nodes were already generated");
 				}
 				return $this->getChildNodes();
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} generating child nodes now");
 			}
 			$this->appendChild($this->getOptions());
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -12,7 +12,7 @@ class HTMLCommentElement extends Element
 		echo "<!-- ";
 		$this->echoInnerHTML();
 		echo " -->";
-		if ($destroy) {
+		if($destroy) {
 			$this->dispose();
 		}
 	}
@@ -21,7 +21,7 @@ class HTMLCommentElement extends Element
 	{
 		Json::echoKeyValuePair("tag", "!--", $destroy);
 		Json::echoKeyValuePair("innerHTML", $this->getInnerHTML(), $destroy, false);
-		if ($destroy) {
+		if($destroy) {
 			$this->dispose();
 		}
 	}
@@ -30,7 +30,7 @@ class HTMLCommentElement extends Element
 	{
 		parent::__construct(ALLOCATION_MODE_NEVER);
 		// $this->setDebugId(sha1(random_bytes(32)));
-		if (! empty($comment)) {
+		if(!empty($comment)) {
 			$this->setInnerHTML($comment);
 		}
 	}

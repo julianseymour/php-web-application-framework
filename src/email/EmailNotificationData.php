@@ -58,14 +58,14 @@ abstract class EmailNotificationData extends SpamEmail implements StaticSubtypeI
 	
 	public function getVirtualColumnValue(string $column_name){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($column_name) {
 				case 'subtype':
 					return $this->getSubtypeStatic();
 				default:
 					return parent::getVirtualColumnValue($column_name);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -82,10 +82,10 @@ abstract class EmailNotificationData extends SpamEmail implements StaticSubtypeI
 	protected final function getPlaintextPromptHyperlinks(){
 		$string = "";
 		$prompts = $this->getActionURIPromptMap();
-		if (empty($prompts)) {
+		if(empty($prompts)) {
 			return null;
 		}
-		foreach ($prompts as $uri => $prompt) {
+		foreach($prompts as $uri => $prompt) {
 			$string .= "\n\n";
 			$string .= substitute(_("Visit the following link to %1%"), $prompt);
 			$string .= ": {$uri}";
@@ -117,14 +117,14 @@ abstract class EmailNotificationData extends SpamEmail implements StaticSubtypeI
 	
 	public function send():int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($this->isOptional()) {
-				if (! $this->isEmailNotificationWarranted()) {
+			if($this->isOptional()) {
+				if(!$this->isEmailNotificationWarranted()) {
 					Debug::error("{$f} the subject does not warrant an email notification");
 					return $this->setObjectStatus(SUCCESS);
-				} elseif (! $this->getRecipient()->getEmailNotificationStatus($this->getNotificationType())) {
-					if ($print) {
+				}elseif(!$this->getRecipient()->getEmailNotificationStatus($this->getNotificationType())) {
+					if($print) {
 						Debug::print("{$f} email notifications are disabled");
 					}
 					return $this->setObjectStatus(SUCCESS);
@@ -135,7 +135,7 @@ abstract class EmailNotificationData extends SpamEmail implements StaticSubtypeI
 				Debug::print("{$f} this email is not optional");
 			}
 			return parent::send();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

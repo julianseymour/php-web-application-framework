@@ -25,7 +25,7 @@ trait LabelGeneratorTrait
 
 	public function setLabelClassAttribute(...$attr)
 	{
-		if (count($attr) == 1 && is_array($attr[0])) {
+		if(count($attr) == 1 && is_array($attr[0])) {
 			$attr = $attr[0];
 		}
 		return $this->setArrayProperty("labelClassAttribute", $attr);

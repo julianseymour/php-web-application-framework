@@ -58,20 +58,20 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		$f = __METHOD__;
-		try {
+		try{
 			parent::__construct($mode, $context);
 			$this->setMethodAttribute("post");
 			// $this->setIdAttribute("login_form");
 			$this->addClassAttribute("login_form", "universal_form");
 			$this->setStyleProperty("transition", "opacity 0.5s");
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function generateFormFooter(): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$back = _("Back to login");
 			$forgot_password_hint = new LabelElement($mode);
@@ -83,14 +83,14 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 				'position' => 'relative'
 			]);
 			$this->appendChild($forgot_password_hint);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$mode = $this->getAllocationMode();
 			$splat = explode("/", request()->getRequestURI());
@@ -111,13 +111,13 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 
 			$inputs = parent::getAdHocInputs();
 
-			if (is_int($inputs)) {
+			if(is_int($inputs)) {
 				Debug::error("{$f} parent function returned an integer");
-			} elseif (! is_array($inputs)) {
+			}elseif(!is_array($inputs)) {
 				Debug::error("{$f} parent function returned somehing that is not an array");
 			}
 
-			foreach ([
+			foreach([
 				$ci,
 				$li,
 				$ui
@@ -127,7 +127,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 
 			$validator = new LenienthCaptchaValidator(LoginAttempt::class, 1);
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
-			if (!$validator->validateFailedRequestCount($mysqli)){
+			if(!$validator->validateFailedRequestCount($mysqli)){
 				if($print){
 					Debug::print("{$f} failed request count exceeds the number necessary to display hcaptcha");
 				}
@@ -138,7 +138,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 				Debug::print("{$f} insufficient number of failed requests to display captcha");
 			}
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -186,9 +186,9 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 	 */
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($input->hasAttribute("required")) {
+			if($input->hasAttribute("required")) {
 				$input->removeAttribute("required");
 			}
 			$type = $input->getTypeAttribute();
@@ -253,7 +253,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -287,7 +287,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 
 	public static function getActionAttributeStatic(): ?string
 	{
-		if (hasInputParameter("refresh_uri")) {
+		if(hasInputParameter("refresh_uri")) {
 			return getInputParameter('refresh_uri');
 		}
 		return request()->getRequestURI();
@@ -296,7 +296,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 	public function generateButtons(string $name): ?array
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$button = new ButtonInput($mode);
 			$button->setNameAttribute("directive");
@@ -306,9 +306,9 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 				case DIRECTIVE_ADMIN_LOGIN:
 					$innerHTML = _("Log in");
 					$button->setIdAttribute($this->getFormDispatchIdStatic() . "_button");
-					if ($this->getFormDispatchIdStatic() === "login") {
+					if($this->getFormDispatchIdStatic() === "login") {
 						$button->setOnClickAttribute("loginButtonClicked(event, this);");
-					} else {
+					}else{
 						$button->setOnClickAttribute($button->getDefaultOnClickAttribute());
 					}
 					$button->setTypeAttribute("submit");
@@ -317,7 +317,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 					$innerHTML = _("Reset password");
 					$button->setOnClickAttribute($button->getDefaultOnClickAttribute());
 					$button->setTypeAttribute("submit");
-					if (! $button->hasIdAttribute()) {
+					if(!$button->hasIdAttribute()) {
 						// Debug::error("{$f} button lacks an ID attribute");
 					}
 					$button->setStyleProperties([
@@ -334,7 +334,7 @@ class LoginForm extends AjaxForm implements TemplateElementInterface, UniqueForm
 			return [
 				$button
 			];
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -24,7 +24,7 @@ class GetArrayCountCommand extends ArrayCommand implements ValueReturningCommand
 	public function toJavaScript(): string
 	{
 		$array = $this->getArray();
-		if ($array instanceof JavaScriptInterface) {
+		if($array instanceof JavaScriptInterface) {
 			$array = $array->toJavaScript();
 		}
 		return "{$array}.length";

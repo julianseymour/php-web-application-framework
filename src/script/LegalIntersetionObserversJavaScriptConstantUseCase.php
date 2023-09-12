@@ -13,10 +13,14 @@ class LegalIntersetionObserversJavaScriptConstantUseCase extends LocalizedJavaSc
 		$const->setEscapeType(ESCAPE_TYPE_OBJECT);
 		$temp = mods()->getLegalIntersectionObservers();
 		$values = [];
-		foreach ($temp as $key => $value) {
+		foreach($temp as $key => $value) {
 			$values[$key] = new GetDeclaredVariableCommand($value);
 		}
 		$const->setValue($values);
 		echo $const->toJavaScript().";\n";
+	}
+	
+	public static function getFilename():string{
+		return "observers.js";
 	}
 }

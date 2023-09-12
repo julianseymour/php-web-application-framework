@@ -12,14 +12,14 @@ class SearchResultElement extends AnchorElement
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__; //SearchResultElement::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
 			$name = new DivElement($mode);
 			$name->setInnerHTML($context->getName());
 			$this->appendChild($name);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

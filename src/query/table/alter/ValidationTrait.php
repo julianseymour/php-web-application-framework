@@ -8,7 +8,7 @@ trait ValidationTrait
 
 	public function setValidation($validate)
 	{
-		if (! is_bool($validate)) {
+		if(!is_bool($validate)) {
 			$validate = boolval($validate);
 		}
 		return $this->validate = $validate;

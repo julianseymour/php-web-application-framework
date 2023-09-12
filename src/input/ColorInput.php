@@ -25,12 +25,12 @@ class ColorInput extends InputElement
 		$f = __METHOD__; //ColorInput::getShortClass()."(".static::getShortClass().")->configure()";
 		$print = false;
 		$ret = parent::configure($form);
-		if ($this->hasLabelString()) {
-			if ($print) {
+		if($this->hasLabelString()) {
+			if($print) {
 				Debug::print("{$f} pushing predecessor");
 			}
 			$this->pushPredecessor(Document::createElement("span")->withInnerHTML($this->getLabelString()));
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} label string is undefined");
 		}
 		return $ret;

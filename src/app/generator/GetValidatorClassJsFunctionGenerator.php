@@ -10,7 +10,7 @@ class GetValidatorClassJsFunctionGenerator extends ClassReturningJsFunctionGener
 
 	public function generate($context): ?JavaScriptFunction
 	{
-		if ($context === null) {
+		if($context === null) {
 			$context = mods();
 		}
 		return static::generateGetJavaScriptClassFunction("getValidatorClass", $context->getValidatorClasses());

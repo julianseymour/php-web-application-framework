@@ -21,7 +21,7 @@ trait CollatedTrait
 	public function getCollationName()
 	{
 		$f = __METHOD__; //"CharacterSetTrait(".static::getShortClass().")->getCollationName()";
-		if (! $this->hasCollationName()) {
+		if(!$this->hasCollationName()) {
 			Debug::error("{$f} collation name is undefined");
 		}
 		return $this->collationName;

@@ -12,7 +12,7 @@ class CheckboxValidator extends Validator
 	public function __construct($name = null)
 	{
 		parent::__construct();
-		if (! empty($name)) {
+		if(!empty($name)) {
 			$this->setName($name);
 		}
 	}
@@ -22,8 +22,8 @@ class CheckboxValidator extends Validator
 		$f = __METHOD__; //CheckboxValidator::getShortClass()."(".static::getShortClass().")->evaluate()";
 		$print = false;
 		$checked = $validate_me[$this->getName()];
-		if ($checked === "on") {
-			if ($print) {
+		if($checked === "on") {
+			if($print) {
 				Debug::print("{$f} box is checked");
 			}
 			return SUCCESS;

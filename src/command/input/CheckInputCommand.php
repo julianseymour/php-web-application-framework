@@ -17,7 +17,7 @@ class CheckInputCommand extends ElementCommand implements ServerExecutableComman
 	public function toJavaScript(): string
 	{
 		$id = $this->getIdCommandString();
-		if ($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface) {
 			$id = $id->toJavaScript();
 		}
 		return "{$id}.checked = true";

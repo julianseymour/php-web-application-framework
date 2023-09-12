@@ -19,13 +19,13 @@ abstract class AnonymousConfirmationCode extends ConfirmationCode{
 
 	protected function encrypt(string $data): ?string{
 		$f = __METHOD__;
-		try {
+		try{
 			$keypair = app()->acquireCurrentServerKeypair(null);
-			if ($keypair == null) {
+			if($keypair == null) {
 				Debug::error("{$f} keypair returned null");
 			}
 			return $keypair->encrypt($data);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

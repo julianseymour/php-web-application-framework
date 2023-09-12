@@ -34,14 +34,14 @@ abstract class SubsequentUseCase extends UseCase{
 	}
 	
 	public function getExecutePermission(){
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPredecessor()->getExecutePermission();
 		}
 		return parent::getExecutePermission();
 	}
 
 	protected function getExecutePermissionClass(){
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPredecessor()->getExecutePermissionClass();
 		}
 		return parent::getExecutePermissionClass();
@@ -52,7 +52,7 @@ abstract class SubsequentUseCase extends UseCase{
 	}
 
 	public function getLoadoutGeneratorClass(?DataStructure $object = null): ?string{
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPredecessor()->getLoadoutGeneratorClass($object);
 		}
 		return parent::getLoadoutGeneratorClass($object);

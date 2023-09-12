@@ -47,7 +47,7 @@ abstract class SortNotificationForm extends AjaxForm implements TemplateElementI
 	public function setIdAttribute($id)
 	{
 		$f = __METHOD__; //SortNotificationForm::getShortClass()."(".static::getShortClass().")->setIdAttribute()";
-		if (is_string($id) && $id === "pin_notification_form") {
+		if(is_string($id) && $id === "pin_notification_form") {
 			Debug::error("{$f} uhoh");
 		}
 		return parent::setIdAttribute($id);
@@ -86,7 +86,7 @@ abstract class SortNotificationForm extends AjaxForm implements TemplateElementI
 	public function getAdHocInputs(): ?array
 	{
 		$f = __METHOD__; //SortNotificationForm::getShortClass()."(".static::getShortClass().")->getAdHocFormInputs()";
-		try {
+		try{
 			$inputs = parent::getAdHocInputs();
 			$widget = new HiddenInput($this->getAllocationMode());
 			$widget->setNameAttribute("widget");
@@ -94,7 +94,7 @@ abstract class SortNotificationForm extends AjaxForm implements TemplateElementI
 			$widget->setValueAttribute($wsn);
 			$inputs[$widget->getNameAttribute()] = $widget;
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

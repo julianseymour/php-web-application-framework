@@ -22,7 +22,7 @@ class CountCommand extends ExpressionCommand implements SQLInterface
 	public function __construct($expr = null)
 	{
 		parent::__construct();
-		if ($expr !== null) {
+		if($expr !== null) {
 			$this->setExpression($expr);
 		}
 	}
@@ -36,14 +36,14 @@ class CountCommand extends ExpressionCommand implements SQLInterface
 	{
 		$f = __METHOD__; //CountCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
 		$expr = $this->getExpression();
-		if ($expr instanceof ValueReturningCommandInterface) {
+		if($expr instanceof ValueReturningCommandInterface) {
 			while ($expr instanceof ValueReturningCommandInterface) {
 				$expr = $expr->evaluate();
 			}
 		}
-		if (is_array($expr)) {
+		if(is_array($expr)) {
 			return count($expr);
-		} elseif (is_string($expr) || $expr instanceof StringifiableInterface) {
+		}elseif(is_string($expr) || $expr instanceof StringifiableInterface) {
 			return strlen($expr);
 		}
 		Debug::error("{$f} expression is neither array nor string");

@@ -10,10 +10,12 @@ use JulianSeymour\PHPWebApplicationFramework\app\Request;
 use JulianSeymour\PHPWebApplicationFramework\app\workflow\SimpleWorkflow;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
+use Exception;
 
 abstract class JavaScriptFileUseCase extends UseCase{
 	
 	public abstract function echoJavaScriptFileContents():void;
+	public abstract static function getFilename():string;
 	
 	public function sendHeaders(Request $request): bool{
 		if(!$request->hasInputParameter("filename", $this)){
@@ -44,38 +46,41 @@ abstract class JavaScriptFileUseCase extends UseCase{
 	
 	public final function echoResponse(): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
-			if (! hasInputParameter("filename", $this)) {
+			if(! hasInputParameter("filename", $this)) {
 				if($print){
 					Debug::warning("{$f} filename parameter does not exist");
 				}
 				return;
 			}
 			$filename = getInputParameter("filename", $this);
+			if($print){
+				Debug::print("{$f} filename is \"{$filename}\"");
+			}
 			$cache = false;
-			if (cache()->enabled() && JAVASCRIPT_CACHE_ENABLED) {
+			if(cache()->enabled() && JAVASCRIPT_CACHE_ENABLED) {
 				$locale = $this->getInputParameter("locale");
-				$cache_key = "{$locale}:{$filename}";
-				if (cache()->hasFile($cache_key)) {
-					if ($print) {
+				$cache_key = "{$locale}_{$filename}";
+				if(cache()->hasFile($cache_key)) {
+					if($print) {
 						Debug::print("{$f} cache hit");
 					}
 					echo cache()->getFile($cache_key);
 					return;
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} cache miss");
 					}
 					$cache = true;
 					ob_start();
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} caching is disabled");
 			}
 			$this->echoJavaScriptFileContents();
-			if ($cache) {
-				if ($print) {
+			if($cache) {
+				if($print) {
 					Debug::print("{$f} updating cache for file \"{$cache_key}\"");
 				}
 				$string = ob_get_clean();
@@ -84,8 +89,26 @@ abstract class JavaScriptFileUseCase extends UseCase{
 				unset($string);
 			}
 			return;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
+		}
+	}
+	
+	public function hasImplicitParameter(string $name):bool{
+		switch($name){
+			case "filename":
+				return true;
+			default:
+				return parent::hasImplicitParameter($name);
+		}
+	}
+	
+	public function getImplicitParameter(string $name){
+		switch($name){
+			case "filename":
+				return $this->getFilename();
+			default:
+				return parent::getImplicitParameter($name);
 		}
 	}
 }

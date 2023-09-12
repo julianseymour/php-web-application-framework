@@ -46,7 +46,7 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 	}
 
 	public function getSpecialFailureStatus(){
-		if ($this->hasSpecialFailureStatus()) {
+		if($this->hasSpecialFailureStatus()) {
 			return $this->specialFailureStatus;
 		}
 		return FAILURE;
@@ -67,23 +67,23 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 	private function covalidate(&$validate_me){
 		$f = __METHOD__; //Validator::getShortClass()."(".static::getShortClass().")->covalidate()";
 		$print = false;
-		if (! $this->hasCovalidators()) {
+		if(!$this->hasCovalidators()) {
 			Debug::error("{$f} no covalidators");
 			return $this->getSpecialFailureStatus();
 		}
-		foreach ($this->getCovalidators() as $validator) {
-			if ($print) {
+		foreach($this->getCovalidators() as $validator) {
+			if($print) {
 				$vc = $validator->getClass();
 				Debug::print("{$f} covalidate class is \"{$vc}\"");
 			}
 			$valid = $validator->validate($validate_me);
-			if ($valid !== SUCCESS) {
+			if($valid !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($valid);
 				Debug::warning("{$f} covalidator returned error status \"{$err}\"");
 				return $this->setObjectStatus($valid);
 			}
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} all covalidators passed");
 		}
 		return SUCCESS;
@@ -99,14 +99,14 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 	}
 
 	public function getCovalidateWhen(){
-		if (! isset($this->covalidateWhen)) {
+		if(! isset($this->covalidateWhen)) {
 			return COVALIDATE_BEFORE;
 		}
 		return $this->covalidateWhen;
 	}
 
 	public function setCovalidateWhen(?string $when){
-		if ($when === null) {
+		if($when === null) {
 			unset($this->covalidateWhen);
 			return null;
 		}
@@ -135,45 +135,45 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 	 */
 	public final function validate(array &$validate_me): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$this->prevalidate($validate_me);
-			if ($this->covalidateBefore()) {
+			if($this->covalidateBefore()) {
 				$status = $this->covalidate($validate_me);
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} preemptive covalidation returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} preemptive covalidation successful");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} skipping preemptive covalidation");
 			}
 			$valid = $this->evaluate($validate_me);
-			if ($valid !== SUCCESS) {
+			if($valid !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($valid);
 				Debug::warning("{$f} evaluate returned error status \"{$err}\"");
 				return $this->setObjectStatus($valid);
-			} elseif ($print) {
+			}elseif($print) {
 				$did = $this->getDebugId();
 				$decl = $this->getDeclarationLine();
 				Debug::print("{$f} validation successful; debug ID is {$did}, instantiated {$decl}");
 			}
-			if ($this->covalidateAfter()) {
+			if($this->covalidateAfter()) {
 				$status = $this->covalidate($validate_me);
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} later covalidation returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} later covalidation successful");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} skipping late covalidation");
 			}
 			return $this->setObjectStatus(SUCCESS);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -191,7 +191,7 @@ abstract class Validator extends Basic implements JavaScriptCounterpartInterface
 	public function getInput()
 	{
 		$f = __METHOD__; //Validator::getShortClass()."(".static::getShortClass().")->getInput()";
-		if (! $this->hasInput()) {
+		if(!$this->hasInput()) {
 			Debug::error("{$f} input is undefined");
 		}
 		return $this->input;

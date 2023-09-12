@@ -11,7 +11,7 @@ trait IndexDefiningTrait
 	public function setIndexDefinition($indexDefinition)
 	{
 		$f = __METHOD__; //"IndexDefiningTrait(".static::getShortClass().")->setIndexDefinition()";
-		if (! $indexDefinition instanceof IndexDefinition) {
+		if(!$indexDefinition instanceof IndexDefinition) {
 			Debug::error("{$f} input parameter must be an index definition");
 		}
 		return $this->indexDefinition = $indexDefinition;
@@ -25,7 +25,7 @@ trait IndexDefiningTrait
 	public function getIndexDefinition()
 	{
 		$f = __METHOD__; //"IndexDefiningTrait(".static::getShortClass().")->getIndexDefintion()";
-		if (! $this->hasIndexDefintion()) {
+		if(!$this->hasIndexDefintion()) {
 			Debug::error("{$f} index definition is undefined");
 		}
 		return $this->indexDefinition;

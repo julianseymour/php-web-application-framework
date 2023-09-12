@@ -40,7 +40,7 @@ trait JoinExpressionsTrait{
 
 	public function getJoinExpressionString(): string{
 		$f = __METHOD__;
-		if (! $this->hasJoinExpressions()) {
+		if(!$this->hasJoinExpressions()) {
 			Debug::error("{$f} join expressions are undefined");
 		}
 		return implode(",", $this->getJoinExpressions());

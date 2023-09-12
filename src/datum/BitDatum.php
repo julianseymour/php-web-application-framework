@@ -7,7 +7,7 @@ class BitDatum extends UnsignedIntegerDatum
 	public function getColumnTypeString()
 	{
 		$string = "bit";
-		if ($this->hasBitCount()) {
+		if($this->hasBitCount()) {
 			$string .= "(" . $this->getBitCount() . ")";
 		}
 		return $string;

@@ -13,4 +13,8 @@ class JavaScriptConstantsUseCase extends LocalizedJavaScriptFileUseCase{
 			echo $const->toJavaScript().";\n";
 		}
 	}
+	
+	public static function getFilename(): string{
+		return "constants.js";
+	}
 }

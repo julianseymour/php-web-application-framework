@@ -18,7 +18,7 @@ trait IteratorTrait
 	public function getIterator()
 	{
 		$f = __METHOD__; //"IteratorTrait(".static::getShortClass().")->getIterator()";
-		if (! $this->hasIterator()) {
+		if(!$this->hasIterator()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} iterator is undefined. This object was declared {$decl}");
 		}
@@ -28,7 +28,7 @@ trait IteratorTrait
 	public function setIterator($i)
 	{
 		$f = __METHOD__; //"IteratorTrait(".static::getShortClass().")->setiterator()";
-		if ($i === null) {
+		if($i === null) {
 			unset($this->iterator);
 			return null;
 		}

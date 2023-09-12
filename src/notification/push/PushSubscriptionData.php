@@ -28,7 +28,7 @@ class PushSubscriptionData extends UserFingerprint implements StaticTableNameInt
 
 	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::reconfigureColumns($columns, $ds);
 			$indices = [
 				"userName",
@@ -36,11 +36,11 @@ class PushSubscriptionData extends UserFingerprint implements StaticTableNameInt
 				"userTemporaryRole",
 				'reasonLogged'
 			];
-			foreach ($indices as $field) {
+			foreach($indices as $field) {
 				$columns[$field]->volatilize();
 			}
 			$columns["userNameKey"]->setNullable(true);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -69,14 +69,14 @@ class PushSubscriptionData extends UserFingerprint implements StaticTableNameInt
 
 	public function setPushAPIEndpoint($endpoint){
 		$f = __METHOD__;
-		try {
+		try{
 			return $this->setColumnValue('endpoint', $endpoint);
-			if (! $this->getUserData() instanceof AnonymousUser) {
+			if(!$this->getUserData() instanceof AnonymousUser) {
 				$signature = $this->signMessage($endpoint);
 				$this->setSignature($signature);
 			}
 			return $endpoint;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -139,7 +139,7 @@ class PushSubscriptionData extends UserFingerprint implements StaticTableNameInt
 
 	public function sendPushNotification(string $json){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if($print){
 				Debug::print("{$f} user ".$this->getUserData()->getUnambiguousName());
@@ -153,39 +153,39 @@ class PushSubscriptionData extends UserFingerprint implements StaticTableNameInt
 			];
 			$webPush = new \Minishlink\WebPush\WebPush($auth);
 			$webPush->queueNotification($this->toMinishlinkSubscription(), $json);
-			foreach ($webPush->flush() as $report) {
+			foreach($webPush->flush() as $report) {
 				$endpoint = $report->getRequest()->getUri()->__toString();
-				if (! $report->isSuccess()) {
+				if(!$report->isSuccess()) {
 					$reason = $report->getReason();
 					Debug::warning("{$f} Message failed to send for subscription {$endpoint}: {$reason}");
 				}
-				if ($print) {
+				if($print) {
 					$string = $report->getRequestPayload();
 					Debug::print("{$f} request payload: \"{$string}\"");
 				}
 				$response = $report->getResponse();
 				$http_status_code = $response->getStatusCode();
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} response status code is \"{$http_status_code}\"");
 				}
-				if ($http_status_code == 410) {
-					if ($print) {
+				if($http_status_code == 410) {
+					if($print) {
 						Debug::warning("{$f} shit's gone forever, time to move on");
 					}
 					$mysqli = db()->getConnection(PublicWriteCredentials::class);
 					$status = $this->delete($mysqli);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} push subscription deletion returned error status \"{$err}\"");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} successfully deleted push subscription data");
 					}
 				}
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} done iterating over web push flush, and print is true");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -196,25 +196,25 @@ class PushSubscriptionData extends UserFingerprint implements StaticTableNameInt
 
 	public function toMinishlinkSubscription(){
 		$f = __METHOD__;
-		try {
-			if (isset($this->minishlinkSubscription)) {
+		try{
+			if(isset($this->minishlinkSubscription)) {
 				return $this->minishlinkSubscription;
 			}
 			$endpoint = $this->getPushAPIEndpoint();
-			if ($endpoint == null) {
+			if($endpoint == null) {
 				Debug::error("{$f} endpoint is null");
 			}
 			$publicKey = $this->getP256dhPushAPIKey();
-			if ($publicKey == null) {
+			if($publicKey == null) {
 				Debug::error("{$f} public key is undefined");
 			}
 			$auth = $this->getAuthPushAPIKey();
-			if ($auth == null) {
+			if($auth == null) {
 				Debug::error("{$f} auth is null");
 			}
 			$subscription = new \Minishlink\WebPush\Subscription($endpoint, $publicKey, $auth);
 			return $this->setMinishlinkSubscription($subscription);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

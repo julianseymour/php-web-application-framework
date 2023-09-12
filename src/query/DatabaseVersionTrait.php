@@ -11,7 +11,7 @@ trait DatabaseVersionTrait
 	public function setRequiredMySQLVersion($v)
 	{
 		$f = __METHOD__; //"DatabaseVersionTrait(".static::getShortClass().")->setRequiredMySQLVersion()";
-		if ($v == null) {
+		if($v == null) {
 			unset($this->requiredMySQLVersion);
 			return null;
 		}
@@ -26,7 +26,7 @@ trait DatabaseVersionTrait
 	public function getRequiredMySQLVersion()
 	{
 		$f = __METHOD__; //"DatabaseVersionTrait(".static::getShortClass().")->getRequiredMySQLVersion()";
-		if (! $this->hasRequiredMySQLVersion()) {
+		if(!$this->hasRequiredMySQLVersion()) {
 			Debug::error("{$f} required MySQL version is undefined");
 		}
 		return $this->requiredMySQLVersion;

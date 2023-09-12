@@ -23,8 +23,8 @@ trait ConstrainableTrait
 	public function setConstraints($constraints)
 	{
 		$f = __METHOD__; //"ConstrainableTrait(".static::getShortClass().")->setConstraints()";
-		foreach ($constraints as $c) {
-			if (! $c instanceof Constraint) {
+		foreach($constraints as $c) {
+			if(!$c instanceof Constraint) {
 				Debug::error("{$f} one of the input parameters is not a constraint");
 			}
 		}
@@ -34,8 +34,8 @@ trait ConstrainableTrait
 	public function pushConstraints(...$constraints)
 	{
 		$f = __METHOD__; //"ConstrainableTrait(".static::getShortClass().")->pushConstraints()";
-		foreach ($constraints as $c) {
-			if (! $c instanceof Constraint) {
+		foreach($constraints as $c) {
+			if(!$c instanceof Constraint) {
 				Debug::error("{$f} one of the input parameters is not a constraint");
 			}
 		}
@@ -61,8 +61,8 @@ trait ConstrainableTrait
 	public function mergeConstraints($constraints)
 	{
 		$f = __METHOD__; //"ConstrainableTrait(".static::getShortClass().")->mergeConstraints()";
-		foreach ($constraints as $c) {
-			if (! $c instanceof Constraint) {
+		foreach($constraints as $c) {
+			if(!$c instanceof Constraint) {
 				Debug::error("{$f} one of the input parameters is not a constraint");
 			}
 		}

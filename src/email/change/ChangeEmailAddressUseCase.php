@@ -22,7 +22,7 @@ class ChangeEmailAddressUseCase extends ValidConfirmationCodeUseCase{
 
 	public function execute(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$predecessor = $this->getPredecessor();
 			if($predecessor instanceof ExecutiveLoginUseCase){
@@ -40,13 +40,13 @@ class ChangeEmailAddressUseCase extends ValidConfirmationCodeUseCase{
 			$user->setNormalizedEmailAddress(EmailAddressDatum::normalize($email));
 			$user->setEmailAddress($email);
 			$status = $user->update($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} user->update() returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

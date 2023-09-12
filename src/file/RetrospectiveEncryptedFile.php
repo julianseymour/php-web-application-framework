@@ -13,17 +13,17 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 
 	public function getFileCleartextString(){
 		$f = __METHOD__;
-		try {
+		try{
 			// Debug::print("{$f} entered");
 			// 1. get encrypted file
 			// Debug::print("{$f} about to get name of encrypted zip file");
 			$filename = $this->getFilename();
-			if ($filename == null) {
+			if($filename == null) {
 				Debug::error("{$f} filename is null");
 			}
 			Debug::print("{$f} about to get contents of encrypted zip file \"{$filename}\"");
 			$zipped_file_cipher = file_get_contents($filename);
-			if ($zipped_file_cipher == null) {
+			if($zipped_file_cipher == null) {
 				Debug::error("{$f} file cipher is undefined");
 				return null;
 			}
@@ -31,26 +31,26 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 			// 2. decrypt file
 			// Debug::print("{$f} about to get file AES nonce");
 			$nonce = $this->getFileAesNonce();
-			if ($nonce == null) {
+			if($nonce == null) {
 				Debug::error("{$f} file AES nonce is undefined");
 				return null;
 			}
 			// Debug::print("{$f} got file AES nonce");
 			// Debug::print("{$f} about to get file AES key");
 			$aes_key = $this->getFileAesKey();
-			if ($aes_key == null) {
+			if($aes_key == null) {
 				Debug::error("{$f} AES key returned null");
 				return null;
 			}
 			$length = strlen($aes_key);
 			$shouldbe = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES;
-			if ($length !== $shouldbe) {
+			if($length !== $shouldbe) {
 				Debug::error("{$f} file AES key is wrong length ({$length}, should be {$shouldbe})");
 			}
 			// Debug::print("{$f} got file AES key");
 			// Debug::print("{$f} about to decrypt zipped file cipher");
 			$zipped_file_cleartext = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($zipped_file_cipher, null, $nonce, $aes_key);
-			if ($zipped_file_cleartext == null) {
+			if($zipped_file_cleartext == null) {
 				Debug::error("{$f} decrypting zipped file from file cipher returned null");
 				return null;
 			}
@@ -66,7 +66,7 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 			// Debug::print("{$f} about to unzip contents of file \"{$original_filename}\" from archive \"{$zip_filename}\"");
 			$unzipped_file_contents = ZipFileData::unzipSingleFile($zip_filename, $original_filename);
 			unlink($zip_filename);
-			if ($unzipped_file_contents == null) {
+			if($unzipped_file_contents == null) {
 				Debug::error("{$f} unzipped file contents returned null");
 				Debug::printStackTrace();
 				return null;
@@ -74,7 +74,7 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 			// Debug::print("{$f} successfully unzipped file contents");
 			// Debug::print("{$f} returning normally");
 			return $unzipped_file_contents;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 			return null;
 		}
@@ -82,24 +82,24 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 
 	public function outputFileToBrowser():void{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} entered");
 			}
 			$mime = $this->getMimeType();
 			$cleartext = $this->getFileCleartextString();
-			if (! is_string($mime)) {
+			if(!is_string($mime)) {
 				Debug::error("{$f} mime type \"{$mime}\" is the wrong data type");
 			}
-			if ($mime === MIME_TYPE_OCTET_STREAM) {
+			if($mime === MIME_TYPE_OCTET_STREAM) {
 				echo $cleartext;
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} image type is \"{$mime}\"");
 				}
 				$image = imagecreatefromstring($cleartext);
-				if ($image == false) {
+				if($image == false) {
 					Debug::error("{$f} imagecreatefromstring returned false");
 				}
 				switch ($mime) {
@@ -118,17 +118,17 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 						$this->echoResponse(ERROR_MIME_TYPE);
 						return;
 				}
-				if (! $worked) {
+				if(!$worked) {
 					Debug::error("{$f} imagejpeg/png/gif failed");
 				}
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} about to flush image");
 				}
 				ob_flush();
 				// imagedestroy($image);
 			}
 			// exit();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -139,22 +139,22 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 
 	public function processMetadataJson($json){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($json == null) {
+			if($json == null) {
 				Debug::warning("{$f} metadata JSON is null");
 				return null;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} valid metadata JSON is \"{$json}\"");
 			}
 			$arr = [];
 			parse_str($json, $arr);
-			if ($arr == null) {
+			if($arr == null) {
 				Debug::warning("{$f} parsed metadata array is null");
 				Debug::print("{$f} metadata string is \"{$json}\"");
 				Debug::printStackTrace();
 				return null;
-			} elseif (! is_array($arr)) {
+			}elseif(!is_array($arr)) {
 				Debug::warning("{$f} arr is not an array");
 				Debug::print($arr);
 				Debug::printStackTrace();
@@ -165,7 +165,7 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 				case MIME_TYPE_JPEG:
 				case MIME_TYPE_PNG:
 				case MIME_TYPE_GIF:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} setting image dimensions");
 					}
 					$height = intval($arr['height']);
@@ -174,37 +174,37 @@ class RetrospectiveEncryptedFile extends EncryptedFile implements TemplateContex
 					$this->setImageWidth($width);
 					break;
 				default:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} file has mime type \"{$mime}\"");
 					}
 					break;
 			}
 
-			if (isset($arr['counterpartKey'])) {
+			if(isset($arr['counterpartKey'])) {
 				$this->setCounterpartKey($arr['counterpartKey']);
 				sodium_memzero($arr['counterpartKey']);
 			}
 			return $arr;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function afterLoadHook(mysqli $mysqli): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$json = $this->getMetadataJson();
 			$this->processMetadataJson($json);
-			if ($print) {
-				if (! $this->hasCounterpartKey()) {
+			if($print) {
+				if(!$this->hasCounterpartKey()) {
 					Debug::warning("{$f} counterpart key is undefined");
-				} else {
+				}else{
 					Debug::print("{$f} counterpart key: \"" . $this->getCounterpartKey() . "\"");
 				}
 			}
 			return parent::afterLoadHook($mysqli);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

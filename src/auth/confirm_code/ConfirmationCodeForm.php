@@ -17,7 +17,7 @@ abstract class ConfirmationCodeForm extends AjaxForm{
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$x1i = new HiddenInput($mode);
 			$x1i->setNameAttribute("blob_64");
@@ -26,7 +26,7 @@ abstract class ConfirmationCodeForm extends AjaxForm{
 			$inputs = parent::getAdHocInputs();
 			$inputs[$x1i->getNameAttribute()] = $x1i;
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

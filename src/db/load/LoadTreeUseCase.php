@@ -28,50 +28,50 @@ class LoadTreeUseCase extends SubsequentUseCase{
 	 */
 	public function execute(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
-			if ($mysqli == null) {
+			if($mysqli == null) {
 				Debug::error("{$f} mysqli connection error");
 				return $this->setObjectStatus(ERROR_MYSQL_CONNECT);
-			} elseif ($mysqli->connect_errno) {
+			}elseif($mysqli->connect_errno) {
 				Debug::error("{$f} Failed to connect to MySQL: ({$mysqli->connect_errno}) {$mysqli->connect_error}");
-			} elseif (! $mysqli->ping()) {
+			}elseif(!$mysqli->ping()) {
 				Debug::error("{$f} mysqli connection failed ping test: \"" . $mysqli->error . "\"");
 			}
-			if ($print) {
+			if($print) {
 				$mem = memory_get_usage();
 				Debug::print("{$f} memory loading: {$mem}");
 			}
 			$predecessor = $this->getPredecessor();
 			$status = $predecessor->beforeLoadHook($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} beforeLoadHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			$user = user();
-			if ($user == null) {
+			if($user == null) {
 				Debug::error("{$f} user data is undefined");
 				return $this->setObjectStatus(ERROR_NULL_USER_OBJECT);
 			}
 			// set language //XXX TODO move this elsewhere
 			$language_settings = new LanguageSettingsData();
 			$language = $user->getLanguagePreference();
-			if (! isset($language)) {
+			if(! isset($language)) {
 				Debug::error("{$f} language is undefined");
 			}
 			$language_settings->setLanguageCode($language);
 			// automatically load hierarchical data from database
 			$generator = $predecessor->getLoadoutGenerator($user);
-			if ($generator instanceof LoadoutGenerator) {
+			if($generator instanceof LoadoutGenerator) {
 				if($print){
 					$lgc = $generator->getClass();
 					Debug::print("{$f} loadout generator class is \"{$lgc}\"");
 				}
 				$loadout = $generator->generateRootLoadout($user, $predecessor);
 			} else{
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} generator class is null");
 				}
 				$loadout = new Loadout();
@@ -86,7 +86,7 @@ class LoadTreeUseCase extends SubsequentUseCase{
 				$rigged = new RiggedLoadoutGenerator();
 				$loadout->setDuplicateTreeSelectStatementRecourse(RECOURSE_CONTINUE);
 				$loadout->addDependencies($rigged->getRootNodeTreeSelectStatements($user, $predecessor));
-				if ($print) {
+				if($print) {
 					$pc = get_short_class($predecessor);
 					Debug::print("{$f} predecessor of class \"{$pc}\" generated the following loadout:");
 					$loadout->debugPrint();
@@ -99,12 +99,12 @@ class LoadTreeUseCase extends SubsequentUseCase{
 					Debug::print("{$f} loadout is a Loadout and has tree select statements");
 				}
 				$status = $loadout->expandTree($mysqli, $user);
-				if (! isset($status)) {
+				if(! isset($status)) {
 					Debug::error("{$f} status is undefined");
-				} elseif ($status !== SUCCESS) {
+				}elseif($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} tree expansion returned error status \"{$err}\"");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} tree expansion successful");
 				}
 				lazy()->processQueues($mysqli);
@@ -115,13 +115,13 @@ class LoadTreeUseCase extends SubsequentUseCase{
 			}
 			app()->advanceExecutionState(EXECUTION_STATE_LOADED);
 			$status = $predecessor->afterLoadHook($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} afterLoadHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			return $status;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

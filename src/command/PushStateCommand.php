@@ -43,9 +43,9 @@ class PushStateCommand extends Command implements JavaScriptInterface
 	public function toJavaScript(): string
 	{
 		$uri = $this->getUri();
-		if ($uri instanceof JavaScriptInterface) {
+		if($uri instanceof JavaScriptInterface) {
 			$uri = $uri->toJavaScript();
-		} elseif (is_string($uri) || $uri instanceof StringifiableInterface) {
+		}elseif(is_string($uri) || $uri instanceof StringifiableInterface) {
 			$q = $this->getQuoteStyle();
 			$uri = "{$q}" . escape_quotes($uri, $q) . "{$q}";
 		}

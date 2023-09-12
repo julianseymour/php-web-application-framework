@@ -15,7 +15,7 @@ class PhpCodeElement extends DivElement
 		parent::__construct();
 		$this->addClassAttribute("code");
 		$innerHTML = file_get_contents($this->getUri());
-		if (starts_with($innerHTML, "<?php")) {
+		if(starts_with($innerHTML, "<?php")) {
 			$innerHTML = substr($innerHTML, 5);
 		}
 		$code = new CodeElement();

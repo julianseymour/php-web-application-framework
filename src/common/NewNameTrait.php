@@ -11,10 +11,10 @@ trait NewNameTrait
 	public function setNewName($n): string
 	{
 		$f = __METHOD__; //"NewNameTrait(".static::getShortClass().")->setNewName()";
-		if ($n == null) {
+		if($n == null) {
 			unset($this->newName);
 			return null;
-		} elseif (! is_string($n)) {
+		}elseif(!is_string($n)) {
 			Debug::error("{$f} new name must be a string");
 		}
 		return $this->newName = $n;
@@ -28,7 +28,7 @@ trait NewNameTrait
 	public function getNewName(): string
 	{
 		$f = __METHOD__; //"NewNameTrait(".static::getShortClass().")->getNewName()";
-		if (! $this->hasNewName()) {
+		if(!$this->hasNewName()) {
 			Debug::error("{$f} new table name is undefined");
 		}
 		return $this->newName;

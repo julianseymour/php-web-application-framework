@@ -19,21 +19,21 @@ trait ElementalCommandTrait
 	{
 		$f = __METHOD__; //"ElementalCommandTrait(".static::getShortClass().")->setElement()";
 		$print = false;
-		if (is_string($element)) {
-			if ($print) {
+		if(is_string($element)) {
+			if($print) {
 				Debug::print("{$f} element is a string");
 			}
 			$this->setId($element);
-		} elseif ($element instanceof Element) {
-			if ($element->hasIdAttribute()) {
+		}elseif($element instanceof Element) {
+			if($element->hasIdAttribute()) {
 				$this->setId($element->getIdAttribute());
-			} elseif ($element->hasAttribute("temp_id")) {
+			}elseif($element->hasAttribute("temp_id")) {
 				$this->setId($element->getAttribute("temp_id"));
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} element class is " . $element->getClass());
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			$gottype = gettype($element);
 			Debug::print("{$f} setting a \"{$gottype}\" as an element");
 		}
@@ -48,31 +48,31 @@ trait ElementalCommandTrait
 	public function getIdCommandString()
 	{
 		$f = __METHOD__; //"ElementalCommandTrait(".static::getShortClass().")->getIdCommandString()";
-		try {
+		try{
 			$print = false;
-			if ($this->hasElement()) {
-				if ($print) {
+			if($this->hasElement()) {
+				if($print) {
 					Debug::print("{$f} element is defined");
 				}
 				$element = $this->getElement();
-				if ($element instanceof ValueReturningCommandInterface) {
-					if ($print) {
+				if($element instanceof ValueReturningCommandInterface) {
+					if($print) {
 						Debug::print("{$f} element is a value-returning command interface");
 					}
 					return $element;
-				} elseif (is_object($element) && $element->hasIdOverride()) {
-					if ($print) {
+				}elseif(is_object($element) && $element->hasIdOverride()) {
+					if($print) {
 						Debug::print("{$f} element is an object with ID override");
 					}
 					return $element->getIdOverride();
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} element is not a value-returning command interface, and it does not have ID override");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} element is undefined");
 			}
 			return $this->getId();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -81,16 +81,16 @@ trait ElementalCommandTrait
 	{
 		$f = __METHOD__; //"ElementalCommandTrait(".static::getShortClass().")->getId()";
 		$print = false;
-		if (! $this->hasId()) {
-			if ($print) {
+		if(!$this->hasId()) {
+			if($print) {
 				Debug::print("{$f} element ID is undefined");
 			}
-			if ($this instanceof InsertElementCommand) {
+			if($this instanceof InsertElementCommand) {
 				Debug::printStackTrace();
-			} elseif ($this->hasElement()) {
+			}elseif($this->hasElement()) {
 				$element = $this->getElement();
-				if ($element instanceof ValueReturningCommandInterface) {
-					if ($print) {
+				if($element instanceof ValueReturningCommandInterface) {
+					if($print) {
 						Debug::print("{$f} element is a value returning command interface");
 					}
 					// return $element;
@@ -99,7 +99,7 @@ trait ElementalCommandTrait
 				$class = $element->getClass();
 				Debug::print("{$f} element is class is \"{$class}\"");
 				// $element->debugPrintRootElement();
-			} else {
+			}else{
 				Debug::error("{$f} element is undefined also");
 			}
 		}
@@ -121,15 +121,15 @@ trait ElementalCommandTrait
 	{
 		$f = __METHOD__; //"ElementalCommandTrait(".static::getShortClass().")->hasId()";
 		return isset($this->id);
-		if (isset($this->id)) {
+		if(isset($this->id)) {
 			return true;
-		} elseif (! $this->hasElement()) {
+		}elseif(!$this->hasElement()) {
 			return false;
 		}
 		$element = $this->getElement();
-		if ($element instanceof Element) {
+		if($element instanceof Element) {
 			return $element->hasIdAttribute();
-		} elseif ($element instanceof ConcatenateCommand) {
+		}elseif($element instanceof ConcatenateCommand) {
 			Debug::print("{$f} yes, this object has an ID, and it's a concatenate media command");
 			return true;
 		}

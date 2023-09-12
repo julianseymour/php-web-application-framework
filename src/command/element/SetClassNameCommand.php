@@ -25,7 +25,7 @@ class SetClassNameCommand extends ElementCommand implements ServerExecutableComm
 	public function getClassName()
 	{
 		$f = __METHOD__; //SetClassNameCommand::getShortClass()."(".static::getShortClass().")->getClassName()";
-		if (! $this->hasClassName()) {
+		if(!$this->hasClassName()) {
 			Debug::error("{$f} className is undefined");
 		}
 		return $this->className;
@@ -39,7 +39,7 @@ class SetClassNameCommand extends ElementCommand implements ServerExecutableComm
 	public function __construct($element = null, $className = null)
 	{
 		parent::__construct($element);
-		if (! empty($className)) {
+		if(!empty($className)) {
 			$this->setClassName($className);
 		}
 	}
@@ -68,7 +68,7 @@ class SetClassNameCommand extends ElementCommand implements ServerExecutableComm
 		}
 		$classes = explode(' ', $classname);
 		$element->setClassAttribute(null);
-		foreach ($classes as $class) {
+		foreach($classes as $class) {
 			$element->addClassAttribute($class);
 		}
 	}
@@ -76,11 +76,11 @@ class SetClassNameCommand extends ElementCommand implements ServerExecutableComm
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		$className = $this->getClassName();
-		if ($className instanceof JavaScriptInterface) {
+		if($className instanceof JavaScriptInterface) {
 			$className = $className->toJavaScript();
 		}
 		return "{$idcs}.className = {$className};";

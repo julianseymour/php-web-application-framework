@@ -35,7 +35,7 @@ class GetParentNodeCommand extends ElementCommand implements AllocationModeInter
 
 	public function toJavaScript(): string{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof Command) {
+		if($idcs instanceof Command) {
 			$idcs = $idcs->toJavaScript();
 		}
 		return "{$idcs}.parentNode";

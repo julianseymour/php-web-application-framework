@@ -15,10 +15,10 @@ class ColumnAliasExpression extends Basic implements SQLInterface{
 
 	public function __construct($tableAlias, $columnName){
 		parent::__construct();
-		if (isset($tableAlias) && ! empty($tableAlias)) {
+		if(isset($tableAlias) && ! empty($tableAlias)) {
 			$this->setTableAlias($tableAlias);
 		}
-		if (isset($columnName) && ! empty($columnName)) {
+		if(isset($columnName) && ! empty($columnName)) {
 			$this->setColumnName($columnName);
 		}
 	}
@@ -29,14 +29,14 @@ class ColumnAliasExpression extends Basic implements SQLInterface{
 
 	public function getTableAlias(): string{
 		$f = __METHOD__;
-		if (! $this->hasTableAlias()) {
+		if(!$this->hasTableAlias()) {
 			Debug::error("{$f} table alias is undefied");
 		}
 		return $this->tableAlias;
 	}
 
 	public function setTableAlias(?string $tableAlias): ?string{
-		if ($tableAlias == null) {
+		if($tableAlias == null) {
 			unset($this->tableAlias);
 			return null;
 		}

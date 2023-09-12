@@ -26,7 +26,7 @@ class CustomForm extends AjaxForm
 
 	public function getDirectives(): ?array{
 		$f = __METHOD__; //CustomForm::getShortClass()."(".static::getShortClass().")->getDirectives()";
-		if (! $this->hasDirectives()) {
+		if(!$this->hasDirectives()) {
 			Debug::error("{$f} button names are undefined");
 		}
 		return $this->directives;

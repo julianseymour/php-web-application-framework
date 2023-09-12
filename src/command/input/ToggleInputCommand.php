@@ -20,9 +20,9 @@ class ToggleInputCommand extends ElementCommand implements ServerExecutableComma
 		while ($element instanceof ValueReturningCommandInterface) {
 			$element = $element->evaluate();
 		}
-		if ($element->isChecked()) {
+		if($element->isChecked()) {
 			$element->removeAttribute("checked");
-		} else {
+		}else{
 			$element->setCheckedAttribute("checked");
 		}
 	}
@@ -30,7 +30,7 @@ class ToggleInputCommand extends ElementCommand implements ServerExecutableComma
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		return "toggleInput({$idcs})";

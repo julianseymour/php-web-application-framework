@@ -65,38 +65,38 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 		$print = false;
 		$cache = false;
 		$locale = user()->getLocaleString();
-		if ($this->isCacheable() && JSON_CACHE_ENABLED) {
-			if ($print) {
+		if($this->isCacheable() && JSON_CACHE_ENABLED) {
+			if($print) {
 				Debug::print("{$f} this command is cacheable");
 			}
-			if (cache()->has($this->getCacheKey() . "_{$locale}.json")) {
-				if ($print) {
+			if(cache()->has($this->getCacheKey() . "_{$locale}.json")) {
+				if($print) {
 					Debug::print("{$f} cache hit");
 				}
 				echo cache()->get($this->getCacheKey() . "_{$locale}.json");
 				return;
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} cache miss");
 				}
 				$cache = true;
 				ob_start();
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} this command is not cacheable");
 		}
 		echo "{";
 		$this->echoInnerJson($destroy);
 		echo "}";
-		if ($cache) {
-			if ($print) {
+		if($cache) {
+			if($print) {
 				Debug::print("{$f} about to cache JSON");
 			}
 			$json = ob_get_clean();
 			cache()->set($this->getCacheKey() . "_{$locale}.json", $json, time() + 30 * 60);
 			echo $json;
 			unset($json);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} nothing to cache");
 		}
 	}
@@ -111,7 +111,7 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 	}
 
 	public function getQuoteStyle(){
-		if (! $this->hasQuoteStyle()) {
+		if(!$this->hasQuoteStyle()) {
 			return QUOTE_STYLE_SINGLE;
 		}
 		return $this->quoteStyle;
@@ -129,8 +129,8 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 		$f = __METHOD__;
 		$string = $this->getDebugSubcommandString();
 		// Debug::print("{$f} {$string}");
-		if ($this->hasSubcommands()) {
-			foreach ($this->getSubcommands() as $sc) {
+		if($this->hasSubcommands()) {
+			foreach($this->getSubcommands() as $sc) {
 				$sc->debugPrintSubcommands();
 			}
 		}
@@ -146,7 +146,7 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 
 	public function getParseType(){
 		$f = __METHOD__;
-		if (! $this->hasParseType()) {
+		if(!$this->hasParseType()) {
 			Debug::error("{$f} parse type is undefined");
 		}
 		return $this->parseType;
@@ -160,25 +160,25 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 		$f = __METHOD__;
 		$first_command = null;
 		$last_command = null;
-		foreach ($commands as $command) {
-			if (! isset($command)) {
+		foreach($commands as $command) {
+			if(! isset($command)) {
 				continue;
 			}
-			if (is_array($command)) {
+			if(is_array($command)) {
 				Debug::error("{$f} command is an array");
 			}
-			if (! isset($first_command)) {
+			if(! isset($first_command)) {
 				$first_command = $last_command = $command;
 				continue;
-			} elseif (isset($last_command)) {
-				if (! $last_command instanceof Command) {
+			}elseif(isset($last_command)) {
+				if(!$last_command instanceof Command) {
 					Debug::error("{$f} last command is not a media command");
 				}
 				$last_command->pushSubcommand($command);
 			}
 			$last_command = $command;
 		}
-		if (is_array($first_command)) {
+		if(is_array($first_command)) {
 			Debug::error("{$f} first command is an array");
 		}
 		return $first_command;
@@ -187,22 +187,22 @@ abstract class Command extends Basic implements CacheableInterface, DisposableIn
 	public function echoInnerJson(bool $destroy = false): void{
 		$f = __METHOD__;
 		$print = false;
-		if (app()->getFlag("debug")) {
+		if(app()->getFlag("debug")) {
 			Json::echoKeyValuePair("debugId", $this->getDebugId());
 			Json::echoKeyValuePair("declared", $this->getDeclarationLine());
 		}
-		if ($this->hasSubcommands()) {
+		if($this->hasSubcommands()) {
 			Json::echoKeyValuePair('subcommands', $this->getSubcommands(), $destroy);
 		}
-		if ($this->isOptional()) {
-			if ($print) {
+		if($this->isOptional()) {
+			if($print) {
 				Debug::print("{$f} yes, this command is optional");
 			}
 			Json::echoKeyValuePair('optional', 1, $destroy);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} no, this command is not optional");
 		}
-		if ($this->hasParseType()) {
+		if($this->hasParseType()) {
 			Json::echoKeyValuePair('parseType', $this->getParseType(), $destroy);
 		}
 		Json::echoKeyValuePair('command', static::getCommandId(), $destroy, false);

@@ -12,7 +12,7 @@ trait ColumnDefiningTrait
 	public function setColumnDefinition(Datum $column)
 	{
 		$f = __METHOD__; //"ColumnDefiningTrait(".static::getShortClass().")->setColumnDefinition()";
-		if (! $column instanceof Datum) {
+		if(!$column instanceof Datum) {
 			Debug::error("{$f} this function only accepts datums");
 		}
 		return $this->columnDefinition = $column;
@@ -26,7 +26,7 @@ trait ColumnDefiningTrait
 	public function getColumnDefinition(): Datum
 	{
 		$f = __METHOD__; //"ColumnDefiningTrait(".static::getShortClass().")->getColumnDefinition()";
-		if (! $this->hasColumnDefinition()) {
+		if(!$this->hasColumnDefinition()) {
 			Debug::error("{$f} column definition is undefined");
 		}
 		return $this->columnDefinition;

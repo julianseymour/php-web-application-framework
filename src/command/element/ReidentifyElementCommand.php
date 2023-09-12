@@ -15,7 +15,7 @@ class ReidentifyElementCommand extends ElementCommand implements ServerExecutabl
 
 	public function __construct($element = null, $newId = null){
 		parent::__construct($element);
-		if ($newId !== null) {
+		if($newId !== null) {
 			$this->setNewId($newId);
 		}
 	}
@@ -30,14 +30,14 @@ class ReidentifyElementCommand extends ElementCommand implements ServerExecutabl
 
 	public function getNewId(){
 		$f = __METHOD__;
-		if (! $this->hasNewId()) {
+		if(!$this->hasNewId()) {
 			Debug::error("{$f} new ID is undefined");
 		}
 		return $this->newId;
 	}
 
 	public function setNewId($newId){
-		if ($newId === null) {
+		if($newId === null) {
 			unset($this->newId);
 			return null;
 		}
@@ -58,25 +58,25 @@ class ReidentifyElementCommand extends ElementCommand implements ServerExecutabl
 		$f = __METHOD__;
 		$print = false;
 		$id = $this->getIdCommandString();
-		if ($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface) {
 			$id = $id->toJavaScript();
 		}
 		$new_id = $this->getNewId();
-		if ($new_id instanceof JavaScriptInterface) {
+		if($new_id instanceof JavaScriptInterface) {
 			$new_id = $new_id->toJavaScript();
-		} elseif (is_string($new_id) || $new_id instanceof StringifiableInterface) {
-			if ($this->hasQuoteStyle()) {
+		}elseif(is_string($new_id) || $new_id instanceof StringifiableInterface) {
+			if($this->hasQuoteStyle()) {
 				$qs = $this->getQuoteStyle();
-			} else {
+			}else{
 				$qs = QUOTE_STYLE_SINGLE;
 			}
 			$new_id = $qs . escape_quotes($new_id, $this->getQuoteStyle()) . $qs;
 		}
-		if ($print) {
-			if ($new_id instanceof ValueReturningCommandInterface) {
+		if($print) {
+			if($new_id instanceof ValueReturningCommandInterface) {
 				$cc = $new_id->getClass();
 				Debug::print("{$f} new ID command class is \"{$cc}\"; stringified it't \"{$new_id}\"");
-			} else {
+			}else{
 				Debug::print("{$f} new ID is NOT and was never a command, it's \"{$new_id}\"");
 			}
 		}

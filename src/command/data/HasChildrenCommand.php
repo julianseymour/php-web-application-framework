@@ -18,12 +18,12 @@ class HasChildrenCommand extends ForeignDataStructureCommand implements ValueRet
 	public function evaluate(?array $params = null){
 		$ds = $this->getDataStructure();
 		$cn = $this->getColumnName();
-		if ($cn instanceof ValueReturningCommandInterface) {
+		if($cn instanceof ValueReturningCommandInterface) {
 			while ($cn instanceof ValueReturningCommandInterface) {
 				$cn = $cn->evaluate();
 			}
 		}
-		if ($ds instanceof ValueReturningCommandInterface) {
+		if($ds instanceof ValueReturningCommandInterface) {
 			while ($ds instanceof ValueReturningCommandInterface) {
 				$ds = $ds->evaluate();
 			}
@@ -33,19 +33,19 @@ class HasChildrenCommand extends ForeignDataStructureCommand implements ValueRet
 
 	public function toJavaScript(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			$idcs = $this->getIdCommandString();
-			if ($idcs instanceof JavaScriptInterface) {
+			if($idcs instanceof JavaScriptInterface) {
 				$idcs = $idcs->toJavaScript();
 			}
 			$cn = $this->getColumnName();
-			if ($cn instanceof JavaScriptInterface) {
+			if($cn instanceof JavaScriptInterface) {
 				$cn = $cn->toJavaScript();
-			} elseif (is_string($cn) || $cn instanceof StringifiableInterface) {
+			}elseif(is_string($cn) || $cn instanceof StringifiableInterface) {
 				$cn = single_quote($cn);
 			}
 			return "{$idcs}.hasForeignDataStructureList({$cn})";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

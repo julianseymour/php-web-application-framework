@@ -13,7 +13,7 @@ trait ComputerLanguageTrait
 
 	public function getComputerLanguage(): ?string
 	{
-		if (! $this->hasComputerLanguage()) {
+		if(!$this->hasComputerLanguage()) {
 			return null;
 		}
 		return $this->computerLanguage;
@@ -21,7 +21,7 @@ trait ComputerLanguageTrait
 
 	public function setComputerLanguage(?string $l): ?string
 	{
-		if ($l == null) {
+		if($l == null) {
 			unset($this->computerLanguage);
 			return null;
 		}

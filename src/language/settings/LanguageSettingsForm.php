@@ -53,7 +53,7 @@ class LanguageSettingsForm extends AjaxForm{
 		switch ($name) {
 			case DIRECTIVE_LANGUAGE:
 				$buttons = [];
-				foreach (config()->getSupportedLanguages() as $lang) {
+				foreach(config()->getSupportedLanguages() as $lang) {
 					$button = new ButtonInput($mode);
 					$button->setNameAttribute("directive[{$name}]");
 					$button->setValueAttribute($lang);

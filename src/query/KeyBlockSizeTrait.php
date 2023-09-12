@@ -21,7 +21,7 @@ trait KeyBlockSizeTrait
 	public function getKeyBlockSize()
 	{
 		$f = __METHOD__; //"KeyBlockSizeTrait(".static::getShortClass().")->getKeyBlockSize()";
-		if (! $this->hasKeyBlockSize()) {
+		if(!$this->hasKeyBlockSize()) {
 			Debug::error("{$f} key block size is undefined");
 		}
 		return $this->keyBlockSizeValue;

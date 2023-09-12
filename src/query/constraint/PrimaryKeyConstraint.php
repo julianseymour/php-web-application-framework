@@ -10,15 +10,15 @@ class PrimaryKeyConstraint extends IndexDefiningConstraint
 	{
 		$indexDefinition = $this->getIndexDefinition();
 		$backup = null;
-		if ($indexDefinition instanceof IndexDefinition) {
+		if($indexDefinition instanceof IndexDefinition) {
 			$backup = $indexDefinition->getHideIndexNameFlag();
 			$indexDefinition->setHideIndexNameFlag(true);
 			$id = $indexDefinition->toSQL();
-		} else {
+		}else{
 			$id = $indexDefinition;
 		}
 		$string = parent::toSQL() . " primary key {$id}";
-		if ($indexDefinition instanceof IndexDefinition) {
+		if($indexDefinition instanceof IndexDefinition) {
 			$indexDefinition->setHideIndexNameFlag($backup);
 		}
 		return $string;

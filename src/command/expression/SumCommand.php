@@ -12,7 +12,7 @@ class SumCommand extends ExpressionCommand implements SQLInterface{
 
 	public function __construct($e = null){
 		parent::__construct();
-		if ($e !== null) {
+		if($e !== null) {
 			$this->setExpression($e);
 		}
 	}
@@ -23,8 +23,8 @@ class SumCommand extends ExpressionCommand implements SQLInterface{
 
 	public function evaluate(?array $params = null){
 		$sum = 0;
-		foreach ($this->getParameters() as $p) {
-			if ($p instanceof ValueReturningCommandInterface) {
+		foreach($this->getParameters() as $p) {
+			if($p instanceof ValueReturningCommandInterface) {
 				while ($p instanceof ValueReturningCommandInterface) {
 					$p = $p->evaluate();
 				}
@@ -36,7 +36,7 @@ class SumCommand extends ExpressionCommand implements SQLInterface{
 
 	public function toSQL(): string{
 		$e = $this->getExpression();
-		if ($e instanceof SQLInterface) {
+		if($e instanceof SQLInterface) {
 			$e = $e->toSQL();
 		}
 		return "sum({$e})";

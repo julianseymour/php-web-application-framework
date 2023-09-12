@@ -26,7 +26,7 @@ class Debugger extends Debug{
 	}
 
 	public function setEnforcedPrivateKey(?string $key): ?string{
-		if ($key === null) {
+		if($key === null) {
 			unset($this->enforcedPrivateKey);
 		}
 		return $this->enforcedPrivateKey = $key;
@@ -34,7 +34,7 @@ class Debugger extends Debug{
 
 	public function getEnforcedPrivateKey(): string{
 		$f = __METHOD__;
-		if (! $this->hasEnforcedPrivateKey()) {
+		if(!$this->hasEnforcedPrivateKey()) {
 			Debug::error("{$f} enforced private key is undefined");
 		}
 		return $this->enforcedPrivateKey;
@@ -42,17 +42,17 @@ class Debugger extends Debug{
 
 	public function enforcePrivateKey(?string $key): Debugger{
 		$f = __METHOD__;
-		if (! $this->hasEnforcedPrivateKey()) {
+		if(!$this->hasEnforcedPrivateKey()) {
 			$this->setEnforcedPrivateKey($key);
 			Debug::print("{$f} enforcing private key with hash " . sha1($key));
-		} elseif ($key !== $this->getEnforcedPrivateKey()) {
+		}elseif($key !== $this->getEnforcedPrivateKey()) {
 			Debug::error("{$f} illegal key with hash " . sha1($key));
 		}
 		return $this;
 	}
 
 	public function log(string $s): int{
-		if (! is_array($this->logged)) {
+		if(!is_array($this->logged)) {
 			$this->logged = [];
 		}
 		array_push($this->logged, $s);
@@ -61,18 +61,18 @@ class Debugger extends Debug{
 
 	public function spew(): void{
 		$f = __METHOD__;
-		if (isset($this->logged) && is_array($this->logged) && ! empty($this->logged)) {
-			foreach ($this->logged as $i => $l) {
+		if(isset($this->logged) && is_array($this->logged) && ! empty($this->logged)) {
+			foreach($this->logged as $i => $l) {
 				Debug::print("#{$i}: {$l}");
 			}
 		}
 		$string = "";
-		if (app() != null && app()->hasUserData()) {
+		if(app() != null && app()->hasUserData()) {
 			$user = user();
 			$uc = $user->getClass();
 			$key = $user->hasIdentifierValue() ? $user->getIdentifierValue() : "[undefined]";
 			$string .= "user is a {$uc} with key \"{$key}\". ";
-		} else {
+		}else{
 			$string .= "user data is undefined.";
 		}
 		if(app() != null && app()->hasUseCase()){

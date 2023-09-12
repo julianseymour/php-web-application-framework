@@ -8,7 +8,7 @@ abstract class Month{
 
 	public static function getMonthName($num){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($num) {
 				case 1:
 					return _("January");
@@ -37,7 +37,7 @@ abstract class Month{
 				default:
 					return _("Invalid month");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

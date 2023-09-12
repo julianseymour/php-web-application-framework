@@ -42,26 +42,26 @@ class RemoveAttributeCommand extends ElementCommand implements ServerExecutableC
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //RemoveAttributeCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$string = "";
 			$id = $this->getIdCommandString();
-			if ($id instanceof JavaScriptInterface) {
+			if($id instanceof JavaScriptInterface) {
 				$id = $id->toJavaScript();
 			}
 			$i = 0;
-			foreach ($this->getAttributeNames() as $key) {
-				if ($key instanceof JavaScriptInterface) {
+			foreach($this->getAttributeNames() as $key) {
+				if($key instanceof JavaScriptInterface) {
 					$key = $key->toJavaScript();
-				} elseif (is_string($key) || $key instanceof StringifiableInterface) {
+				}elseif(is_string($key) || $key instanceof StringifiableInterface) {
 					$key = single_quote($key);
 				}
 				$string .= "{$id}.removeAttribute({$key})";
-				if ($i ++ > 0) {
+				if($i ++ > 0) {
 					$string .= ";\n";
 				}
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -77,15 +77,15 @@ class RemoveAttributeCommand extends ElementCommand implements ServerExecutableC
 	public function resolve()
 	{
 		$f = __METHOD__; //RemoveAttributeCommand::getShortClass()."(".static::getShortClass().")->resolve()";
-		try {
+		try{
 			$element = $this->getElement();
 			while($element instanceof ValueReturningCommandInterface){
 				$element = $element->evaluate();
 			}
-			foreach ($this->getAttributes() as $key) {
+			foreach($this->getAttributes() as $key) {
 				$element->removeAttribute($key);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

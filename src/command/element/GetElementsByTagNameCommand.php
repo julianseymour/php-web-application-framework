@@ -26,9 +26,9 @@ class GetElementsByTagNameCommand extends Command implements JavaScriptInterface
 	public function toJavaScript(): string
 	{
 		$tag = $this->getElementTag();
-		if ($tag instanceof JavaScriptInterface) {
+		if($tag instanceof JavaScriptInterface) {
 			$tag = $tag->evaluate();
-		} elseif (is_string($tag) || $tag instanceof StringifiableInterface) {
+		}elseif(is_string($tag) || $tag instanceof StringifiableInterface) {
 			$tag = single_quote($tag);
 		}
 		return "document." . $this->getCommandId() . "({$tag})";

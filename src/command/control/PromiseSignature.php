@@ -16,7 +16,7 @@ class PromiseSignature implements DisposableInterface, JavaScriptInterface
 	public function __construct(JavaScriptFunction $fulfilled, ?JavaScriptFunction $rejected = null)
 	{
 		$this->setFulfillmentHandler($fulfilled);
-		if ($rejected instanceof JavaScriptFunction) {
+		if($rejected instanceof JavaScriptFunction) {
 			$this->setRejectionHandler($rejected);
 		}
 	}
@@ -24,10 +24,10 @@ class PromiseSignature implements DisposableInterface, JavaScriptInterface
 	public function setFulfillmentHandler(?JavaScriptFunction $fulfilled): ?JavaScriptFunction
 	{
 		$f = __METHOD__; //PromiseSignature::getShortClass()."(".static::getShortClass().")->setFulfillmentHandler()";
-		if ($fulfilled === null) {
+		if($fulfilled === null) {
 			unset($this->fulfillmentHandler);
 			return null;
-		} elseif (! $fulfilled instanceof JavaScriptFunction) {
+		}elseif(!$fulfilled instanceof JavaScriptFunction) {
 			Debug::error("{$f} fulfillment handler must be an instanceof JavaScriptFunction");
 		}
 		return $this->fulfillmentHandler = $fulfilled;
@@ -41,7 +41,7 @@ class PromiseSignature implements DisposableInterface, JavaScriptInterface
 	public function getFulfillmentHandler()
 	{
 		$f = __METHOD__; //PromiseSignature::getShortClass()."(".static::getShortClass().")->getFulfillmentHandler()";
-		if (! $this->hasFulfillmentHandler()) {
+		if(!$this->hasFulfillmentHandler()) {
 			Debug::error("{$f} fulfillment handler is undefined");
 		}
 		return $this->fulfillmentHandler;
@@ -50,10 +50,10 @@ class PromiseSignature implements DisposableInterface, JavaScriptInterface
 	public function setRejectionHandler(?JavaScriptFunction $fulfilled): ?JavaScriptFunction
 	{
 		$f = __METHOD__; //PromiseSignature::getShortClass()."(".static::getShortClass().")->setRejectionHandler()";
-		if ($fulfilled === null) {
+		if($fulfilled === null) {
 			unset($this->fulfillmentHandler);
 			return null;
-		} elseif (! $fulfilled instanceof JavaScriptFunction) {
+		}elseif(!$fulfilled instanceof JavaScriptFunction) {
 			Debug::error("{$f} fulfillment handler must be an instanceof JavaScriptFunction");
 		}
 		return $this->rejectionHandler = $fulfilled;
@@ -67,7 +67,7 @@ class PromiseSignature implements DisposableInterface, JavaScriptInterface
 	public function getRejectionHandler()
 	{
 		$f = __METHOD__; //PromiseSignature::getShortClass()."(".static::getShortClass().")->getRejectionHandler()";
-		if (! $this->hasRejectionHandler()) {
+		if(!$this->hasRejectionHandler()) {
 			Debug::error("{$f} rejection handler is undefined");
 		}
 		return $this->rejectionHandler;
@@ -76,7 +76,7 @@ class PromiseSignature implements DisposableInterface, JavaScriptInterface
 	function toJavaScript(): string
 	{
 		$string = $this->getFulfillmentHandler()->toJavaScript();
-		if ($this->hasRejectionHandler()) {
+		if($this->hasRejectionHandler()) {
 			$string .= ", " . $this->getRejectionHandler()->toJavaScript();
 		}
 		return $string;

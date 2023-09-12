@@ -35,7 +35,29 @@ class JavaScriptBlobFileUseCase extends BundleUseCase{
 		return [
 			"action",
 			"locale",
-			"filename"
+			//"filename"
 		];
+	}
+	
+	public function hasImplicitParameter(string $name):bool{
+		switch($name){
+			case "filename":
+				return true;
+			default:
+				return parent::hasImplicitParameter($name);
+		}
+	}
+	
+	public function getImplicitParameter(string $name){
+		switch($name){
+			case "filename":
+				return $this->getFilename();
+			default:
+				return parent::getImplicitParameter($name);
+		}
+	}
+	
+	public static function getFilename(): string{
+		return "blob.js";
 	}
 }

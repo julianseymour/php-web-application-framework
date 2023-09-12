@@ -20,8 +20,8 @@ class GetColumnValueCommand extends ColumnValueCommand{
 
 	public function __construct($context = null, $vn = null){
 		$f = __METHOD__;
-		if (isset($context)) {
-			if ($context instanceof GetColumnValueCommand) {
+		if(isset($context)) {
+			if($context instanceof GetColumnValueCommand) {
 				Debug::error("{$f} context is another GetColumnValueCommand");
 			}
 		}
@@ -35,7 +35,7 @@ class GetColumnValueCommand extends ColumnValueCommand{
 	}
 
 	public function setFallbackValue($value){
-		if ($value === null) {
+		if($value === null) {
 			unset($this->fallbackValue);
 			return null;
 		}
@@ -47,7 +47,7 @@ class GetColumnValueCommand extends ColumnValueCommand{
 	}
 
 	public function getFallbackValue(){
-		$f = __METHOD__;if (! $this->hasFallbackValue()) {
+		$f = __METHOD__;if(!$this->hasFallbackValue()) {
 			Debug::error("{$f} fallback value is undefined");
 		}
 		return $this->fallbackValue;
@@ -55,7 +55,7 @@ class GetColumnValueCommand extends ColumnValueCommand{
 
 	public static function concatIndex($prefix, $context, $index, $suffix = null){
 		$cmd = new ConcatenateCommand($prefix, new GetColumnValueCommand($context, $index));
-		if (! isset($suffix)) {
+		if(! isset($suffix)) {
 			return $cmd;
 		}
 		return new ConcatenateCommand($cmd, $suffix);
@@ -64,7 +64,7 @@ class GetColumnValueCommand extends ColumnValueCommand{
 	public function setFormat($i){
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} setting format to \"{$i}\"");
 		}
 		return $this->format = $i;
@@ -73,12 +73,12 @@ class GetColumnValueCommand extends ColumnValueCommand{
 	public function getFormat(){
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if (! $this->hasFormat()) {
-			if ($print) {
+		if(!$this->hasFormat()) {
+			if($print) {
 				Debug::print("{$f} format is undefined");
 			}
 			return READABILITY_READABLE;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} returning {$this->format}");
 		}
 		return $this->format;
@@ -98,17 +98,17 @@ class GetColumnValueCommand extends ColumnValueCommand{
 
 	public function evaluate(?array $params = null){
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $this->getColumnName();
 			$print = $this->getDebugFlag();
 			$context = $this->getDataStructure();
 			while ($context instanceof ValueReturningCommandInterface) {
 				$class = $context->getClass();
-				if ($print) {
+				if($print) {
 					$decl = $context->getDeclarationLine();
 					Debug::print("{$f} context is a media command of class \"{$class}\", declared {$decl}");
 				}
-				if ($class === static::class) {
+				if($class === static::class) {
 					$vn = $this->getColumnName();
 					Debug::error("{$f} you probably meant to pass a GetForeignDataStructureCommand; variable name is \"{$vn}\"");
 				}
@@ -117,10 +117,10 @@ class GetColumnValueCommand extends ColumnValueCommand{
 			while ($vn instanceof ValueReturningCommandInterface) {
 				$vn = $vn->evaluate();
 			}
-			if (! is_object($context)) {
-				if ($this->hasFallbackValue()) {
+			if(!is_object($context)) {
+				if($this->hasFallbackValue()) {
 					$fb = $this->getFallbackValue();
-					if ($fb instanceof ValueReturningCommandInterface) {
+					if($fb instanceof ValueReturningCommandInterface) {
 						while ($fb instanceof ValueReturningCommandInterface) {
 							$fb = $fb->evaluate();
 						}
@@ -130,59 +130,59 @@ class GetColumnValueCommand extends ColumnValueCommand{
 				$decl = $this->getDeclarationLine();
 				Debug::error("{$f} context \"{$context}\" is not an object; column name is \"{$vn}\". This was declared {$decl}");
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} context is now a " . $context->getClass() . "; about to get value of column {$vn}");
 			}
 			$format = $this->getFormat();
 			switch ($format) {
 				case READABILITY_WRITABLE:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} writable column value");
 					}
 					$value = $context->getColumn($vn)->getHumanWritableValue();
 					break;
 				case READABILITY_READABLE:
 					$value = $context->getColumn($vn)->getHumanReadableValue();
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} readable column value");
 					}
 					break;
 				case READABILITY_UNDEFINED:
 				default:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} undefined formatting");
 					}
 					$value = $context->getColumnValue($vn);
 					break;
 			}
-			if ($print) {
-				if (is_string($value)) {
+			if($print) {
+				if(is_string($value)) {
 					Debug::print("{$f} before evaluation, value is the string \"{$value}\"");
-				} else {
+				}else{
 					$gottype = is_object($value) ? $value->getClass() : gettype($value);
 					Debug::print("{$f} before evaluation, value is a {$gottype}");
 				}
 			}
 			while ($value instanceof ValueReturningCommandInterface) {
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} evaluating a " . $value->getClass());
 				}
 				$value = $value->evaluate();
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} after evaluation");
-				if (is_string($value)) {
+				if(is_string($value)) {
 					Debug::print("{$f} value is the string \"{$value}\"");
-				} else {
+				}else{
 					$gottype = is_object($value) ? $value->getClass() : gettype($value);
 					Debug::print("{$f} value is a {$gottype}");
 				}
 			}
-			if ($value === null && $this->getDisallowNullFlag()) {
+			if($value === null && $this->getDisallowNullFlag()) {
 				Debug::error("{$f} null value is disallowed");
 			}
 			return $value;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

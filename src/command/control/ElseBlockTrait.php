@@ -13,7 +13,7 @@ trait ElseBlockTrait
 	public function getElseCommands()
 	{
 		$f = __METHOD__; //"ElseBlockTrait(".static::getShortClass().")->getElseCommands()";
-		if (! $this->hasElseCommands()) {
+		if(!$this->hasElseCommands()) {
 			Debug::error("{$f} else commands are undefined");
 		}
 		return $this->getProperty("else");
@@ -21,7 +21,7 @@ trait ElseBlockTrait
 
 	public function setElseCommands($else): array
 	{
-		if (! is_array($else)) {
+		if(!is_array($else)) {
 			$else = [
 				$else
 			];
@@ -32,8 +32,8 @@ trait ElseBlockTrait
 	public function else(...$else): object
 	{
 		$f = __METHOD__; //"ElseBlockTrait(".static::getShortClass().")->else()";
-		if (isset($else) && count($else) === 1 && is_array($else[0])) {
-			if (! is_associative($else[0])) {
+		if(isset($else) && count($else) === 1 && is_array($else[0])) {
+			if(!is_associative($else[0])) {
 				Debug::error("{$f} this function only accepts non-associative arrays");
 			}
 			return $this->else(...$else[0]);

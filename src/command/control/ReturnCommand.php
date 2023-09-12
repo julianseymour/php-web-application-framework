@@ -26,7 +26,7 @@ class ReturnCommand extends Command implements JavaScriptInterface, ServerExecut
 	public function __construct($returnValue = null)
 	{
 		parent::__construct();
-		if (isset($returnValue)) {
+		if(isset($returnValue)) {
 			$this->setReturnValue($returnValue);
 		}
 	}
@@ -44,7 +44,7 @@ class ReturnCommand extends Command implements JavaScriptInterface, ServerExecut
 	public function getReturnValue()
 	{
 		$f = __METHOD__; //ReturnCommand::getShortClass()."(".static::getShortClass().")->getReturnValue()";
-		if (! $this->hasReturnValue()) {
+		if(!$this->hasReturnValue()) {
 			Debug::error("{$f} return value is undefined");
 		}
 		return $this->returnValue;
@@ -54,26 +54,26 @@ class ReturnCommand extends Command implements JavaScriptInterface, ServerExecut
 	{
 		$f = __METHOD__; //ReturnCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
 		$string = "return";
-		if ($this->hasReturnValue()) {
+		if($this->hasReturnValue()) {
 			$rv = $this->getReturnValue();
-			if ($rv instanceof JavaScriptInterface) {
+			if($rv instanceof JavaScriptInterface) {
 				$rv = $rv->toJavaScript();
-			} elseif (is_string($rv) || $rv instanceof StringifiableInterface) {
+			}elseif(is_string($rv) || $rv instanceof StringifiableInterface) {
 				$rv = single_quote($rv);
-			} elseif (is_array($rv)) {
+			}elseif(is_array($rv)) {
 				$string .= " [";
 				$i = 0;
-				foreach ($rv as $key => $value) {
-					if ($i ++ > 0) {
+				foreach($rv as $key => $value) {
+					if($i ++ > 0) {
 						$string .= ",";
 					}
 					$string .= " ";
-					if (is_associative($rv)) {
+					if(is_associative($rv)) {
 						$string .= single_quote($key) . "=> ";
 					}
-					if ($value instanceof JavaScriptInterface) {
+					if($value instanceof JavaScriptInterface) {
 						$value = $value->toJavaScript();
-					} elseif (is_string($value)) {
+					}elseif(is_string($value)) {
 						$value = single_quote($value);
 					}
 					$string .= $value;
@@ -90,11 +90,11 @@ class ReturnCommand extends Command implements JavaScriptInterface, ServerExecut
 	public function toSQL(): string
 	{
 		$string = "return";
-		if ($this->hasReturnValue()) {
+		if($this->hasReturnValue()) {
 			$rv = $this->getReturnValue();
-			if ($rv instanceof SQLInterface) {
+			if($rv instanceof SQLInterface) {
 				$rv = $rv->toSQL();
-			} elseif (is_string($rv) || $rv instanceof StringifiableInterface) {
+			}elseif(is_string($rv) || $rv instanceof StringifiableInterface) {
 				$rv = single_quote($rv);
 			}
 			$string .= " " . $rv;
@@ -106,16 +106,16 @@ class ReturnCommand extends Command implements JavaScriptInterface, ServerExecut
 	public function resolve()
 	{
 		$f = __METHOD__; //ReturnCommand::getShortClass()."(".static::getShortClass().")->resolve()";
-		try {
+		try{
 			$value = $this->getReturnValue();
-			if ($value instanceof ServerExecutableCommandInterface) {
+			if($value instanceof ServerExecutableCommandInterface) {
 				$value->resolve();
 			}
-			if ($value instanceof ValueReturningCommandInterface) {
+			if($value instanceof ValueReturningCommandInterface) {
 				$value = $value->evaluate();
 			}
 			return $value;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

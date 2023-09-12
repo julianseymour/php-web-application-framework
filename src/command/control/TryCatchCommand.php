@@ -15,7 +15,7 @@ class TryCatchCommand extends Command implements JavaScriptInterface, ServerExec
 	public function __construct(...$blocks)
 	{
 		parent::__construct();
-		if (isset($blocks)) {
+		if(isset($blocks)) {
 			$this->setTryBlocks($blocks);
 		}
 	}
@@ -56,7 +56,7 @@ class TryCatchCommand extends Command implements JavaScriptInterface, ServerExec
 	public function getCatchBlocks()
 	{
 		$f = __METHOD__; //TryCatchCommand::getShortClass()."(".static::getShortClass().")->getCatchBlocks()";
-		if (! $this->hasCatchBlocks()) {
+		if(!$this->hasCatchBlocks()) {
 			Debug::error("{$f} catch blocks are undefined");
 		}
 		return $this->getProperty("catchBlocks");
@@ -75,7 +75,7 @@ class TryCatchCommand extends Command implements JavaScriptInterface, ServerExec
 	public function getTryBlocks()
 	{
 		$f = __METHOD__; //TryCatchCommand::getShortClass()."(".static::getShortClass().")->getTryBlocks()";
-		if (! $this->hasTryBlocks()) {
+		if(!$this->hasTryBlocks()) {
 			Debug::error("{$f} try blocks are undefined");
 		}
 		return $this->getProperty("tryBlocks");
@@ -84,29 +84,29 @@ class TryCatchCommand extends Command implements JavaScriptInterface, ServerExec
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //TryCatchCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$string = "";
 			$string .= "\ttry{\n";
-			if ($this->hasTryBlocks()) {
-				foreach ($this->getTryBlocks() as $block) {
-					if ($block instanceof JavaScriptInterface) {
+			if($this->hasTryBlocks()) {
+				foreach($this->getTryBlocks() as $block) {
+					if($block instanceof JavaScriptInterface) {
 						$js = "\t" . $block->toJavaScript();
-					} elseif (is_string($block) || $block instanceof StringifiableInterface) {
+					}elseif(is_string($block) || $block instanceof StringifiableInterface) {
 						$js = $block;
-					} else {
+					}else{
 						Debug::error("{$f} one of your try blocks cannot be converted to JavaScript");
 					}
 					$string .= "\t\t{$js};\n";
 				}
 			}
 			$string .= "\t}catch(x){\n";
-			if ($this->hasCatchBlocks()) {
-				foreach ($this->getCatchBlocks() as $block) {
-					if ($block instanceof JavaScriptInterface) {
+			if($this->hasCatchBlocks()) {
+				foreach($this->getCatchBlocks() as $block) {
+					if($block instanceof JavaScriptInterface) {
 						$js = $block->toJavaScript();
-					} elseif (is_string($block) || $block instanceof StringifiableInterface) {
+					}elseif(is_string($block) || $block instanceof StringifiableInterface) {
 						$js = $block;
-					} else {
+					}else{
 						Debug::error("{$f} one of your catch blocks cannot be converted to JavaScript");
 					}
 					$string .= "\t\t{$js};\n";
@@ -114,7 +114,7 @@ class TryCatchCommand extends Command implements JavaScriptInterface, ServerExec
 				$string .= "\t}\n";
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -133,23 +133,23 @@ class TryCatchCommand extends Command implements JavaScriptInterface, ServerExec
 	public function resolve()
 	{
 		$f = __METHOD__; //TryCatchCommand::getShortClass()."(".static::getShortClass().")->resolve()";
-		try {
-			if ($this->getResolveCatchFlag()) {
-				foreach ($this->getCatchBlocks() as $block) {
+		try{
+			if($this->getResolveCatchFlag()) {
+				foreach($this->getCatchBlocks() as $block) {
 					$block->resolve();
 				}
-			} else {
-				try {
-					foreach ($this->getTryBlocks() as $block) {
+			}else{
+				try{
+					foreach($this->getTryBlocks() as $block) {
 						$block->resolve();
 					}
-				} catch (Exception $x) {
-					foreach ($this->getCatchBlocks() as $block) {
+				}catch(Exception $x) {
+					foreach($this->getCatchBlocks() as $block) {
 						$block->resolve();
 					}
 				}
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -17,12 +17,12 @@ class PDFData extends CleartextFileData{
 
 	public function getWebFileDirectory():string{
 		$dir = '/pdf/';
-		if ($this->getFileGenerationMode() === FILE_GENERATION_MODE_DOMPDF) {
+		if($this->getFileGenerationMode() === FILE_GENERATION_MODE_DOMPDF) {
 			$context = $this->getContext();
 			$key = $context->getIdentifierValue();
 			$datatype = $context->getDataType();
 			$dir .= $datatype;
-		} else {
+		}else{
 			$dir .= "file";
 		}
 		$dir .= "/{$key}";
@@ -58,7 +58,7 @@ class PDFData extends CleartextFileData{
 	public function getContext()
 	{
 		$f = __METHOD__; //PDFData::getShortClass()."(".static::getShortClass().")->getContext()";
-		if (! $this->hasContext()) {
+		if(!$this->hasContext()) {
 			Debug::error("{$f} context is undefined");
 		}
 		return $this->context;
@@ -72,9 +72,9 @@ class PDFData extends CleartextFileData{
 	public function setElement($element)
 	{
 		$this->element = $element;
-		if ($element->hasContext()) {
+		if($element->hasContext()) {
 			$this->setContext($element->getContext());
-		} else {
+		}else{
 			$this->setFileGenerationMode(FILE_GENERATION_MODE_DOMPDF);
 		}
 		return $this->getElement();
@@ -83,7 +83,7 @@ class PDFData extends CleartextFileData{
 	public function getElement()
 	{
 		$f = __METHOD__; //PDFData::getShortClass()."(".static::getShortClass().")->getElement()";
-		if (! $this->hasElement()) {
+		if(!$this->hasElement()) {
 			Debug::error("{$f} element is undefined");
 		}
 		return $this->element;
@@ -119,12 +119,12 @@ class PDFData extends CleartextFileData{
 			"textarea",
 			"thead"
 		];
-		if (in_array($element->getElemenTag(), $incompatible, true)) {
+		if(in_array($element->getElemenTag(), $incompatible, true)) {
 			return false;
 		}
-		if ($element->hasChildNodes()) {
-			foreach ($element->getChildNodes() as $child) {
-				if (! static::validateDompdfCompatibility($child)) {
+		if($element->hasChildNodes()) {
+			foreach($element->getChildNodes() as $child) {
+				if(! static::validateDompdfCompatibility($child)) {
 					return false;
 				}
 			}
@@ -135,17 +135,17 @@ class PDFData extends CleartextFileData{
 	public function outputFileToBrowser():void{
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if ($this->getFileGenerationMode() !== FILE_GENERATION_MODE_DOMPDF) {
+		if($this->getFileGenerationMode() !== FILE_GENERATION_MODE_DOMPDF) {
 			parent::outputFileToBrowser();
 			return;
-		} elseif ($this->hasElement()) {
+		}elseif($this->hasElement()) {
 			$element = $this->getElement();
-			if ($element->getAllocationMode() !== ALLOCATION_MODE_DOMPDF_COMPATIBLE) {
+			if($element->getAllocationMode() !== ALLOCATION_MODE_DOMPDF_COMPATIBLE) {
 				Debug::error("{$f} child generation mode must be DOMPDF-compatible");
 			}
-		} elseif (! $this->hasElementClass()) {
+		}elseif(!$this->hasElementClass()) {
 			Debug::error("{$f} element class is undefined");
-		} else {
+		}else{
 			$ec = $this->getElementClass();
 			$element = new $ec(ALLOCATION_MODE_DOMPDF_COMPATIBLE, $this->getContext());
 		}

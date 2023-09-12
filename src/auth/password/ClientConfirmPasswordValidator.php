@@ -21,7 +21,7 @@ class ClientConfirmPasswordValidator extends ConfirmPasswordValidator implements
 
 	public function setCounterpartNameAttribute($counterpartName)
 	{
-		if ($this->hasInput()) {
+		if($this->hasInput()) {
 			$this->getInput()->setAttribute("__match", $counterpartName);
 		}
 		return parent::setCounterpartNameAttribute($counterpartName);
@@ -29,7 +29,7 @@ class ClientConfirmPasswordValidator extends ConfirmPasswordValidator implements
 
 	public function setInput($input)
 	{
-		if (! $input->hasAttribute("__match") && $this->hasCounterpartNameAttribute()) {
+		if(!$input->hasAttribute("__match") && $this->hasCounterpartNameAttribute()) {
 			$input->setAttribute("__match", $this->getCounterpartNameAttribute());
 		}
 		return parent::setInput($input);

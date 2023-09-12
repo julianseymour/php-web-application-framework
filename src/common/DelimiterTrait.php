@@ -10,7 +10,7 @@ trait DelimiterTrait{
 	
 	public function getDelimiter(): string{
 		$f = __METHOD__;
-		if (! $this->hasDelimiter()) {
+		if(!$this->hasDelimiter()) {
 			Debug::error("{$f} undefined delimiter");
 		}
 		return $this->delimiter;
@@ -21,7 +21,7 @@ trait DelimiterTrait{
 	}
 	
 	public function setDelimiter(?string $delimiter): ?string{
-		if ($delimiter == null) {
+		if($delimiter == null) {
 			unset($this->delimiter);
 			return null;
 		}

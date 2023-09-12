@@ -18,7 +18,7 @@ class SimpleEmailElement extends DivElement{
 
 	protected function getBodyElement(): Element{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
 			$user = $context->getRecipient();
@@ -37,7 +37,7 @@ class SimpleEmailElement extends DivElement{
 			$div->setInnerHTML($context->getPlaintextBody());
 			$middle->appendChild($div);
 			return $middle;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

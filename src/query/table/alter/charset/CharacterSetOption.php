@@ -13,7 +13,7 @@ class CharacterSetOption extends AlterOption
 	{
 		parent::__construct();
 		$this->setCharacterSet($charset);
-		if ($collationName !== null) {
+		if($collationName !== null) {
 			$this->setCollationName($collationName);
 		}
 	}
@@ -21,7 +21,7 @@ class CharacterSetOption extends AlterOption
 	public function toSQL(): string
 	{
 		$string = "character set " . $this->getCharacterSet();
-		if ($this->hasCollationName()) {
+		if($this->hasCollationName()) {
 			$cn = $this->getCollationName();
 			$string .= " collate {$cn}";
 		}

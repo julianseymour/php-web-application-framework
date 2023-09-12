@@ -24,7 +24,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 
 	public function isLocked(): bool{
 		$f = __METHOD__;
-		if (! $this->hasValidator()) {
+		if(!$this->hasValidator()) {
 			// Debug::print("{$f} form lacks a validator");
 			return true;
 		}
@@ -35,7 +35,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 			Debug::error("{$f} validator is uninitialized. Debug ID is {$did}, declared {$decl}");
 		}
 		$status = $validator->getObjectStatus();
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} validator has error status \"{$err}\"");
 			return true;
@@ -46,10 +46,10 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$inputs = parent::getAdHocInputs();
 			$context = $this->getContext();
-			if ($this->isLocked() || ! $context->hasMfaSeed()) {
+			if($this->isLocked() || ! $context->hasMfaSeed()) {
 				return $inputs;
 			}
 			$mfa_status = $context->getMFAStatus();
@@ -66,7 +66,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 					$otp_in2->setNameAttribute("mfa-confirm2");
 					$otp_in2->setLabelString(substitute(_("Verification code %1%"), 2));
 					$otp_in2->setWrapperElement(new DivElement());
-					foreach ([
+					foreach([
 						$otp_in1,
 						$otp_in2
 					] as $input) {
@@ -84,7 +84,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 					Debug::error("{$f} invalid MFA status \"{$mfa_status}\"");
 					return null;
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -108,24 +108,24 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 
 	public function getDirectives(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$context = $this->getContext();
 			$mfa_status = $context->getMFAStatus();
-			if ($context->hasMfaSeed()) {
-				if ($this->isLocked()) {
+			if($context->hasMfaSeed()) {
+				if($this->isLocked()) {
 					$map = [
 						DIRECTIVE_VALIDATE
 					];
-					if ($mfa_status === MFA_STATUS_DISABLED) {
+					if($mfa_status === MFA_STATUS_DISABLED) {
 						array_push($map, DIRECTIVE_REGENERATE);
 						array_push($map, DIRECTIVE_UNSET);
 					}
 					return $map;
-				} elseif ($mfa_status) {
+				}elseif($mfa_status) {
 					return [
 						DIRECTIVE_UNSET
 					];
-				} else { // if($mfa_status === MFA_STATUS_DISABLED){
+				}else{ // if($mfa_status === MFA_STATUS_DISABLED){
 					return [
 						DIRECTIVE_UPDATE,
 						DIRECTIVE_REGENERATE,
@@ -138,14 +138,14 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 			return [
 				DIRECTIVE_REGENERATE
 			];
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$input->setWrapperElement(new DivElement());
 			$vn = $input->getColumnName();
 			switch ($vn) {
@@ -166,30 +166,30 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 				default:
 					return parent::reconfigureInput($input);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function generateFormHeader(): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$enter_password = _("Enter your password");
 			$context = $this->getContext();
-			if ($this->isLocked()) {
+			if($this->isLocked()) {
 				$div = new DivElement();
-				if ($context->hasMfaSeed()) {
+				if($context->hasMfaSeed()) {
 					$innerHTML = _("Enter your password to reveal QR code and recovery seed"); 
-				} else {
+				}else{
 					$innerHTML = _("Enter your password to generate a new QR code");
 				}
 				$div->setInnerHTML($innerHTML);
 				$this->appendChild($div);
 				return;
 			}
-			if (! $context->hasMfaSeed()) {
+			if(!$context->hasMfaSeed()) {
 				$innerHTML = _("Enter your password to generate a new QR code");
-			} else {
+			}else{
 				$mode = $this->getAllocationMode();
 				$qr = new MfaQrCodeElement($mode, $context);
 				$this->appendChild($qr);
@@ -209,7 +209,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 			$div = new DivElement();
 			$div->setInnerHTML($innerHTML);
 			$this->appendChild($div);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -225,10 +225,10 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 	public function getFormDataIndices(): ?array{
 		$d = directive();
 		$map = [];
-		if ($d === DIRECTIVE_REGENERATE || $d === DIRECTIVE_UNSET) {
+		if($d === DIRECTIVE_REGENERATE || $d === DIRECTIVE_UNSET) {
 			$map['MFASeed'] = GhostInput::class;
 		}
-		if ($d === DIRECTIVE_UNSET || $d === DIRECTIVE_UPDATE) {
+		if($d === DIRECTIVE_UNSET || $d === DIRECTIVE_UPDATE) {
 			$map['MFAStatus'] = GhostButton::class;
 		}
 		return $map;
@@ -266,9 +266,9 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 		$button = $this->generateGenericButton($name);
 		switch ($name) {
 			case DIRECTIVE_REGENERATE:
-				if ($this->isLocked() && $has_seed && ! $mfa_status) {
+				if($this->isLocked() && $has_seed && ! $mfa_status) {
 					$innerHTML = _("Generate new QR code");
-				} else {
+				}else{
 					$innerHTML = _("Generate QR code");
 				}
 				break;

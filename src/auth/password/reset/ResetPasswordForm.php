@@ -33,29 +33,29 @@ class ResetPasswordForm extends ConfirmationCodeForm implements PasswordGenerati
 			case "name":
 				$closure = function (array &$validate_me): int {
 					$f = "ResetPasswordForm.attachInputValidators()";
-					try {
+					try{
 						$print = false;
-						if (! array_key_exists('name', $validate_me)) {
+						if(! array_key_exists('name', $validate_me)) {
 							Debug::warning("{$f} name was not posted");
 							Debug::printArray($validate_me);
 							Debug::printStackTrace();
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} entered");
 							Debug::printArray($validate_me);
 						}
 						$normalized = NameDatum::normalize($validate_me['name']);
 						$correspondent = user()->getCorrespondentObject();
 						$real_name = $correspondent->getNormalizedName();
-						if ($normalized === $real_name) {
-							if ($print) {
+						if($normalized === $real_name) {
+							if($print) {
 								Debug::print("{$f} normalized names \"{$normalized}\" match");
 							}
 							return SUCCESS;
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} normalized name from post \"{$normalized}\" does not match user's actual name \"{$real_name}\"");
 						}
 						return ERROR_LOGIN_CREDENTIALS;
-					} catch (Exception $x) {
+					}catch(Exception $x) {
 						x($f, $x);
 					}
 				};
@@ -97,7 +97,7 @@ class ResetPasswordForm extends ConfirmationCodeForm implements PasswordGenerati
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "name":
@@ -114,7 +114,7 @@ class ResetPasswordForm extends ConfirmationCodeForm implements PasswordGenerati
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

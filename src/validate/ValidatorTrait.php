@@ -9,7 +9,7 @@ trait ValidatorTrait{
 	protected $validator;
 
 	public function setValidator(?Validator $validator):?Validator{
-		if ($validator === null) {
+		if($validator === null) {
 			unset($this->validator);
 			return null;
 		}
@@ -22,7 +22,7 @@ trait ValidatorTrait{
 
 	public function getValidator():?Validator{
 		$f = __METHOD__; //"ValidatorTrait(".static::getShortClass().")->getValidator()";
-		if (! $this->hasValidator()) {
+		if(!$this->hasValidator()) {
 			Debug::error("{$f} validator is undefined");
 		}
 		return $this->validator;

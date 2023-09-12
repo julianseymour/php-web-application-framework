@@ -30,10 +30,10 @@ class LoadDataStatement extends LoadStatement{
 
 	public function setLineStart(?string $s):?string{
 		$f = __METHOD__;
-		if ($s == null) {
+		if($s == null) {
 			unset($this->lineStartString);
 			return null;
-		} elseif (! is_string($s)) {
+		}elseif(!is_string($s)) {
 			Debug::error("{$f} line start must be a string");
 		}
 		return $this->lineStartString = $s;
@@ -45,7 +45,7 @@ class LoadDataStatement extends LoadStatement{
 
 	public function getLineStart():string{
 		$f = __METHOD__;
-		if (! $this->hasLineStart()) {
+		if(!$this->hasLineStart()) {
 			Debug::error("{$f} line start is undefined");
 		}
 		return $this->lineStartString;
@@ -58,10 +58,10 @@ class LoadDataStatement extends LoadStatement{
 
 	public function setLineTerminator(?string $s):?string{
 		$f = __METHOD__;
-		if ($s == null) {
+		if($s == null) {
 			unset($this->lineTerminatorString);
 			return null;
-		} elseif (! is_string($s)) {
+		}elseif(!is_string($s)) {
 			Debug::error("{$f} line terminator must be a string");
 		}
 		return $this->lineTerminatorString = $s;
@@ -73,7 +73,7 @@ class LoadDataStatement extends LoadStatement{
 
 	public function getLineTerminator():string{
 		$f = __METHOD__;
-		if (! $this->hasLineTerminator()) {
+		if(!$this->hasLineTerminator()) {
 			Debug::error("{$f} line start is undefined");
 		}
 		return $this->lineTerminatorString;
@@ -88,40 +88,40 @@ class LoadDataStatement extends LoadStatement{
 		// LOAD DATA
 		$string = "load data " . parent::getQueryStatementString();
 		// [PARTITION (partition_name [, partition_name] ...)]
-		if ($this->hasPartitionNames()) {
+		if($this->hasPartitionNames()) {
 			$string .= " partition (" . implode(',', $this->getPartitionNames()) . ")";
 		}
 		// [CHARACTER SET charset_name]
-		if ($this->hasCharacterSet()) {
+		if($this->hasCharacterSet()) {
 			$string .= " character set " . $this->getCharacterSet();
 		}
-		if ($this->hasExportOptions()) {
+		if($this->hasExportOptions()) {
 			$string .= $this->getExportOptions();
 		}
 		// [LINES [STARTING BY 'string'] [TERMINATED BY 'string'] ]
-		if ($this->hasLineStart() || $this->hasLineTerminator()) {
+		if($this->hasLineStart() || $this->hasLineTerminator()) {
 			$string .= " lines";
-			if ($this->hasLineStart()) {
+			if($this->hasLineStart()) {
 				$start = single_quote($this->getLineStart());
 				$string .= " starting by {$start}";
 				unset($start);
 			}
-			if ($this->hasLineTerminator()) {
+			if($this->hasLineTerminator()) {
 				$term = single_quote($this->getLineTerminator());
 				$string .= " terminated by {$term}";
 				unset($term);
 			}
 		}
 		// [IGNORE number {LINES | ROWS}]
-		if ($this->hasIgnoreRows()) {
+		if($this->hasIgnoreRows()) {
 			$string .= " ignore " . $this->getIgnoreRows() . " rows";
 		}
 		// [(col_name_or_user_var [, col_name_or_user_var] ...)]
-		if ($this->hasColumnNames()) {
+		if($this->hasColumnNames()) {
 			$string .= " (" . implode_back_quotes(',', $this->getColumnNames() . ")");
 		}
 		// [SET col_name={expr | DEFAULT} [, col_name={expr | DEFAULT}] ...]
-		if ($this->hasExpressions()) {
+		if($this->hasExpressions()) {
 			$string .= " set " . implode(',', $this->getExpressions());
 		}
 		return $string;

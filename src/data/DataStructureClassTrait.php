@@ -10,13 +10,13 @@ trait DataStructureClassTrait
 	{
 		$f = __METHOD__; //"DataStructureClassTrait(".static::getShortClass().")->setDataStructureClass()";
 		$print = false;
-		if (! is_string($class)) {
+		if(!is_string($class)) {
 			Debug::error("{$f} class is not a string");
-		} elseif (empty($class)) {
+		}elseif(empty($class)) {
 			Debug::error("{$f} class name is empty string");
-		} elseif (! class_exists($class)) {
+		}elseif(! class_exists($class)) {
 			Debug::error("{$f} class \"{$class}\" does not exist");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} setting data structure class to \"{$class}\"");
 		}
 		return $this->dataStructureClass = $class;
@@ -30,7 +30,7 @@ trait DataStructureClassTrait
 	public function getDataStructureClass()
 	{
 		$f = __METHOD__; //"DataStructureClassTrait(".static::getShortClass().")->getDataStructureClass()";
-		if (! $this->hasDataStructureClass()) {
+		if(!$this->hasDataStructureClass()) {
 			Debug::error("{$f} data structure class is undefined");
 		}
 		return $this->dataStructureClass;

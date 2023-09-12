@@ -23,7 +23,7 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 	public function getPaginator(UseCase $use_case): ?Paginator{
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasPaginator()) {
+		if($this->hasPaginator()) {
 			if($print){
 				Debug::print("{$f} paginator was already defined");
 			}
@@ -54,7 +54,7 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 		$f = __METHOD__;
 		return null;
 		Debug::error("{$f} unimplemented. Class is ".$this->getShortClass().", instantiated ".$this->getDeclarationLine());
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPredecessor()->extendSearchParameters($class);
 		}
 		return null;
@@ -67,12 +67,12 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 	public function getSelectStatements(UseCase $use_case): ?array{
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasSelectStatements()) {
-			if ($print) {
+		if($this->hasSelectStatements()) {
+			if($print) {
 				Debug::print("{$f} select statements were already generated");
 			}
 			return $this->getProperty("selectStatements");
-		} elseif ($print) {
+		}elseif($print) {
 			$did = $this->getDebugId();
 			Debug::print("{$f} about to generate select statements for SearchLoadoutGenerator with debug ID {$did}");
 		}
@@ -94,81 +94,81 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 	 */
 	private function generateSelectStatementForClass(string $classname, $offset = 0): ?SelectStatement{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
 			$short_class = get_short_class($classname);
 			$use_case = app()->getUseCase();
 			$paginator = $this->getPaginator($use_case);
 			$fields = $paginator->getSearchFieldsData($short_class);
 			$select = $fields->generateSelectStatement();
-			if ($select == null) {
-				if ($print) {
+			if($select == null) {
+				if($print) {
 					Debug::print("{$f} received a null query for class \"{$classname}\"");
 				}
 				return null;
-			} elseif ($select->hasTableName() && $select->getTableName() === "data.fields") {
+			}elseif($select->hasTableName() && $select->getTableName() === "data.fields") {
 				Debug::error("{$f} table name is data.fields");
 			}
 			$template = $fields->getSearchTemplateObject();
 			$search_params = getInputParameters();
-			if ($paginator->hasSearchableTimestamps()) {
-				foreach ($this->getSearchableTimestamps() as $ts_index => $timestamp) {
-					if ($timestamp === null) {
-						if ($print) {
+			if($paginator->hasSearchableTimestamps()) {
+				foreach($this->getSearchableTimestamps() as $ts_index => $timestamp) {
+					if($timestamp === null) {
+						if($print) {
 							Debug::print("{$f} searchable timestamp at index \"{$ts_index}\" was nullified because its values were not posted");
 						}
 						continue;
-					} elseif (! $template->hasColumn($ts_index)) {
-						if ($print) {
+					}elseif(!$template->hasColumn($ts_index)) {
+						if($print) {
 							Debug::print("{$f} object does not have a datum at index \"{$ts_index}\"");
 						}
 						continue;
-					} elseif (! array_key_exists($ts_index, $search_params)) {
-						if ($print) {
+					}elseif(! array_key_exists($ts_index, $search_params)) {
+						if($print) {
 							Debug::print("{$f} index \"{$ts_index}\" was not posted");
 						}
 						$this->setSearchableTimestamp($ts_index, null);
 						$check = $this->getSearchableTimestamp($ts_index);
-						if ($check !== null) {
+						if($check !== null) {
 							$gottype = gettype($check);
 							Debug::error("{$f} fuck a duck, looks like nullifying searchable timestamps is busted. Type is \"{$gottype}\"");
-						} else {
+						}else{
 							Debug::print("{$f} flagging this as deleted nulled that fucker");
 							$this->setFlag("nulledThatFucker");
 						}
 						continue;
-					} else {
+					}else{
 						$values = $search_params[$ts_index];
-						if (empty($values["start"]) || empty($values["end"])) {
-							if ($print) {
+						if(empty($values["start"]) || empty($values["end"])) {
+							if($print) {
 								Debug::print("{$f} start/end time is empty for index \"{$ts_index}\"");
 							}
 							$this->setSearchableTimestamp($ts_index, null);
 							continue;
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} about to print start and end interval timestamps");
 							Debug::printArray($values);
 						}
-						if (ctype_digit($values['start']) && ctype_digit($values['end'])) {
-							if ($print) {
+						if(ctype_digit($values['start']) && ctype_digit($values['end'])) {
+							if($print) {
 								Debug::print("{$f} interval timestamps are already in integer format");
 							}
 							$start = intval($values['start']);
 							$end = intval($values['end']);
-						} elseif (is_string($values['start']) && is_string($values['end'])) {
-							if ($print) {
+						}elseif(is_string($values['start']) && is_string($values['end'])) {
+							if($print) {
 								Debug::print("{$f} interval timestamps are strings");
 							}
 							$start = strtotime($values["start"]) + $offset;
 							$end = strtotime($values["end"]) + 24 * 60 * 60 - 1 + $offset;
-						} else {
+						}else{
 							Debug::error("{$f} neither of the above");
 						}
 						$timestamp->setIntervalStart($start);
 						$timestamp->setIntervalEnd($end);
 						$start_str = getDateTimeStringFromTimestamp($start);
 						$end_str = getDateTimeStringFromTimestamp($end);
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} start timestamp: \"{$start}\", \"{$start_str}\"; end timestamp: \"{$end}\", \"{$end_str}\"");
 						}
 						$parameters = [
@@ -179,20 +179,20 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 					}
 				}
 			}
-			if (! $select->hasMatchFunction()) {
+			if(!$select->hasMatchFunction()) {
 				Debug::error("{$f} before modification by use case, query statement lacks a match function");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} before modification by the use case, query statement is \"{$select}\"");
 			}
 			$use_case->getLoadoutGenerator(user())->modifySelectStatement($classname, $select, $use_case);
-			if (! $select->hasMatchFunction()) {
+			if(!$select->hasMatchFunction()) {
 				Debug::error("{$f} after modification by the use case, query lacks a match function");
-			} else if ($print) {
+			} else if($print) {
 				Debug::print("{$f} after handing it over to the use case to mangle, select query is now \"{$select}\"");
 			}
 			$template = null;
 			return $select;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -204,11 +204,11 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 	 */
 	private function generateSelectStatements(UseCase $use_case): ?Array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$user = user();
 			$offset = $user->timezone_offset() * 60 * 60;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} user timezone offset is \"{$offset}\"");
 			}
 			$queries = [];
@@ -217,26 +217,26 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 			if(empty($columns)){
 				Debug::error("{$f} no columns to search");
 			}
-			foreach ($columns as $vn => $column) {
-				if ($column instanceof SearchFieldDatum) {
-					if ($column->getValue()) {
-						if ($print) {
+			foreach($columns as $vn => $column) {
+				if($column instanceof SearchFieldDatum) {
+					if($column->getValue()) {
+						if($print) {
 							Debug::print("{$f} column \"{$vn}\" is set");
 						}
 						$classname = $column->getSearchClass();
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} class name is \"{$classname}\"");
 						}
 						$select = $this->generateSelectStatementForClass($classname, $offset);
-						if ($select !== null) {
-							if ($print) {
+						if($select !== null) {
+							if($print) {
 								Debug::print("{$f} query for class \"{$classname}\" is \"{$select}\"");
 							}
 							$queries[$classname] = $select;
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} null query generated for class \"{$classname}\"");
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} column \"{$vn}\" is not set");
 					}
 				}elseif($print){
@@ -244,17 +244,17 @@ class SearchLoadoutGenerator extends LoadoutGenerator{
 				}
 			}
 			$count = count($queries);
-			if ($count == 0) {
-				if ($print) {
+			if($count == 0) {
+				if($print) {
 					Debug::printPost("{$f} generated 0 queries");
 				}
 				$this->setObjectStatus(ERROR_NULL_SEARCH_QUERY);
 				return null;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} generated {$count} queries");
 			}
 			return $this->setSelectStatements($queries);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

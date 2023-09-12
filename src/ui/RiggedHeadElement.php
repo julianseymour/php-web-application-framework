@@ -38,7 +38,7 @@ class RiggedHeadElement extends HeadElement{
 	
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$charset = new MetaElement();
 			$charset->setCharacterSetAttribute("UTF-8");
 			$this->appendChild($charset);
@@ -55,19 +55,19 @@ class RiggedHeadElement extends HeadElement{
 			$title->setInnerHTML(WEBSITE_NAME);
 			$this->appendChild($title);
 			$bundle_css = true;
-			if ($bundle_css) {
+			if($bundle_css) {
 				$styles = [
 					'bundle'
 				];
-				foreach ($styles as $s) {
+				foreach($styles as $s) {
 					$link = new LinkElement();
 					$link->setTypeAttribute("text/css");
 					$link->setRelationshipAttribute("stylesheet");
 					$link->setHrefAttribute("/style/{$s}.css");
 					$this->appendChild($link);
 				}
-			} else {
-				foreach (mods()->getCascadingStyleSheetFilepaths() as $fn => $path) {
+			}else{
+				foreach(mods()->getCascadingStyleSheetFilepaths() as $fn => $path) {
 					$fn = "/style/{$fn}";
 					$link = new LinkElement();
 					$link->setTypeAttribute("text/css");
@@ -78,14 +78,14 @@ class RiggedHeadElement extends HeadElement{
 			}
 			$script = static::getScriptBundleElement();
 			$this->appendChild($script);
-			if (defined("HCAPTCHA_SITE_KEY")) {
+			if(defined("HCAPTCHA_SITE_KEY")) {
 				$hcaptcha = new ScriptElement();
 				$hcaptcha->setSourceAttribute("https://hcaptcha.com/1/api.js");
 				$hcaptcha->setAsyncAttribute("async");
 				$hcaptcha->setDeferAttribute("defer");
 				$hcaptcha->setAllowEmptyInnerHTML(true);
 				$this->appendChild($hcaptcha);
-			} else {
+			}else{
 				Debug::error("{$f} hCaptcha site key is undefined");
 			}
 			// script for sending a js enabled cookine on non-ajax requests
@@ -97,7 +97,7 @@ class RiggedHeadElement extends HeadElement{
 			$manifest->setHrefAttribute("/manifest.json");
 			$this->appendChild($manifest);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

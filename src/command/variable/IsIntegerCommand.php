@@ -21,13 +21,13 @@ class IsIntegerCommand extends IsDatatypeCommand
 	public function toJavaScript(): string
 	{
 		$v = $this->getValue();
-		if ($v instanceof JavaScriptInterface) {
+		if($v instanceof JavaScriptInterface) {
 			$v = $v->toJavaScript();
-		} elseif (is_string($v) || $v instanceof StringifiableInterface) {
+		}elseif(is_string($v) || $v instanceof StringifiableInterface) {
 			$v = single_quote($v);
 		}
 		$s = "Number.isInteger({$v})";
-		if ($this->isNegated()) {
+		if($this->isNegated()) {
 			return "!{$s}";
 		}
 		return $s;

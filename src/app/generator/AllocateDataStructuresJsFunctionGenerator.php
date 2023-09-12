@@ -17,9 +17,9 @@ use JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand;
 class AllocateDataStructuresJsFunctionGenerator extends JavaScriptFunctionGenerator{
 
 	public function generate($context): ?JavaScriptFunction{
-		$f = __METHOD__;try {
+		$f = __METHOD__;try{
 			$classes = $context->getClientDataStructureClasses();
-			if (empty($classes)) {
+			if(empty($classes)) {
 				return null;
 			}
 			$function = new JavaScriptFunction("allocateDataStructures", "data", "response");
@@ -30,14 +30,14 @@ class AllocateDataStructuresJsFunctionGenerator extends JavaScriptFunctionGenera
 			$response = new GetDeclaredVariableCommand("response");
 			$datatype = new GetDeclaredVariableCommand("raw_data.dataType");
 			$get_subtype = new GetDeclaredVariableCommand("raw_data.subtype");
-			foreach ($classes as $type => $value) {
-				if (is_array($value)) {
+			foreach($classes as $type => $value) {
+				if(is_array($value)) {
 					$switch = CommandBuilder::switch($get_subtype)->default([
 						CommandBuilder::log(new ConcatenateCommand("Default DataStructure for datatype ", $datatype, ", sub type ", $get_subtype)),
 						DeclareVariableCommand::redeclare("struct", CommandBuilder::construct("DataStructure", $raw_data, $response)),
 						$break
 					]);
-					foreach ($value as $subtype => $class) {
+					foreach($value as $subtype => $class) {
 						$switch->case(
 							$subtype, 
 							DeclareVariableCommand::redeclare(
@@ -51,7 +51,7 @@ class AllocateDataStructuresJsFunctionGenerator extends JavaScriptFunctionGenera
 						$switch,
 						$break
 					];
-				} elseif (is_string($type)) {
+				}elseif(is_string($type)) {
 					$cases[$type] = [
 						CommandBuilder::log("Calling constructor \"".get_short_class($value)."\""),
 						DeclareVariableCommand::redeclare(
@@ -87,7 +87,7 @@ class AllocateDataStructuresJsFunctionGenerator extends JavaScriptFunctionGenera
 				)
 			);
 			return $function;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

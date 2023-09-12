@@ -8,9 +8,9 @@ abstract class ForeignDataStructuresEvent extends Event{
 
 	public function __construct(string $name, string $when, ?array $properties = null){
 		$f = __METHOD__; //ForeignDataStructuresEvent::getShortClass()."(".static::getShortClass().")->__construct()";
-		if (! isset($when)) {
+		if(! isset($when)) {
 			Debug::error("{$f} when value is undefined");
-		} elseif (! is_string($when)) {
+		}elseif(!is_string($when)) {
 			Debug::error("{$f} when value is not a string");
 		}
 		$when = strtolower($when);
@@ -21,11 +21,11 @@ abstract class ForeignDataStructuresEvent extends Event{
 			default:
 				Debug::error("{$f} invalid before/after property");
 		}
-		if (! isset($properties) || ! is_array($properties) || empty($properties)) {
+		if(! isset($properties) || ! is_array($properties) || empty($properties)) {
 			$properties = [
 				'when' => $when
 			];
-		} else {
+		}else{
 			$properties['when'] = $when;
 		}
 		parent::__construct($name, $properties);

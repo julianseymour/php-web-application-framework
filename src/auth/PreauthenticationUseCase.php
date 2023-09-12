@@ -32,14 +32,14 @@ abstract class PreauthenticationUseCase extends SubsequentUseCase{
 	}
 
 	public function getDataOperandObject(): ?DataStructure{
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPredecessor()->getDataOperandObject();
 		}
 		return parent::getDataOperandObject();
 	}
 
 	public function getPageContentGenerator(): UseCase{
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPredecessor();
 		}
 		return $this;
@@ -48,9 +48,9 @@ abstract class PreauthenticationUseCase extends SubsequentUseCase{
 	public function getPageContent(): ?array{
 		$f = __METHOD__;
 		$print = false;
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			$pcg = $this->getPageContentGenerator();
-			if ($print) {
+			if($print) {
 				$pcgc = $pcg->getClass();
 				Debug::print("{$f} page content generator class is \"{$pcgc}\"");
 			}
@@ -61,7 +61,7 @@ abstract class PreauthenticationUseCase extends SubsequentUseCase{
 
 	public function setPaginator(?Paginator $paginator): ?Paginator
 	{
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPageContentGenerator()->setPaginator($paginator);
 		}
 		return parent::setPaginator($paginator);
@@ -69,7 +69,7 @@ abstract class PreauthenticationUseCase extends SubsequentUseCase{
 
 	public function hasPaginator(): bool
 	{
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPageContentGenerator()->hasPaginator();
 		}
 		return parent::hasPaginator();
@@ -77,7 +77,7 @@ abstract class PreauthenticationUseCase extends SubsequentUseCase{
 
 	/*public function getPaginator(): ?Paginator
 	{
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPageContentGenerator()->getPaginator();
 		}
 		return parent::getPaginator();
@@ -93,7 +93,7 @@ abstract class PreauthenticationUseCase extends SubsequentUseCase{
 	
 	public function getDataOperandClass($that = null): string
 	{
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPageContentGenerator()->getDataOperandClass($that);
 		}
 		return parent::getDataOperandClass($that);
@@ -101,7 +101,7 @@ abstract class PreauthenticationUseCase extends SubsequentUseCase{
 
 	public function getInsertHereElement(?DataStructure $reloaded = null): Element
 	{
-		if ($this->hasPredecessor()) {
+		if($this->hasPredecessor()) {
 			return $this->getPageContentGenerator()->getInsertHereElement($reloaded);
 		}
 		return parent::getInsertHereElement($reloaded);
@@ -111,7 +111,7 @@ abstract class PreauthenticationUseCase extends SubsequentUseCase{
 	{
 		$f = __METHOD__; //PreauthenticationUseCase::getShortClass()."(".static::getShortClass().")->validateTransition()";
 		$status = parent::validateTransition();
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} parent function returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);

@@ -27,10 +27,10 @@ class SodiumCryptoSignatureDatum extends Base64Datum{
 
 	public function setSignColumnNames(?array $scn): ?array{
 		$f = __METHOD__;
-		if ($scn === null) {
+		if($scn === null) {
 			unset($this->signColumnNames);
 			return null;
-		} elseif (! is_array($scn)) {
+		}elseif(!is_array($scn)) {
 			Debug::error("{$f} sign column names must be an array");
 		}
 		return $this->signColumnNames = $scn;
@@ -38,7 +38,7 @@ class SodiumCryptoSignatureDatum extends Base64Datum{
 
 	public function getSignColumnNames(): ?array{
 		$f = __METHOD__;
-		if (! $this->hasSignColumnNames()) {
+		if(!$this->hasSignColumnNames()) {
 			Debug::error("{$f} sign column names are undefined");
 		}
 		return $this->signColumnNames;
@@ -46,15 +46,15 @@ class SodiumCryptoSignatureDatum extends Base64Datum{
 
 	public function generate(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($this->hasGenerationClosure() || ! $this->hasSignColumnNames()) {
-				if ($print) {
-					if ($this->hasGenerationClosure()) {
+			if($this->hasGenerationClosure() || ! $this->hasSignColumnNames()) {
+				if($print) {
+					if($this->hasGenerationClosure()) {
 						Debug::print("{$f} generation closure is defined; returning parent function");
-					} elseif (! $this->hasSignColumnNames()) {
+					}elseif(!$this->hasSignColumnNames()) {
 						Debug::print("{$f} sign column names are undefined");
-					} elseif (! $this->isNullable()) {
+					}elseif(!$this->isNullable()) {
 						Debug::warning("{$f} this column is not nullable, be careful");
 					}
 				}
@@ -63,16 +63,16 @@ class SodiumCryptoSignatureDatum extends Base64Datum{
 			$scn = $this->getSignColumnNames();
 			$ds = $this->getDataStructure();
 			$temp = [];
-			foreach ($scn as $name) {
-				if (! $ds->hasColumn($name)) {
-					if ($print) {
+			foreach($scn as $name) {
+				if(!$ds->hasColumn($name)) {
+					if($print) {
 						Debug::print("{$f} data structure lacks a column named \"{$name}\"");
 					}
 					continue;
 				}
 				$column = $ds->getColumn($name);
-				if ($column instanceof VirtualDatum || $column->getPersistenceMode() === PERSISTENCE_MODE_VOLATILE) {
-					if ($print) {
+				if($column instanceof VirtualDatum || $column->getPersistenceMode() === PERSISTENCE_MODE_VOLATILE) {
+					if($print) {
 						Debug::print("{$f} column \"{$name}\" is virtual or volatile");
 					}
 					continue;
@@ -80,13 +80,13 @@ class SodiumCryptoSignatureDatum extends Base64Datum{
 				$temp[$name] = true;
 			}
 			unset($scn);
-			if (empty($temp)) {
+			if(empty($temp)) {
 				Debug::warning("{$f} no columns to sign");
 				return parent::generate();
 			}
 			$this->setValue(user()->signMessage(json_encode($ds->toArray($temp))));
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

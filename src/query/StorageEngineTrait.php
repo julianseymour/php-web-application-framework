@@ -18,10 +18,10 @@ trait StorageEngineTrait
 	public function setStorageEngine($name)
 	{
 		$f = __METHOD__; //"StorageEngineTrait(".static::getShortClass().")->setStorageEngine()";
-		if ($name == null) {
+		if($name == null) {
 			unset($this->storageEngineName);
 			return null;
-		} elseif (! is_string($name)) {
+		}elseif(!is_string($name)) {
 			Debug::error("{$f} storage engine name must be a string");
 		}
 		return $this->storageEngineName = $name;
@@ -35,7 +35,7 @@ trait StorageEngineTrait
 	public function getStorageEngine()
 	{
 		$f = __METHOD__; //"StorageEngineTrait(".static::getShortClass().")->getStorageEngine()";
-		if (! $this->hasStorageEngine()) {
+		if(!$this->hasStorageEngine()) {
 			Debug::error("{$f} storage engine name is undefined");
 		}
 		return $this->storageEngineName;

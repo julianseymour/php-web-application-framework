@@ -11,10 +11,10 @@ trait WithClauseTrait
 	public function setWithClause($with): ?WithClause
 	{
 		$f = __METHOD__; //"WithClauseTrait(".static::getShortClass().")->setWithClause()";
-		if ($with == null) {
+		if($with == null) {
 			unset($this->withClause);
 			return null;
-		} elseif (! $with instanceof WithClause) {
+		}elseif(!$with instanceof WithClause) {
 			Debug::error("{$f} invalid datatype");
 		}
 		return $this->withClause = $with;
@@ -28,7 +28,7 @@ trait WithClauseTrait
 	public function getWithClause(): WithClause
 	{
 		$f = __METHOD__; //"WithClauseTrait(".static::getShortClass().")->getWithClause()";
-		if (! $this->hasWithClause()) {
+		if(!$this->hasWithClause()) {
 			Debug::error("{$f} with clause is undefined");
 		}
 		return $this->withClause;

@@ -10,9 +10,9 @@ abstract class ValidateAnonymousConfirmationCodeUseCase extends ValidateConfirma
 
 	public static function requireAnonymousConfirmation(){
 		$f = __METHOD__;
-		try {
+		try{
 			return true;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

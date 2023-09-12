@@ -31,27 +31,27 @@ class ResetPasswordUseCase extends ValidConfirmationCodeUseCase{
 	 */
 	public function resetPassword($mysqli){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to update password data");
 			}
 			$password_data = PasswordData::generate(getInputParameter('password'));
-			if (! isset($password_data)) {
+			if(! isset($password_data)) {
 				Debug::warning("{$f} password data returned null");
 				return $this->setObjectStatus(ERROR_NULL_PASSWORD_DATA);
-			} elseif (! $mysqli->ping()) {
+			}elseif(!$mysqli->ping()) {
 				Debug::error("{$f} mysqli failed ping test");
 			}
 			$correspondent = user()->getCorrespondentObject();
-			if (! $correspondent instanceof AuthenticatedUser) {
+			if(!$correspondent instanceof AuthenticatedUser) {
 				Debug::error("{$f} correspondent is a guest");
-			} elseif ($print) {
+			}elseif($print) {
 				$cc = $correspondent->getClass();
 				Debug::print("{$f} correspondent class is \"{$cc}\"");
 			}
 			$name = $correspondent->getName();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} correspondent name is \"{$name}\"");
 			}
 			$correspondent->setReceptivity(DATA_MODE_RECEPTIVE);
@@ -62,34 +62,34 @@ class ResetPasswordUseCase extends ValidConfirmationCodeUseCase{
 			$correspondent->setPermission(DIRECTIVE_UPDATE, SUCCESS);
 			$status = $correspondent->update($mysqli);
 			$correspondent->setPermission(DIRECTIVE_UPDATE, $backup);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} error updating password data: \"{$err}\"");
 				return $this->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully reset password");
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function execute(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} entered");
 			}
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			$status = $this->resetPassword($mysqli);
-			if ($print) {
+			if($print) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::print("{$f} resetPassword returned status \"{$err}\"");
 			}
 			return $this->setObjectStatus($status);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -105,28 +105,28 @@ class ResetPasswordUseCase extends ValidConfirmationCodeUseCase{
 	public function getTransitionFromPermission(): Permission{
 		return new Permission(DIRECTIVE_TRANSITION_FROM, function (PlayableUser $user, UseCase $target, UseCase $predecessor) {
 			$f = __METHOD__;
-			try {
+			try{
 				$print = false;
-				if (! $predecessor instanceof ValidateResetPasswordCodeUseCase) {
-					if ($print) {
+				if(!$predecessor instanceof ValidateResetPasswordCodeUseCase) {
+					if($print) {
 						Debug::print("{$f} predecessor is the wrong class");
 					}
 					return FAILURE;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} predecessor has the right class");
 				}
 				$status = $predecessor->getObjectStatus();
-				if ($status !== SUCCESS) {
-					if ($print) {
+				if($status !== SUCCESS) {
+					if($print) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} predecessor has error status \"{$err}\"");
 					}
 					return $status;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} transition validated");
 				}
 				return SUCCESS;
-			} catch (Exception $x) {
+			}catch(Exception $x) {
 				x($f, $x);
 			}
 		});

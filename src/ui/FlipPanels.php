@@ -27,7 +27,7 @@ class FlipPanels extends DivElement
 
 	public function getCheckboxInput(): CheckboxInput
 	{
-		if (isset($this->checkboxInput)) {
+		if(isset($this->checkboxInput)) {
 			return $this->checkboxInput;
 		}
 		$input = new CheckboxInput();
@@ -46,7 +46,7 @@ class FlipPanels extends DivElement
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__; //FlipPanels::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
-		try {
+		try{
 			// $context = $this->getContext();
 			$mode = $this->getAllocationMode();
 			$login_forms = new DivElement($mode);
@@ -143,7 +143,7 @@ class FlipPanels extends DivElement
 			return [
 				$login_forms
 			];
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

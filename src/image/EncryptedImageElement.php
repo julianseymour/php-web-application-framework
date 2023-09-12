@@ -39,7 +39,7 @@ class EncryptedImageElement extends DivElement implements TemplateElementInterfa
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__; //EncryptedImageElement::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
-		try {
+		try{
 			$context = $this->getContext();
 			$mode = $this->getAllocationMode();
 			$img = new ImageElement($mode);
@@ -47,7 +47,7 @@ class EncryptedImageElement extends DivElement implements TemplateElementInterfa
 			);
 			$this->appendChild($img);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

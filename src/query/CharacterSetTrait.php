@@ -21,7 +21,7 @@ trait CharacterSetTrait
 	public function getCharacterSet()
 	{
 		$f = __METHOD__; //"CharacterSetTrait(".static::getShortClass().")->getCharacterSet()";
-		if (! $this->hasCharacterSet()) {
+		if(!$this->hasCharacterSet()) {
 			Debug::error("{$f} character set is undefined");
 		}
 		return $this->characterSet;

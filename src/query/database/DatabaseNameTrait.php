@@ -10,10 +10,10 @@ trait DatabaseNameTrait{
 
 	public function setDatabaseName(?string $db):?string{
 		$f = __METHOD__;
-		if ($db == null) {
+		if($db == null) {
 			unset($this->databaseName);
 			return null;
-		} elseif (! is_string($db)) {
+		}elseif(!is_string($db)) {
 			Debug::error("{$f} database name must be a string");
 		}
 		return $this->databaseName = $db;

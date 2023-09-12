@@ -31,7 +31,7 @@ class FilterPolicyForm extends AjaxForm{
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "filterPolicy":
@@ -43,7 +43,7 @@ class FilterPolicyForm extends AjaxForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -79,10 +79,10 @@ class FilterPolicyForm extends AjaxForm{
 				$innerHTML = _("Update firewall settings");
 				$button->setInnerHTML($innerHTML);
 				$context = $this->getContext();
-				if ($context->getFilterPolicy() === POLICY_BLOCK) {
+				if($context->getFilterPolicy() === POLICY_BLOCK) {
 					$value = POLICY_ALLOW;
 					$policyname = _("Allow");
-				} else {
+				}else{
 					$value = POLICY_BLOCK;
 					$policyname = _("Block");
 				}

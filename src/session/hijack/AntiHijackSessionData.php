@@ -90,10 +90,10 @@ class AntiHijackSessionData extends DataStructure{
 	}
 
 	public function setUserData(UserData $user):UserData{
-		if ($user->getBindIpAddress()) {
+		if($user->getBindIpAddress()) {
 			$this->setBoundIpAddress($_SERVER['REMOTE_ADDR']);
 		}
-		if ($user->getBindUserAgent()) {
+		if($user->getBindUserAgent()) {
 			$this->setBoundUserAgent($_SERVER['HTTP_USER_AGENT']);
 		}
 		return $user;
@@ -128,34 +128,34 @@ class AntiHijackSessionData extends DataStructure{
 		$print = false;
 		$that = new static();
 		$failed = false;
-		if ($that->hasBoundIpAddress()) {
-			if ($that->getBoundIpAddress() !== $_SERVER['REMOTE_ADDR']) {
+		if($that->hasBoundIpAddress()) {
+			if($that->getBoundIpAddress() !== $_SERVER['REMOTE_ADDR']) {
 				$failed = true;
 				$that->setIpAddressChanged(true);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} IP address \"{$_SERVER['REMOTE_ADDR']}\" matches perfectly");
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} IP address is not bound");
 		}
-		if ($that->hasBoundUserAgent()) {
-			if ($that->getBoundUserAgent() !== $_SERVER['HTTP_USER_AGENT']) {
+		if($that->hasBoundUserAgent()) {
+			if($that->getBoundUserAgent() !== $_SERVER['HTTP_USER_AGENT']) {
 				$failed = true;
 				$that->setUserAgentChanged(true);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} user agent \"{$_SERVER['HTTP_USER_AGENT']}\" matches perfectly");
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} user agent is not bound");
 		}
-		if ($failed) {
-			if ($that->hasBoundIpAddress()) {
+		if($failed) {
+			if($that->hasBoundIpAddress()) {
 				$that->unsetBoundIpAddress();
 			}
-			if ($that->hasBoundUserAgent()) {
+			if($that->hasBoundUserAgent()) {
 				$that->unsetBoundUserAgent();
 			}
-			foreach ([
+			foreach([
 				PreMultifactorAuthenticationData::class,
 				FullAuthenticationData::class,
 				AntiXsrfTokenData::class

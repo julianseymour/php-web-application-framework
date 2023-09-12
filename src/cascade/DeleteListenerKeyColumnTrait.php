@@ -56,7 +56,7 @@ trait DeleteListenerKeyColumnTrait{
 
 	protected static function declareDeleteListenerKeyColumn(?string $name = null): ForeignKeyDatum
 	{
-		if ($name === null) {
+		if($name === null) {
 			$name = "deleteListenerKey";
 		}
 		$delete_key = new ForeignKeyDatum($name, RELATIONSHIP_TYPE_MANY_TO_ONE);

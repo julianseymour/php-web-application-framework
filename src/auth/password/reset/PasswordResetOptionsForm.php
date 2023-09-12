@@ -18,7 +18,7 @@ class PasswordResetOptionsForm extends ExpandingMenuNestedForm{
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "forgotPasswordEnabled":
@@ -30,7 +30,7 @@ class PasswordResetOptionsForm extends ExpandingMenuNestedForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

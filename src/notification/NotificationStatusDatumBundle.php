@@ -14,8 +14,8 @@ class NotificationStatusDatumBundle extends DatumBundle{
 		$name = $this->getName();
 		$classes = mods()->getTypedNotificationClasses();
 		$components = [];
-		foreach ($classes as $class) {
-			if ($class::getNotificationTypeStatic() === NOTIFICATION_TYPE_TEST || ! $class::canDisable()) {
+		foreach($classes as $class) {
+			if($class::getNotificationTypeStatic() === NOTIFICATION_TYPE_TEST || ! $class::canDisable()) {
 				continue;
 			}
 			switch($name){

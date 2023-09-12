@@ -42,8 +42,8 @@ class PushNotificationSettingsForm extends ExpandingMenuNestedForm{
 		$indices = [
 			"pushAllNotifications" => ToggleInput::class
 		];
-		foreach (mods()->getTypedNotificationClasses() as $class) {
-			if ($class::getNotificationTypeStatic() === NOTIFICATION_TYPE_TEST || ! $class::canDisable()) {
+		foreach(mods()->getTypedNotificationClasses() as $class) {
+			if($class::getNotificationTypeStatic() === NOTIFICATION_TYPE_TEST || ! $class::canDisable()) {
 				continue;
 			}
 			$indices[$class::getPushStatusVariableName()] = ToggleInput::class;
@@ -56,7 +56,7 @@ class PushNotificationSettingsForm extends ExpandingMenuNestedForm{
 		$vn = $input->getColumnName();
 		$input->setIdAttribute("toggle_" . $input->getNameAttribute() . "-" . $this->getIdAttribute());
 		$context = $this->getContext();
-		if ($input instanceof CheckboxInput && $context->getColumnValue($vn)) {
+		if($input instanceof CheckboxInput && $context->getColumnValue($vn)) {
 			$input->setCheckedAttribute("checked");
 		}
 		return parent::reconfigureInput($input);

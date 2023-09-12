@@ -15,10 +15,10 @@ class RenameUserDefinition extends DatabaseRoleData
 	public function setNewUsername($name)
 	{
 		$f = __METHOD__; //RenameUserDefinition::getShortClass()."(".static::getShortClass().")->setNewUsername()";
-		if ($name == null) {
+		if($name == null) {
 			unset($this->newUsername);
 			return null;
-		} elseif (! is_string($name)) {
+		}elseif(!is_string($name)) {
 			Debug::error("{$f} ");
 		}
 		return $this->newUsername = $name;
@@ -31,7 +31,7 @@ class RenameUserDefinition extends DatabaseRoleData
 
 	public function getNewUsername()
 	{
-		if (! $this->hasNewUsername()) {
+		if(!$this->hasNewUsername()) {
 			return $this->getUsername();
 		}
 		return $this->newUsername;
@@ -40,10 +40,10 @@ class RenameUserDefinition extends DatabaseRoleData
 	public function setNewHost($host)
 	{
 		$f = __METHOD__; //RenameUserDefinition::getShortClass()."(".static::getShortClass().")->setNewHost()";
-		if ($host == null) {
+		if($host == null) {
 			unset($this->newHost);
 			return null;
-		} elseif (! is_string($host)) {
+		}elseif(!is_string($host)) {
 			Debug::error("{$f} new host must be a string");
 		}
 		return $this->newHost = $host;
@@ -56,7 +56,7 @@ class RenameUserDefinition extends DatabaseRoleData
 
 	public function getNewHost()
 	{
-		if (! $this->hasNewHost()) {
+		if(!$this->hasNewHost()) {
 			return $this->getHost();
 		}
 		return $this->newHost;

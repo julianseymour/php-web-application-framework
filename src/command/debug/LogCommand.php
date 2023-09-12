@@ -19,7 +19,7 @@ class LogCommand extends Command implements JavaScriptInterface, ServerExecutabl
 	{
 		parent::__construct();
 		$this->setEscapeType(ESCAPE_TYPE_STRING);
-		if (isset($msg)) {
+		if(isset($msg)) {
 			$this->setMessage($msg);
 		}
 	}
@@ -37,7 +37,7 @@ class LogCommand extends Command implements JavaScriptInterface, ServerExecutabl
 	public function getMessage()
 	{
 		$f = __METHOD__; //LogCommand::getShortClass()."(".static::getShortClass().")->getMessage()";
-		if (! $this->hasMessage()) {
+		if(!$this->hasMessage()) {
 			Debug::error("{$f} message is undefined");
 		}
 		return $this->message;
@@ -72,9 +72,9 @@ class LogCommand extends Command implements JavaScriptInterface, ServerExecutabl
 	public function toJavaScript(): string
 	{
 		$msg = $this->getMessage();
-		if ($msg instanceof JavaScriptInterface) {
+		if($msg instanceof JavaScriptInterface) {
 			$msg = $msg->toJavaScript();
-		} elseif (is_string($msg) || $msg instanceof StringifiableInterface) {
+		}elseif(is_string($msg) || $msg instanceof StringifiableInterface) {
 			$msg = single_quote($msg);
 		}
 		$cmd = $this->getCommandId();

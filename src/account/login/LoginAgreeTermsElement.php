@@ -17,7 +17,7 @@ class LoginAgreeTermsElement extends DivElement{
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$a1 = new ProgressiveHyperlinkElement();
 			$a1->setInnerHTML(_("Terms of service"));
 			$a1->setHrefAttribute('/terms');
@@ -26,7 +26,7 @@ class LoginAgreeTermsElement extends DivElement{
 			return [
 				$innerHTML
 			];
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

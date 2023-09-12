@@ -15,10 +15,10 @@ trait DefinerTrait
 	public function setDefiner(?DatabaseUserDefinition $user): ?DatabaseUserDefinition
 	{
 		$f = __METHOD__; //"DefinerTrait(".static::getShortClass().")->setDefiner()";
-		if ($user == null) {
+		if($user == null) {
 			unset($this->userDefiner);
 			return null;
-		} elseif (! $user instanceof DatabaseUserDefinition) {
+		}elseif(!$user instanceof DatabaseUserDefinition) {
 			Debug::error("{$f} user must be an instanceof DatabaseUserDefinition");
 		}
 		return $this->userDefiner = $user;
@@ -32,7 +32,7 @@ trait DefinerTrait
 	public function getDefiner(): DatabaseUserDefinition
 	{
 		$f = __METHOD__; //"DefinerTrait(".static::getShortClass().")->getDefiner()";
-		if (! $this->hasDefiner()) {
+		if(!$this->hasDefiner()) {
 			Debug::error("{$f} definer is undefined");
 		}
 		return $this->userDefiner;

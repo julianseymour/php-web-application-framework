@@ -8,7 +8,7 @@ trait EnforcedConstraintTrait
 
 	public function setEnforcement($value)
 	{
-		if (! is_bool($value)) {
+		if(!is_bool($value)) {
 			$value = boolval($value);
 		}
 		return $this->enforcement = $value;
@@ -21,7 +21,7 @@ trait EnforcedConstraintTrait
 
 	public function getEnforcement()
 	{
-		if (! $this->hasEnforcement()) {
+		if(!$this->hasEnforcement()) {
 			return true;
 		}
 		return $this->enforcement;

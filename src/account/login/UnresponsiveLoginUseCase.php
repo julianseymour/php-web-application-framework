@@ -47,7 +47,7 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 
 	public function getLoginAttempt(){
 		$f = __METHOD__;
-		if (! $this->hasLoginAttempt()) {
+		if(!$this->hasLoginAttempt()) {
 			Debug::error("{$f} login attempt is undefined");
 		}
 		return $this->loginAttempt;
@@ -55,19 +55,19 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 
 	public function login(mysqli $mysqli): ?LoginAttempt{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			// initialize login attempt object
 			$attempt = new LoginAttempt();
 			$this->setLoginAttempt($attempt);
 			$attempt->setAuthenticatedUserClass($this->getAuthenticatedUserClass());
 			$status = $this->initializeAccessAttempt($mysqli, $attempt);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} initializing login attempt returned error status \"{$err}\"");
 				$attempt->failInsert($mysqli, $status);
 				return $attempt;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} record of login attempt initialized successfully");
 			}
 			// validate
@@ -78,12 +78,12 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 			$validator->pushCovalidators($honeypots, $captcha);
 			$params = getInputParameters();
 			$valid = $validator->validate($params);
-			if ($valid !== SUCCESS) {
+			if($valid !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($valid);
 				Debug::warning("{$f} LoginValidator->validate() returned error status {$err}");
 				$attempt->failInsert($mysqli, $valid);
 				return $attempt;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} login form validated successfully");
 			}
 			// validate current IP address for user's account firewall
@@ -95,17 +95,17 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 			}
 			$user->setRequestEventObject($attempt);
 			$status = $user->validateCurrentIpAddress($mysqli); //, $_SERVER['REMOTE_ADDR']);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} filterIpAddress returned error status \"{$err}\"");
 				$attempt->failInsert($mysqli, $status);
 				return $attempt;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} current IP address validated successfully");
 			}
 			// brute force protection
 			$status = $attempt->bruteForceProtection($mysqli);
-			if ($status !== SUCCESS) { // failed bruteforce protection, checking for lockout waiver
+			if($status !== SUCCESS) { // failed bruteforce protection, checking for lockout waiver
 				if($print){
 					Debug::print("{$f} failed bruteforce protection, checking lockout waiver");
 				}
@@ -128,24 +128,24 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 					SUCCESS, 
 					time() - LOCKOUT_DURATION
 				)->orderBy(new OrderByClause("insertTimestamp", DIRECTION_DESCENDING));
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} lockout waiver select statement: \"{$select}\"");
 				}
 				$count = $select->executeGetResultCount($mysqli);
-				if ($count === 0) {
-					if ($print) {
+				if($count === 0) {
+					if($print) {
 						Debug::print("{$f} no lockout waiver found");
 					}
 					$attempt->failInsert($mysqli, $status);
 					return $attempt;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} lockout waiver is in effect");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} bruteforce protection passed successfully");
 			}
 			// validate password hash
-			if (! hasInputParameter("password")) {
+			if(! hasInputParameter("password")) {
 				Debug::warning("{$f} posted password is null");
 				$status = ERROR_PASSWORD_UNDEFINED;
 				// return $this->setLoginResult($this->setObjectStatus());
@@ -153,8 +153,8 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 				Debug::warning("{$f} error: \"{$err}\"");
 				$attempt->failInsert($mysqli, $status);
 				return $attempt;
-			} elseif (! password_verify(getInputParameter('password'), $user->getPasswordHash())) {
-				if ($print) {
+			}elseif(! password_verify(getInputParameter('password'), $user->getPasswordHash())) {
+				if($print) {
 					Debug::print("{$f} password verification failed");
 				}
 				$status = ERROR_LOGIN_CREDENTIALS;
@@ -162,49 +162,49 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 				Debug::warning("{$f} password verification failed: \"{$err}\"");
 				$attempt->failInsert($mysqli, $status);
 				return $attempt;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} password verified successfully");
 			}
 			$user->setTemporaryRole(USER_ROLE_RECIPIENT);
 			// instantiate anti-hijack session data
-			if ($user->getBindIpAddress() || $user->getBindUserAgent()) {
+			if($user->getBindIpAddress() || $user->getBindUserAgent()) {
 				$hijack = new AntiHijackSessionData();
 				$hijack->setUserData($user);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} the user does not bind IP address or user agent");
 			}
 			// check if user has MFA enabled and initialize authentication data for user
-			if ($user->getMFAStatus() == MFA_STATUS_ENABLED) {
-				if (! $user->hasMfaSeed()) {
+			if($user->getMFAStatus() == MFA_STATUS_ENABLED) {
+				if(!$user->hasMfaSeed()) {
 					Debug::error("{$f} MFA is enabled, but seed is undefined");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} the user has multifactor authentication enabled; about to half-log the user in");
 				}
 				$sd = new PreMultifactorAuthenticationData();
-				if ($sd->hasDeterministicSecretKey()) {
+				if($sd->hasDeterministicSecretKey()) {
 					$sd->ejectDeterministicSecretKey();
 				}
 				$sd->handSessionToUser($user, LOGIN_TYPE_UNDEFINED);
 				$attempt->setLoginResult(RESULT_BFP_MFA_CONFIRM);
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} user logged in successfully");
 				}
 				$sdc = $user->getFullAuthenticationDataClass();
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} authentication data class is \"{$sdc}\"");
 				}
 				$sd = new $sdc();
-				if ($sd->hasDeterministicSecretKey()) {
+				if($sd->hasDeterministicSecretKey()) {
 					$sd->ejectDeterministicSecretKey();
-					if ($sd->hasDeterministicSecretKey()) {
+					if($sd->hasDeterministicSecretKey()) {
 						Debug::error("{$f} immediately after ejection, deterministic secret key is still defined");
 					}
-				} elseif (array_key_exists("determisticSecretKey", $_SESSION)) {
+				}elseif(array_key_exists("determisticSecretKey", $_SESSION)) {
 					Debug::waring("{$f} deterministic secret key is still in session");
 					Debug::printArray($_SESSION);
 					Debug::printStackTrace();
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} ejected deterministic secret key prior to session reinitialization for logged in user");
 				}
 				$sd->handSessionToUser($user, LOGIN_TYPE_UNDEFINED);
@@ -212,54 +212,54 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 			}
 			// insert login attempt
 			$status = $attempt->insert($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($this->setObjectStatus($status));
 				Debug::warning("{$f} inserting login attempt returned error status \"{$err}\"");
 				return $attempt;
-			} elseif ($print) {
+			}elseif($print) {
 				$result = $attempt->getLoginResult();
 				$err = ErrorMessage::getResultMessage($result);
 				Debug::print("{$f} returning normally with result \"{$err}\"");
 			}
 			return $attempt;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function execute(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			PreMultifactorAuthenticationData::unsetColumnValuesStatic();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} IP address is {$_SERVER['REMOTE_ADDR']}. About to call AuthenticateUseCase::getAnonymousUser");
 			}
 			$user = AuthenticateUseCase::getAnonymousUser();
 			app()->setUserData($user);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} assigned anonymous user successfully");
 			}
 			$mysqli = db()->getConnection(new PublicWriteCredentials());
-			if (! isset($mysqli)) {
+			if(! isset($mysqli)) {
 				$status = $this->setObjectStatus(ERROR_MYSQL_CONNECT);
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} {$err}");
 				return $this->setObjectStatus($status);
 			}
 			$attempt = $this->login($mysqli);
-			if ($attempt == null) {
+			if($attempt == null) {
 				Debug::error("{$f} login returned null");
 			}
 			$status = $attempt->getLoginResult();
-			if (! $attempt->wasLoginSuccessful()) {
+			if(!$attempt->wasLoginSuccessful()) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} login failed with error status \"{$err}\"");
-				if ($status === FAILURE) {
+				if($status === FAILURE) {
 					Debug::error("{$f} could you please be more specific");
 				}
 				$user->setObjectStatus($status);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} login successful");
 			}
 			$auth = new AuthenticateUseCase($this);
@@ -271,15 +271,15 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 			$load->execute();
 			// $this->load($mysqli);
 			$result = $attempt->getLoginResult();
-			if ($print) {
+			if($print) {
 				$err = ErrorMessage::getResultMessage($result);
 				Debug::print("{$f} returning with error status \"{$err}\"");
 			}
-			if ($this->hasPredecessor()) {
+			if($this->hasPredecessor()) {
 				$this->getPredecessor()->setObjectStatus($result);
 			}
 			return $this->setObjectStatus($result);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -307,14 +307,14 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 	 */
 	public function loadUserData(mysqli $mysqli, LoginAttempt $attempt): ?AuthenticatedUser{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (hasInputParameter("name")) {
+			if(hasInputParameter("name")) {
 				$name = getInputParameter("name");
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} posted name is \"{$name}\"");
 				}
-			} else {
+			}else{
 				Debug::printPost("{$f} name was not posted");
 			}
 			$normalized = NameDatum::normalize($name);
@@ -327,47 +327,47 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 			$results = $result->fetch_all(MYSQLI_ASSOC);
 			$result->free_result();
 			$count = count($results);
-			if ($count === 0) {
-				if ($print) {
+			if($count === 0) {
+				if($print) {
 					Debug::warning("{$f} no results");
 				}
 				$attempt->setObjectStatus(ERROR_LOGIN_CREDENTIALS);
 				return null;
-			} elseif ($count > 1) {
+			}elseif($count > 1) {
 				Debug::error("{$f} {$count} results");
 			}
 			$results = $results[0];
 			$status = $user->processQueryResultArray($mysqli, $results);
 			switch ($status) {
 				case SUCCESS:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} successfully loaded user from normalized name; about to load foreign data structures");
 					}
 					// load foreign keys stored in intersections tables
 					$status = $user->loadIntersectionTableKeys($mysqli);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} loadIntersectionTableKeys returned error status \"{$err}\"");
 						$attempt->setObjectStatus($status);
 						return null;
 					}
 					// update temporary query results with foreign keys from intersection tables
-					if (cache()->enabled() && USER_CACHE_ENABLED) {
+					if(cache()->enabled() && USER_CACHE_ENABLED) {
 						$columns = $user->getFilteredColumns(COLUMN_FILTER_DIRTY_CACHE);
-						if (! empty($columns)) {
-							foreach ($columns as $column_name => $column) {
+						if(!empty($columns)) {
+							foreach($columns as $column_name => $column) {
 								$results[$column_name] = $column->getDatabaseEncodedValue();
 								$column->setDirtyCacheFlag(false);
 							}
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} there are no dirty cache flagged columns");
 						}
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} cache is not enabled; skipping cleanup of dirty cacheable foreign keys");
 					}
 					$user->setCacheValue($results);
 					$status = $user->loadForeignDataStructures($mysqli, false);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} loadForeignDataStructures returned error status \"{$err}\"");
 						$attempt->setObjectStatus($status);
@@ -385,7 +385,7 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 			}
 			$key = $user->getIdentifierValue();
 			if($print){
-				if (registry()->hasObjectRegisteredToKey($key)) {
+				if(registry()->hasObjectRegisteredToKey($key)) {
 					$obj = registry()->get($key);
 					$did = $obj->getDebugId();
 					$decl = $obj->getDeclarationLine();
@@ -394,7 +394,7 @@ abstract class UnresponsiveLoginUseCase extends AbstractLoginUseCase{
 			}
 			registry()->update($key, $user);
 			return $attempt->setUserData($user);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

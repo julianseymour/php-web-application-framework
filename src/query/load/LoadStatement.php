@@ -34,7 +34,7 @@ abstract class LoadStatement extends QueryStatement{
 		parent::__construct();
 		$this->requirePropertyType('columnNames', 's');
 		$this->requirePropertyType('expressions', ExpressionCommand::class);
-		if ($infilename !== null) {
+		if($infilename !== null) {
 			$this->setInfile($infilename);
 		}
 		if(isset($dbtable) && count($dbtable) > 0){
@@ -62,10 +62,10 @@ abstract class LoadStatement extends QueryStatement{
 
 	public function setPriority(?string $p):?string{
 		$f = __METHOD__;
-		if ($p == null) {
+		if($p == null) {
 			unset($this->priorityLevel);
 			return null;
-		} elseif (! is_string($p)) {
+		}elseif(!is_string($p)) {
 			Debug::error("{$f} priority level must be a string");
 		}
 		$p = strtolower($p);
@@ -80,10 +80,10 @@ abstract class LoadStatement extends QueryStatement{
 
 	public function setInfilename(?string $name):?string{
 		$f = __METHOD__;
-		if ($name == null) {
+		if($name == null) {
 			unset($this->infilename);
 			return null;
-		} elseif (! is_string($name)) {
+		}elseif(!is_string($name)) {
 			Debug::error("{$f} infilename must be a string");
 		}
 		return $this->infilename = $name;
@@ -94,7 +94,7 @@ abstract class LoadStatement extends QueryStatement{
 	}
 
 	public function getInfilename():string{
-		$f = __METHOD__;if (! $this->infilename) {
+		$f = __METHOD__;if(!$this->infilename) {
 			Debug::error("{$f} infilename is undefined");
 		}
 		return $this->infilename;
@@ -111,9 +111,9 @@ abstract class LoadStatement extends QueryStatement{
 
 	public function getDuplicateKeyHandler():string{
 		$f = __METHOD__;
-		if (! $this->hasDuplicateKeyHandler()) {
+		if(!$this->hasDuplicateKeyHandler()) {
 			Debug::error("{$f} duplicate key handler is undefined");
-		} elseif ($this->getLocalFlag()) {
+		}elseif($this->getLocalFlag()) {
 			return DIRECTIVE_IGNORE;
 		}
 		return $this->duplicateKeyHandler;
@@ -121,12 +121,12 @@ abstract class LoadStatement extends QueryStatement{
 	
 	public function setIgnoreRows(?int $count):int{
 		$f = __METHOD__;
-		if ($count == null) {
+		if($count == null) {
 			unset($this->ignoreRowCount);
 			return null;
-		} elseif (! is_int($count)) {
+		}elseif(!is_int($count)) {
 			Debug::error("{$f} ignored row count must be a positive integer");
-		} elseif ($count < 0) {
+		}elseif($count < 0) {
 			Debug::error("{$f} ignored row count must be non-negative");
 		}
 		return $this->ignoreRowCount = $count;
@@ -137,7 +137,7 @@ abstract class LoadStatement extends QueryStatement{
 	}
 
 	public function getIgnoreRows():int{
-		if (! $this->hasIgnoreRows()) {
+		if(!$this->hasIgnoreRows()) {
 			return 0;
 		}
 		return $this->ignoreRowCount;
@@ -163,22 +163,22 @@ abstract class LoadStatement extends QueryStatement{
 	public function getQueryStatementString():string{
 		$string = "";
 		// [LOW_PRIORITY | CONCURRENT]
-		if ($this->hasPriority()) {
+		if($this->hasPriority()) {
 			$string .= $this->getPriority() . " ";
 		}
 		// [LOCAL]
-		if ($this->getLocalFlag()) {
+		if($this->getLocalFlag()) {
 			$string .= "local ";
 		}
 		// INFILE 'file_name'
 		$string .= "infile " . single_quote($this->getInfilename()) . " ";
 		// [REPLACE | IGNORE]
-		if ($this->hasDuplicateKeyHandler()) {
+		if($this->hasDuplicateKeyHandler()) {
 			$string .= $this->getDuplicateKeyHandler() . " ";
 		}
 		// INTO TABLE [db_name.]tbl_name
 		$string .= "into table ";
-		if ($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()) {
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
 		$string .= back_quote($this->getTableName());

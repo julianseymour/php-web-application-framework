@@ -35,7 +35,7 @@ class TabMutex extends MultipleRadioButtons
 	}
 
 	public function setLabelContainerClassAttribute(...$attr){
-		if (count($attr) == 1 && is_array($attr[0])) {
+		if(count($attr) == 1 && is_array($attr[0])) {
 			$attr = $attr[0];
 		}
 		return $this->setArrayProperty("labelContainerClassAttribute", $attr);
@@ -50,7 +50,7 @@ class TabMutex extends MultipleRadioButtons
 	}
 
 	public function setLabelContainerId($id){
-		if ($id === null) {
+		if($id === null) {
 			unset($this->labelContainerId);
 			return null;
 		}
@@ -58,7 +58,7 @@ class TabMutex extends MultipleRadioButtons
 	}
 
 	public function getLabelContainerId(){
-		if (! $this->hasLabelContainerId()) {
+		if(!$this->hasLabelContainerId()) {
 			return $this->setLabelContainerId(sha1(random_bytes(32)));
 		}
 		return $this->labelContainerId;
@@ -68,7 +68,7 @@ class TabMutex extends MultipleRadioButtons
 		$c = new DivElement();
 		$c->setIdAttribute($this->getLabelContainerId());
 		$c->addClassAttribute("tab_labels");
-		if ($this->hasLabelContainerClassAttribute()) {
+		if($this->hasLabelContainerClassAttribute()) {
 			$c->addClassAttribute(...$this->getLabelContainerClassAttribute());
 		}
 		$c->appendChild(...array_values($this->getLabelElements()));
@@ -83,26 +83,26 @@ class TabMutex extends MultipleRadioButtons
 
 	public function getLabelElements(){
 		$f = __METHOD__;
-		try {
+		try{
 			$arr = [];
 			$choices = $this->getChoices();
-			if (empty($choices)) {
+			if(empty($choices)) {
 				Debug::error("{$f} mutex options are undefined");
 			}
-			if ($this->getAllFlag()) {
+			if($this->getAllFlag()) {
 				array_unshift($choices, $this->chooseAll());
 			}
-			foreach ($choices as $opt) {
+			foreach($choices as $opt) {
 				$arr[$opt->getValue()] = $this->generateLabelElement($opt);
 			}
 			return $arr;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getSelectorLogic(){
-		if (! $this->hasSelectorLogic()) {
+		if(!$this->hasSelectorLogic()) {
 			return SIGNAGE_BIT_POSITIVE;
 		}
 		return $this->selectorLogic;
@@ -163,20 +163,20 @@ class TabMutex extends MultipleRadioButtons
 			"opacity" => 1
 		]);
 		$choices = $this->getChoices();
-		if ($this->getAllFlag()) {
+		if($this->getAllFlag()) {
 			array_unshift($choices, $this->chooseAll());
 		}
 		$charcount = 0;
-		foreach ($choices as $choice) {
+		foreach($choices as $choice) {
 			$keyword = $choice->getValue();
 			$label_string = $choice->getLabelString();
-			if (strlen($label_string) > $charcount) {
+			if(strlen($label_string) > $charcount) {
 				$charcount = strlen($label_string);
 			}
 			$tab_contents_selector = new ElementSelector();
-			if (! $choice->getAllFlag()) {
+			if(!$choice->getAllFlag()) {
 				$tab_contents_selector->attribute("tab", $keyword);
-			} else {
+			}else{
 				$tab_contents_selector->attribute("tab");
 			}
 			// display tabbed contents
@@ -209,20 +209,20 @@ class TabMutex extends MultipleRadioButtons
 
 	public function getDynamicStyleElement(){
 		$f = __METHOD__;
-		try {
-			if (! $this->hasChoices()) {
+		try{
+			if(!$this->hasChoices()) {
 				Debug::error("{$f} mutex options are undefined");
 			}
 			$logic = $this->getSelectorLogic();
-			if ($logic === SIGNAGE_BIT_POSITIVE) {
+			if($logic === SIGNAGE_BIT_POSITIVE) {
 				$style = $this->getPositiveLogicStyleElement();
-			} elseif ($logic === SIGNAGE_BIT_NEGATIVE) {
+			}elseif($logic === SIGNAGE_BIT_NEGATIVE) {
 				$style = $this->getNegativeLogicStyleElement();
-			} else {
+			}else{
 				Debug::error("{$f} neither of the above");
 			}
 			return $style;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

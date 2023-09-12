@@ -17,7 +17,7 @@ trait LimitedTrait
 	public function setLimit($limitCount): int
 	{
 		$f = __METHOD__; //"LimitedTrait(".static::getShortClass().")->setLimit()";
-		if (empty($limitCount) || ! is_int($limitCount)) {
+		if(empty($limitCount) || ! is_int($limitCount)) {
 			Debug::error("{$f} invalid limit value");
 		}
 		return $this->limitCount = $limitCount;
@@ -31,7 +31,7 @@ trait LimitedTrait
 	public function getLimit(): int
 	{
 		$f = __METHOD__; //"LimitedTrait(".static::getShortClass().")->getLimit()";
-		if (! $this->hasLimit()) {
+		if(!$this->hasLimit()) {
 			Debug::error("{$f} limit is undefined");
 		}
 		return $this->limitCount;

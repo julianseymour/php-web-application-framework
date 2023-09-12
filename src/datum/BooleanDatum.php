@@ -23,36 +23,36 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 
 	public function cast($v){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($v === null) {
-				if ($this->isNullable()) {
-					if ($print) {
+			if($v === null) {
+				if($this->isNullable()) {
+					if($print) {
 						Debug::print("{$f} column is nullable; returning null");
 					}
 					return null;
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} column is not nullable; returning false");
 				}
 				return false;
-			} elseif (is_bool($v)) {
-				if ($print) {
+			}elseif(is_bool($v)) {
+				if($print) {
 					Debug::print("{$f} value is boolean");
 				}
 				return $v;
-			} elseif (is_int($v)) {
-				if ($print) {
+			}elseif(is_int($v)) {
+				if($print) {
 					Debug::print("{$f} value is integer \"{$v}\"");
 				}
 				return $this->parseValueFromQueryResult($v);
-			} elseif (is_string($v)) {
-				if ($print) {
+			}elseif(is_string($v)) {
+				if($print) {
 					Debug::print("{$f} value is the string \"{$v}\"");
 				}
 				return $this->parseValueFromSuperglobalArray($v);
 			}
 			Debug::error("{$f} value is not boolean or integer");
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -67,22 +67,22 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 
 	public static function getDatabaseEncodedValueStatic($value){
 		$f = __METHOD__;
-		if ($value === null) {
+		if($value === null) {
 			return 0;
-		} elseif (is_bool($value)) {
-			if ($value) {
+		}elseif(is_bool($value)) {
+			if($value) {
 				return 1;
-			} else {
+			}else{
 				return 0;
 			}
-		} elseif (is_int($value)) {
+		}elseif(is_int($value)) {
 			switch ($value) {
 				case 0:
 				case 1:
 					return $value;
 				default:
 			}
-		} elseif (is_string($value)) {
+		}elseif(is_string($value)) {
 			switch ($value) {
 				case "0":
 				case "false":
@@ -98,44 +98,44 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 
 	public function parseValueFromQueryResult($value){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($value === null) {
-				if ($print) {
+			if($value === null) {
+				if($print) {
 					Debug::print("{$f} value is null");
 				}
-				if ($this->isNullable()) {
+				if($this->isNullable()) {
 					return $value;
 				}
 				return false;
-			} elseif (is_bool($value)) {
-				if ($print) {
+			}elseif(is_bool($value)) {
+				if($print) {
 					Debug::print("{$f} value is boolean");
 				}
 				return $value;
-			} elseif (is_string($value)) {
+			}elseif(is_string($value)) {
 				switch ($value) {
 					case "0":
 					case "1":
 						$value = intval($value);
 					default:
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				$gottype = gettype($value);
 				Debug::print("{$f} value is a {$gottype}");
 			}
-			if (is_int($value)) {
-				if ($print) {
+			if(is_int($value)) {
+				if($print) {
 					Debug::print("{$f} value is an integer");
 				}
 				switch ($value) {
 					case 0:
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} returning false");
 						}
 						return false;
 					case 1:
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} returning true");
 						}
 						return true;
@@ -143,22 +143,22 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 				}
 			}
 			Debug::error("{$f} invalid raw value \"{$value}\"");
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function parseValueFromSuperglobalArray($value){
 		$f = __METHOD__; 
-		try {
+		try{
 			$print = false;
-			if (is_bool($value)) {
-				if ($print) {
+			if(is_bool($value)) {
+				if($print) {
 					Debug::print("{$f} value is boolean");
 				}
 				return $value;
-			} elseif (is_int($value)) {
-				if ($print) {
+			}elseif(is_int($value)) {
+				if($print) {
 					Debug::print("{$f} value is the integer \"{$value}\"");
 				}
 				switch ($value) {
@@ -169,8 +169,8 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 					default:
 						return $value;
 				}
-			} elseif (is_string($value)) {
-				if ($print) {
+			}elseif(is_string($value)) {
+				if($print) {
 					Debug::print("{$f} value is the string \"{$value}\"");
 				}
 				switch ($value) {
@@ -183,17 +183,17 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 					default:
 						return $value;
 				}
-			} else {
+			}else{
 				Debug::error("{$f} value is not boolean, integer or string");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function setDefaultValue($v){
 		$f = __METHOD__;
-		if ($v !== null && ! is_bool($v)) {
+		if($v !== null && ! is_bool($v)) {
 			Debug::error("{$f} default value must be boolean or null");
 		}
 		return parent::setDefaultValue($v);
@@ -213,13 +213,13 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 		$f = __METHOD__;
 		$print = false;
 		$column_name = $this->getName();
-		if ($force) {
-			if ($print) {
+		if($force) {
+			if($print) {
 				Debug::print("{$f} forcefully annihiliating this boolean value");
 			}
 			return parent::unsetValue($force);
-		} else if ($this->getValue()) {
-			if ($print) {
+		} else if($this->getValue()) {
+			if($print) {
 				Debug::print("{$f} column value is true; setting it to false");
 			}
 			$this->setValue(false);
@@ -227,9 +227,9 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 			switch ($storage) {
 				case PERSISTENCE_MODE_COOKIE:
 					unset($_COOKIE[$column_name]);
-					if (headers_sent()) {
+					if(headers_sent()) {
 						Debug::warning("{$f} headers already sent somehow");
-					} else {
+					}else{
 						set_secure_cookie($column_name, false);
 					}
 					break;
@@ -242,7 +242,7 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 			}
 			$this->setUpdateFlag(true);
 			return SUCCESS;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} column \"{$column_name}\" is already false");
 		}
 		return STATUS_UNCHANGED;
@@ -251,35 +251,35 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 	public function processInput($input){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
-			if ($input->hasValueAttribute()) {
+		if($print) {
+			if($input->hasValueAttribute()) {
 				$value = $input->getValueAttribute();
 				Debug::print("{$f} input has value \"{$value}\"");
-				if ($value == "default") {
+				if($value == "default") {
 					Debug::printStackTraceNoExit();
 				}
-			} else {
+			}else{
 				Debug::print("{$f} input has no value attribute");
 			}
 		}
-		if ($input instanceof CheckedInput) {
-			if ($input->isChecked()) {
-				if ($print) {
+		if($input instanceof CheckedInput) {
+			if($input->isChecked()) {
+				if($print) {
 					Debug::print("{$f} setting value to true");
 				}
 				$this->setValue(true);
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} setting value to false");
 				}
 				$this->setValue(false);
 			}
 			return SUCCESS;
-		} elseif ($input instanceof MultipleRadioButtons) {
-			if ($print) {
+		}elseif($input instanceof MultipleRadioButtons) {
+			if($print) {
 				Debug::print("{$f} input is a MultipleRadioButtons; about to return results of parent function");
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} neither of the above");
 		}
 		return parent::processInput($input);

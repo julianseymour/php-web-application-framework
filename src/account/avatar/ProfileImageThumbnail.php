@@ -26,7 +26,7 @@ class ProfileImageThumbnail extends ImageElement implements TemplateElementInter
 	public function bindContext($context)
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$ret = parent::bindContext($context);
 			$scope = new Scope();
 			$break = CommandBuilder::break();
@@ -140,7 +140,7 @@ class ProfileImageThumbnail extends ImageElement implements TemplateElementInter
 				)
 			);
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

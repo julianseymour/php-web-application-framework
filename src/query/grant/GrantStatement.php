@@ -50,14 +50,14 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 
 	public function setAsUsername($name){
 		$f = __METHOD__;
-		if ($name == null) {
+		if($name == null) {
 			unset($this->asUsername);
 			return null;
-		} elseif (! hasMinimumMySQLVersion("8.0.16")) {
+		}elseif(! hasMinimumMySQLVersion("8.0.16")) {
 			Debug::error("{$f} insufficient MySQL version");
-		} elseif (! is_string($name)) {
+		}elseif(!is_string($name)) {
 			Debug::error("{$f} username must be a string");
-		} elseif ($this->hasTableName() && starts_ends_with("*", $this->getTableName())) {
+		}elseif($this->hasTableName() && starts_ends_with("*", $this->getTableName())) {
 			Debug::error("{$f} the AS clause is only supported for global privileges");
 		}
 		return $this->asUsername = $name;
@@ -69,7 +69,7 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 
 	public function getAsUsername(){
 		$f = __METHOD__;
-		if (! $this->hasAsUsername()) {
+		if(!$this->hasAsUsername()) {
 			Debug::error("{$f} as username is undefined");
 		}
 		return $this->asUsername;
@@ -99,23 +99,23 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 		$f = __METHOD__;
 		// GRANT
 		$string = "grant ";
-		if ($this->hasPrivileges()) {
+		if($this->hasPrivileges()) {
 			// priv_type [(column_list)] [, priv_type [(column_list)]] ...
 			$string .= comma_separate_sql($this->getPrivileges());
 			// ON [object_type]
 			$string .= " on ";
-			if ($this->hasObjectType()) {
+			if($this->hasObjectType()) {
 				$string .= $this->getObjectType() . " ";
 			}
 			// priv_level
-			if ($this->hasDatabaseName()) {
+			if($this->hasDatabaseName()) {
 				$db = $this->getDatabaseName();
-			} else {
+			}else{
 				$db = null;
 			}
-			if ($this->hasTableName()) {
+			if($this->hasTableName()) {
 				$table = $this->getTableName();
-			} else {
+			}else{
 				$table = null;
 			}
 			$ftn = new FullTableName($db, $table);
@@ -123,58 +123,58 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 			// TO user_or_role [, user_or_role] ...
 			$string .= " to ";
 			$count = 0;
-			foreach ($this->getUsers() as $user) {
-				if ($count > 0) {
+			foreach($this->getUsers() as $user) {
+				if($count > 0) {
 					$string .= ",";
 				}
 				$string .= $user->getUsernameHostString();
 				$count ++;
 			} // .implode(',', $this->getUsers());
 			  // [WITH GRANT OPTION]
-			if ($this->getGrantOptionFlag()) {
+			if($this->getGrantOptionFlag()) {
 				$string .= " with grant option";
 			}
-			if ($this->hasAsUsername() && hasMinimumMySQLVersion("8.0.16")) {
+			if($this->hasAsUsername() && hasMinimumMySQLVersion("8.0.16")) {
 				// [AS user
 				$string .= " as " . $this->getAsUsername();
-				if ($this->hasSetRoleStatement()) {
+				if($this->hasSetRoleStatement()) {
 					// [WITH ROLE {DEFAULT | NONE | ALL | [ALL EXCEPT] role [, role ] ... }]
-					if ($this->hasRoleStatement()) {
+					if($this->hasRoleStatement()) {
 						$string .= " with " . $this->getRoleStatement()->getRoleStatementString();
 					}
 				}
 			}
-		} elseif ($this->hasProxyUser()) {
+		}elseif($this->hasProxyUser()) {
 			// GRANT PROXY ON user_or_role TO user_or_role [, user_or_role] ...
 			$string .= "proxy on " . $this->getProxyUser() . " to ";
 			$count = 0;
-			foreach ($this->getUsers() as $user) {
-				if ($count > 0) {
+			foreach($this->getUsers() as $user) {
+				if($count > 0) {
 					$string .= ",";
 				}
 				$string .= $user->getUsernameHostString();
 				$count ++;
 			} // .implode(',', $this->getUsers());
 			  // [WITH GRANT OPTION]
-			if ($this->getGrantOptionFlag()) {
+			if($this->getGrantOptionFlag()) {
 				$string .= " with grant option";
 			}
-		} elseif ($this->hasRoles()) {
+		}elseif($this->hasRoles()) {
 			// GRANT role [, role] ... TO user_or_role [, user_or_role] ...
 			$string .= comma_separate_sql($this->getRoles()) . " to ";
 			$count = 0;
-			foreach ($this->getUsers() as $user) {
-				if ($count > 0) {
+			foreach($this->getUsers() as $user) {
+				if($count > 0) {
 					$string .= ",";
 				}
 				$string .= $user->getUsernameHostString();
 				$count ++;
 			} // .implode(',', $this->getUsers());
-			if ($this->hasAdminOptionFlag()) {
+			if($this->hasAdminOptionFlag()) {
 				// [WITH ADMIN OPTION]
 				$string .= " with admin option";
 			}
-		} else {
+		}else{
 			Debug::error("{$f} none of the above");
 		}
 		return $string;

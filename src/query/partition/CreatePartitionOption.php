@@ -35,9 +35,9 @@ class CreatePartitionOption extends Basic implements SQLInterface
 	public function setPartitionCount($count)
 	{
 		$f = __METHOD__; //CreatePartitionOption::getShortClass()."(".static::getShortClass().")->setPartitionCount()";
-		if (! is_int($count)) {
+		if(!is_int($count)) {
 			Debug::error("{$f} partition count must be a positive integer");
-		} elseif ($count <= 0) {
+		}elseif($count <= 0) {
 			Debug::error("{$f} partition count must be positive");
 		}
 		return $this->partitionCount = $count;
@@ -51,7 +51,7 @@ class CreatePartitionOption extends Basic implements SQLInterface
 	public function getPartitionCount()
 	{
 		$f = __METHOD__; //CreatePartitionOption::getShortClass()."(".static::getShortClass().")->getPartitionCount()";
-		if (! $this->hasPartitionCount()) {
+		if(!$this->hasPartitionCount()) {
 			Debug::error("{$f} partition count is undefined");
 		}
 		return $this->partitionCount;
@@ -113,11 +113,11 @@ class CreatePartitionOption extends Basic implements SQLInterface
 	{
 		$f = __METHOD__; //CreatePartitionOption::getShortClass()."(".static::getShortClass().")->list_or_range()";
 		$option = new CreatePartitionOption($partitionType);
-		if ($expression_or_columnNames === null) {
+		if($expression_or_columnNames === null) {
 			return $option;
-		} elseif ($expression_or_columnNames instanceof ValueReturningCommandInterface) {
+		}elseif($expression_or_columnNames instanceof ValueReturningCommandInterface) {
 			return $option->withExpression($expression_or_columnNames);
-		} elseif (is_array($expression_or_columnNames)) {
+		}elseif(is_array($expression_or_columnNames)) {
 			return $option->withColumnNames($expression_or_columnNames);
 		}
 		Debug::error("{$f} none of the above");
@@ -136,7 +136,7 @@ class CreatePartitionOption extends Basic implements SQLInterface
 	public function setAlgorithm($alg)
 	{
 		$f = __METHOD__; //CreatePartitionOption::getShortClass()."(".static::getShortClass().")->setAlgorithm()";
-		if (! is_int($alg) || ($alg !== 1 && ! $alg !== 2)) {
+		if(!is_int($alg) || ($alg !== 1 && ! $alg !== 2)) {
 			Debug::error("{$f} this function accepts only the integers 1 and 2");
 		}
 		return $this->algorithm = $alg;
@@ -150,7 +150,7 @@ class CreatePartitionOption extends Basic implements SQLInterface
 	public function getAlgorithm()
 	{
 		$f = __METHOD__; //CreatePartitionOption::getShortClass()."(".static::getShortClass().")->getAlgorithm()";
-		if (! $this->hasAlgorithm()) {
+		if(!$this->hasAlgorithm()) {
 			Debug::error("{$f} algorithm is undefined");
 		}
 		return $this->algorithm;
@@ -158,7 +158,7 @@ class CreatePartitionOption extends Basic implements SQLInterface
 
 	public function setLinearity($linearity)
 	{
-		if (! is_bool($linearity)) {
+		if(!is_bool($linearity)) {
 			$linearity = boolval($linearity);
 		}
 		return $this->linearity = $linearity;
@@ -172,7 +172,7 @@ class CreatePartitionOption extends Basic implements SQLInterface
 	public function getLinearity()
 	{
 		$f = __METHOD__; //CreatePartitionOption::getShortClass()."(".static::getShortClass().")->getLinearity()";
-		if (! $this->hasLinearity()) {
+		if(!$this->hasLinearity()) {
 			Debug::error("{$f} linearity is undefined");
 		}
 		return $this->linearity;
@@ -186,7 +186,7 @@ class CreatePartitionOption extends Basic implements SQLInterface
 	public function setPartitonType($type)
 	{
 		$f = __METHOD__; //CreatePartitionOption::getShortClass()."(".static::getShortClass().")->setPartitionType()";
-		if (! is_string($type)) {
+		if(!is_string($type)) {
 			Debug::error("{$f} partition type is not a string");
 		}
 		switch ($type) {
@@ -209,7 +209,7 @@ class CreatePartitionOption extends Basic implements SQLInterface
 	public function getPartitionType()
 	{
 		$f = __METHOD__; //CreatePartitionOption::getShortClass()."(".static::getShortClass().")->getPartitionType()";
-		if (! $this->hasPartitionType()) {
+		if(!$this->hasPartitionType()) {
 			Debug::error("{$f} partition type is undefined");
 		}
 		return $this->partitionType;
@@ -218,35 +218,35 @@ class CreatePartitionOption extends Basic implements SQLInterface
 	public function toSQL(): string
 	{
 		$f = __METHOD__; //CreatePartitionOption::getShortClass()."(".static::getShortClass().")->__toString()";
-		try {
+		try{
 			$type = $this->getPartitionType();
-			if (($type === PARTITION_TYPE_HASH || $type === PARTITION_TYPE_KEY) && $this->isLinear()) {
+			if(($type === PARTITION_TYPE_HASH || $type === PARTITION_TYPE_KEY) && $this->isLinear()) {
 				$string = "linear {$type}";
-			} else {
+			}else{
 				$string = $type;
 			}
-			if ($type === PARTITION_TYPE_KEY) {
+			if($type === PARTITION_TYPE_KEY) {
 				// [LINEAR] KEY [ALGORITHM={1 | 2}] (column_list)
-				if ($this->hasAlgorithm()) {
+				if($this->hasAlgorithm()) {
 					$string .= " algorithm=" . $this->getAlgorithm();
 				}
 				$string .= " (" . $this->getColumnNameString() . ")";
-			} elseif ($type === PARTITION_TYPE_HASH) {
+			}elseif($type === PARTITION_TYPE_HASH) {
 				// [LINEAR] HASH(expr)
 				$string .= "(" . $this->getExpression() . ")";
-			} else {
+			}else{
 				// RANGE{(expr) | COLUMNS(column_list)}
 				// LIST{(expr) | COLUMNS(column_list)}
-				if ($this->hasExpression()) {
+				if($this->hasExpression()) {
 					$string .= "(" . $this->getExpression() . ")";
-				} elseif ($this->hasColumnNames()) {
+				}elseif($this->hasColumnNames()) {
 					$string .= " columns(" . $this->getColumnNameString() . ")";
-				} else {
+				}else{
 					Debug::error("{$f} neither of the above");
 				}
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

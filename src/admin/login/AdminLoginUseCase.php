@@ -33,12 +33,12 @@ class AdminLoginUseCase extends StandaloneLoginUseCase{
 		try{
 			$print = false;
 			$dir = directive();
-			if ($dir !== DIRECTIVE_ADMIN_LOGIN) {
-				if ($print) {
+			if($dir !== DIRECTIVE_ADMIN_LOGIN) {
+				if($print) {
 					Debug::print("{$f} not attempting an admin login; directive is \"{$dir}\"");
 				}
 				return $this->setObjectStatus(SUCCESS);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} returning parent function output");
 			}
 			return parent::execute();
@@ -48,16 +48,16 @@ class AdminLoginUseCase extends StandaloneLoginUseCase{
 	}
 
 	public function getPageContent():array{
-		if (user() instanceof AnonymousUser) {
+		if(user() instanceof AnonymousUser) {
 			$admin_class = config()->getAdministratorClass();
 			return [
 				new AdminLoginForm(ALLOCATION_MODE_LAZY, new $admin_class())
 			];
-		} elseif (user() instanceof Administrator) {
+		}elseif(user() instanceof Administrator) {
 			return [
 				"Welcome administrator"
 			];
-		} else {
+		}else{
 			return [
 				"&nbsp"
 			];
@@ -81,8 +81,8 @@ class AdminLoginUseCase extends StandaloneLoginUseCase{
 		$print = false;
 		switch ($status) {
 			case SUCCESS:
-				if (user() instanceof AnonymousUser) {
-					if ($print) {
+				if(user() instanceof AnonymousUser) {
+					if($print) {
 						Debug::print("{$f} user is unregistered; returning parent function");
 					}
 					return new Responder();
@@ -97,7 +97,7 @@ class AdminLoginUseCase extends StandaloneLoginUseCase{
 				}
 				return new StandaloneMfaResponder();
 			default:
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} default case");
 				}
 				return new Responder();

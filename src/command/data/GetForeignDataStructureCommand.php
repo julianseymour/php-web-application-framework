@@ -14,13 +14,13 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 
 	public function toJavaScript(): string{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		$vn = $this->getColumnName();
-		if ($vn instanceof JavaScriptInterface) {
+		if($vn instanceof JavaScriptInterface) {
 			$vn = $vn->toJavaScript();
-		} elseif (is_string($vn) || $vn instanceof StringifiableInterface) {
+		}elseif(is_string($vn) || $vn instanceof StringifiableInterface) {
 			$vn = single_quote($vn);
 		}
 		$cs = $this->getCommandId();
@@ -32,8 +32,8 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 		$print = $this->getDebugFlag();
 		$context = $this->getDataStructure();
 		$vn = $this->getColumnName();
-		if ($context instanceof Command) {
-			if ($print) {
+		if($context instanceof Command) {
+			if($print) {
 				Debug::print("{$f} context is a media command; about to evaluate");
 			}
 			while ($context instanceof Command) {
@@ -49,7 +49,7 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 			}
 		}
 		if(!$context->hasForeignDataStructure($vn)){
-			if ($print) {
+			if($print) {
 				Debug::warning("{$f} context does not have a foreign data structure for column \"{$vn}\"");
 			}
 			return null;
@@ -68,7 +68,7 @@ class GetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 	public function getForeignDataStructureListMemberAtOffset($column_name, $offset){
 		$f = __METHOD__;
 		$fds = $this->evaluate();
-		if (! $fds instanceof DataStructure) {
+		if(!$fds instanceof DataStructure) {
 			Debug::error("{$f} command did not evaluate to a usable data structure");
 		}
 		return $fds->getForeignDataStructureListMemberAtOffset($column_name, $offset);

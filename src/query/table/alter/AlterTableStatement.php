@@ -99,7 +99,7 @@ class AlterTableStatement extends QueryStatement
 	public function addColumns(...$columnDefinitions): AlterTableStatement
 	{
 		$f = __METHOD__; //AlterTableStatement::getShortClass()."(".static::getShortClass().")->addColumns()";
-		if (! isset($columnDefinitions)) {
+		if(! isset($columnDefinitions)) {
 			Debug::error("{$f} received null parameter");
 		}
 		return $this->withAlterOption(AddColumnOption::addColumns(...$columnDefinitions));
@@ -118,10 +118,10 @@ class AlterTableStatement extends QueryStatement
 	public function dropColumns(...$columnNames): AlterTableStatement
 	{
 		$f = __METHOD__; //AlterTableStatement::getShortClass()."(".static::getShortClass().")->dropColumns()";
-		if (! isset($columnNames)) {
+		if(! isset($columnNames)) {
 			Debug::error("{$f} received null parameter");
 		}
-		foreach ($columnNames as $columnName) {
+		foreach($columnNames as $columnName) {
 			$this->pushAlterOption(new DropColumnOption($columnName));
 		}
 		return $this;
@@ -383,20 +383,20 @@ class AlterTableStatement extends QueryStatement
 	public function getQueryStatementString()
 	{
 		$f = __METHOD__; //AlterTableStatement::getShortClass()."(".static::getShortClass().")->__toString()";
-		try {
-			if (! $this->hasAlterOptions()) {
+		try{
+			if(!$this->hasAlterOptions()) {
 				Debug::error("{$f} no options defined");
 			}
 			$string = "alter table ";
-			if ($this->hasDatabaseName()) {
+			if($this->hasDatabaseName()) {
 				$string .= back_quote($this->getDatabaseName()) . ".";
 			}
 			$string .= back_quote($this->getTableName()) . " " . implode(',', $this->getAlterOptions());
-			if ($this->hasPartitionOptions()) {
+			if($this->hasPartitionOptions()) {
 				$string .= implode(',', $this->getPartitionOptions());
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

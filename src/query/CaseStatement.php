@@ -54,7 +54,7 @@ class CaseStatement extends Command implements SQLInterface
 	public function getWhenConditions(): ?array
 	{
 		$f = __METHOD__; //CaseStatement::getShortClass()."(".static::getShortClass().")->getWhenConditions()";
-		if (! $this->hasWhenConditions()) {
+		if(!$this->hasWhenConditions()) {
 			Debug::error("{$f} when conditions are undefined");
 		}
 		return $this->getProperty("when");
@@ -67,7 +67,7 @@ class CaseStatement extends Command implements SQLInterface
 
 	public function hasThenStatements(?int $i = null): bool
 	{
-		if ($i === null) {
+		if($i === null) {
 			return $this->hasArrayProperty("then");
 		}
 		return $this->hasArrayPropertyKey("when", $i);
@@ -76,11 +76,11 @@ class CaseStatement extends Command implements SQLInterface
 	public function getThenStatements(?int $i = null): array
 	{
 		$f = __METHOD__; //CaseStatement::getShortClass()."(".static::getShortClass().")->getThenStatements()";
-		if (! $this->hasThenStatements()) {
+		if(!$this->hasThenStatements()) {
 			Debug::error("{$f} then statements do not exist");
-		} elseif ($i === null) {
+		}elseif($i === null) {
 			return $this->getProperty("then");
-		} elseif (! $this->hasArrayPropertyKey("then", $i)) {
+		}elseif(!$this->hasArrayPropertyKey("then", $i)) {
 			Debug::error("{$f} then command at offset \"{$i}\" does not exist");
 		}
 		return $this->getArrayPropertyValueAtOffset("then", $i);
@@ -96,50 +96,50 @@ class CaseStatement extends Command implements SQLInterface
 	public function toSQL(): string
 	{
 		$f = __METHOD__; //CaseStatement::getShortClass()."(".static::getShortClass().")->toSQL()";
-		try {
+		try{
 			$expr = $this->getExpression();
-			if ($expr instanceof SQLInterface) {
+			if($expr instanceof SQLInterface) {
 				$expr = $expr->toSQL();
 			}
 			$string = "case";
-			if ($this->hasExpression()) {
+			if($this->hasExpression()) {
 				$expr = $this->getExpression();
-				if ($expr instanceof SQLInterface) {
+				if($expr instanceof SQLInterface) {
 					$expr = $expr->toSQL();
 				}
 				$string .= " {$expr}";
 			}
-			foreach ($this->getWhenConditions() as $i => $when) {
-				if ($when instanceof SQLInterface) {
+			foreach($this->getWhenConditions() as $i => $when) {
+				if($when instanceof SQLInterface) {
 					$escaped = $when->toSQL();
-				} elseif (is_string($when) || $when instanceof StringifiableInterface) {
+				}elseif(is_string($when) || $when instanceof StringifiableInterface) {
 					$escaped = single_quote($when);
-				} else {
+				}else{
 					$escaped = $when;
 				}
 				$string .= "\twhen {$escaped} then\n";
-				foreach ($this->getThenStatements($i) as $then) {
+				foreach($this->getThenStatements($i) as $then) {
 					$string .= "\t\t" . $then->toSQL() . "\n";
 				}
 			}
-			if ($this->hasElseCommands()) {
+			if($this->hasElseCommands()) {
 				$string .= "\else\n";
-				foreach ($this->getElseCommands() as $else) {
-					if ($else instanceof SQLInterface) {
+				foreach($this->getElseCommands() as $else) {
+					if($else instanceof SQLInterface) {
 						$else = $else->toSQL();
-					} elseif (is_string($else) || $else instanceof StringifiableInterface) {
+					}elseif(is_string($else) || $else instanceof StringifiableInterface) {
 						$else = single_quote($else);
 					}
 					$string .= "\t\t{$else}\n";
 				}
 			}
 			$string .= "end";
-			if ($this->getEndCaseFlag()) {
+			if($this->getEndCaseFlag()) {
 				$string .= " case";
 			}
 			$string .= "\n";
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

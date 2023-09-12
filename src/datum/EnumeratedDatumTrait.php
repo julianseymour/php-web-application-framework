@@ -13,7 +13,7 @@ trait EnumeratedDatumTrait{
 	protected $valueLabelStringsMap;
 
 	public function setValidEnumerationMap(?array $map): ?array{
-		if ($map === null) {
+		if($map === null) {
 			unset($this->validEnumerationMap);
 			return null;
 		}
@@ -23,14 +23,14 @@ trait EnumeratedDatumTrait{
 	public function hasValidEnumerationMap(): bool{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			$cn = $this->getName();
-			if (! is_array($this->validEnumerationMap)) {
+			if(!is_array($this->validEnumerationMap)) {
 				$gottype = gettype($this->validEnumerationMap);
 				Debug::print("{$f} column {$cn}'s enumeration map is a {$gottype}");
-			} elseif (empty($this->validEnumerationMap)) {
+			}elseif(empty($this->validEnumerationMap)) {
 				Debug::print("{$f} column {$cn}'s enumeration map is empty");
-			} else {
+			}else{
 				Debug::print("{$f} returning true");
 			}
 		}
@@ -39,7 +39,7 @@ trait EnumeratedDatumTrait{
 
 	public function getValidEnumerationMap(): array{
 		$f = __METHOD__;
-		if (! $this->hasValidEnumerationMap()) {
+		if(!$this->hasValidEnumerationMap()) {
 			$vn = $this->getName();
 			Debug::error("{$f} valid enumeration map is undefined for datum \"{$vn}\"");
 		}
@@ -48,31 +48,31 @@ trait EnumeratedDatumTrait{
 
 	protected function validateEnumeration($value): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$vn = $this->getName();
-			if ($this->getAlwaysValidFlag()) {
-				if ($print) {
+			if($this->getAlwaysValidFlag()) {
+				if($print) {
 					Debug::print("{$f} this datum accepts all values");
 				}
 				return SUCCESS;
-			} elseif ($this->hasValidEnumerationMap()) {
+			}elseif($this->hasValidEnumerationMap()) {
 				$valid = $this->getValidEnumerationMap();
-				if ($valid == null) {
+				if($valid == null) {
 					Debug::error("{$f} valid enumeration map is undefined for variable \"{$vn}\"");
-				} elseif (in_array($value, $valid, true)) {
-					if ($print) {
+				}elseif(in_array($value, $valid, true)) {
+					if($print) {
 						Debug::print("{$f} value \"{$value}\" is valid");
 					}
 					$checked = false;
-					foreach ($valid as $checkme) {
-						if ($checkme === $value) {
+					foreach($valid as $checkme) {
+						if($checkme === $value) {
 							$checked = true;
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} \"{$checkme}\" is not the value");
 						}
 					}
-					if (! $checked) {
+					if(!$checked) {
 						Debug::error("{$f} like hell it is");
 					}
 					return SUCCESS;
@@ -84,7 +84,7 @@ trait EnumeratedDatumTrait{
 			Debug::print($this->validEnumerationMap);
 			Debug::error("{$f} datum \"{$vn}\" lacks valid enumerations in class \"{$dsc}\"");
 			return FAILURE;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -95,14 +95,14 @@ trait EnumeratedDatumTrait{
 
 	public function getValueLabelStringsMap(): array{
 		$f = __METHOD__;
-		if (! $this->hasValueLabelStringsMap()) {
+		if(!$this->hasValueLabelStringsMap()) {
 			Debug::error("{$f} value => label strings map is undefined");
 		}
 		return $this->valueLabelStringsMap;
 	}
 
 	public function setValueLabelStringsMap(?array $map): ?array{
-		if ($map === null) {
+		if($map === null) {
 			unset($this->valueLabelStringsMap);
 			return null;
 		}
@@ -110,7 +110,7 @@ trait EnumeratedDatumTrait{
 	}
 
 	public function mapLabelStringToValue($value, $ls){
-		if (! isset($this->valueLabelStringsMap) || ! is_array($this->valueLabelStringsMap)) {
+		if(! isset($this->valueLabelStringsMap) || ! is_array($this->valueLabelStringsMap)) {
 			$this->valueLabelStringsMap = [];
 		}
 		return $this->valueLabelStringsMap[$value] = $ls;

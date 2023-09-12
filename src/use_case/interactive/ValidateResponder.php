@@ -17,23 +17,23 @@ class ValidateResponder extends CacheResponder
 	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case)
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			parent::modifyResponse($response, $use_case);
 			$data = $use_case->getDataOperandObject();
 			$type = $data->getDataType();
 			$ciec = $use_case->getConditionalElementClass($type);
 			$element = new $ciec(ALLOCATION_MODE_LAZY);
-			if ($element instanceof AjaxForm) {
+			if($element instanceof AjaxForm) {
 				$element->setValidator($use_case->getValidator());
 			}
 			$element->bindContext($data);
 			$update = $element->update();
-			if ($this->getCacheFlag()) {
+			if($this->getCacheFlag()) {
 				$update->pushSubcommand(new CachePageContentCommand());
 			}
 			$response->pushCommand($update);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

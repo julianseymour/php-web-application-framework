@@ -32,25 +32,25 @@ class MinuteDatum extends UnsignedIntegerDatum{
 		$multiplier = $this->getMultiplier();
 		$minutes = $this->getValue();
 		$minutes *= $multiplier;
-		if ($minutes > 60) {
+		if($minutes > 60) {
 			$hours = floor($minutes / 60);
 			$minutes = $minutes % 60;
-			if ($hours > 24) {
+			if($hours > 24) {
 				$days = floor($hours / 24);
 				$hours = $hours % 24;
 			}
 		}
 		$timeframe = "";
-		if ($days > 0) {
+		if($days > 0) {
 			$timeframe .= substitute(_("%1% days"), $days) . " ";
 		}
-		if ($hours > 0) {
+		if($hours > 0) {
 			$timeframe .= substitute(_("%1% hours"), $hours) . " ";
 		}
-		if ($minutes > 0) {
+		if($minutes > 0) {
 			$timeframe .= substitute(_("%1% minutes"), $minutes) . " ";
 		}
-		if (! isset($timeframe) || $timeframe === "") {
+		if(! isset($timeframe) || $timeframe === "") {
 			$timeframe = _("Timeframe unavailable");
 		}
 		return $timeframe;

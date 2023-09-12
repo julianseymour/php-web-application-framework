@@ -40,7 +40,7 @@ abstract class StoredIpAddress extends UserFingerprint implements StaticSubtypeI
 
 	public function setIpVersion(int $v):int{
 		$f = __METHOD__;
-		if ($v !== 4 && $v !== 6) {
+		if($v !== 4 && $v !== 6) {
 			Debug::error("{$f} unsupported IP version \"{$v}\"");
 		}
 		return $this->setColumnValue("ipVersion", $v);
@@ -84,7 +84,7 @@ abstract class StoredIpAddress extends UserFingerprint implements StaticSubtypeI
 			"userName",
 			"userTemporaryRole"
 		];
-		foreach ($fields as $field) {
+		foreach($fields as $field) {
 			$columns[$field]->volatilize();
 		}
 	}

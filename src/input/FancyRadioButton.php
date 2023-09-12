@@ -19,7 +19,7 @@ class FancyRadioButton extends RadioButtonInput
 
 	public function getLabelElement(): LabelElement
 	{
-		if ($this->hasLabelElement()) {
+		if($this->hasLabelElement()) {
 			return parent::getLabelElement();
 		}
 		$mode = $this->getAllocationMode();
@@ -27,7 +27,7 @@ class FancyRadioButton extends RadioButtonInput
 		$label->setForAttribute($this->getIdAttribute());
 		$label->addClassAttribute("fancy_radio_button");
 		$label->setAllowEmptyInnerHTML(true);
-		if ($this->hasLabelString()) {
+		if($this->hasLabelString()) {
 			$span = new SpanElement($mode);
 			$span->setInnerHTML($this->getLabelString());
 			$label->pushSuccessor($span);

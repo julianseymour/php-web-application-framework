@@ -20,10 +20,10 @@ class AddPartitionOption extends AlterOption
 	public function setPartitionDefinition($partitionDefinition)
 	{
 		$f = __METHOD__; //AddPartitionOption::getShortClass()."(".static::getShortClass().")->setPartitionDefinition()";
-		if ($partitionDefinition == null) {
+		if($partitionDefinition == null) {
 			unset($this->partitionDefinition);
 			return null;
-		} elseif (! $partitionDefinition instanceof PartitionDefinition) {
+		}elseif(!$partitionDefinition instanceof PartitionDefinition) {
 			Debug::error("{$f} this function accepts only null and PartitionDefintions");
 		}
 		return $this->partitionDefinition;
@@ -37,7 +37,7 @@ class AddPartitionOption extends AlterOption
 	public function getPartitionDefinition()
 	{
 		$f = __METHOD__; //AddPartitionOption::getShortClass()."(".static::getShortClass().")->getPartitionDefinition()";
-		if (! $this->hasPartitionDefinition()) {
+		if(!$this->hasPartitionDefinition()) {
 			Debug::error("{$f} partition definition is undefined");
 		}
 		return $this->partitionDefinition;
@@ -47,7 +47,7 @@ class AddPartitionOption extends AlterOption
 	{
 		// ADD PARTITION (partition_definition)
 		$partition = $this->getPartitionDefinition();
-		if ($partition instanceof SQLInterface) {
+		if($partition instanceof SQLInterface) {
 			$partition = $partition->toSQL();
 		}
 		return "add partition ({$partition})";

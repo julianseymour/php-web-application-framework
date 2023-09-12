@@ -54,21 +54,21 @@ class DatabaseManager extends Basic{
 	{
 		$f = __METHOD__; //DatabaseManager::getShortClass()."(".static::getShortClass().")->access()";
 		$print = false;
-		if (! isset($this->beforeResponseAccessCount) || ! is_int($this->beforeResponseAccessCount)) {
+		if(! isset($this->beforeResponseAccessCount) || ! is_int($this->beforeResponseAccessCount)) {
 			$this->beforeResponseAccessCount = 0;
 		}
-		if (app()->getExecutionState() < EXECUTION_STATE_RESPONDED) {
+		if(app()->getExecutionState() < EXECUTION_STATE_RESPONDED) {
 			$this->beforeResponseAccessCount ++;
-			if ($print) {
+			if($print) {
 				Debug::printStackTraceNoExit("{$f} {$this->beforeResponseAccessCount} database accesses before response");
 			}
 			return $this->beforeResponseAccessCount;
 		}
-		if (! isset($this->afterResponseAccessCount) || ! is_int($this->afterResponseAccessCount)) {
+		if(! isset($this->afterResponseAccessCount) || ! is_int($this->afterResponseAccessCount)) {
 			$this->afterResponseAccessCount = 0;
 		}
 		$this->afterResponseAccessCount ++;
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} {$this->beforeResponseAccessCount} database accesses before response, and {$this->afterResponseAccessCount} database accesses after response.");
 		}
 		return $this->afterResponseAccessCount;
@@ -81,7 +81,7 @@ class DatabaseManager extends Basic{
 
 	public function redis()
 	{
-		if ($this->hasRedisConnection()) {
+		if($this->hasRedisConnection()) {
 			return $this->redisConnection;
 		}
 		$redis = new Redis();
@@ -92,7 +92,7 @@ class DatabaseManager extends Basic{
 
 	public function setPendingTransactionId($id): ?string
 	{
-		if ($id == null) {
+		if($id == null) {
 			unset($this->pendingTransactionId);
 			return null;
 		}
@@ -107,7 +107,7 @@ class DatabaseManager extends Basic{
 	public function getPendingTransactionId(): ?string
 	{
 		$f = __METHOD__; //DatabaseManager::getShortClass()."(".static::getShortClass().")->getPendingTransactionId()";
-		if (! $this->hasPendingTransactionId()) {
+		if(!$this->hasPendingTransactionId()) {
 			Debug::error("{$f} pending database transaction ID is undefined");
 		}
 		return $this->pendingTransactionId;
@@ -117,15 +117,15 @@ class DatabaseManager extends Basic{
 	{
 		$f = __METHOD__; //DatabaseManager::getShortClass()."(".static::getShortClass().")->beginTransaction()";
 		$print = false;
-		if (! $this->hasPendingTransactionId()) {
-			if ($print) {
+		if(!$this->hasPendingTransactionId()) {
+			if($print) {
 				Debug::printStackTraceNoExit("{$f} setting pending transaction ID to \"{$id}\"");
 			}
 			$this->setPendingTransactionId($id);
-			if (! $mysqli->begin_transaction($flags)) {
+			if(!$mysqli->begin_transaction($flags)) {
 				Debug::error("{$f} failed to begin transaction: \"" . $mysqli->error . "\"");
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} application instance already has an open database transaction");
 		}
 		return $mysqli;
@@ -140,23 +140,23 @@ class DatabaseManager extends Basic{
 	{
 		$f = __METHOD__; //DatabaseManager::getShortClass()."(".static::getShortClass().")->commitTransaction()";
 		$print = false;
-		if ($id === null) {
+		if($id === null) {
 			$id = $this->hasPendingTransactionId() ? $this->getPendingTransactionId() : null;
 		}
-		if ($this->hasPendingTransactionId()) {
+		if($this->hasPendingTransactionId()) {
 			$pendingId = $this->getPendingTransactionId();
-		} else {
+		}else{
 			$pendingId = null;
 		}
-		if ($pendingId === null || $id === $pendingId) {
-			if ($print) {
+		if($pendingId === null || $id === $pendingId) {
+			if($print) {
 				Debug::printStackTraceNoExit("{$f} about to commit transactions...");
 			}
 			$mysqli->commit();
-			if ($pendingId !== null) {
+			if($pendingId !== null) {
 				$this->setPendingTransactionId(null);
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} transaction ID \"{$id}\" differs from pending database transaction ID \"{$pendingId}\"");
 		}
 		return $mysqli;
@@ -164,7 +164,7 @@ class DatabaseManager extends Basic{
 
 	public function commitCurrentTransaction($mysqli)
 	{
-		if ($this->hasPendingTransactionId()) {
+		if($this->hasPendingTransactionId()) {
 			return $this->commitTransaction($mysqli, $this->getPendingTransactionId());
 		}
 		return $mysqli;
@@ -174,13 +174,13 @@ class DatabaseManager extends Basic{
 	{
 		$f = __METHOD__; //DatabaseManager::getShortClass()."(".static::getShortClass().")->rollbackTransaction()";
 		$print = false;
-		if ($this->hasPendingTransactionId()) {
-			if ($print) {
+		if($this->hasPendingTransactionId()) {
+			if($print) {
 				Debug::print("{$f} rolling back pending database transaction");
 			}
 			$mysqli->rollback();
 			$this->setPendingTransactionId(null);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} no pending transaction to roll back");
 		}
 		return null;
@@ -189,7 +189,7 @@ class DatabaseManager extends Basic{
 	public function reconnect($credentials = null): ?mysqli
 	{
 		$f = __METHOD__; //DatabaseManager::getShortClass()."(".static::getShortClass().")->reconnect()";
-		if ($this->disconnect()) {
+		if($this->disconnect()) {
 			return $this->connect($credentials);
 		}
 		Debug::error("{$f} disconnection failed");
@@ -201,24 +201,24 @@ class DatabaseManager extends Basic{
 		$print = false;
 		$post = Request::getHTTPRequestMethod() === HTTP_REQUEST_METHOD_POST;
 		$admin = app()->hasUserData() && user() instanceof Administrator;
-		if ($admin) {
-			if ($post) {
-				if ($print) {
+		if($admin) {
+			if($post) {
+				if($print) {
 					Debug::print("{$f} user is an administrator; this is a POST request");
 				}
 				return AdminWriteCredentials::class;
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} user is an administrator; this is a GET request");
 				}
 				return AdminReadCredentials::class;
 			}
-		} elseif ($post) {
-			if ($print) {
+		}elseif($post) {
+			if($print) {
 				Debug::print("{$f} user is not an administrator; this is a POST request");
 			}
 			return PublicWriteCredentials::class;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} user is not an administrator; this is a GET request");
 		}
 		return PublicReadCredentials::class;
@@ -226,106 +226,106 @@ class DatabaseManager extends Basic{
 
 	public function connect($credentials = null): ?mysqli{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($this->hasConnection()) {
+			if($this->hasConnection()) {
 				Debug::error("{$f} connection is already defined; use getConnection instead");
 			}
 			// get database credentials object
-			if ($credentials === null) {
+			if($credentials === null) {
 				$credentials_class = static::detectCredentialsClass();
 				$credentials = new $credentials_class();
-			} elseif (is_string($credentials) && is_a($credentials, DatabaseCredentials::class, true)) {
-				if ($print) {
+			}elseif(is_string($credentials) && is_a($credentials, DatabaseCredentials::class, true)) {
+				if($print) {
 					Debug::print("{$f} instantiating credentials of class \"{$credentials}\"");
 				}
 				$credentials = new $credentials();
-			} elseif (! $credentials instanceof DatabaseCredentials) {
+			}elseif(!$credentials instanceof DatabaseCredentials) {
 				Debug::error("{$f} received credentials must be of class DatabaseCredentials or a string class name thereof");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} received an existing DatabaseCredentials object");
 			}
 			$host = "localhost";
 			$username = $credentials->getName();
-			if (empty($username)) {
+			if(empty($username)) {
 				$credentials_class = $credentials->getClass();
 				Debug::error("{$f} username is undefined for credentials of class \"{$credentials_class}\"");
 			}
 			// load encrypted credentials if they have not been loaded already
-			if ($credentials instanceof EncryptedDatabaseCredentials && ! $credentials->getLoadedFlag()) {
+			if($credentials instanceof EncryptedDatabaseCredentials && ! $credentials->getLoadedFlag()) {
 				$tempc = new PublicReadCredentials();
 				$mysqli = new mysqli($host, $tempc->getName(), $tempc->getPassword());
 				$this->access();
-				if (! isset($mysqli)) {
+				if(! isset($mysqli)) {
 					Debug::error("{$f} mysqli object is undefined");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} about to load mysqli credentials for user \"{$username}\" from database");
 				}
 				$status = $credentials->load($mysqli, "name", $username);
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$mysqli->close();
 					unset($mysqli);
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} error loading credentials \"{$username}\" from database: got abnormal failure status \"{$err}\"");
 					return null;
-				} elseif ($credentials->isRegistrable()) {
-					if ($print) {
+				}elseif($credentials->isRegistrable()) {
+					if($print) {
 						Debug::print("{$f} registering registrable credentials");
 					}
 					registry()->update($credentials->getIdentifierValue(), $credentials);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} successfully loaded credentials. They are non-registrable");
 				}
 				// XXX TODO delete this
-				if (! $credentials->hasIdentifierValue()) {
+				if(!$credentials->hasIdentifierValue()) {
 					$status = $credentials->generateKey();
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} generateKey returned error status \"{$err}\"");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} successfully generated key");
 					}
 					$credentials->setPermission(DIRECTIVE_UPDATE, SUCCESS);
 					$status = $credentials->update($mysqli);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} updating credential keys returned error status \"{$err}\"");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::error("{$f} updated credential key successfully");
 					}
 				}
 				$mysqli->close();
 				unset($mysqli);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} credentials are not encrypted or have already been loaded");
 			}
 			// connect
 			$password = $credentials->getPassword();
-			if (empty($password)) {
+			if(empty($password)) {
 				Debug::error("{$f} password for '{$username}'@'{$host}' is null or empty string");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} about to create a new mysqli object for user '{$username}'@'{$host}' with password '{$password}'");
 			}
 			$db = "data"; // static::getProtectedDatabaseName();
 			$mysqli = new mysqli($host, $username, $password, "data"); // , $db);
-			if ($mysqli->connect_error) {
+			if($mysqli->connect_error) {
 				Debug::error("{$f} error creating new mysqli link for user \"{$username}\" with password \"password\": {$mysqli->connect_error}");
 				return null;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully created mysqli object; about to select database \"{$db}\"");
 			}
 			$this->access();
-			if (! $mysqli->select_db($db)) {
+			if(!$mysqli->select_db($db)) {
 				Debug::error("{$f} select database error: \"" . $mysqli->error . "\"");
-			} elseif ($mysqli->connect_errno) {
+			}elseif($mysqli->connect_errno) {
 				Debug::error("{$f} Failed to connect to MySQL: ({$mysqli->connect_errno}) {$mysqli->connect_error}");
 				$this->setObjectStatus(ERROR_MYSQL_CONNECT);
 				return db()->rollbackTransaction($mysqli);
-			} elseif (! $mysqli->ping()) {
+			}elseif(!$mysqli->ping()) {
 				Debug::error("{$f} mysqli connection failed ping test: \"" . $mysqli->error . "\"");
 				$this->setObjectStatus(ERROR_MYSQL_CONNECT);
 				return null;
-			} elseif ($print) {
+			}elseif($print) {
 				$called = get_file_line([
 					"connect",
 					"reconnect",
@@ -334,7 +334,7 @@ class DatabaseManager extends Basic{
 				Debug::printStackTraceNoExit("{$f} connected at {$called}");
 			}
 			return $this->setConnection($mysqli);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -349,7 +349,7 @@ class DatabaseManager extends Basic{
 		if($print){
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
-		if ($mysqli === null) {
+		if($mysqli === null) {
 			unset($this->connection);
 			return null;
 		}
@@ -359,7 +359,7 @@ class DatabaseManager extends Basic{
 	public function getConnection($credentials = null): ?mysqli{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasConnection()) {
+		if(!$this->hasConnection()) {
 			if($print){
 				Debug::print("{$f} connecting");
 			}
@@ -373,7 +373,7 @@ class DatabaseManager extends Basic{
 
 	public function disconnect(): bool{
 		$f = __METHOD__;
-		if (! $this->hasConnection()) {
+		if(!$this->hasConnection()) {
 			Debug::error("{$f} database connection is undefined");
 		}
 		$ret = $this->getConnection()->close();

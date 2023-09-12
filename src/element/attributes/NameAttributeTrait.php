@@ -13,7 +13,7 @@ trait NameAttributeTrait{
 
 	public function getNameAttribute(){
 		$f = __METHOD__;
-		if (! $this->hasNameAttribute()) {
+		if(!$this->hasNameAttribute()) {
 			Debug::error("{$f} name attribute is undefined");
 		}
 		return $this->getAttribute("name");
@@ -22,7 +22,7 @@ trait NameAttributeTrait{
 	public function setNameAttribute($name){
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} setting name attribute to \"{$name}\"");
 		}
 		return $this->setAttribute("name", $name);

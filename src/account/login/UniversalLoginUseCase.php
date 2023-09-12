@@ -15,19 +15,19 @@ class UniversalLoginUseCase extends UnresponsiveLoginUseCase{
 		$print = false;
 		switch ($status) {
 			case SUCCESS:
-				if (user() instanceof AnonymousUser) {
-					if ($print) {
+				if(user() instanceof AnonymousUser) {
+					if($print) {
 						Debug::print("{$f} user is unregistered; returning parent function");
 					}
 					return parent::getResponder($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} user is registered");
 				}
 				return new UniversalLoginResponder();
 			case RESULT_BFP_MFA_CONFIRM:
 				return new UniversalMfaResponder();
 			default:
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} default case");
 				}
 				return parent::getResponder($status);

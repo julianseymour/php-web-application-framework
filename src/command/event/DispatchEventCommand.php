@@ -36,7 +36,7 @@ class DispatchEventCommand extends ElementCommand implements ServerExecutableCom
 	public function getEvent()
 	{
 		$f = __METHOD__; //DispatchEventCommand::getShortClass()."(".static::getShortClass().")->getEvent()";
-		if (! $this->hasEvent()) {
+		if(!$this->hasEvent()) {
 			Debug::error("{$f} event is undefined");
 		}
 		return $this->event;
@@ -46,8 +46,8 @@ class DispatchEventCommand extends ElementCommand implements ServerExecutableCom
 	{
 		parent::__construct($element);
 		$this->setEvent($event);
-		if (isset($parameters)) {
-			foreach ($parameters as $p) {
+		if(isset($parameters)) {
+			foreach($parameters as $p) {
 				$this->pushParameters($p);
 			}
 		}
@@ -83,13 +83,13 @@ class DispatchEventCommand extends ElementCommand implements ServerExecutableCom
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		$event = $this->getEvent();
-		if ($event instanceof JavaScriptInterface) {
+		if($event instanceof JavaScriptInterface) {
 			$event = $event->toJavaScript();
-		} elseif (is_string($event) || $event instanceof StringifiableInterface) {
+		}elseif(is_string($event) || $event instanceof StringifiableInterface) {
 			$q = $this->getQuoteStyle();
 			$event = "{$q}" . escape_quotes($event, $q) . "{$q}";
 		}

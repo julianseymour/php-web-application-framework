@@ -15,30 +15,30 @@ class ShortPollResponder extends Responder{
 		parent::modifyResponse($response, $use_case);
 		$use_cases = $use_case->getUseCases();
 		$count = count($use_cases);
-		if ($count == 0) {
+		if($count == 0) {
 			Debug::error("{$f} not polling use cases");
 		}
-		foreach ($use_cases as $poller) {
-			if ($print) {
+		foreach($use_cases as $poller) {
+			if($print) {
 				$ucc = get_class($poller);
 			}
-			if ($poller->getDisabledFlag()) {
-				if ($print) {
+			if($poller->getDisabledFlag()) {
+				if($print) {
 					Debug::print("{$f} {$ucc} is disabled");
 				}
 				continue;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} about to get responder for {$ucc}");
 			}
 			$status = $use_case->getObjectStatus();
 			$responder = $poller->getResponder($status);
-			if ($print) {
+			if($print) {
 				$rc = get_class($responder);
 				Debug::print("{$f} about to push a {$rc}");
 			}
 			$responder->modifyResponse($response, $poller);
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning");
 		}
 	}

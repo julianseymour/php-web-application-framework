@@ -21,7 +21,7 @@ trait EngineAttributeTrait
 	public function getEngineAttribute()
 	{
 		$f = __METHOD__; //"EngineAttributeTrait(".static::getShortClass().")->getEngineAttribute()";
-		if (! $this->hasEngineAttribute()) {
+		if(!$this->hasEngineAttribute()) {
 			Debug::error("{$f} engine attribute is undefined");
 		}
 		return $this->engineAttributeString;

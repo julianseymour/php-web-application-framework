@@ -19,7 +19,7 @@ class DropIndexStatement extends QueryStatement
 	public function __construct($indexName = null)
 	{
 		parent::__construct();
-		if ($indexName !== null) {
+		if($indexName !== null) {
 			$this->setIndexName($indexName);
 		}
 	}
@@ -33,10 +33,10 @@ class DropIndexStatement extends QueryStatement
 	public function setLockOption($lock)
 	{
 		$f = __METHOD__; //DropIndexStatement::getShortClass()."(".static::getShortClass().")->setLockOption()";
-		if ($lock == null) {
+		if($lock == null) {
 			unset($this->lockOption);
 			return null;
-		} elseif (! is_string($lock)) {
+		}elseif(!is_string($lock)) {
 			Debug::error("{$f} lock option must be a string");
 		}
 		$lock = strtolower($lock);
@@ -55,16 +55,16 @@ class DropIndexStatement extends QueryStatement
 	{
 		// DROP INDEX index_name ON tbl_name
 		$string = "drop index " . $this->getIndexName() . " on ";
-		if ($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()) {
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
 		$string .= back_quote($this->getTableName());
 		// [ALGORITHM [=] {DEFAULT | INPLACE | COPY}]
-		if ($this->hasAlgorithm()) {
+		if($this->hasAlgorithm()) {
 			$string .= " algorithm " . $this->getAlgorithm();
 		}
 		// [LOCK [=] {DEFAULT | NONE | SHARED | EXCLUSIVE}]
-		if ($this->hasLockOption()) {
+		if($this->hasLockOption()) {
 			$string .= " lock " . $this->getLockOption();
 		}
 		return $string;

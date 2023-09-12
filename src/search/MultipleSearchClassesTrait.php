@@ -27,7 +27,7 @@ trait MultipleSearchClassesTrait
 	public function getSearchClasses()
 	{
 		$f = __METHOD__; //"MultipleSearchClassesTrait(".static::getShortClass().")->getSearchClasses()";
-		if (! $this->hasSearchClasses()) {
+		if(!$this->hasSearchClasses()) {
 			Debug::error("{$f} classes are undefined");
 		}
 		return $this->getProperty("searchClasses");

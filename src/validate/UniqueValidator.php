@@ -28,7 +28,7 @@ class UniqueValidator extends Validator implements TypeSpecificInterface{
 		parent::__construct();
 		$this->setDataStructureClass($data_class);
 		$this->setTypeSpecifier($typedef);
-		if (isset($columnNames)) {
+		if(isset($columnNames)) {
 			$this->setColumnNames($columnNames);
 		}
 	}
@@ -41,7 +41,7 @@ class UniqueValidator extends Validator implements TypeSpecificInterface{
 
 	public function evaluate(&$validate_me): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$typedef = $this->getTypeSpecifier();
 			$columnNames = $this->getColumnNames();
@@ -49,51 +49,51 @@ class UniqueValidator extends Validator implements TypeSpecificInterface{
 			$count = count($columnNames);
 			switch ($count) {
 				case 0:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} 0 select variables");
 					}
 					$where = null;
 					break;
 				case 1:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} 1 select variable");
 					}
 					$where = new WhereCondition($columnNames[0], OPERATOR_EQUALS);
 					break;
 				default:
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} {$count} select variables");
 					}
 					$where = new AndCommand();
-					foreach ($columnNames as $columnName) {
+					foreach($columnNames as $columnName) {
 						$where->pushParameters(new WhereCondition($columnName, OPERATOR_EQUALS));
 					}
 					break;
 			}
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
-			if ($where == null) {
-				if ($print) {
+			if($where == null) {
+				if($print) {
 					Debug::print("{$f} where condition is null");
 				}
 				$count = $query->executeGetResultCount($mysqli);
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} where condition is not null");
 				}
 				$query->where($where);
 				$values = $this->getParameters();
 				$count = $query->prepareBindExecuteGetResultCount($mysqli, $typedef, ...$values);
 			}
-			if ($count === 0) {
-				if ($print) {
+			if($count === 0) {
+				if($print) {
 					Debug::print("{$f} success, 0 results");
 				}
 				return SUCCESS;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::warning("{$f} count is {$count}");
 			}
 			return $this->getSpecialFailureStatus();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -108,7 +108,7 @@ class UniqueValidator extends Validator implements TypeSpecificInterface{
 
 	public function extractParameters(&$in):array{
 		$out = [];
-		foreach ($this->getColumnNames() as $columnName) {
+		foreach($this->getColumnNames() as $columnName) {
 			$out[$columnName] = $in[$columnName];
 		}
 		return $out;

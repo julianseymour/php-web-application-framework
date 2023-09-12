@@ -21,7 +21,7 @@ class DismissAllNotificationsForm extends AjaxForm{
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$inputs = parent::getAdHocInputs();
 			$ai = new HiddenInput($mode);
@@ -29,7 +29,7 @@ class DismissAllNotificationsForm extends AjaxForm{
 			$ai->setValueAttribute(1);
 			$inputs[$ai->getNameAttribute()] = $ai;
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

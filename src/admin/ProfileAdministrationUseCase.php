@@ -78,7 +78,7 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 		$f = __METHOD__;
 		$print = false;
 		$user = user();
-		if ($user->hasCorrespondentObject()) {
+		if($user->hasCorrespondentObject()) {
 			if($print){
 				Debug::print("{$f} correspondent was already assigned");
 			}
@@ -108,7 +108,7 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 		$f = __METHOD__;
 		$print = false;
 		$status = parent::afterLoadHook($mysqli);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} {$err}");
 			return $this->setObjectStatus($status);
@@ -156,11 +156,11 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 			if($print){
 				Debug::print("{$f} ".count($objects)." objects");
 			}
-			foreach ($objects as $object) {
+			foreach($objects as $object) {
 				$element = new $element_class(ALLOCATION_MODE_LAZY, $object);
 				array_push($content, $element);
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} correspondent lacks any interesting data in phylum \"{$phylum}\"");
 		}
 		return $content;
@@ -184,7 +184,7 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 				Debug::print("{$f} correspondent object returned null");
 			}
 			return null;
-		}elseif ($correspondent instanceof Administrator) {
+		}elseif($correspondent instanceof Administrator) {
 			Debug::error("{$f} this use case is for administrators to issue invoices to customers, not the other way around");
 		}
 		$new_data_operand->setUserData($correspondent);
@@ -199,7 +199,7 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 	}
 
 	public function getResponder(int $status): ?Responder{
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			return parent::getResponder($status);
 		}
 		switch (directive()) {

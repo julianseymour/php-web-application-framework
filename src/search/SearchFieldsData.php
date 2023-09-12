@@ -58,7 +58,7 @@ class SearchFieldsData extends DataStructure{
 
 	public function getSearchPaginator(): ?SearchPaginator{
 		$f = __METHOD__;
-		if (! $this->hasSearchPaginator()) {
+		if(!$this->hasSearchPaginator()) {
 			Debug::error("{$f} search paginator is undefined");
 		}
 		return $this->getForeignDataStructure("searchQueryKey");
@@ -67,11 +67,11 @@ class SearchFieldsData extends DataStructure{
 	public function getSearchFieldCount(){
 		$f = __METHOD__;
 		$count = 0;
-		foreach ($this->getFilteredColumns(COLUMN_FILTER_VALUED, "!" . COLUMN_FILTER_VIRTUAL) as $column) {
+		foreach($this->getFilteredColumns(COLUMN_FILTER_VALUED, "!" . COLUMN_FILTER_VIRTUAL) as $column) {
 			$vn = $column->getName();
-			if (! $column instanceof SearchFieldDatum) {
+			if(!$column instanceof SearchFieldDatum) {
 				Debug::error("{$f} column \"{$vn}\" is not a search field datum");
-			} elseif (! $column->getValue()) {
+			}elseif(!$column->getValue()) {
 				// Debug::print("{$f} column \"{$vn}\" is not set");
 				continue;
 			}
@@ -91,16 +91,16 @@ class SearchFieldsData extends DataStructure{
 
 	public function generateSelectStatement(): ?SelectStatement{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
 			$query = $this->getSearchClass()::selectStatic();
 			$sqd = $this->getSearchPaginator();
 			$terms = $sqd->getSearchTerms();
-			if (empty($terms)) {
-				if ($print) {
+			if(empty($terms)) {
+				if($print) {
 					Debug::print("{$f} no search terms");
 				}
-				if ($sqd->hasSearchableTimestamps()) {
+				if($sqd->hasSearchableTimestamps()) {
 					return $query;
 				}
 				$this->setObjectStatus(ERROR_NULL_SEARCH_QUERY);
@@ -114,64 +114,64 @@ class SearchFieldsData extends DataStructure{
 				case SEARCH_MODE_ALL:
 				case SEARCH_MODE_ANY:
 				case SEARCH_MODE_EXACT:
-					foreach ($terms as $term) {
-						if (empty($term)) {
+					foreach($terms as $term) {
+						if(empty($term)) {
 							Debug::error("{$f} empty search term");
 						}
-						foreach ($this->getFilteredColumns(COLUMN_FILTER_VALUED, "!" . COLUMN_FILTER_VIRTUAL) as $column) {
+						foreach($this->getFilteredColumns(COLUMN_FILTER_VALUED, "!" . COLUMN_FILTER_VIRTUAL) as $column) {
 							$match = new MatchFunction();
 							$match->setParameterCount(1);
 							$vn = $column->getName();
-							if ($print) {
+							if($print) {
 								Debug::print("{$f} evaluating variable \"{$vn}\" for class \"{$this->searchClass}\"");
 							}
-							if (! $column instanceof SearchFieldDatum) {
+							if(!$column instanceof SearchFieldDatum) {
 								Debug::error("{$f} column \"{$vn}\" is not a search field datum");
-							} elseif (! $column->getValue()) {
-								if ($print) {
+							}elseif(!$column->getValue()) {
+								if($print) {
 									Debug::print("{$f} column \"{$vn}\" is not set");
 								}
 								continue;
 							}
 							$datum = $object->getColumn($column->getFieldName());
-							if ($print) {
+							if($print) {
 								Debug::print("{$f} column \"{$vn}\" is set");
 							}
 							$column_name = $datum->getName();
 							if($datum->getPersistenceMode() === PERSISTENCE_MODE_ALIAS) {
-								if ($print) {
+								if($print) {
 									Debug::print("{$f} column \"{$column_name}\" is aliased");
 								}
 								$db = $datum->getSubqueryDatabaseName();
 								$atn = $datum->getSubqueryTableName();
 								$rcn = $datum->getReferenceColumnName();
-								if (! array_key_exists($rcn, $aliases)) {
+								if(! array_key_exists($rcn, $aliases)) {
 									$aliases[$rcn] = QueryBuilder::select($datum->getSubqueryClass()::getIdentifierNameStatic())->from($db, $atn);
 								}
 								$alias = $aliases[$rcn];
 								$match = new MatchFunction();
 								$match->setParameterCount(1);
 								$match->pushColumnNames($datum->getSubqueryColumnName());
-								if ($alias->hasWhereCondition()) {
+								if($alias->hasWhereCondition()) {
 									$alias->pushWhereConditionParameters($match);
-								} else {
+								}else{
 									$alias->setWhereCondition(new OrCommand($match));
 								}
 								Debug::print("{$f} alias \"{$alias}\"");
 								continue;
 							}
 							$match->pushColumnNames($column_name);
-							if ($print) {
+							if($print) {
 								Debug::print("{$f} generated match condition \"{$match}\"");
 							}
 							$or->pushParameters($match);
 						}
 						if(!empty($aliases)){
-							if ($print) {
+							if($print) {
 								$count = count($aliases);
 								Debug::print("{$f} we are searching {$count} aliased columns");
 							}
-							foreach ($aliases as $rcn => $alias) {
+							foreach($aliases as $rcn => $alias) {
 								$where = new WhereCondition($rcn, OPERATOR_IN, 's');
 								$where->setSelectStatement($alias);
 								$or->pushParameters($where);
@@ -195,17 +195,17 @@ class SearchFieldsData extends DataStructure{
 				*/
 				default:
 					$gottype = gettype($mode);
-					if ($gottype !== gettype(2)) {
+					if($gottype !== gettype(2)) {
 						Debug::error("{$f} invalid search mode datatype \"{$gottype}\"");
 					}
 					Debug::error("{$f} invalid search mode \"{$mode}\"");
 			}
 			$ret = $query->where($or); // where);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning \"{$ret}\"");
 			}
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -245,7 +245,7 @@ class SearchFieldsData extends DataStructure{
 		$datum = new SearchFieldDatum("search_{$name}");
 		$datum->setSearchClass($this->getSearchClass());
 		$datum->setFieldName($name);
-		if (! $c->hasDataStructure()) {
+		if(!$c->hasDataStructure()) {
 			Debug::error("{$f} datum at index \"{$name}\" lacks a data structure");
 		}
 		$human_readable = $c->getHumanReadableName();
@@ -265,7 +265,7 @@ class SearchFieldsData extends DataStructure{
 
 	public function getSearchTemplateObject(){
 		$f = __METHOD__;
-		if (! $this->hasSearchTemplateObject()) {
+		if(!$this->hasSearchTemplateObject()) {
 			Debug::error("{$f} search template object is undefined");
 		}
 		return $this->searchTemplateObject;
@@ -279,9 +279,9 @@ class SearchFieldsData extends DataStructure{
 
 	public function setSearchClass(?string $class): ?string{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($this->hasSearchClass()) {
+			if($this->hasSearchClass()) {
 				Debug::error("{$f} query class is already defined");
 			}
 			$this->searchClass = $class;
@@ -290,39 +290,39 @@ class SearchFieldsData extends DataStructure{
 			$object->setForeignDataStructure("searchQueryKey", $this->getSearchPaginator());
 			$this->setSearchTemplateObject($object);
 			$columns = [];
-			foreach ($object->getFilteredColumns(COLUMN_FILTER_SEARCHABLE) as $column_name => $c) {
+			foreach($object->getFilteredColumns(COLUMN_FILTER_SEARCHABLE) as $column_name => $c) {
 				$vn = $c->getName();
-				if ($c->isSearchable()) {
-					if ($c instanceof TimestampDatum) {
-						if ($print) {
+				if($c->isSearchable()) {
+					if($c instanceof TimestampDatum) {
+						if($print) {
 							Debug::print("{$f} reporting searchable timestamp");
 						}
 						$this->getSearchPaginator()->reportSearchableTimestamp($c);
 						continue;
-					/*} elseif ($c instanceof NameDatum && $c->isTranslatable()) {
+					/*}elseif($c instanceof NameDatum && $c->isTranslatable()) {
 						$pref = $user->getLanguagePreference();
 						if($print){
 							Debug::print("{$f} user does not have default language preference");
 						}
-						if (array_key_exists($pref, $columns)) {
+						if(array_key_exists($pref, $columns)) {
 							continue;
 						}
 						$this->setFlag("translate", true);*/
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} variable \"{$vn}\" is not a search name datum, or not translatable");
 					}
 					$boolean = $this->generateBooleanDatum($c);
 					$cn2 = $boolean->getName();
 					$columns[$cn2] = $boolean;
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} pushed column \"{$cn2}\"");
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} variable \"{$vn}\" is not searchable");
 				}
 			}
-			if (empty($columns)) {
-				if ($print) {
+			if(empty($columns)) {
+				if($print) {
 					Debug::print("{$f} no searchable columns in class \"{$class}\"");
 				}
 				return $this->getSearchClass();
@@ -330,7 +330,7 @@ class SearchFieldsData extends DataStructure{
 			$existing = $this->hasColumns() ? $this->getColumns() : [];
 			$this->setColumns(array_merge($existing, $columns));
 			return $this->getSearchClass();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

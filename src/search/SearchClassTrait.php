@@ -16,7 +16,7 @@ trait SearchClassTrait
 	public function getSearchClass()
 	{
 		$f = __METHOD__; //"SearchClassTrait(".static::getShortClass().")->getSearchClass()";
-		if (! $this->hasSearchClass()) {
+		if(!$this->hasSearchClass()) {
 			Debug::error("{$f} search class is undefined");
 		}
 		return $this->searchClass;
@@ -25,14 +25,14 @@ trait SearchClassTrait
 	public function setSearchClass($sc)
 	{
 		$f = __METHOD__; //"SearchClassTrait(".static::getShortClass().")->setSearchClass()";
-		if ($sc == null) {
+		if($sc == null) {
 			unset($this->searchClass);
 			return null;
-		} elseif (! is_string($sc)) {
+		}elseif(!is_string($sc)) {
 			Debug::error("{$f} input parameter must be a string");
-		} elseif (empty($sc)) {
+		}elseif(empty($sc)) {
 			Debug::error("{$f} input parameter cannot be an empty string");
-		} elseif (! class_exists($sc)) {
+		}elseif(! class_exists($sc)) {
 			Debug::error("{$f} class \"{$sc}\" does not exist");
 		}
 		return $this->searchClass = $sc;

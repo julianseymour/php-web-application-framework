@@ -22,10 +22,10 @@ abstract class GenerateFormButtonsCommand extends ElementCommand implements Allo
 		$form = $this->getElement();
 		$names = $form->getDirectives();
 		$buttons = [];
-		if (! empty($names)) {
-			foreach ($names as $name) {
+		if(!empty($names)) {
+			foreach($names as $name) {
 				$generated = $form->generateButtons($name);
-				if (! is_array($generated)) {
+				if(!is_array($generated)) {
 					Debug::error("{$f} not an array");
 				}
 				$buttons = array_merge($buttons, $generated);

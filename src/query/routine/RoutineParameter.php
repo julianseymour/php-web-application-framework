@@ -15,10 +15,10 @@ class RoutineParameter extends Basic implements SQLInterface
 	public function __construct($name, $type)
 	{
 		parent::__construct();
-		if ($name !== null) {
+		if($name !== null) {
 			$this->setName($name);
 		}
-		if ($type !== null) {
+		if($type !== null) {
 			$this->setType($type);
 		}
 	}
@@ -71,15 +71,15 @@ class RoutineParameter extends Basic implements SQLInterface
 	public function toSQL(): string
 	{
 		$string = "";
-		if (
+		if(
 		// $this->getRoutine()->getRoutineType() === ROUTINE_TYPE_PROCEDURE && (
 		$this->getInFlag() || $this->getOutFlag()) 
 		// )
 		{
-			if ($this->getInFlag()) {
+			if($this->getInFlag()) {
 				$string .= "in";
 			}
-			if ($this->getOutFlag()) {
+			if($this->getOutFlag()) {
 				$string .= "out";
 			}
 			$string .= " ";

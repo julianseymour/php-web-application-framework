@@ -27,7 +27,7 @@ class UpdateOnlineStatusIndicatorCommand extends Command implements JavaScriptCo
 
 	public function setCorrespondentObject(UserData $correspondent):UserData{
 		$f = __METHOD__;
-		if (! $correspondent instanceof PlayableUser) {
+		if(!$correspondent instanceof PlayableUser) {
 			Debug::error("{$f} correspondent is not an instanceof PlayableUser");
 		}
 		return $this->correspondent = $correspondent;
@@ -39,7 +39,7 @@ class UpdateOnlineStatusIndicatorCommand extends Command implements JavaScriptCo
 
 	public function getCorrespondent(): ?UserData{
 		$f = __METHOD__;
-		if (! $this->hasCorrespondentObject()) {
+		if(!$this->hasCorrespondentObject()) {
 			Debug::error("{$f} correspondent object is undefined");
 		}
 		return $this->correspondent;
@@ -49,7 +49,7 @@ class UpdateOnlineStatusIndicatorCommand extends Command implements JavaScriptCo
 		$f = __METHOD__;
 		parent::__construct();
 		$this->setCorrespondentObject($correspondent);
-		if (isset($indicator)) {
+		if(isset($indicator)) {
 			$this->setIndicator($indicator);
 		}
 	}
@@ -64,7 +64,7 @@ class UpdateOnlineStatusIndicatorCommand extends Command implements JavaScriptCo
 
 	public function getIndicator(){
 		$f = __METHOD__;
-		if (! $this->hasIndicator()) {
+		if(!$this->hasIndicator()) {
 			Debug::error("{$f} indicator is undefined");
 		}
 		return $this->indicator;
@@ -77,7 +77,7 @@ class UpdateOnlineStatusIndicatorCommand extends Command implements JavaScriptCo
 		Json::echoKeyValuePair('uniqueKey', $correspondent->getIdentifierValue(), $destroy);
 		$online = $correspondent->getVisibleOnlineStatus($user);
 		Json::echoKeyValuePair('status', $online, $destroy);
-		if ($online === ONLINE_STATUS_CUSTOM) {
+		if($online === ONLINE_STATUS_CUSTOM) {
 			Json::echoKeyValuePair('custom_str', $correspondent->getCustomOnlineStatusString(), $destroy);
 		}
 		parent::echoInnerJson($destroy);
@@ -95,7 +95,7 @@ class UpdateOnlineStatusIndicatorCommand extends Command implements JavaScriptCo
 
 	public function resolve(){
 		$f = __METHOD__;
-		try {
+		try{
 			$correspondent = $this->getCorrespondent();
 			$user = user();
 			$online = $correspondent->getVisibleOnlineStatus($user);
@@ -148,23 +148,23 @@ class UpdateOnlineStatusIndicatorCommand extends Command implements JavaScriptCo
 				default:
 					Debug::error("{$f} Invalid messenger status \"{$online}\"");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function toJavaScript(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			$correspondent = $this->getCorrespondent();
 			$key = new GetColumnValueCommand($correspondent, $correspondent->getIdentifierName());
-			if ($key instanceof JavaScriptInterface) {
+			if($key instanceof JavaScriptInterface) {
 				$key = $key->toJavaScript();
-			} elseif (is_string($key) || $key instanceof StringifiableInterface) {
+			}elseif(is_string($key) || $key instanceof StringifiableInterface) {
 				$key = single_quote($key);
 			}
 			return "UpdateOnlineStatusIndicatorCommand.updateStatic({$key})";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

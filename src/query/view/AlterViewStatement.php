@@ -12,34 +12,34 @@ class AlterViewStatement extends ViewStatement
 		// ALTER
 		$string = "alter ";
 		// [ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}]
-		if ($this->hasAlgorithm()) {
+		if($this->hasAlgorithm()) {
 			$string .= "algoritm = " . $this->getAlgorithm() . " ";
 		}
 		// [DEFINER = user]
-		if ($this->hasDefiner()) {
+		if($this->hasDefiner()) {
 			$string .= "definer " . $this->getDefiner() . " ";
 		}
 		// [SQL SECURITY { DEFINER | INVOKER }]
-		if ($this->hasSQLSecurity()) {
+		if($this->hasSQLSecurity()) {
 			$string .= "SQL security " . $this->getSQLSecurity() . " ";
 		}
 		// VIEW view_name
 		$string .= "view ";
-		if ($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()) {
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
 		$string .= back_quote($this->getName()) . " ";
 		// [(column_list)]
-		if ($this->hasColumnNames()) {
+		if($this->hasColumnNames()) {
 			$string .= "(" . implode_back_quotes(',', $this->getColumnNames()) . ") ";
 		}
 		// AS select_statement
 		$string .= "as " . $this->getSelectStatement();
 		// [WITH [CASCADED | LOCAL] CHECK OPTION]
-		if ($this->hasCheckOption()) {
+		if($this->hasCheckOption()) {
 			$check = $this->getCheckOption();
 			$string .= " with {$check} ";
-			if ($check !== CHECK_OPTION_CHECK) {
+			if($check !== CHECK_OPTION_CHECK) {
 				$string .= "check ";
 			}
 			$string .= "option";

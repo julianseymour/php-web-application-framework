@@ -19,7 +19,7 @@ class CreateDatabaseStatement extends QueryStatement
 	public function __construct($databaseName = null)
 	{
 		parent::__construct();
-		if ($databaseName !== null) {
+		if($databaseName !== null) {
 			$this->setDatabaseName($databaseName);
 		}
 	}
@@ -35,17 +35,17 @@ class CreateDatabaseStatement extends QueryStatement
 	{
 		// CREATE {DATABASE | SCHEMA} [IF NOT EXISTS] db_name [create_option] ...
 		$string = "create database ";
-		if ($this->getIfNotExistsFlag()) {
+		if($this->getIfNotExistsFlag()) {
 			$string .= "if not exists ";
 		}
 		$string .= $this->getDatabaseName();
-		if ($this->hasCharacterSet()) {
+		if($this->hasCharacterSet()) {
 			$string .= " character set " . $this->getCharacterSet();
 		}
-		if ($this->hasCollationName()) {
+		if($this->hasCollationName()) {
 			$string .= " collate " . $this->getCollationName();
 		}
-		if ($this->hasEncryption()) {
+		if($this->hasEncryption()) {
 			$string .= " encryption " . $this->getEncryption();
 		}
 		return $string;

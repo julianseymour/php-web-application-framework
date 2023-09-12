@@ -39,9 +39,9 @@ abstract class BinarySelector extends Selector
 	public function __construct($lhs = null, $rhs = null)
 	{
 		parent::__construct();
-		if (isset($lhs)) {
+		if(isset($lhs)) {
 			$this->setLeftHandSide($lhs);
-			if (isset($rhs)) {
+			if(isset($rhs)) {
 				$this->setRightHandSide($rhs);
 			}
 		}

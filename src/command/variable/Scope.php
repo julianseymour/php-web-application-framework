@@ -17,9 +17,9 @@ class Scope extends Basic
 	public function setLocalValue($index, $value)
 	{
 		$f = __METHOD__;
-		if (! is_int($index) && ! is_string($index)) {
+		if(!is_int($index) && ! is_string($index)) {
 			Debug::error("{$f} index is neither integer nor string");
-		} elseif (! is_array($this->localValues)) {
+		}elseif(!is_array($this->localValues)) {
 			$this->localValues = [];
 		}
 		return $this->localValues[$index] = $value;
@@ -48,7 +48,7 @@ class Scope extends Basic
 	public function getLocalValue($index)
 	{
 		$f = __METHOD__;
-		if (! $this->hasLocalValue($index)) {
+		if(!$this->hasLocalValue($index)) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} local variable \"{$index}\" is undefined. Declared {$decl}");
 		}
@@ -59,7 +59,7 @@ class Scope extends Basic
 	{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} declaring variable \"{$name}\"");
 		}
 		return new DeclareVariableCommand($name, $value, $this);
@@ -68,15 +68,15 @@ class Scope extends Basic
 	protected function declareMultiple(?string $scope_type, array $arr)
 	{
 		$f = __METHOD__;
-		if (empty($arr)) {
+		if(empty($arr)) {
 			Debug::error("{$f} received empty array as input parameter");
-		} elseif (! is_associative($arr)) {
+		}elseif(!is_associative($arr)) {
 			Debug::error("{$f} array must be associative");
 		}
 		$ret = [];
-		foreach ($arr as $name => $value) {
+		foreach($arr as $name => $value) {
 			$dec = $this->declareVariableCommand($name, $value);
-			if ($scope_type !== null) {
+			if($scope_type !== null) {
 				$dec->setScopeType($scope_type);
 			}
 			array_push($ret, $dec);
@@ -87,7 +87,7 @@ class Scope extends Basic
 	public function letNames(...$names): array
 	{
 		$ret = [];
-		foreach ($names as $name) {
+		foreach($names as $name) {
 			array_push($ret, $this->let($name));
 		}
 		return $ret;
@@ -116,14 +116,14 @@ class Scope extends Basic
 	protected function declareColumnValues(?string $scope_type, object $obj, ...$column_names): array
 	{
 		$f = __METHOD__;
-		if (! isset($column_names) || ! is_array($column_names) || empty($column_names)) {
+		if(! isset($column_names) || ! is_array($column_names) || empty($column_names)) {
 			Debug::error("{$f} column names must be a non-empty array");
 		}
 		$ret = [];
-		foreach ($column_names as $name) {
+		foreach($column_names as $name) {
 			$value = new GetColumnValueCommand($obj, $name); // ->getColumnValueCommand($name);
 			$dec = $this->declareVariableCommand($name, $value);
-			if ($scope_type !== null) {
+			if($scope_type !== null) {
 				$dec->setScopeType($scope_type);
 			}
 			array_push($ret, $dec);

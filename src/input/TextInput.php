@@ -25,7 +25,7 @@ class TextInput extends StringInput{
 
 	public function getDirectionalityNameAttribute(){
 		$f = __METHOD__; //TextInput::getShortClass()."(".static::getShortClass().")->getDirectionalityNameAttribute()";
-		if (! $this->hasDirectionalityNameAttribute()) {
+		if(!$this->hasDirectionalityNameAttribute()) {
 			Debug::error("{$f} dirname attribute is undefined");
 		}
 		return $this->getAttribute("dirname");

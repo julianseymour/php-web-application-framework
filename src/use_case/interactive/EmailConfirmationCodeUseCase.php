@@ -18,7 +18,7 @@ class EmailConfirmationCodeUseCase extends SubsequentUseCase
 	public function execute(): int
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			/*
 			 * request() = request();
@@ -28,7 +28,7 @@ class EmailConfirmationCodeUseCase extends SubsequentUseCase
 			 * }
 			 */
 			$form = $this->getPredecessor()->getProcessedFormObject();
-			if (! $form instanceof ConfirmationCodeGeneratingFormInterface) {
+			if(!$form instanceof ConfirmationCodeGeneratingFormInterface) {
 				Debug::error("{$f} form is not an instanceof ConfirmationCodeGeneratingFormInterface");
 			}
 			/*
@@ -45,12 +45,12 @@ class EmailConfirmationCodeUseCase extends SubsequentUseCase
 			$ccc = $form->getConfirmationCodeClass();
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			$status = $ccc::submitStatic($mysqli, user());
-			if ($print) {
+			if($print) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::print("{$f} submitStatic returned error status \"{$err}\"");
 			}
 			return $this->setObjectStatus($status);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

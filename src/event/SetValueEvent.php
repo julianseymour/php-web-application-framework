@@ -6,7 +6,7 @@ abstract class SetValueEvent extends Event
 
 	public function __construct($type, $value, $properties = null)
 	{
-		if (! isset($properties) || ! is_array($properties)) {
+		if(! isset($properties) || ! is_array($properties)) {
 			$properties = [];
 		}
 		$properties['value'] = $value;

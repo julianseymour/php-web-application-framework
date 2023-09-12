@@ -35,53 +35,53 @@ class GetCorrespondentUseCase extends UseCase{
 	 */
 	public function execute(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (user()->hasCorrespondentObject()) {
-				if ($print) {
+			if(user()->hasCorrespondentObject()) {
+				if($print) {
 					Debug::print("{$f} user already has a correspondent object");
 				}
 				return SUCCESS;
-			} elseif (user()->hasForeignDataStructureList("correspondent")) {
-				if ($print) {
+			}elseif(user()->hasForeignDataStructureList("correspondent")) {
+				if($print) {
 					Debug::print("{$f} correspondent is one of the user's children");
 				}
 				$correspondent = user()->getFirstRelationship("correspondent");
-				if (! isset($correspondent)) {
+				if(! isset($correspondent)) {
 					$class = user()->getClass();
 					Debug::error("{$f} failed to acquireCorrespondentObject for class \"{$class}\"");
 					static::debugErrorStatic($f, ERROR_NULL_CORRESPONDENT_OBJECT);
 				}
-			} else {
+			}else{
 				$predecessor = $this->getPredecessor();
-				if (hasInputParameter('correspondentKey', $predecessor)) {
-					if (! hasInputParameter("correspondentAccountType", $predecessor)) {
+				if(hasInputParameter('correspondentKey', $predecessor)) {
+					if(! hasInputParameter("correspondentAccountType", $predecessor)) {
 						Debug::error("{$f} correspondent type was not posted");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} both correspondent key and account types are defined as input parameters");
 					}
 					$class = mods()->getUserClass(getInputParameter("correspondentAccountType", $predecessor));
 					$mysqli = db()->getConnection(PublicReadCredentials::class);
 					$correspondent = $class::getObjectFromKey($mysqli, getInputParameter("correspondentKey", $predecessor));
-					if ($correspondent === null) {
+					if($correspondent === null) {
 						Debug::warning("{$f} correspondent object returned null");
 						return FAILURE;
 					}
 					$status = $correspondent->getObjectStatus();
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($this->setObjectStatus($status));
 						Debug::warning("{$f} correspondent object has error status \"{$err}\"");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} correspondent object loaded successfully");
 					}
 					$status = $correspondent->loadForeignDataStructures($mysqli);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} loading correspondent's foreign data structures returned error status \"{$err}\"");
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} successfully loaded correspondent's foreign data structures");
 					}
-				} else {
+				}else{
 					Debug::warning("{$f} you're shit out of luck");
 					return FAILURE;
 				}
@@ -89,7 +89,7 @@ class GetCorrespondentUseCase extends UseCase{
 			$correspondent->setCorrespondentObject(user());
 			user()->setCorrespondentObject($correspondent);
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

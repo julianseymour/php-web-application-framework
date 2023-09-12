@@ -24,14 +24,14 @@ class UnionClause extends Basic implements SelectStatementInterface, SQLInterfac
 	public function setSelectStatement(?SelectStatement $selectStatement): SelectStatement
 	{
 		$f = __METHOD__; //UnionClause::getShortClass()."(".static::getShortClass().")->setSelectStatement()";
-		if ($selectStatement == null) {
+		if($selectStatement == null) {
 			unset($this->selectStatement);
 			return null;
-		} elseif (! $selectStatement instanceof SelectStatement) {
+		}elseif(!$selectStatement instanceof SelectStatement) {
 			Debug::error("{$f} input parameter must be a select statement");
-		} elseif ($selectStatement->getHighPriorityFlag()) {
+		}elseif($selectStatement->getHighPriorityFlag()) {
 			Debug::error("{$f} you cannot have a high priority flag as a subquery");
-		} elseif ($selectStatement->getBufferResultFlag()) {
+		}elseif($selectStatement->getBufferResultFlag()) {
 			Debug::error("{$f} you cannot have a subquery with buffer results flag");
 		}
 		$selectStatement->setSubqueryFlag(true);
@@ -51,15 +51,15 @@ class UnionClause extends Basic implements SelectStatementInterface, SQLInterfac
 	public function toSQL(): string
 	{
 		$f = __METHOD__; //UnionClause::getShortClass()."(".static::getShortClass().")->toSQL()";
-		try {
+		try{
 			// UNION [ALL | DISTINCT] SELECT ...
 			$string = "union ";
-			if ($this->hasDistinction()) {
+			if($this->hasDistinction()) {
 				$string .= $this->getDistinction() . " ";
 			}
 			$string .= "(" . $this->getSelectStatement() . ")";
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

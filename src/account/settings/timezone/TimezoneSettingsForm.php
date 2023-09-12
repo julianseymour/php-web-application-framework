@@ -35,7 +35,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 				$autodetect = new ButtonInput($mode);
 				$autodetect->setInnerHTML(_("Autodetect"));
 				$autodetect->setOnclickAttribute("autodetectTimezone()");
-				if (! Request::isAjaxRequest()) {
+				if(! Request::isAjaxRequest()) {
 					$autodetect->setStyleProperty("display", "none");
 				}
 				$autodetect->setIdAttribute("autodetect_timezone");
@@ -81,7 +81,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "timezone":
@@ -91,7 +91,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 					break;
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -102,8 +102,8 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 
 	public function generateFormFooter(): void{
 		$f = __METHOD__;
-		try {
-			if (! Request::isAjaxRequest()) {
+		try{
+			if(! Request::isAjaxRequest()) {
 				$script = new ScriptElement($this->getAllocationMode());
 				$element = new GetElementByIdCommand('autodetect_timezone');
 				$element->setParseType(TYPE_STRING);
@@ -113,14 +113,14 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 				$this->appendChild($script);
 			}
 			parent::generateFormFooter();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 	
 	public function generateChoices($input): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$column_name = $input->getColumnName();
 			$ds = $input->getContext()->getDataStructure();
@@ -214,17 +214,17 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 					];
 					$choices = [];
 					$timezone = $ds->getTimezone();
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} this user's timezone is \"{$timezone}\"");
 					}
-					foreach ($keyvalues as $key => $value) {
+					foreach($keyvalues as $key => $value) {
 						$choices[$key] = new Choice($key, $value, $timezone === $key);
 					}
 					return $choices;
 				default:
 					return parent::generateChoices($input);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

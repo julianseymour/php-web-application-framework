@@ -11,12 +11,12 @@ trait TypeSpecificTrait
 	public function setTypeSpecifier(?string $typedef): ?string
 	{
 		$f = __METHOD__; //"TypeSpecificTrait(".static::getShortClass().")->setTypeDefinitionString()";
-		if ($typedef == null) {
+		if($typedef == null) {
 			unset($this->typeSpecifier);
 			return null;
 			// }elseif(!is_string($typedef)){
 			// Debug::error("{$f} type definition string must be a string");
-		} elseif (! preg_match('/[dis]+/', $typedef)) {
+		}elseif(! preg_match('/[dis]+/', $typedef)) {
 			Debug::error("{$f} invalid type definition string \"{$typedef}\"");
 		}
 		return $this->typeSpecifier = $typedef;
@@ -30,7 +30,7 @@ trait TypeSpecificTrait
 	public function getTypeSpecifier()
 	{
 		$f = __METHOD__; //"TypeSpecificTrait(".static::getShortClass().")->getTypeSpecifier()";
-		if (! $this->hasTypeSpecifier()) {
+		if(!$this->hasTypeSpecifier()) {
 			Debug::error("{$f} type definition string is undefined");
 		}
 		return $this->typeSpecifier;

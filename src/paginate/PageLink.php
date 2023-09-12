@@ -32,7 +32,7 @@ class PageLink extends ProgressiveHyperlinkElement
 	public function getPageNumber()
 	{
 		$f = __METHOD__; //PageLink::getShortClass()."(".static::getShortClass().")->getPageNumber()";
-		if (! $this->hasPageNumber()) {
+		if(!$this->hasPageNumber()) {
 			Debug::error("{$f} page number is undefined");
 		}
 		return $this->pageNumber;
@@ -51,7 +51,7 @@ class PageLink extends ProgressiveHyperlinkElement
 	public function getBaseUri()
 	{
 		$f = __METHOD__; //PageLink::getShortClass()."(".static::getShortClass().")->getBaseUri()";
-		if (! $this->hasBaseUri()) {
+		if(!$this->hasBaseUri()) {
 			Debug::error("{$f} base URI is undefined");
 		}
 		return $this->baseUri;
@@ -60,8 +60,8 @@ class PageLink extends ProgressiveHyperlinkElement
 	public function bindContext($context)
 	{
 		$f = __METHOD__; //PageLink::getShortClass()."(".static::getShortClass().")->bindContext()";
-		try {
-			if (! $context instanceof Paginator) {
+		try{
+			if(!$context instanceof Paginator) {
 				Debug::error("{$f} context is not a paginator");
 			}
 			$ret = parent::bindContext($context);
@@ -74,7 +74,7 @@ class PageLink extends ProgressiveHyperlinkElement
 			$this->setHrefAttribute($href);
 			$this->setInnerHTML($pg);
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

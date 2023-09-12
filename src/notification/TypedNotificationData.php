@@ -67,7 +67,7 @@ abstract class TypedNotificationData extends NotificationData implements StaticS
 	}
 
 	public function getSubjectClass():string{
-		if ($this->hasSubjectData()) {
+		if($this->hasSubjectData()) {
 			return parent::getSubjectClass();
 		}
 		return static::getSubjectClassStatic($this);
@@ -80,9 +80,9 @@ abstract class TypedNotificationData extends NotificationData implements StaticS
 	public function getSubjectDataType():string{
 		$f = __METHOD__;
 		$type = $this->getColumnValue('subjectDataType');
-		if (isset($type) && $type != "") {
+		if(isset($type) && $type != "") {
 			return $type;
-		} elseif ($this->hasSubjectData()) {
+		}elseif($this->hasSubjectData()) {
 			$target = $this->getSubjectData();
 			$type = $target->getDataType();
 			return $this->setSubjectDataType($type);
@@ -114,7 +114,7 @@ abstract class TypedNotificationData extends NotificationData implements StaticS
 			$t = $t->evaluate();
 		}*/
 		$t[0] = strtoupper($t[0]);
-		if (starts_with($t, "translate")) {
+		if(starts_with($t, "translate")) {
 			Debug::error("{$f} translate command ");
 		}
 		$vn = "push{$t}Notifications";
@@ -129,7 +129,7 @@ abstract class TypedNotificationData extends NotificationData implements StaticS
 			$t = $t->evaluate();
 		}*/
 		$t[0] = strtoupper($t[0]);
-		if (starts_with($t, "translate")) {
+		if(starts_with($t, "translate")) {
 			Debug::error("{$f} translate command ");
 		}
 		$vn = "email{$t}Notifications";
@@ -149,7 +149,7 @@ abstract class TypedNotificationData extends NotificationData implements StaticS
 	 */
 	public function send(mysqli $mysqli): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if($print){
 				Debug::print("{$f} user ".$this->getUserData()->getUnambiguousName());
@@ -157,11 +157,11 @@ abstract class TypedNotificationData extends NotificationData implements StaticS
 			$user = $this->getUserData();
 			// check for duplicate entry, because if it happens in insert and exception will get thrown
 			$status = $this->preventDuplicateEntry($mysqli);
-			if ($status === ERROR_DUPLICATE_ENTRY) {
+			if($status === ERROR_DUPLICATE_ENTRY) {
 				Debug::warning("{$f} duplicate entry found");
 				switch ($this->getDuplicateEntryRecourse()) {
 					case RECOURSE_IGNORE:
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} ignoring database write, but continuing with push notification");
 						}
 						break;
@@ -173,28 +173,28 @@ abstract class TypedNotificationData extends NotificationData implements StaticS
 						Debug::printStackTrace();
 						return $this->setObjectStatus($status);
 				}
-			} else { // insert notification
-				if ($print) {
+			}else{ // insert notification
+				if($print) {
 					$nc = $this->getClass();
 					Debug::print("{$f} object of class \"{$nc}\" is not a duplicate entry");
 				}
 				$status = $this->insert($mysqli);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} returned from writing notification to database");
 				}
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} inserting notification returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} write operation successful");
 				}
 			}
 			// send email notification if applicable
 			$notification_type = $this->getNotificationType();
-			if (static::getNotificationTypeStatic() === NOTIFICATION_TYPE_TEST) {
+			if(static::getNotificationTypeStatic() === NOTIFICATION_TYPE_TEST) {
 				$email_notif_enabled = true;
-			} else {
+			}else{
 				$email_notif_enabled = $user->getEmailNotificationStatus($notification_type);
 			}
 			$subject = $this->getSubjectData();
@@ -203,51 +203,51 @@ abstract class TypedNotificationData extends NotificationData implements StaticS
 				Debug::print("{$f} about to call {$subject_class}->isEmailNotificationWarranted()");
 			}
 			$warranted = $subject->isEmailNotificationWarranted($user);
-			if (! $email_notif_enabled) {
-				if ($print) {
+			if(!$email_notif_enabled) {
+				if($print) {
 					Debug::print("{$f} user has email notifications disabled");
 				}
-			} elseif (! $warranted) {
+			}elseif(!$warranted) {
 				$tcn = $user->getClass();
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} email notification is unwarranted according to user of class \"{$tcn}\"");
 				}
-			} elseif ($email_notif_enabled && $warranted) {
-				if ($print) {
+			}elseif($email_notif_enabled && $warranted) {
+				if($print) {
 					Debug::print("{$f} about to send email notification");
 				}
 				$status = $user->sendEmail($mysqli, $subject);
-				if ($status !== SUCCESS) {
+				if($status !== SUCCESS) {
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} sending email notification returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} notification email sent successfully");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} about to create a blank reloaded notification data object");
 			}
 			// send push notification if applicable
-			if ($user instanceof PlayableUser && (! $this->canDisable() || $user->getPushNotificationStatus($notification_type))) {
-				if ($print) {
+			if($user instanceof PlayableUser && (! $this->canDisable() || $user->getPushNotificationStatus($notification_type))) {
+				if($print) {
 					Debug::print("{$f} yes, push notifications are enabled");
 				}
 				if($subject->isPushNotificationWarranted($user)){
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} the object says it warrants a push notification");
 					}
 					$status = push()->enqueue($this);
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} enqueued push notification");
 					}
 				}elseif($print){
 					Debug::print("{$f} push notifications are enabled, but object of class \"{$subject_class}\" says it is unwarranted");
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} push notifications are disabled");
 			}
 			return $this->setObjectStatus($status);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -267,14 +267,14 @@ abstract class TypedNotificationData extends NotificationData implements StaticS
 
 	public function getVirtualColumnValue(string $column_name){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($column_name) {
 				case 'subtype':
 					return $this->getSubtypeStatic();
 				default:
 					return parent::getVirtualColumnValue($column_name);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

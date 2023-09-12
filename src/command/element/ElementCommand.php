@@ -15,7 +15,7 @@ abstract class ElementCommand extends Command implements JavaScriptInterface{
 
 	public function getDebugSubcommandString(){
 		$ret = parent::getDebugSubcommandString();
-		if ($this->hasId()) {
+		if($this->hasId()) {
 			$ret .= "\"" . $this->getId() . "\"";
 		}
 		return $ret;
@@ -25,37 +25,37 @@ abstract class ElementCommand extends Command implements JavaScriptInterface{
 		$f = __METHOD__;
 		$print = false;
 		parent::__construct();
-		if (is_string($element)) {
-			if ($print) {
+		if(is_string($element)) {
+			if($print) {
 				Debug::print("{$f} element is a string -- setting ID");
 			}
 			$this->setId($element);
 			$this->setElement($element);
-		} elseif ($element instanceof Element) {
-			if ($element->getDeletedFlag()) {
+		}elseif($element instanceof Element) {
+			if($element->getDeletedFlag()) {
 				Debug::error("{$f} element has already been deleted");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} element is an element");
 			}
 			$this->setElement($element);
-		} elseif ($element instanceof ValueReturningCommandInterface) {
-			if ($print) {
+		}elseif($element instanceof ValueReturningCommandInterface) {
+			if($print) {
 				Debug::print("{$f} element is another command");
 			}
 			$this->setElement($element);
-			if ($element instanceof ConcatenateCommand) {
+			if($element instanceof ConcatenateCommand) {
 				$this->setId($element);
-			} elseif ($element instanceof GetElementByIdCommand) {
+			}elseif($element instanceof GetElementByIdCommand) {
 				$this->setId($element->getId());
 			}
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::error("{$f} element is not string, element or media command");
 		}
 	}
 
 	public function echoInnerJson(bool $destroy = false): void{
 		$f = __METHOD__;
-		if ($this->hasId()) {
+		if($this->hasId()) {
 			Json::echoKeyValuePair('id', $this->getId(), $destroy);
 		}
 		parent::echoInnerJson($destroy);
@@ -68,12 +68,12 @@ abstract class ElementCommand extends Command implements JavaScriptInterface{
 
 	public function setTemplateLoopFlag($value = true){
 		$f = __METHOD__;
-		if ($this->hasElement()) {
-			if ($this->element instanceof Element || $this->element instanceof ElementCommand || $this->element instanceof MultipleElementCommand) {
+		if($this->hasElement()) {
+			if($this->element instanceof Element || $this->element instanceof ElementCommand || $this->element instanceof MultipleElementCommand) {
 				return $this->getElement()->setTemplateLoopFlag($value);
 			}
 			Debug::warning("{$f} element is not an element or element media command");
-		} else {
+		}else{
 			Debug::warning("{$f} element is undefined");
 		}
 		return false;

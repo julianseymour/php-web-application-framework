@@ -16,21 +16,21 @@ abstract class Debug extends Basic{
 
 	public static function error($what){
 		$f = __METHOD__;
-		try {
+		try{
 			error_log("\033[31mError: {$what}\033[0m", 0);
 			Debug::limitExecutionDepth(512);
 			Debug::resetDebugCounterStatic();
-			if (isset($_SESSION['elements'])) {
+			if(isset($_SESSION['elements'])) {
 				Debug::print("{$f} constructed {$_SESSION['elements']} elements");
 			}
 			Debug::resetElementConstructorCount();
 			Debug::printStackTraceNoExit();
-			if (app() != null && app()->hasDebugger()) {
+			if(app() != null && app()->hasDebugger()) {
 				debug()->spew();
 			}
 			exit();
 			return;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -60,10 +60,10 @@ abstract class Debug extends Basic{
 	
 	public static function printSession(){
 		$f = __METHOD__;
-		if (isset($_SESSION) && is_array($_SESSION) && ! empty($_SESSION)) {
+		if(isset($_SESSION) && is_array($_SESSION) && ! empty($_SESSION)) {
 			Debug::print("{$f}: about to print session");
 			static::printArray($_SESSION);
-		} else {
+		}else{
 			Debug::print("{$f}: Session is empty");
 		}
 	}
@@ -75,7 +75,7 @@ abstract class Debug extends Basic{
 	public static function printStackTrace($msg = null){
 		Debug::printStackTraceNoExit($msg);
 		$a = app();
-		if ($a instanceof ApplicationRuntime && $a->hasDebugger()) {
+		if($a instanceof ApplicationRuntime && $a->hasDebugger()) {
 			debug()->spew();
 		}
 		exit();
@@ -83,14 +83,14 @@ abstract class Debug extends Basic{
 
 	public static function requireCacheKey($key = null){
 		$f = __METHOD__; //Debug::getShortClass() . "::requireCacheKey()";
-		if ($key === null) {
-			if (isset($_SESSION) && is_array($_SESSION) && array_key_exists($key, $_SESSION)) {
+		if($key === null) {
+			if(isset($_SESSION) && is_array($_SESSION) && array_key_exists($key, $_SESSION)) {
 				$key = $_SESSION['requiredCacheKey'];
-			} else {
+			}else{
 				return;
 			}
 		}
-		if (! cache()->hasAPCu($key)) {
+		if(! cache()->hasAPCu($key)) {
 			unset($_SESSION['requiredCacheKey']);
 			Debug::error("{$f} key \"{$key}\" is undefined");
 		}
@@ -108,25 +108,25 @@ abstract class Debug extends Basic{
 
 	public static function checkForbiddenString($string){
 		$f = __METHOD__;
-		if (! is_string($string)) {
+		if(!is_string($string)) {
 			Debug::error("checkForbiddenString received something that is not a string");
 		}
-		if ($_SESSION['forbidden'] === $string) {
+		if($_SESSION['forbidden'] === $string) {
 			Debug::warning("{$f} yep, it's forbidden");
 			Debug::printStackTrace();
-		} else {
+		}else{
 			// Debug::print("{$f} not forbidden, carry on");
 		}
 		return $string;
 	}
 
 	public static function printStackTraceNoExit($msg = null){
-		if (! empty($msg)) {
+		if(!empty($msg)) {
 			Debug::print($msg);
 		}
 		$trace = (new Exception())->getTraceAsString();
 		$exploded = explode("\n", $trace);
-		foreach ($exploded as $line) {
+		foreach($exploded as $line) {
 			Debug::print($line);
 		}
 	}
@@ -138,7 +138,7 @@ abstract class Debug extends Basic{
 	public static function armTrap():void{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} trap armed");
 		}
 		Debug::printStackTraceNoExit();
@@ -146,7 +146,7 @@ abstract class Debug extends Basic{
 	}
 
 	public static function disarmTrap():void{
-		if (array_key_exists('trap', $_SESSION)) {
+		if(array_key_exists('trap', $_SESSION)) {
 			unset($_SESSION['trap']);
 		}
 	}
@@ -156,7 +156,7 @@ abstract class Debug extends Basic{
 	}
 
 	public static function printPost($msg = null){
-		if (isset($msg) && is_string($msg) && $msg != "") {
+		if(isset($msg) && is_string($msg) && $msg != "") {
 			Debug::print($msg);
 		}
 		Debug::printArray($_POST);
@@ -164,7 +164,7 @@ abstract class Debug extends Basic{
 	}
 
 	public static function printGet($msg = null){
-		if (isset($msg) && is_string($msg) && $msg != "") {
+		if(isset($msg) && is_string($msg) && $msg != "") {
 			Debug::print($msg);
 		}
 		Debug::printArray($_GET);
@@ -180,67 +180,67 @@ abstract class Debug extends Basic{
 
 	public static function printArray($arr, ?int $depth = null):void{
 		$f = __METHOD__; //Debug::getShortClass() . "::printArray()";
-		try {
-			if (! is_array($arr)) {
+		try{
+			if(!is_array($arr)) {
 				Debug::warning("{$f} not an array");
 				Debug::printStackTrace($arr);
-			} elseif (empty($arr)) {
+			}elseif(empty($arr)) {
 				Debug::warning("{$f} array is empty");
 				Debug::printStackTraceNoExit();
 				return;
-			} elseif (is_int($depth) && $depth <= 0) {
+			}elseif(is_int($depth) && $depth <= 0) {
 				return;
 			}
-			foreach (array_keys($arr) as $key) {
-				if (is_array($arr[$key])) {
+			foreach(array_keys($arr) as $key) {
+				if(is_array($arr[$key])) {
 					Debug::print("{$f} array {$key}[]:{");
-					if (is_int($depth)) {
+					if(is_int($depth)) {
 						Debug::printArray($arr[$key], $depth - 1);
-					} else {
+					}else{
 						Debug::printArray($arr[$key]);
 					}
 					Debug::print("}");
-				} else {
-					if (is_object($arr[$key])) {
-						if (method_exists($arr[$key], "__toString")) {
+				}else{
+					if(is_object($arr[$key])) {
+						if(method_exists($arr[$key], "__toString")) {
 							$value = $arr[$key]->__toString();
-						} elseif (method_exists($arr[$key], "toArray")) {
+						}elseif(method_exists($arr[$key], "toArray")) {
 							$value = json_encode($arr[$key]->toArray());
-						} else {
+						}else{
 							$value = "Non-stringifiable object";
 						}
-					} else {
+					}else{
 						$value = $arr[$key];
 					}
 					Debug::print("{$f} key: \"{$key}\" : value \"{$value}\"");
 				}
 			}
 			//Debug::printStackTraceNoExit();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public static function printArrayHorizontal($arr): void{
 		$f = __METHOD__; //Debug::getShortClass() . "::printArrayHorizontal()";
-		try {
-			if (! is_array($arr)) {
+		try{
+			if(!is_array($arr)) {
 				Debug::warning("{$f} not an array");
 				Debug::printStackTrace($arr);
-			} elseif (empty($arr)) {
+			}elseif(empty($arr)) {
 				Debug::printStackTraceNoExit("{$f} array is empty");
 				return;
 			}
 			$s = "";
-			foreach ($arr as $value) {
-				if (! empty($s)) {
+			foreach($arr as $value) {
+				if(!empty($s)) {
 					$s .= " ";
 				}
 				$s .= "{$value}";
 			}
 			Debug::print($s);
 			// Debug::printStackTraceNoExit();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -260,7 +260,7 @@ abstract class Debug extends Basic{
 
 	public static function executionTimeout($duration = 30){
 		$f = __METHOD__;
-		if (getExecutionTime() >= $duration) {
+		if(getExecutionTime() >= $duration) {
 			Debug::error("{$f} execution time limit exceeded");
 		}
 	}
@@ -268,7 +268,7 @@ abstract class Debug extends Basic{
 	public static function limitExecutionDepth($limit = 2500){
 		$f = __METHOD__;
 		$bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $limit + 1);
-		if (count($bt) >= $limit + 1) {
+		if(count($bt) >= $limit + 1) {
 			$what = "{$f} exceed maximum execution depth {$limit}";
 			error_log("\033[31mError: {$what}\033[0m", 0);
 			Debug::printStackTrace();
@@ -278,38 +278,38 @@ abstract class Debug extends Basic{
 
 	public static function incrementDebugCounterStatic(){
 		$f = __METHOD__;
-		try {
-			if (! isset($_SESSION) || ! is_int($_SESSION['debug_counter'])) {
+		try{
+			if(! isset($_SESSION) || ! is_int($_SESSION['debug_counter'])) {
 				$value = 1;
-			} else {
+			}else{
 				$value = $_SESSION['debug_counter'] + 1;
 			}
 			$_SESSION['debug_counter'] = $value;
-			if ($value > 288) {
+			if($value > 288) {
 				Debug::resetDebugCounterStatic();
 				Debug::error("{$f} I think you've had enough pal");
 			}
 			Debug::print("{$f} {$value} iterations");
 			return $value;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public static function decrementDebugCounterStatic(){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! isset($_SESSION) || ! is_int($_SESSION['debug_counter'])) {
+			if(! isset($_SESSION) || ! is_int($_SESSION['debug_counter'])) {
 				$value = 0;
-			} else {
+			}else{
 				$value = $_SESSION['debug_counter'] - 1;
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} {$value} iterations");
 			}
 			return $_SESSION['debug_counter'] = $value;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -321,13 +321,13 @@ abstract class Debug extends Basic{
 	public static function incrementElementConstructorCount(){
 		$f = __METHOD__;
 		$print = false;
-		if (! isset($_SESSION) || ! is_array($_SESSION)) {
-			if ($print) {
+		if(! isset($_SESSION) || ! is_array($_SESSION)) {
+			if($print) {
 				Debug::print("{$f} session is undefined");
 			}
 			return;
 		}
-		if (! array_key_exists("elements", $_SESSION)) {
+		if(! array_key_exists("elements", $_SESSION)) {
 			Debug::resetElementConstructorCount();
 		}
 		$_SESSION['elements'] ++;
@@ -339,18 +339,18 @@ abstract class Debug extends Basic{
 
 	public static function checkMemoryUsage(string $when = "", ?int $limit = null, $print = false){
 		$f = __METHOD__;
-		if ($limit === null) {
+		if($limit === null) {
 			$limit = function_exists("memprof_dump_callgrind") ? 124000000 : 96000000;
 		}
 		$mem1 = memory_get_usage();
-		if ($mem1 >= $limit) {
-			if (function_exists("memprof_dump_callgrind")) {
-				$path = '/var/' . DOMAIN_BASE . '/memprof/dump.out';
+		if($mem1 >= $limit) {
+			if(function_exists("memprof_dump_callgrind")) {
+				$path = '/var/www/memprof/dump.out';
 				error_log("{$f} about to dump to file \"{$path}\"", 0);
 				$stream = fopen($path, 'w+');
-				if (is_bool($stream) && ! $stream) {
+				if(is_bool($stream) && ! $stream) {
 					error_log("{$f} unable to open file at {$path}, you probably forgot to change directory ownership to www-data", 0);
-				} else {
+				}else{
 					memprof_dump_callgrind($stream);
 					error_log("{$f} file dumped", 0);
 				}
@@ -359,48 +359,48 @@ abstract class Debug extends Basic{
 			}
 			error_log("{$f} memory overload {$mem1} {$when}", 0);
 			Debug::printStackTrace();
-		} elseif ($print) {
+		}elseif($print) {
 			error_log("{$f} memory usage: {$mem1} {$when}", 0);
 		}
 	}
 
 	public static function print($what){
 		$f = __METHOD__;
-		try {
-			if (is_array($what)) {
+		try{
+			if(is_array($what)) {
 				return Debug::printArray($what);
-			} elseif (is_object($what)) {
-				if (! $what instanceof StringifiableInterface) {
+			}elseif(is_object($what)) {
+				if(!$what instanceof StringifiableInterface) {
 					$class = get_class($what);
 					Debug::warning("{$f} received a parameter that is a non-stringifiable object of class \"{$class}\"");
 					return;
 				}
-			} elseif (is_bool($what)) {
-				if ($what) {
+			}elseif(is_bool($what)) {
+				if($what) {
 					Debug::print("true");
-				} else {
+				}else{
 					Debug::print("false");
 				}
-			} elseif (! is_string($what) && ! is_int($what) && ! is_float($what)) {
+			}elseif(!is_string($what) && ! is_int($what) && ! is_float($what)) {
 				$type = gettype($what);
 				Debug::error("{$f} received a parameter of type \"{$type}\"");
 			} //
-			if (defined("DEBUG_IP_ADDRESS") && $_SERVER['REMOTE_ADDR'] !== DEBUG_IP_ADDRESS) {
+			if(defined("DEBUG_IP_ADDRESS") && $_SERVER['REMOTE_ADDR'] !== DEBUG_IP_ADDRESS) {
 				return;
 			}
 			error_log($what, 0);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public static function printArray64($arr){
 		$f = __METHOD__;
-		if (empty($arr)) {
+		if(empty($arr)) {
 			Debug::print("{$f} array is empty");
 		} else
-			foreach ($arr as $k => $v) {
-				if (is_array($v)) {
+			foreach($arr as $k => $v) {
+				if(is_array($v)) {
 					Debug::print("{$f} key \"{$k}\" => nested array");
 					Debug::printArray64($v);
 					continue;
@@ -412,11 +412,11 @@ abstract class Debug extends Basic{
 
 	public static function printArrayHash($arr){
 		$f = __METHOD__;
-		if (empty($arr)) {
+		if(empty($arr)) {
 			Debug::print("{$f} array is empty");
 		} else
-			foreach ($arr as $k => $v) {
-				if (is_array($v)) {
+			foreach($arr as $k => $v) {
+				if(is_array($v)) {
 					Debug::print("{$f} key \"{$k}\" => nested array");
 					Debug::printArrayHash($v);
 					continue;
@@ -432,16 +432,16 @@ abstract class Debug extends Basic{
 
 	public static function validateDebugId($debug_id){
 		$f = __METHOD__;
-		if ($_SESSION['debugId'] !== $debug_id) {
+		if($_SESSION['debugId'] !== $debug_id) {
 			Debug::error("{$f} invalid debug ID \"{$debug_id}\", should be \"{$_SESSION['debugId']}\"");
 		}
 	}
 
 	public static function springTrap($msg = null){
 		$f = __METHOD__;
-		if (Debug::isTrapArmed()) {
+		if(Debug::isTrapArmed()) {
 			Debug::disarmTrap();
-			if (isset($msg)) {
+			if(isset($msg)) {
 				Debug::error($msg);
 			}
 			Debug::error("{$f} trapped");

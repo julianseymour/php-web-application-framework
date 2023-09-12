@@ -25,7 +25,7 @@ class ProgressiveHyperlinkElement extends AnchorElement
 	}
 
 	protected function getProgressiveHyperlinkFunction():string{
-		if ($this->hasProgressiveHyperlinkFunction()) {
+		if($this->hasProgressiveHyperlinkFunction()) {
 			return $this->progressiveHyperlinkFunction;
 		}
 		return "loadHyperlink";
@@ -72,10 +72,10 @@ class ProgressiveHyperlinkElement extends AnchorElement
 		$p = new ProgressiveHyperlinkElement();
 		$p->setHrefAttribute($href);
 		$p->setInnerHTML($innerHTML);
-		if ($func !== null) {
+		if($func !== null) {
 			$p->setProgressiveHyperlinkFunction($func);
 		}
-		if ($cache) {
+		if($cache) {
 			$p->cache();
 		}
 		return $p;
@@ -83,11 +83,11 @@ class ProgressiveHyperlinkElement extends AnchorElement
 
 	public static function links(?array $arr, ?string $func = null, bool $cache = false): ?array
 	{
-		if (empty($arr)) {
+		if(empty($arr)) {
 			return [];
 		}
 		$ret = [];
-		foreach ($arr as $href => $innerHTML) {
+		foreach($arr as $href => $innerHTML) {
 			array_push($ret, static::link($href, $innerHTML, $func, $cache));
 		}
 		return $ret;

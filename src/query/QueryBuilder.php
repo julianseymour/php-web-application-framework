@@ -208,14 +208,14 @@ abstract class QueryBuilder extends Basic{
 	public static function tableExists($mysqli, $databaseName, $tableName): bool{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
-		if ($mysqli->connect_errno) {
+		if($mysqli->connect_errno) {
 			Debug::error("{$f} Failed to connect to MySQL: ({$mysqli->connect_errno}) {$mysqli->connect_error}");
-		} elseif (! $mysqli->ping()) {
+		}elseif(!$mysqli->ping()) {
 			Debug::error("{$f} mysqli connection failed ping test: \"" . $mysqli->error . "\"");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} about to ask whether table {$databaseName}.{$tableName} exists");
 		}
 		$select = new SelectStatement("TABLE_SCHEMA", "TABLE_NAME");

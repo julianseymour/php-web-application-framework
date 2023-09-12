@@ -107,9 +107,9 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 
 	public function toSQL(): string{
 		$f = __METHOD__;
-		try {
+		try{
 			return $this->getUsernameHostString();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -149,7 +149,7 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 
 	public function getHost(){
 		$f = __METHOD__;
-		if (! $this->hasHost()) {
+		if(!$this->hasHost()) {
 			Debug::error("{$f} host is undefined");
 		}
 		return $this->getColumnValue("Host");
@@ -157,10 +157,10 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 
 	public function setHost($host){ // XXX validate host
 		$f = __METHOD__;
-		if ($host == null) {
+		if($host == null) {
 			$this->ejectColumnValue("Host");
 			return null;
-		} elseif (! is_string($host)) {
+		}elseif(!is_string($host)) {
 			Debug::error("{$f} host must be a string");
 		}
 		return $this->setColumnValue("Host", $host);
@@ -177,7 +177,7 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 
 	public function getAuthPlugin(){
 		$f = __METHOD__;
-		if (! $this->hasAuthPlugin()) {
+		if(!$this->hasAuthPlugin()) {
 			Debug::error("{$f} auth plugin is undefined");
 		}
 		return $this->getColumnValue("plugin");
@@ -185,10 +185,10 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 
 	public function setAuthPlugin($authPlugin){
 		$f = __METHOD__;
-		if ($authPlugin == null) {
+		if($authPlugin == null) {
 			$this->ejectColumnValue("plugin");
 			return null;
-		} elseif (! is_string($authPlugin)) {
+		}elseif(!is_string($authPlugin)) {
 			Debug::error("{$f} auth plugin must be a string");
 		}
 		return $this->setColumnValue("plugin", $authPlugin);

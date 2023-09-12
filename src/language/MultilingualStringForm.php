@@ -24,7 +24,7 @@ abstract class MultilingualStringForm extends AjaxForm{
 
 	public function getFormDataIndices(): ?array{
 		$ret = [];
-		foreach (config()->getSupportedLanguages() as $lang) {
+		foreach(config()->getSupportedLanguages() as $lang) {
 			$ret[$lang] = $this->getNestedFormClass();;
 		}
 		return $ret;

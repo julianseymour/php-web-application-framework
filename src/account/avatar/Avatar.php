@@ -39,14 +39,14 @@ class Avatar extends SpanElement implements TemplateElementInterface{
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
 			$this->setIdOverride("avatar");
 			$avatar_bg = new DivElement($mode);
 			$avatar_bg->addClassAttribute("avatar_bg");
 			$avatar_bg->setIdOverride("avatar_bg");
-			if ($this->getAvatarType() === AVATAR_TYPE_PREVIEW) {
+			if($this->getAvatarType() === AVATAR_TYPE_PREVIEW) {
 				$avatar_bg->setIdAttribute("msg_preview_avatar");
 			}
 			$avatar_head = new DivElement($mode);
@@ -62,13 +62,13 @@ class Avatar extends SpanElement implements TemplateElementInterface{
 			$thumb->setIdOverride("thumb");
 			$avatar_bg->resolveTemplateCommand(NodeBearingIfCommand::if(CommandBuilder::and($context->hasForeignDataStructureCommand("profileImageKey"), $pid->hasColumnValueCommand("status")))->then($avatar_bg->appendChildCommand($thumb->bindElementCommand($pid))));
 			$this->appendChild($avatar_bg);
-			if ($this->getAvatarType() !== AVATAR_TYPE_PREVIEW) {
+			if($this->getAvatarType() !== AVATAR_TYPE_PREVIEW) {
 				$indicator = new OnlineStatusIndicator($mode);
 				$indicator->bindContext($context);
 				$this->appendChild($indicator);
 			}
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

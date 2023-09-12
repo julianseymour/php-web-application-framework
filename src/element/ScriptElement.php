@@ -37,14 +37,14 @@ class ScriptElement extends IntangibleElement{
 	protected function beforeRenderHook(): int{
 		$f = __METHOD__;
 		$ret = parent::beforeRenderHook();
-		if (! $this->hasInnerHTML() && $this->hasChildNodes()) {
+		if(!$this->hasInnerHTML() && $this->hasChildNodes()) {
 			$string = "";
-			foreach ($this->getChildNodes() as $child) {
-				if ($child instanceof JavaScriptInterface) {
+			foreach($this->getChildNodes() as $child) {
+				if($child instanceof JavaScriptInterface) {
 					$string .= $child->toJavaScript();
-				} elseif ($child instanceof StringifiableInterface || is_string($child)) {
+				}elseif($child instanceof StringifiableInterface || is_string($child)) {
 					$string .= $child;
-				} else {
+				}else{
 					Debug::error("{$f} invalid child type");
 				}
 				$string .= "\n";

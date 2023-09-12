@@ -29,14 +29,14 @@ class ClearServerCacheUseCase extends UseCase{
 	public function execute(): int{
 		$f = __METHOD__;
 		$print = false;
-		if (! hasInputParameter('clear')) {
-			if ($print) {
+		if(! hasInputParameter('clear')) {
+			if($print) {
 				Debug::print("{$f} nothing to do here");
 			}
 			return SUCCESS;
 		}
 		$which = getInputParameter("clear");
-		if (! is_string($which) || empty($which)) {
+		if(!is_string($which) || empty($which)) {
 			Debug::warning("{$f} invalid or empty string parameter");
 			Debug::printArray(getInputParameters());
 			Debug::printStackTrace();
@@ -55,7 +55,7 @@ class ClearServerCacheUseCase extends UseCase{
 			default:
 				Debug::error("{$f} invalid cache \"{$which}\"");
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} cache cleared successfully");
 		}
 		return SUCCESS;

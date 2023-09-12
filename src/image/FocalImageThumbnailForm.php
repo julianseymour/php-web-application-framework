@@ -22,18 +22,18 @@ class FocalImageThumbnailForm extends ImageThumbnailForm
 	{
 		$f = __METHOD__; //FocalImageThumbnailForm::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
 		$print = false;
-		if (! $this->hasContext()) {
+		if(!$this->hasContext()) {
 			Debug::error("{$f} context is undefined");
 		}
 		$context = $this->getContext();
 		$indices = parent::getFormDataIndices();
 		$mode = $this->getAllocationMode();
-		if ($mode === ALLOCATION_MODE_FORM || ! $context->isUninitialized()) {
+		if($mode === ALLOCATION_MODE_FORM || ! $context->isUninitialized()) {
 			if($print){
 				Debug::print("{$f} context is initialized, or we are allocating the form for processing only");
 			}
 			$indices['originalFilename'] = FocalImageThumbnailFileInput::class;
-			if (! $context->isUninitialized() && $context->getOrientation() !== ORIENTATION_SQUARE) {
+			if(!$context->isUninitialized() && $context->getOrientation() !== ORIENTATION_SQUARE) {
 				if($print){
 					Debug::print("{$f} context is initialized");
 				}
@@ -55,21 +55,21 @@ class FocalImageThumbnailForm extends ImageThumbnailForm
 	public function reconfigureInput($input): int
 	{
 		$f = __METHOD__; //FocalImageThumbnailForm::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		try {
+		try{
 			$print = false;
-			if (! $input->hasColumnName()) {
+			if(!$input->hasColumnName()) {
 				return parent::reconfigureInput($input);
 			}
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "focalLineRatio":
 					$pid = $this->getContext();
-					if ($pid->isUninitialized()) {
+					if($pid->isUninitialized()) {
 						if($print){
 							Debug::print("{$f} context is uninitialized");
 						}
 						return SUCCESS;
-					} elseif ($pid->getOrientation() === "square") {
+					}elseif($pid->getOrientation() === "square") {
 						if($print){
 							Debug::print("{$f} image has a square aspect ratio");
 						}
@@ -84,12 +84,12 @@ class FocalImageThumbnailForm extends ImageThumbnailForm
 					$input->setStyleProperty("transform-origin", "left");
 					$input->setStepAttribute(0.01);
 					$input->setValueAttribute($pid->getFocalLineRatio());
-					if ($pid->isTall()) {
+					if($pid->isTall()) {
 						$input->setStyleProperty("transform", "rotate(90deg) translate(calc(-100% + 1em))");
 						$dimension1 = $pid->getThumbnailWidth();
 						$dimension2 = $pid->getThumbnailHeight();
 						$input->setAttribute("orientation", "portrait");
-					} else {
+					}else{
 						$input->setStyleProperty("display", "block");
 						$dimension1 = $pid->getThumbnailHeight();
 						$dimension2 = $pid->getThumbnailWidth();
@@ -110,7 +110,7 @@ class FocalImageThumbnailForm extends ImageThumbnailForm
 				default:
 					return parent::reconfigureInput($input);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

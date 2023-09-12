@@ -48,7 +48,7 @@ class DefaultModule extends EmptyModule{
 			"robots.txt" => \JulianSeymour\PHPWebApplicationFramework\app\RobotsDotTxtUseCase::class,
 			"script" => \JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFileRouter::class,
 			"server_cache" => \JulianSeymour\PHPWebApplicationFramework\cache\server\ClearServerCacheUseCase::class,
-			"service-worker.js" => \JulianSeymour\PHPWebApplicationFramework\script\LocalizedServiceWorkerUseCase::class,
+			"sw.js" => \JulianSeymour\PHPWebApplicationFramework\script\LocalizedServiceWorkerUseCase::class,
 			"settings" => \JulianSeymour\PHPWebApplicationFramework\account\settings\AccountSettingsUseCase::class,
 			"sitemap.xml" => \JulianSeymour\PHPWebApplicationFramework\app\SiteMapUseCase::class,
 			"style" => \JulianSeymour\PHPWebApplicationFramework\style\CssBundleUseCase::class,
@@ -552,7 +552,7 @@ class DefaultModule extends EmptyModule{
 			"STRING_UPLOAD" => _("Upload"),
 			"STRING_VALIDATE" => _("Validate")
 		];
-		if (defined('HCAPTCHA_SITE_KEY')) {
+		if(defined('HCAPTCHA_SITE_KEY')) {
 			$ret['HCAPTCHA_SITE_KEY'] = HCAPTCHA_SITE_KEY;
 		}
 		return $ret;
@@ -707,36 +707,13 @@ class DefaultModule extends EmptyModule{
 		];
 	}
 	
-	public function afterInstallHook(mysqli $mysqli):int{
-		$f = __METHOD__;
-		$print = false;
-		//create /var/www/uploads
-		if(!is_dir("/var/www/uploads")){
-			if($print){
-				Debug::print("{$f} creating uploads directory");
-			}
-			mkdir("/var/www/uploads", 0777, true);
-		}elseif($print){
-			Debug::print("{$f} uploads directory was already created");
-		}
-		//create /var/www/html/images/profile
-		if(!is_dir("/var/www/html/images/profile")){
-			if(!is_dir("/var/www/html/images")){
-				if($print){
-					Debug::print("{$f} creating images directory");
-				}
-				mkdir("/var/www/htmlimages", 0777, true);
-			}elseif($print){
-				Debug::print("{$f} images directory was already created");
-			}
-			if($print){
-				Debug::print("{$f} creating profile images folder");
-			}
-			mkdir("/var/www/html/images/profile", 0777, true);
-		}elseif($print){
-			Debug::print("{$f} profile images directory was already created");
-		}
-		return SUCCESS;
+	public function getInstallDirectories():?array{
+		return [
+			"/var/www/html/images/profile",
+			"/var/www/locale",
+			'/var/www/memprof',
+			"/var/www/uploads/encrypted"
+		];
 	}
 	
 	public function getEmbedName():string{

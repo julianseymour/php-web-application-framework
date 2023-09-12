@@ -31,7 +31,7 @@ abstract class DataCollection extends Basic
 
 	public function collect($struct)
 	{
-		if (! isset($this->collection) || ! is_array($this->collection)) {
+		if(! isset($this->collection) || ! is_array($this->collection)) {
 			$this->collection = [];
 		}
 		return $this->collection[$struct->getIdentifierValue()] = $struct;
@@ -53,20 +53,20 @@ abstract class DataCollection extends Basic
 	{
 		$f = __METHOD__; //DataCollection::getShortClass()."(".static::getShortClass().")->insert()";
 		$status = $this->permit(user(), DIRECTIVE_INSERT);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::print("{$f} permit returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
 		}
 		$status = $this->beforeInsertHook($mysqli);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} before insert hook returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
 		}
-		foreach ($this->getCollection() as $item) {
+		foreach($this->getCollection() as $item) {
 			$status = $item->insert($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				$id = $item->getIdentifierValue();
 				Debug::warning("{$f} inserting item with identifier \"{$id}\" returned error status \"{$err}\"");
@@ -74,7 +74,7 @@ abstract class DataCollection extends Basic
 			}
 		}
 		$status = $this->afterInsertHook($mysqli);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} after insert hook returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
@@ -98,20 +98,20 @@ abstract class DataCollection extends Basic
 	{
 		$f = __METHOD__; //DataCollection::getShortClass()."(".static::getShortClass().")->update()";
 		$status = $this->permit(user(), DIRECTIVE_UPDATE);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::print("{$f} permit returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
 		}
 		$status = $this->beforeUpdateHook($mysqli);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} before update hook returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
 		}
-		foreach ($this->getCollection() as $item) {
+		foreach($this->getCollection() as $item) {
 			$status = $item->update($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				$id = $item->getIdentifierValue();
 				Debug::warning("{$f} updating item with identifier \"{$id}\" returned error status \"{$err}\"");
@@ -119,7 +119,7 @@ abstract class DataCollection extends Basic
 			}
 		}
 		$status = $this->afterUpdateHook($mysqli);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} after update hook returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
@@ -143,20 +143,20 @@ abstract class DataCollection extends Basic
 	{
 		$f = __METHOD__; //DataCollection::getShortClass()."(".static::getShortClass().")->delete()";
 		$status = $this->permit(user(), DIRECTIVE_DELETE);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::print("{$f} permit returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
 		}
 		$status = $this->beforeDeleteHook($mysqli);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} before delete hook returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
 		}
-		foreach ($this->getCollection() as $item) {
+		foreach($this->getCollection() as $item) {
 			$status = $item->delete($mysqli);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				$id = $item->getIdentifierValue();
 				Debug::warning("{$f} deleting item with identifier \"{$id}\" returned error status \"{$err}\"");
@@ -164,7 +164,7 @@ abstract class DataCollection extends Basic
 			}
 		}
 		$status = $this->afterDeleteHook($mysqli);
-		if ($status !== SUCCESS) {
+		if($status !== SUCCESS) {
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} after delete hook returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);

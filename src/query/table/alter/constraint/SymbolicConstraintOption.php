@@ -13,7 +13,7 @@ abstract class SymbolicConstraintOption extends AlterOption
 	public function __construct($symbol)
 	{
 		parent::__construct();
-		if ($symbol instanceof Constraint) {
+		if($symbol instanceof Constraint) {
 			$symbol = $symbol->getSymbol();
 		}
 		$this->setSymbol($symbol);

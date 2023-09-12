@@ -27,7 +27,7 @@ class RegistrationEmailAddressValidator extends UniqueValidator implements AjaxV
 		$command = (new SetAttributeCommand($element, [
 			"validity" => "valid"
 		]));
-		if (getInputParameter('form') === RegistrationForm::getFormDispatchIdStatic()) {
+		if(getInputParameter('form') === RegistrationForm::getFormDispatchIdStatic()) {
 			$command->pushSubcommand(new SetInnerHTMLCommand($notice, ""));
 		}
 		return $command;
@@ -39,7 +39,7 @@ class RegistrationEmailAddressValidator extends UniqueValidator implements AjaxV
 		$command = (new SetAttributeCommand($element, [
 			"validity" => "invalid"
 		]));
-		if (getInputParameter('form') === RegistrationForm::getFormDispatchIdStatic()) {
+		if(getInputParameter('form') === RegistrationForm::getFormDispatchIdStatic()) {
 			$command->pushSubcommand(new SetInnerHTMLCommand($notice, ErrorMessage::getResultMessage($this->getObjectStatus())));
 		}
 		return $command;
@@ -48,7 +48,7 @@ class RegistrationEmailAddressValidator extends UniqueValidator implements AjaxV
 	protected function prevalidate(&$arr){
 		$f = __METHOD__;
 		
-		if (! array_key_exists('emailAddress', $arr)) {
+		if(! array_key_exists('emailAddress', $arr)) {
 			Debug::warning("{$f} email address was not posted");
 			Debug::printArray($arr);
 			Debug::print("{$f} about to print input parameters");

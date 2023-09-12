@@ -24,19 +24,19 @@ class ValidateLockoutCodeUseCase extends ValidateAnonymousConfirmationCodeUseCas
 
 	public function afterLoadHook(mysqli $mysqli): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$status = parent::afterLoadHook($mysqli);
 			$user = user();
-			if (! $user instanceof AnonymousUser) {
+			if(!$user instanceof AnonymousUser) {
 				Debug::warning("{$f} user is already logged in");
 				return $this->setObjectStatus(ERROR_ALREADY_LOGGED);
-			} elseif (! $user->isEnabled()) {
+			}elseif(!$user->isEnabled()) {
 				Debug::warning("{$f} user is not enabled");
 				return $this->setObjectStatus(ERROR_ACCOUNT_DISABLED);
 			}
 			Debug::print("{$f} user is not already logged in");
 			return $status;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -71,9 +71,9 @@ class ValidateLockoutCodeUseCase extends ValidateAnonymousConfirmationCodeUseCas
 
 	public function beforeTransitionHook(UseCase $successor): int{
 		parent::beforeTransitionHook($successor);
-		if (! $successor instanceof WaiveLockoutUseCase) {
+		if(!$successor instanceof WaiveLockoutUseCase) {
 			return FAILURE;
-		} elseif ($this->getObjectStatus() === SUCCESS) {
+		}elseif($this->getObjectStatus() === SUCCESS) {
 			$successor->setObjectStatus(RESULT_BFP_WAIVER_SUCCESS);
 		}
 		return SUCCESS;

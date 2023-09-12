@@ -15,26 +15,26 @@ class DropViewStatement extends AbstractDropTableStatement
 		// DROP VIEW
 		$string = "drop view ";
 		// [IF EXISTS]
-		if ($this->getIfExistsFlag()) {
+		if($this->getIfExistsFlag()) {
 			$string .= "if exsits ";
 		}
 		// view_name [, view_name] ...
 		$i = 0;
-		foreach ($this->getTableNames() as $tn) {
-			if ($i ++ > 0) {
+		foreach($this->getTableNames() as $tn) {
+			if($i ++ > 0) {
 				$string .= ", ";
 			}
-			if ($tn instanceof SQLInterface) {
+			if($tn instanceof SQLInterface) {
 				$string .= $tn->toSQL();
-			} elseif (is_string($tn)) {
+			}elseif(is_string($tn)) {
 				$string .= back_quote($tn);
-			} else {
+			}else{
 				Debug::error("{$f} table name is not an SQLInterface or string");
 			}
 		}
 		// $string .= implode(',', $this->getTableNames());
 		// [RESTRICT | CASCADE]
-		if ($this->hasReferenceOption()) {
+		if($this->hasReferenceOption()) {
 			$string .= " " . $this->getReferenceOption();
 		}
 		return $string;

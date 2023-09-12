@@ -31,7 +31,7 @@ class LogoutForm extends AjaxForm{
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$inputs = parent::getAdHocInputs();
 			$uri = request()->getRequestURI();
 			$uri_input = new HiddenInput($this->getAllocationMode());
@@ -39,7 +39,7 @@ class LogoutForm extends AjaxForm{
 			$uri_input->setValueAttribute($uri);
 			$inputs[$uri_input->getNameAttribute()] = $uri_input;
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

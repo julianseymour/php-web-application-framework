@@ -10,7 +10,7 @@ trait TypeTrait
 
 	public function setType($type)
 	{
-		if ($type == null) {
+		if($type == null) {
 			unset($this->type);
 			return null;
 		}
@@ -25,7 +25,7 @@ trait TypeTrait
 	public function getType()
 	{
 		$f = __METHOD__; //"TypeTrait(".static::getShortClass().")->getType()";
-		if (! $this->hasType()) {
+		if(!$this->hasType()) {
 			Debug::error("{$f} type is undefined");
 		}
 		return $this->type;

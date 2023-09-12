@@ -13,7 +13,7 @@ class DropUserStatement extends QueryStatement
 	public function __construct(...$users)
 	{
 		parent::__construct();
-		if (isset($users)) {
+		if(isset($users)) {
 			$this->setUsers($users);
 		}
 	}
@@ -22,12 +22,12 @@ class DropUserStatement extends QueryStatement
 	{
 		// DROP USER [IF EXISTS] user [, user] ...
 		$string = "drop user ";
-		if ($this->getIfExistsFlag()) {
+		if($this->getIfExistsFlag()) {
 			$string .= "if exists ";
 		}
 		$count = 0;
-		foreach ($this->getUsers() as $user) {
-			if ($count > 0) {
+		foreach($this->getUsers() as $user) {
+			if($count > 0) {
 				$string .= ",";
 			}
 			$string .= $user->toSQL();

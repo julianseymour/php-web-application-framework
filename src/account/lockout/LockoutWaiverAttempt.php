@@ -42,7 +42,7 @@ class LockoutWaiverAttempt extends CodeConfirmationAttempt{
 
 	public function bruteforceProtection(mysqli $mysqli): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			// 3. see if the user already has a valid waiver
 			$user = $this->getUserData();
@@ -57,25 +57,25 @@ class LockoutWaiverAttempt extends CodeConfirmationAttempt{
 				RESULT_BFP_WAIVER_SUCCESS,
 				$this->generateExpiredTimestamp()
 			]);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} select statement is \"{$select}\"");
 			}
 			$count = $select->executeGetResultCount($mysqli);
-			if ($count === 1) {
-				if ($print) {
+			if($count === 1) {
+				if($print) {
 					Debug::print("{$f} login waiver already valid");
 				}
 				return $this->setLoginResult(RESULT_BFP_WAIVER_SUCCESS);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} there is not an existing lockout waiver in effect");
 			}
 			$result = parent::bruteforceProtection($mysqli);
-			if ($print) {
+			if($print) {
 				$err = ErrorMessage::getResultMessage($result);
 				Debug::print("{$f} parent function returned error status \"{$err}\"");
 			}
 			return $result;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -97,7 +97,7 @@ class LockoutWaiverAttempt extends CodeConfirmationAttempt{
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		if ($name === DIRECTIVE_INSERT) {
+		if($name === DIRECTIVE_INSERT) {
 			return new AnonymousAccountTypePermission($name);
 		}
 		return parent::getPermissionStatic($name, $data);

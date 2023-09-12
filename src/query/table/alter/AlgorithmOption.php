@@ -18,7 +18,7 @@ class AlgorithmOption extends AlterOption
 	public function setAlgorithm($algorithm)
 	{
 		$f = __METHOD__; //AlgorithmOption::getShortClass()."(".static::getShortClass().")->setAlgorithm()";
-		if (! is_string($algorithm)) {
+		if(!is_string($algorithm)) {
 			Debug::error("{$f} algorithm name is not a string");
 		}
 		$algorithm = strtolower($algorithm);
@@ -36,7 +36,7 @@ class AlgorithmOption extends AlterOption
 
 	public function getAlgorithm()
 	{
-		if (! $this->hasAlgorithm()) {
+		if(!$this->hasAlgorithm()) {
 			return ALGORITHM_DEFAULT;
 		}
 		return $this->algorithmType;

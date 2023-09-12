@@ -57,7 +57,7 @@ class PartitionDefinition extends AbstractTableOptions
 	public function getPartitionName()
 	{
 		$f = __METHOD__; //PartitionDefinition::getShortClass()."(".static::getShortClass().")->getPartitionName()";
-		if (! $this->hasPartitionName()) {
+		if(!$this->hasPartitionName()) {
 			Debug::error("{$f} partition name is undefined");
 		}
 		return $this->partitionName;
@@ -66,24 +66,24 @@ class PartitionDefinition extends AbstractTableOptions
 	public function values($operator, $values)
 	{
 		$f = __METHOD__; //PartitionDefinition::getShortClass()."(".static::getShortClass().")->values()";
-		if (! is_string($operator)) {
+		if(!is_string($operator)) {
 			Debug::error("{$f} operator is not a string");
 		}
 		switch ($operator) {
 			case OPERATOR_LESSTHAN:
 				$operator = OPERATOR_LESSTHAN_STRING;
 			case OPERATOR_LESSTHAN_STRING:
-				if (is_string($values)) {
+				if(is_string($values)) {
 					$values = strtolower($values);
-					if ($values === "maxvalue") {
+					if($values === "maxvalue") {
 						break;
 					}
 					Debug::error("{$f} invalid values expression \"{$values}\"");
-				} elseif ($values instanceof ExpressionCommand) {
+				}elseif($values instanceof ExpressionCommand) {
 					break;
 				}
 			case OPERATOR_IN:
-				if (! is_array($values)) {
+				if(!is_array($values)) {
 					Debug::error("{$f} values is not an array");
 				}
 				break;
@@ -108,7 +108,7 @@ class PartitionDefinition extends AbstractTableOptions
 	public function getValuesOperator()
 	{
 		$f = __METHOD__; //PartitionDefinition::getShortClass()."(".static::getShortClass().")->getValuesOperator()";
-		if (! $this->hasValuesOperator()) {
+		if(!$this->hasValuesOperator()) {
 			Debug::error("{$f} values operator is undefined");
 		}
 		return $this->valuesOperator;
@@ -120,9 +120,9 @@ class PartitionDefinition extends AbstractTableOptions
 		$operator = $this->getValuesOperator();
 		switch ($operator) {
 			case OPERATOR_LESSTHAN_STRING:
-				if (is_string($this->_values)) {
+				if(is_string($this->_values)) {
 					return $this->_values;
-				} elseif ($this->_values instanceof ExpressionCommand) {
+				}elseif($this->_values instanceof ExpressionCommand) {
 					return "({$this->_values})";
 				}
 			case OPERATOR_IN:
@@ -135,41 +135,41 @@ class PartitionDefinition extends AbstractTableOptions
 	public function toSQL(): string
 	{
 		$f = __METHOD__; //PartitionDefinition::getShortClass()."(".static::getShortClass().")->toSQL()";
-		try {
+		try{
 			$string = "partition " . $this->getPartitionName();
-			if ($this->hasValuesExpression()) {
+			if($this->hasValuesExpression()) {
 				$expr = $this->getValuesExpression();
-				if ($expr instanceof SQLInterface) {
+				if($expr instanceof SQLInterface) {
 					$expr = $expr->toSQL();
 				}
 				$string .= " values ".$this->getValuesOperator()." {$expr}";
 			}
-			if ($this->hasStorageEngineName()) {
+			if($this->hasStorageEngineName()) {
 				$string .= " engine " . $this->getStorageEngineName();
 			}
-			if ($this->hasComment()) {
+			if($this->hasComment()) {
 				$string .= " comment " . single_quote($this->getComment());
 			}
-			if ($this->hasDataDirectoryName()) {
+			if($this->hasDataDirectoryName()) {
 				$string .= " data directory " . single_quote($this->getDataDirectoryName());
 			}
-			if ($this->hasIndexDirectoryName()) {
+			if($this->hasIndexDirectoryName()) {
 				$string .= " index directory " . single_quote($this->getIndexDirectoryName());
 			}
-			if ($this->hasMaximumRowCount()) {
+			if($this->hasMaximumRowCount()) {
 				$string .= " max_rows " . $this->getMaximumRowCount();
 			}
-			if ($this->hasMinimumRowCount()) {
+			if($this->hasMinimumRowCount()) {
 				$string .= " min_rows " . $this->getMinimumRowCount();
 			}
-			if ($this->hasTablespaceName()) {
+			if($this->hasTablespaceName()) {
 				$string .= " tablespace " . $this->getTablespaceName();
 			}
-			if ($this->hasPartitionDefinitions()) {
+			if($this->hasPartitionDefinitions()) {
 				$string .= "(" . $this->getPartitionDefinitionString() . ")";
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

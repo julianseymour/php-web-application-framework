@@ -31,7 +31,7 @@ class CloseMenuLabel extends LabelElement{
 	
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$close_menu_label = new DivElement();
 			$close_menu_label->addClassAttribute("hamburger");
 			$div = new DivElement();
@@ -52,7 +52,7 @@ class CloseMenuLabel extends LabelElement{
 			return [
 				$close_menu_label
 			];
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

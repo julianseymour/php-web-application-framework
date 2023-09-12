@@ -17,19 +17,19 @@ class ProcessFormUseCase extends SubsequentUseCase
 	public function execute(): int
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$processed_data = $this->getPredecessor()->getDataOperandObject();
 			$processed_data->setReceptivity(DATA_MODE_RECEPTIVE);
 			// 4. process form
 			$form = $this->getPredecessor()->getProcessedFormObject();
 			$indices = array_keys($form->getFormDataIndices($processed_data));
-			if (empty($indices)) {
+			if(empty($indices)) {
 				Debug::error("{$f} processed form indices array is empty");
 				return FAILURE;
 			}
 			$operand_class = $processed_data->getClass();
-			if ($print) {
+			if($print) {
 				$form_class = $form->getClass();
 				Debug::print("{$f} about to call {$operand_class}->processForm({$form_class}, POST)");
 			}
@@ -37,13 +37,13 @@ class ProcessFormUseCase extends SubsequentUseCase
 			$post = getInputParameters();
 			$status = $processed_data->processForm($form, $post, $files);
 			$form = null;
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} processing array for insert returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

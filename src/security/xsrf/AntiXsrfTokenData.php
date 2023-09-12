@@ -23,7 +23,7 @@ class AntiXsrfTokenData extends DataStructure{
 
 	public function getSecondaryToken(){
 		$f = __METHOD__;
-		if (! $this->hasSecondaryToken()) {
+		if(!$this->hasSecondaryToken()) {
 			Debug::error("{$f} secondary token is undefined");
 		}
 		return $this->getColumnValue("secondary_token");
@@ -57,7 +57,7 @@ class AntiXsrfTokenData extends DataStructure{
 		$f = __METHOD__;
 		$print = false;
 		$hmac = hash_hmac('sha256', $action, $this->getSecondaryToken());
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning \"{$hmac}\" for URI \"{$action}\"");
 		}
 		return $hmac;
@@ -65,47 +65,47 @@ class AntiXsrfTokenData extends DataStructure{
 
 	public static function verifySessionToken($uri){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$session = new AntiXsrfTokenData();
-			if (! isset($_SESSION) || ! $session->hasAntiXsrfToken()) {
+			if(! isset($_SESSION) || ! $session->hasAntiXsrfToken()) {
 				Debug::error("{$f}: primary session token is unset");
 				return false;
-			} elseif (! hasInputParameter('xsrf_token')) {
+			}elseif(! hasInputParameter('xsrf_token')) {
 				Debug::error("{$f}: anti-XSRF token is NOT set in post");
 				return false;
 			}
 			$xsrf_token = $session->getAntiXsrfToken();
 			$posted_token = getInputParameter('xsrf_token');
-			if (empty($posted_token)) {
+			if(empty($posted_token)) {
 				Debug::error("{$f} posted token is empty");
 				return false;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} posted token is \"{$posted_token}\"");
 			}
-			if (! hash_equals($xsrf_token, $posted_token)) {
+			if(! hash_equals($xsrf_token, $posted_token)) {
 				Debug::warning("{$f} primary session token \"{$xsrf_token}\" does not match posted value \"{$posted_token}\"");
 				// static::logIncident($f);
 				return false;
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} session and post tokens match");
 			}
 			$secondary = $session->getSecondaryToken();
-			if (empty($secondary)) {
+			if(empty($secondary)) {
 				Debug::error("{$f} secondary token is undefined");
 				return false;
 			}
 			$known = hash_hmac('sha256', $uri, $secondary);
-			if (! hasInputParameter('secondary_hmac')) {
+			if(! hasInputParameter('secondary_hmac')) {
 				Debug::error("{$f} secondary hmac is unset");
 				return false;
 			}
 			$hmac = getInputParameter('secondary_hmac');
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} secondary hmac is already set as \"{$hmac}\"");
 			}
-			if (hash_equals($known, $hmac)) {
-				if ($print) {
+			if(hash_equals($known, $hmac)) {
+				if($print) {
 					Debug::print("{$f} success, both URIs match \"{$uri}\" with hmac \"{$known}\" for secondary session token \"{$_SESSION['secondary_token']}\"");
 				}
 				return true;
@@ -113,34 +113,34 @@ class AntiXsrfTokenData extends DataStructure{
 			Debug::error("{$f} error: POSTed secondary token hmac \"{$hmac}\" differs from calculated session hmac \"{$known}\" for secondary session token \"{$secondary}\" and URI \"{$uri}\"");
 			// static::logIncident($f); //XXX
 			return false;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public static function initializeSessionToken($i){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$session = new AntiXsrfTokenData();
 			switch ($i) {
 				case (1):
-					if (! $session->hasAntiXsrfToken()) {
-						if (hasInputParameter('xsrf_token')) {
+					if(!$session->hasAntiXsrfToken()) {
+						if(hasInputParameter('xsrf_token')) {
 							Debug::warning("{$f} error: session xsrf token not set");
 						}
 						$xsrf_token = bin2hex(random_bytes(32));
 						$session->setAntiXsrfToken($xsrf_token);
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} initialized session token to {$xsrf_token}");
 						}
 					}
 					return;
 				case (2):
-					if (! $session->hasSecondaryToken()) {
+					if(!$session->hasSecondaryToken()) {
 						$secondary = bin2hex(random_bytes(32));
 						$session->setSecondaryToken($secondary);
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} initialized secondary token to {$secondary}");
 						}
 					}
@@ -149,7 +149,7 @@ class AntiXsrfTokenData extends DataStructure{
 					Debug::error("{$f}: ({$i}) tokens received");
 					return;
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -19,29 +19,29 @@ class ShortPollLoadoutGenerator extends LoadoutGenerator{
 		$f = __METHOD__;
 		$print = false;
 		$ret = [];
-		foreach ($use_case->getUseCases() as $uc) {
-			if ($print) {
+		foreach($use_case->getUseCases() as $uc) {
+			if($print) {
 				$ucc = get_short_class($uc);
 			}
-			if ($uc->getDisabledFlag()) {
-				if ($print) {
+			if($uc->getDisabledFlag()) {
+				if($print) {
 					Debug::print("{$f} {$ucc} is disabled");
 				}
 				continue;
 			}
 			$generator = $uc->getLoadoutGenerator(user());
-			if (! $generator instanceof LoadoutGenerator) {
-				if ($print) {
+			if(!$generator instanceof LoadoutGenerator) {
+				if($print) {
 					Debug::print("{$f} use case \"{$ucc}\" does not have a loadout generator");
 				}
 				continue;
 			}
 			$statements = $generator->getRootNodeTreeSelectStatements($user, $uc);
-			if ($statements) {
+			if($statements) {
 				$ret = array_merge_recursive($ret, $statements);
 			}
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} got the following root node tree select statements:");
 			Debug::printArray($ret);
 		}
@@ -53,19 +53,19 @@ class ShortPollLoadoutGenerator extends LoadoutGenerator{
 		try{
 			$print = false;
 			$ret = [];
-			foreach ($use_case->getUseCases() as $uc) {
-				if ($print) {
+			foreach($use_case->getUseCases() as $uc) {
+				if($print) {
 					$ucc = get_short_class($uc);
 				}
-				if ($uc->getDisabledFlag()) {
-					if ($print) {
+				if($uc->getDisabledFlag()) {
+					if($print) {
 						Debug::print("{$f} {$ucc} is disabled");
 					}
 					continue;
 				}
 				$generator = $uc->getLoadoutGenerator(user());
-				if (! $generator instanceof LoadoutGenerator) {
-					if ($print) {
+				if(!$generator instanceof LoadoutGenerator) {
+					if($print) {
 						Debug::print("{$f} use case \"{$ucc}\" does not have a loadout generator");
 					}
 					continue;
@@ -73,7 +73,7 @@ class ShortPollLoadoutGenerator extends LoadoutGenerator{
 					Debug::print("{$f} ".get_short_class($uc)." produced a ".get_short_class($generator));
 				}
 				$statements = $generator->getNonRootNodeTreeSelectStatements($user, $uc);
-				if ($statements) {
+				if($statements) {
 					$ret = array_merge_recursive($ret, $statements);
 				}
 			}

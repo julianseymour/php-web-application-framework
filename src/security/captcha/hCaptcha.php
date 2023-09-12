@@ -18,7 +18,7 @@ class hCaptcha extends DivElement{
 	public function __construct(int $mode=ALLOCATION_MODE_UNDEFINED, $context=null){
 		parent::__construct($mode, $context);
 		$this->addClassAttribute("h-captcha");
-		if (! defined('HCAPTCHA_SITE_KEY')) {
+		if(! defined('HCAPTCHA_SITE_KEY')) {
 			Debug::error("{$f} please define HCAPTCHA_SITE_KEY before using this feature");
 		}
 		$this->setAttribute("data-sitekey", HCAPTCHA_SITE_KEY);
@@ -31,11 +31,11 @@ class hCaptcha extends DivElement{
 	
 	public static function verifyResponse():int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! hasInputParameter("h-captcha-response")) {
+			if(! hasInputParameter("h-captcha-response")) {
 				return ERROR_HCAPTCHA;
-			} elseif (! defined('HCAPTCHA_SECRET')) {
+			}elseif(! defined('HCAPTCHA_SECRET')) {
 				Debug::error("{$f} please define HCAPTCHA_SECRET before using this feature");
 			}
 			// curl -d "response=CLIENT-RESPONSE&secret=YOUR-SECRET" -X POST https://hcaptcha.com/siteverify
@@ -53,7 +53,7 @@ class hCaptcha extends DivElement{
 			}
 			// {"success":false,"error-codes":["invalid-or-already-seen-response"]}
 			$parsed = json_decode($result, true);
-			if ($parsed["success"]) {
+			if($parsed["success"]) {
 				if($print){
 					Debug::print("{$f} success!");
 				}
@@ -63,7 +63,7 @@ class hCaptcha extends DivElement{
 				Debug::printArray($parsed['error-codes']);
 			}
 			return ERROR_HCAPTCHA;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

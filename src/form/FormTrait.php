@@ -18,14 +18,14 @@ trait FormTrait{
 	 */
 	public function getForm(): FormElement{
 		$f = __METHOD__; //"FormTrait(".static::getShortClass().")->getForm()";
-		if (! $this->hasForm()) {
+		if(!$this->hasForm()) {
 			Debug::error("{$f} form is undefined");
 		}
 		return $this->form;
 	}
 
 	public function setForm(?FormElement $form):?FormElement{
-		if ($form === null) {
+		if($form === null) {
 			unset($this->form);
 			return null;
 		}

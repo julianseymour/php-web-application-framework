@@ -38,17 +38,17 @@ class DismissNotificationForm extends AjaxForm implements TemplateElementInterfa
 
 	public function getFormDataIndices(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$indices = [
 				'subtype' => HiddenInput::class,
 				NotificationData::getIdentifierNameStatic() => HiddenInput::class
 			];
 			$context = $this->getContext();
-			if ($context->getNotificationType() === NOTIFICATION_TYPE_TEMPLATE || $context->getTypedNotificationClass()::dismissalRequiresCorrespondentKey($context)) {
+			if($context->getNotificationType() === NOTIFICATION_TYPE_TEMPLATE || $context->getTypedNotificationClass()::dismissalRequiresCorrespondentKey($context)) {
 				$indices["correspondentKey"] = HiddenInput::class;
 			}
 			return $indices;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

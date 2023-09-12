@@ -25,7 +25,7 @@ class SetSourceAttributeCommand extends ElementCommand implements ServerExecutab
 	public function getSourceAttribute()
 	{
 		$f = __METHOD__; //SetSourceAttributeCommand::getShortClass()."(".static::getShortClass().")->getSourceAttribute()";
-		if (! $this->hasSourceAttribute()) {
+		if(!$this->hasSourceAttribute()) {
 			Debug::error("{$f} source attribute is undefined");
 		}
 		return $this->src;
@@ -33,7 +33,7 @@ class SetSourceAttributeCommand extends ElementCommand implements ServerExecutab
 
 	public function setSourceAttribute($src)
 	{
-		if ($src === null) {
+		if($src === null) {
 			unset($this->src);
 			return null;
 		}
@@ -43,11 +43,11 @@ class SetSourceAttributeCommand extends ElementCommand implements ServerExecutab
 	public function toJavaScript(): string
 	{
 		$id = $this->getIdCommandString();
-		if ($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface) {
 			$id = $id->toJavaScript();
 		}
 		$src = $this->getSourceAttribute();
-		if ($src instanceof JavaScriptInterface) {
+		if($src instanceof JavaScriptInterface) {
 			$src = $src->toJavaScript();
 		}
 		return "{$id}.src = {$src}";

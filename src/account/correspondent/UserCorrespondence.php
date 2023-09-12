@@ -43,7 +43,7 @@ abstract class UserCorrespondence extends UserFingerprint implements JavaScriptC
 
 	public function getUserClass($vn)
 	{
-		if ($vn !== "correspondentKey") {
+		if($vn !== "correspondentKey") {
 			return parent::getUserClass($vn);
 		}
 		return static::getUserAccountClassStatic($this->getCorrespondentAccountType());
@@ -52,7 +52,7 @@ abstract class UserCorrespondence extends UserFingerprint implements JavaScriptC
 	public function getUserRoles(mysqli $mysqli, UserData $user): ?array
 	{
 		$roles = parent::getUserRoles($mysqli, $user);
-		if ($user instanceof UserData && $this->hasCorrespondentKey() && $this->getCorrespondentKey() === $user->getIdentifierValue()) {
+		if($user instanceof UserData && $this->hasCorrespondentKey() && $this->getCorrespondentKey() === $user->getIdentifierValue()) {
 			$roles["correspondent"] = 'correspondent';
 		}
 		return $roles;
@@ -61,10 +61,10 @@ abstract class UserCorrespondence extends UserFingerprint implements JavaScriptC
 	public function getArrayMembershipConfiguration($config_id): ?array
 	{
 		$f = __METHOD__; //UserCorrespondence::getShortClass()."(".static::getShortClass().")->getArrayMembershipConfiguration({$config_id})";
-		try {
+		try{
 			$config = parent::getArrayMembershipConfiguration($config_id);
-			foreach (array_keys($config) as $column_name) {
-				if (! $this->hasColumn($column_name)) {
+			foreach(array_keys($config) as $column_name) {
+				if(!$this->hasColumn($column_name)) {
 					Debug::error("{$f} datum \"{$column_name}\" does not exist");
 				}
 			}
@@ -72,20 +72,20 @@ abstract class UserCorrespondence extends UserFingerprint implements JavaScriptC
 			// Debug::printArray($config);
 			switch ($config_id) {
 				case "default":
-					if ($this->hasColumn("correspondentDisplayName")) {
+					if($this->hasColumn("correspondentDisplayName")) {
 						$config['correspondentDisplayName'] = true;
 					}
-					if ($this->hasColumn("correspondentName")) {
+					if($this->hasColumn("correspondentName")) {
 						$config['correspondentName'] = true;
 					}
-					if ($this->hasColumn("correspondentKey")) {
-						if ($this->hasCorrespondentObject()) {
+					if($this->hasColumn("correspondentKey")) {
+						if($this->hasCorrespondentObject()) {
 							$config['correspondentKey'] = $this->getCorrespondentObject()->getArrayMembershipConfiguration($config_id);
-						} else {
+						}else{
 							$config['correspondentKey'] = true;
 						}
 					}
-					if ($this->hasColumn("correspondentAccountType")) {
+					if($this->hasColumn("correspondentAccountType")) {
 						$config['correspondentAccountType'] = true;
 						// $config['correspondentAccountTypeString'] = true;
 					}
@@ -93,7 +93,7 @@ abstract class UserCorrespondence extends UserFingerprint implements JavaScriptC
 				default:
 					return $config;
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -106,17 +106,17 @@ abstract class UserCorrespondence extends UserFingerprint implements JavaScriptC
 			"reasonLoggedString"
 			// "correspondentMasterAccountKey"
 		];
-		foreach ($indices as $i) {
+		foreach($indices as $i) {
 			$columns[$i]->volatilize();
 		}
 	}
 
 	public function getVirtualColumnValue(string $column_name){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($column_name) {
 				case "correspondentDisplayName":
-					if (! $this->hasCorrespondentObject()) {
+					if(!$this->hasCorrespondentObject()) {
 						// Debug::warning("{$f} correspondent object is undefined");
 						return _("Undefined correspondent name");
 					}
@@ -130,7 +130,7 @@ abstract class UserCorrespondence extends UserFingerprint implements JavaScriptC
 				default:
 					return parent::getVirtualColumnValue($column_name);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

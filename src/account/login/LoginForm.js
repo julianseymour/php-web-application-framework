@@ -116,7 +116,7 @@ function updatePageAfterLogin(response){
 			console.error(f+": response is null");
 			console.trace();
 			return false;
-		}else if (print){
+		}else if(print){
 			console.log(f.concat(": about to call initializeBackgroundSync"));
 		}
 		initializeBackgroundSync();

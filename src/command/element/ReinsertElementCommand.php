@@ -24,11 +24,11 @@ abstract class ReinsertElementCommand extends ElementCommand implements ServerEx
 	{
 		$f = __METHOD__; //ReinsertElementCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct($inserted_element);
-		if (is_string($insert_here)) {
+		if(is_string($insert_here)) {
 			$this->setReferenceElementId($insert_here);
-		} elseif (is_object($insert_here) && $insert_here instanceof Element) {
+		}elseif(is_object($insert_here) && $insert_here instanceof Element) {
 			$this->setReferenceElementId($insert_here->getIdAttribute());
-		} else {
+		}else{
 			Debug::error("{$f} invalid insertion target");
 		}
 	}

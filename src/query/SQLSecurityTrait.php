@@ -11,10 +11,10 @@ trait SQLSecurityTrait
 	public function setSQLSecurity(?string $type): ?string
 	{
 		$f = __METHOD__; //"SQLSecurityTrait(".static::getShortClass().")->setSQLSecurity()";
-		if ($type == null) {
+		if($type == null) {
 			unset($this->sqlSecurityType);
 			return null;
-		} elseif (! is_string($type)) {
+		}elseif(!is_string($type)) {
 			Debug::error("{$f} SQL security must be a string");
 		}
 		$type = strtolower($type);
@@ -35,7 +35,7 @@ trait SQLSecurityTrait
 	public function getSQLSecurity(): string
 	{
 		$f = __METHOD__; //"SQLSecurityTrait(".static::getShortClass().")->getSQLSecurity()";
-		if (! $this->hasSQLSecurity()) {
+		if(!$this->hasSQLSecurity()) {
 			Debug::error("{$f} SQL security is undefined");
 		}
 		return $this->sqlSecurityType;

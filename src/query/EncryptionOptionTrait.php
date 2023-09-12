@@ -13,19 +13,19 @@ trait EncryptionOptionTrait
 	public function setEncryption($value)
 	{
 		$f = __METHOD__; //"EncryptionOptionTrait(".static::getShortClass().")->setEncryption()";
-		if ($value === null) {
+		if($value === null) {
 			unset($this->encryptionOption);
-		} elseif (is_bool($value)) {
-			if ($value) {
+		}elseif(is_bool($value)) {
+			if($value) {
 				$value = "y";
-			} else {
+			}else{
 				$value = "n";
 			}
-		} elseif (! is_string($value)) {
+		}elseif(!is_string($value)) {
 			Debug::error("{$f} invalid non-string value");
 		}
 		$value = strtolower($value);
-		if ($value !== 'y' && $value !== 'n') {
+		if($value !== 'y' && $value !== 'n') {
 			Debug::error("{$f} invalid string value \"{$value}\"");
 		}
 		$this->setRequiredMySQLVersion("8.0.16");
@@ -40,7 +40,7 @@ trait EncryptionOptionTrait
 	public function getEncryption()
 	{
 		$f = __METHOD__; //"EncryptionOptionTrait(".static::getShortClass().")->getEncryption()";
-		if (! $this->hasEncryption()) {
+		if(!$this->hasEncryption()) {
 			Debug::error("{$f} encryption option is undefined");
 		}
 		return $this->encryptionOption;

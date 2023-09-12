@@ -29,12 +29,12 @@ abstract class Basic{
 
 	public function __construct(){
 		$f = __METHOD__;
-		if (getExecutionTime(true) > 7.0) {
+		if(getExecutionTime(true) > 7.0) {
 			// Debug::error("{$f} execution time is greater than 7 seconds");
 		}
 		$print = false;
 		$this->setAllocatedFlag(true);
-		if (
+		if(
 			!$this instanceof ApplicationRuntime &&
 			!$this instanceof ApplicationConfiguration && 
 			app()->getFlag("debug")) {
@@ -42,11 +42,11 @@ abstract class Basic{
 			$decl = get_file_line([
 				"__construct"
 			], 7);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} declared \"{$decl}\"");
 			}
 			$this->setDeclarationLine($decl);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} constructed object with debug ID \"{$this->debugId}\"");
 			}
 		}
@@ -62,7 +62,7 @@ abstract class Basic{
 
 	public function setDeclarationLine($dl):?string{
 		$f = __METHOD__;
-		if ($dl == null) {
+		if($dl == null) {
 			unset($this->declarationLine);
 			return null;
 		}
@@ -76,8 +76,8 @@ abstract class Basic{
 	public function getDeclarationLine():string{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasDeclarationLine()) {
-			if ($print) {
+		if(!$this->hasDeclarationLine()) {
+			if($print) {
 				Debug::warning("{$f} declaration line is undefined");
 			}
 			return "undefined";
@@ -99,7 +99,7 @@ abstract class Basic{
 	public function setDebugFlag(bool $value = true): bool{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
 		return $this->setFlag("debug", $value);
@@ -126,10 +126,10 @@ abstract class Basic{
 	public function dispose(): void{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
-			if (app()->getFlag("debug")) {
+		if($print) {
+			if(app()->getFlag("debug")) {
 				Debug::printStackTraceNoExit("{$f} entered; debug ID is \"{$this->debugId}\"; declared {$this->declarationLine}");
-			} else {
+			}else{
 				Debug::printStackTraceNoExit("{$f} entered");
 			}
 		}

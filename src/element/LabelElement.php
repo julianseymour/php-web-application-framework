@@ -22,7 +22,7 @@ class LabelElement extends Element implements ForAttributeInterface
 	{
 		$f = __METHOD__; //LabelElement::getShortClass()."(".static::getShortClass().")->dispose()";
 		$print = false;
-		if ($print) {
+		if($print) {
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
 		parent::dispose();

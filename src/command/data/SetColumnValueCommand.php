@@ -44,24 +44,24 @@ class SetColumnValueCommand extends ColumnValueCommand implements ServerExecutab
 
 	public function toJavaScript(): string{
 		$e = $this->getIdCommandString();
-		if ($e instanceof JavaScriptInterface) {
+		if($e instanceof JavaScriptInterface) {
 			$e = $e->toJavaScript();
 		}
 		$vn = $this->getColumnName();
-		if ($vn instanceof JavaScriptInterface) {
+		if($vn instanceof JavaScriptInterface) {
 			$vn = $vn->toJavaScript();
-		} elseif (is_string($vn) || $vn instanceof StringifiableInterface) {
+		}elseif(is_string($vn) || $vn instanceof StringifiableInterface) {
 			$vn = single_quote($vn);
 		}
 		$value = $this->getValue();
-		if ($value === null) {
+		if($value === null) {
 			$value = 'null';
-		} elseif ($value instanceof JavaScriptInterface) {
+		}elseif($value instanceof JavaScriptInterface) {
 			$value = $value->toJavaScript();
-		} elseif (is_string($value) || $value instanceof StringifiableInterface) {
-			if ($value === "") {
+		}elseif(is_string($value) || $value instanceof StringifiableInterface) {
+			if($value === "") {
 				$value = '""';
-			} else {
+			}else{
 				$value = single_quote($value);
 			}
 		}

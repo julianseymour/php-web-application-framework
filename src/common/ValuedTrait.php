@@ -11,7 +11,7 @@ trait ValuedTrait
 	public function getValue()
 	{
 		$f = __METHOD__; //"ValuedTrait(".static::getShortClass().")->getValue()";
-		if (! $this->hasValue()) {
+		if(!$this->hasValue()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} value is undefined; declared {$decl}");
 		}
@@ -22,10 +22,10 @@ trait ValuedTrait
 	{
 		$f = __METHOD__; //"ValuedTrait(".static::getShortClass().")->setValue()";
 		$print = false; // $this instanceof SetInputValueCommand;
-		if ($print) {
-			if (is_string($value)) {
+		if($print) {
+			if(is_string($value)) {
 				Debug::print("{$f} value is \"{$value}\"");
-			} else {
+			}else{
 				$gottype = gettype($value);
 				Debug::print("{$f} value is a {$gottype}");
 			}

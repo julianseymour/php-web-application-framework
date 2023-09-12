@@ -15,11 +15,11 @@ class GetIdentifierNameCommand extends DataStructureCommand implements ValueRetu
 		$f = __METHOD__;
 		$print = false;
 		$ds = $this->getDataStructure();
-		if ($ds instanceof GetForeignDataStructureCommand) {
+		if($ds instanceof GetForeignDataStructureCommand) {
 			$cn = $ds->getColumnName();
 			$context = $ds->getDataStructure();
-			if (! $context->hasForeignDataStructure($cn)) {
-				if ($print) {
+			if(!$context->hasForeignDataStructure($cn)) {
+				if($print) {
 					Debug::print("{$f} data structure is returned as the result of a GetForeignDataStructureCommand, and our object does not have a foreign data structure at index \"{$cn}\"; hopefully it has an identifier name defined");
 				}
 				return $context->getColumn($cn)->getForeignDataIdentifierName();

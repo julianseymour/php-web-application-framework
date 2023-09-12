@@ -15,7 +15,7 @@ class RegistrationUsernameForm extends AjaxForm{
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "name":
@@ -37,7 +37,7 @@ class RegistrationUsernameForm extends AjaxForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -49,7 +49,7 @@ class RegistrationUsernameForm extends AjaxForm{
 			return $input;
 		}
 		$vn = $input->getColumnName();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} variable name is \"{$vn}\"");
 		}
 		switch ($vn) {

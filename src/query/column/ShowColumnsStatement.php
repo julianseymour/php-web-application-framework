@@ -47,29 +47,29 @@ class ShowColumnsStatement extends WhereConditionalStatement
 	public function getQueryStatementString()
 	{
 		$f = __METHOD__; //ShowColumnsStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
-		try {
+		try{
 			// SHOW [EXTENDED] [FULL] {COLUMNS | FIELDS} FROM tbl_name [LIKE 'pattern' | WHERE expr]
 			$string = "show ";
-			if ($this->getExtendedFlag()) {
+			if($this->getExtendedFlag()) {
 				$string .= "extended ";
 			}
-			if ($this->getFullFlag()) {
+			if($this->getFullFlag()) {
 				$string .= "full ";
 			}
 			$string .= " columns from ";
-			if ($this->hasDatabaseName()) {
+			if($this->hasDatabaseName()) {
 				$string .= back_quote($this->getDatabaseName()) . ".";
 			}
 			$string .= back_quote($this->getTableName());
 			$where = $this->getWhereCondition();
-			if ($where->getOperator() === OPERATOR_LIKE) {
+			if($where->getOperator() === OPERATOR_LIKE) {
 				ErrorMessage::unimplemented($f);
 				$string .= " like '{$where}'";
-			} else {
+			}else{
 				$string .= " where {$where}";
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

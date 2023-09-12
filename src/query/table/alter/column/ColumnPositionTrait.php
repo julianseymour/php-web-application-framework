@@ -13,10 +13,10 @@ trait ColumnPositionTrait
 	public function setColumnPosition($position, $afterColumnName = null)
 	{
 		$f = __METHOD__; //"ColumnPositionTrait(".static::getShortClass().")->setColumnPosition()";
-		if ($position === null) {
+		if($position === null) {
 			return $this->columnPosition = null;
 		}
-		if (! is_string($position)) {
+		if(!is_string($position)) {
 			Debug::error("{$f} position must be a string");
 		}
 		$position = strtolower($position);
@@ -28,7 +28,7 @@ trait ColumnPositionTrait
 				Debug::error("{$f} invalid column position \"{$position}\"");
 		}
 		$this->columnPosition = $position;
-		if ($position === COLUMN_POSITION_AFTER && $afterColumnName !== null) {
+		if($position === COLUMN_POSITION_AFTER && $afterColumnName !== null) {
 			$this->setAfterColumnName($afterColumnName);
 		}
 		return $position;
@@ -37,11 +37,11 @@ trait ColumnPositionTrait
 	public function getColumnPositionString()
 	{
 		$f = __METHOD__; //"ColumnPositionTrait(".static::getShortClass().")->getColumnPositionString()";
-		if (! $this->hasColumnPositon()) {
+		if(!$this->hasColumnPositon()) {
 			Debug::error("{$f} position is undefined");
 		}
 		$string = $this->getColumnPosition();
-		if ($string === COLUMN_POSITION_AFTER) {
+		if($string === COLUMN_POSITION_AFTER) {
 			$string .= $this->getAfterColumnName();
 		}
 		return $string;
@@ -55,7 +55,7 @@ trait ColumnPositionTrait
 	public function getColumnPosition()
 	{
 		$f = __METHOD__; //"ColumnPositionTrait(".static::getShortClass().")->getColumnPosition()";
-		if (! $this->hasColumnPositon()) {
+		if(!$this->hasColumnPositon()) {
 			Debug::error("{$f} position is undefined");
 		}
 		return $this->columnPosition;
@@ -74,7 +74,7 @@ trait ColumnPositionTrait
 	public function getAfterColumnName()
 	{
 		$f = __METHOD__; //"ColumnPositionTrait(".static::getShortClass().")->getAfterColumnName()";
-		if (! $this->hasAfterColumnName()) {
+		if(!$this->hasAfterColumnName()) {
 			Debug::error("{$f} after column name is undefined");
 		}
 		return $this->afterColumnName;

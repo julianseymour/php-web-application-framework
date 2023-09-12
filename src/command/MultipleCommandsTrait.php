@@ -26,7 +26,7 @@ trait MultipleCommandsTrait{
 	public function pushCommand(...$commands){
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			$count = count($commands);
 			Debug::print("{$f} pushing {$count} commands");
 		}

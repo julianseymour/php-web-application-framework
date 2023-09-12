@@ -25,20 +25,18 @@ trait CacheableTrait{
 	public function hasCacheKey():bool{
 		return isset($this->cacheKey);
 	}
-
+	
 	public function setCacheKey(?string $key):?string{
 		$f = __METHOD__;
 		$print = false;
-		if ($key === null) {
+		if($key === null) {
 			unset($this->cacheKey);
 			return null;
+		}elseif(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){ //valid regex is [a-zA-Z0-9_\\.! ]
+			Debug::error("{$f} invalid cache key \"{$key}\"");
 		}
-		if ($print) {
-			Debug::print("{$f} about to test cache key validity");
-			if (! preg_match("/[a-zA-Z0-9_\\.! ]/", $key)) {
-				Debug::error("{$f} invalid cache key \"{$key}\"");
-			}
-			Debug::printStackTraceNoExit("{$f} cache key \"{$key}\" is valid");
+		if($print) {
+			Debug::print("{$f} cache key \"{$key}\" is valid");
 		}
 		return $this->cacheKey = $key;
 	}
@@ -69,7 +67,7 @@ trait CacheableTrait{
 	}
 
 	public function setTimeToLive(?int $duration): ?int{
-		if ($duration === null || is_int($duration) && $duration <= 0) {
+		if($duration === null || is_int($duration) && $duration <= 0) {
 			unset($this->timeToLive);
 			return null;
 		}

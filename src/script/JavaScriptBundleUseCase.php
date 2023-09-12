@@ -8,7 +8,7 @@ class JavaScriptBundleUseCase extends LocalizedJavaScriptFileUseCase{
 
 	public function echoJavaScriptFileContents():void{
 		$f = __METHOD__;
-		$print = false;
+		$print = $this->getDebugFlag();
 		$files = [
 			"constants.js",
 			"locale.js",
@@ -28,8 +28,16 @@ class JavaScriptBundleUseCase extends LocalizedJavaScriptFileUseCase{
 				Debug::print("{$f} about to echo use case from filename  \"{$fn}\"");
 			}
 			echo "//{$fn}:\n";
-			JavaScriptFileRouter::getUseCaseFromFilename($fn)->echoResponse();
+			$uc = JavaScriptFileRouter::getUseCaseFromFilename($fn);
+			if($print){
+				Debug::print("{$f} filename \"{$fn}\" gives us a use case of class ".$uc->getShortClass());
+			}
+			$uc->echoResponse();
 		}
+	}
+	
+	public static function getFilename(): string{
+		return "bundle.js";
 	}
 }
 

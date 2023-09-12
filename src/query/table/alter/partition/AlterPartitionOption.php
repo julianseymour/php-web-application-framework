@@ -13,7 +13,7 @@ abstract class AlterPartitionOption extends AlterOption
 	{
 		parent::__construct();
 		$this->requirePropertyType("partitionNames", "s");
-		if ($partitionNames !== null) {
+		if($partitionNames !== null) {
 			$this->setPartitionNames($partitionNames);
 		}
 	}

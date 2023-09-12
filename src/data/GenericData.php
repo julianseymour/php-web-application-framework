@@ -6,7 +6,7 @@ use mysqli;
 
 class GenericData extends DataStructure{
 
-	public function generateInsertTimestamp(){
+	public function generateInsertTimestamp():int{
 		return time();
 	}
 

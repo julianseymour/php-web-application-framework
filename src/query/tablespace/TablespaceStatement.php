@@ -13,7 +13,7 @@ abstract class TablespaceStatement extends QueryStatement
 	public function __construct($tablespaceName = null)
 	{
 		parent::__construct();
-		if ($tablespaceName !== null) {
+		if($tablespaceName !== null) {
 			$this->setTablespaceName($tablespaceName);
 		}
 	}
@@ -34,7 +34,7 @@ abstract class TablespaceStatement extends QueryStatement
 
 	public function setUndoFlag($value = true)
 	{
-		if ($value) {
+		if($value) {
 			$this->setRequiredMySQLVersion("8.0.14");
 		}
 		return $this->setFlag("undo", $value);

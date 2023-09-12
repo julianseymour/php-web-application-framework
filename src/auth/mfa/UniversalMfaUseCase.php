@@ -13,8 +13,8 @@ class UniversalMfaUseCase extends MfaUseCase{
 	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
 		$print = false;
-		if (user() instanceof AnonymousUser) {
-			if ($print) {
+		if(user() instanceof AnonymousUser) {
+			if($print) {
 				Debug::print("{$f} user is unregistered; returning parent function");
 			}
 			return parent::getResponder($status);
@@ -23,7 +23,7 @@ class UniversalMfaUseCase extends MfaUseCase{
 			case SUCCESS:
 				return new UniversalLoginResponder();
 			default:
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} default case");
 				}
 				return parent::getResponder($status);

@@ -7,9 +7,9 @@ class DecimalDatum extends FloatingPointDatum
 	public function getColumnTypeString(): string
 	{
 		$string = "decimal";
-		if ($this->hasPrecision()) {
+		if($this->hasPrecision()) {
 			$string .= "(" . $this->getPrecision();
-			if ($this->hasScale()) {
+			if($this->hasScale()) {
 				$string .= "," . $this->getScale();
 			}
 			$string .= ")";

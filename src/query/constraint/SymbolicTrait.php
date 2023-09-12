@@ -21,7 +21,7 @@ trait SymbolicTrait
 	public function getSymbol()
 	{
 		$f = __METHOD__; //"SymbolicTrait(".static::getShortClass().")->getSymbol()";
-		if (! $this->hasSymbol()) {
+		if(!$this->hasSymbol()) {
 			Debug::error("{$f} symbol is undefined");
 		}
 		return $this->symbol;

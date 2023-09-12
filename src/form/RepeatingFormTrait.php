@@ -41,25 +41,25 @@ trait RepeatingFormTrait{
 		$container = new DivElement($mode);
 		$container->setStyleProperty("border", "1px solid");
 		$container->setStyleProperty("padding", "1rem");
-		if ($this->getLastChildFlag()) {
-			if ($print) {
+		if($this->getLastChildFlag()) {
+			if($print) {
 				Debug::print("{$f} last child flag is set -- about to generate replication button");
 			}
 			$container->pushSuccessor($this->createRepeaterButton());
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} last child flag is undefined");
 		}
 		$iterator = $this->getIterator();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} iterator is \"{$iterator}\"");
 		}
-		if ($this->getTemplateFlag()) {
-			if ($print) {
+		if($this->getTemplateFlag()) {
+			if($print) {
 				Debug::print("{$f} template flag is set");
 			}
 			$parent_id = new GetDeclaredVariableCommand("button.form.id");
-		} else {
-			if ($print) {
+		}else{
+			if($print) {
 				Debug::print("{$f} no template flag");
 			}
 			$parent_id = $this->getSuperiorForm()->getIdAttribute();
@@ -77,7 +77,7 @@ trait RepeatingFormTrait{
 
 	protected function createDeleteButton($parent_node){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
@@ -90,31 +90,31 @@ trait RepeatingFormTrait{
 			$name = new ConcatenateCommand("directive[{$directive}][", $sfi, "]");
 			$button->setInnerHTML(_("Delete"));
 			$fade = null;
-			if ($parent_node !== null) {
+			if($parent_node !== null) {
 				$fade = "fadeElementById(this.parentNode.id);return false;";
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} parent node is null");
 			}
-			if ($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) {
-				if ($print) {
+			if($this->getTemplateFlag() || $mode === ALLOCATION_MODE_FORM_TEMPLATE) {
+				if($print) {
 					Debug::print("{$f} template flag is set");
 				}
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} no template flag");
 				}
 			}
-			if ($context->hasObjectStatus()) {
+			if($context->hasObjectStatus()) {
 				$button->resolveTemplateCommand(
 					$button->setNameAttributeCommand($name), 
 					new SetInputValueCommand($button, $value)
 				);
 				$button->setOnClickAttribute($button->getDefaultOnClickAttribute());
-			} else {
+			}else{
 				$button->setOnClickAttribute($fade);
 			}
 			return $button;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

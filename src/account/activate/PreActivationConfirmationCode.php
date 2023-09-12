@@ -44,7 +44,7 @@ class PreActivationConfirmationCode extends AuthenticatedConfirmationCode{
 		$print = false;
 		switch ($name) {
 			case DIRECTIVE_INSERT:
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} returning new owner permission");
 				}
 				return SUCCESS;

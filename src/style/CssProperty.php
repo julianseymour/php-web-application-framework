@@ -42,14 +42,14 @@ class CssProperty extends ValuedElement implements ArrayKeyProviderInterface
 	{
 		$this->setPropertyValue(null);
 		parent::__construct();
-		if (isset($name) && $name != "") {
+		if(isset($name) && $name != "") {
 			$this->setName($name);
 		} /*
 		   * else{
 		   * $this->setPropertyName(null);
 		   * }
 		   */
-		if (isset($value) && $value != "") {
+		if(isset($value) && $value != "") {
 			$this->setPropertyValue($value);
 		}
 	}
@@ -67,7 +67,7 @@ class CssProperty extends ValuedElement implements ArrayKeyProviderInterface
 	public function getPropertyValue()
 	{
 		$f = __METHOD__; //CssProperty::getShortClass()."(".static::getShortClass().")->getPropertyValue()";
-		if (! $this->hasPropertyValue()) {
+		if(!$this->hasPropertyValue()) {
 			return null;
 			Debug::error("{$f} property value is undefined");
 		}
@@ -111,7 +111,7 @@ class CssProperty extends ValuedElement implements ArrayKeyProviderInterface
 	public function getValueString()
 	{
 		$string = $this->getPropertyValue();
-		if ($this->isImportant()) {
+		if($this->isImportant()) {
 			$string .= " !important";
 		}
 		return $string;
@@ -124,7 +124,7 @@ class CssProperty extends ValuedElement implements ArrayKeyProviderInterface
 		echo ":";
 		echo $this->getValueString();
 		echo ";";
-		if ($destroy) {
+		if($destroy) {
 			$this->dispose();
 		}
 	}

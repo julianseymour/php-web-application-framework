@@ -22,7 +22,7 @@ class ChangeColumnOption extends ModifyColumnOption{
 		$oldName = $this->getColumnName();
 		$newDefinition = $this->getColumnDefinition()->toSQL();
 		$string = "change {$oldName} {$newDefinition}";
-		if ($this->hasColumnPositon()) {
+		if($this->hasColumnPositon()) {
 			$string .= $this->getColumnPositionString();
 		}
 		return $string;

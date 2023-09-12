@@ -14,7 +14,7 @@ class DropTableStatement extends AbstractDropTableStatement
 	public function __construct(...$tableNames)
 	{
 		parent::__construct();
-		if (isset($tableNames)) {
+		if(isset($tableNames)) {
 			$this->setTableNames($tableNames);
 		}
 		$this->requirePropertyType("tableNames", FullTableName::class);
@@ -32,28 +32,28 @@ class DropTableStatement extends AbstractDropTableStatement
 		$f = __METHOD__; //DropTableStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
 		// DROP [TEMPORARY] TABLE [IF EXISTS] tbl_name [, tbl_name] ... [RESTRICT | CASCADE]
 		$string = "drop ";
-		if ($this->getTemporaryFlag()) {
+		if($this->getTemporaryFlag()) {
 			$string .= "temporary ";
 		}
 		$string .= "table ";
-		if ($this->getIfExistsFlag()) {
+		if($this->getIfExistsFlag()) {
 			$string .= "if exists ";
 		}
 		$i = 0;
-		foreach ($this->getTableNames() as $tn) {
-			if ($i ++ > 0) {
+		foreach($this->getTableNames() as $tn) {
+			if($i ++ > 0) {
 				$string .= ", ";
 			}
-			if ($tn instanceof SQLInterface) {
+			if($tn instanceof SQLInterface) {
 				$string .= $tn->toSQL();
-			} elseif (is_string($tn)) {
+			}elseif(is_string($tn)) {
 				$string .= back_quote($tn);
-			} else {
+			}else{
 				Debug::error("{$f} table name is not an SQLInterface or string");
 			}
 		}
 		// $string .= implode(',', $this->getTableNames());
-		if ($this->hasReferenceOption()) {
+		if($this->hasReferenceOption()) {
 			$string .= " " . $this->getReferenceOption();
 		}
 		return $string;

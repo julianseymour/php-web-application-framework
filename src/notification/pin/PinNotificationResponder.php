@@ -23,22 +23,22 @@ class PinNotificationResponder extends Responder
 	{
 		$f = __METHOD__;
 		$print = false;
-		try {
+		try{
 			parent::modifyResponse($response, $use_case);
 			$note_data = $use_case->getDataOperandObject();
 			$note_type = $note_data->getNotificationType();
 			$key = $note_data->getIdAttributeSuffixCommand();
 			// 1. update notification element's options
 			$note_options = new NotificationOptionsElement(ALLOCATION_MODE_LAZY, $note_data);
-			if (! $note_options->hasIdAttribute()) {
+			if(!$note_options->hasIdAttribute()) {
 				Debug::error("{$f} NotificationOptionsElement lacks an ID attribute");
-			} elseif ($print) {
+			}elseif($print) {
 				$id = $note_options->getIdAttribute();
 				while ($id instanceof ValueReturningCommandInterface) {
 					$id = $id->evaluate();
 				}
 				Debug::print("{$f} NotificationOptionsElement ID attribute is \"{$id}\"");
-				if (! $note_options->hasIdAttribute()) {
+				if(!$note_options->hasIdAttribute()) {
 					Debug::error("{$f} getting the ID attribute destroys it");
 				}
 				$id = $note_options->getIdAttribute();
@@ -54,7 +54,7 @@ class PinNotificationResponder extends Responder
 			$check1 = new CheckInputCommand("notification_options-none");
 			$check1->pushSubcommand($update1);
 			// 3. if it's not a message notification, return early
-			if ($note_type !== NOTIFICATION_TYPE_MESSAGE) {
+			if($note_type !== NOTIFICATION_TYPE_MESSAGE) {
 				$response->pushCommand($check1);
 				return;
 			}
@@ -70,7 +70,7 @@ class PinNotificationResponder extends Responder
 			$update2->pushSubcommand($delete2);
 			$check2->pushSubcommand($update2);
 			// 7. if the form was submitted thru the conversation label wrapper, it is dominant and the other command is optional
-			if (getInputParameter('widget') === 'messenger') {
+			if(getInputParameter('widget') === 'messenger') {
 				$check1->setOptional(true);
 				$update1->setOptional(true);
 				$check2->pushSubcommand($check1);
@@ -82,7 +82,7 @@ class PinNotificationResponder extends Responder
 			$update2->setOptional(true);
 			$check1->pushSubcommand($check2);
 			$response->pushCommand($check1);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

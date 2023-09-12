@@ -35,14 +35,14 @@ class SessionTimestampData extends DataStructure{
 	}
 
 	public function updateRegenerationTimestamp($ts = null){
-		if ($ts == null) {
+		if($ts == null) {
 			$ts = time();
 		}
 		return $this->setRegnerationTimestamp($ts);
 	}
 
 	public function isDueForRegeneration($ts = null):bool{
-		if ($ts == null) {
+		if($ts == null) {
 			$ts = time();
 		}
 		return $ts - $this->getRegenerationTimestamp() >= SESSION_REGENERATION_INTERVAL;
@@ -50,10 +50,10 @@ class SessionTimestampData extends DataStructure{
 
 	public function regenerateId($ts = null){
 		$f = __METHOD__;
-		if ($ts == null) {
+		if($ts == null) {
 			$ts = time();
 		}
-		if (! session_regenerate_id(true)) {
+		if(! session_regenerate_id(true)) {
 			Debug::error("{$f} error regenerating session ID");
 		}
 		$this->setRegenerationTimestamp($ts);
@@ -69,14 +69,14 @@ class SessionTimestampData extends DataStructure{
 
 	public function getLastActiveTimestamp(){
 		$f = __METHOD__;
-		if (! $this->hasLastActiveTimestamp()) {
+		if(!$this->hasLastActiveTimestamp()) {
 			Debug::error("{$f} last activity timestamp is undefined");
 		}
 		return $this->getColumnValue("lastActiveTimestamp");
 	}
 
 	public function isExpired($ts = null){
-		if ($ts == null) {
+		if($ts == null) {
 			$ts = time();
 		}
 		return $ts - $this->getLastActiveTimestamp() >= intval(ini_get("session.gc_maxlifetime"));
@@ -101,7 +101,7 @@ class SessionTimestampData extends DataStructure{
 	}
 
 	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
-		foreach ($columns as $c) {
+		foreach($columns as $c) {
 			$c->setNullable(true);
 		}
 	}
@@ -119,7 +119,7 @@ class SessionTimestampData extends DataStructure{
 	}
 
 	public function updateLastActiveTimestamp($ts = null){
-		if ($ts == null) {
+		if($ts == null) {
 			$ts = time();
 		}
 		return $this->setLastActiveTimestamp($ts);
@@ -127,41 +127,41 @@ class SessionTimestampData extends DataStructure{
 
 	public function refresh($ts = null){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($ts == null) {
+			if($ts == null) {
 				$ts = time();
 			}
-			if ($this->hasLastActiveTimestamp() && $this->isExpired($ts)) {
-				if ($print) {
+			if($this->hasLastActiveTimestamp() && $this->isExpired($ts)) {
+				if($print) {
 					Debug::print("{$f} session has expired");
 				}
 				session_unset();
 				session_destroy();
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} session is still fresh");
 			}
-			if (! $this->hasRegenerationTimestamp()) {
-				if ($print) {
+			if(!$this->hasRegenerationTimestamp()) {
+				if($print) {
 					Debug::print("{$f} regeneration timestamp is undefined, setting it now");
 				}
 				$this->updateRegenerationTimestamp($ts);
-			} elseif ($this->isDueForRegeneration($ts)) {
-				if ($print) {
+			}elseif($this->isDueForRegeneration($ts)) {
+				if($print) {
 					Debug::print("{$f} session is due for regeneration");
 				}
 				$this->regenerateId($ts);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} regeneration timestamp is defined and sufficiently fresh");
 			}
 			return $this->updateLastActiveTimestamp($ts);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public static function sessionStart($ts = null){
-		if ($ts == null) {
+		if($ts == null) {
 			$ts = time();
 		}
 		session_start();

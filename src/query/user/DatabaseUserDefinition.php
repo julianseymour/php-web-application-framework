@@ -28,7 +28,7 @@ class DatabaseUserDefinition extends DatabaseRoleData
 	public function setQueryStatement($q)
 	{
 		$f = __METHOD__; //DatabaseUserDefinition::getShortClass()."(".static::getShortClass().")->setQueryStatement()";
-		if (! $q instanceof UserStatement) {
+		if(!$q instanceof UserStatement) {
 			Debug::error("{$f} statement must be an instanceof UserStatement");
 		}
 		return $this->queryStatement = $q;
@@ -42,7 +42,7 @@ class DatabaseUserDefinition extends DatabaseRoleData
 	public function getQueryStatement()
 	{
 		$f = __METHOD__; //DatabaseUserDefinition::getShortClass()."(".static::getShortClass().")->getQueryStatement()";
-		if (! $this->hasQueryStatement()) {
+		if(!$this->hasQueryStatement()) {
 			Debug::error("{$f} query statement is undefined");
 		}
 		return $this->queryStatement;
@@ -56,7 +56,7 @@ class DatabaseUserDefinition extends DatabaseRoleData
 	public function getPassword()
 	{
 		$f = __METHOD__; //DatabaseUserDefinition::getShortClass()."(".static::getShortClass().")->getPassword()";
-		if (! $this->hasPassword()) {
+		if(!$this->hasPassword()) {
 			Debug::error("{$f} password is undefined");
 		}
 		return $this->password;
@@ -65,10 +65,10 @@ class DatabaseUserDefinition extends DatabaseRoleData
 	public function setPassword($password)
 	{ // XXX validate password
 		$f = __METHOD__; //DatabaseUserDefinition::getShortClass()."(".static::getShortClass().")->setPassword()";
-		if ($password == null) {
+		if($password == null) {
 			unset($this->password);
 			return null;
-		} elseif (! is_string($password)) {
+		}elseif(!is_string($password)) {
 			Debug::error("{$f} password must be a string");
 		}
 		return $this->password = $password;
@@ -83,10 +83,10 @@ class DatabaseUserDefinition extends DatabaseRoleData
 	public function setOldPassword($pw)
 	{
 		$f = __METHOD__; //DatabaseUserDefinition::getShortClass()."(".static::getShortClass().")->setOldPassword()";
-		if ($pw == null) {
+		if($pw == null) {
 			unset($this->oldPassword);
 			return null;
-		} elseif (! is_string($pw)) {
+		}elseif(!is_string($pw)) {
 			Debug::error("{$f} current password must be a string");
 		}
 		return $this->oldPassword = $pw;
@@ -100,7 +100,7 @@ class DatabaseUserDefinition extends DatabaseRoleData
 	public function getOldPassword()
 	{
 		$f = __METHOD__; //DatabaseUserDefinition::getShortClass()."(".static::getShortClass().")->getOldPassword()";
-		if (! $this->hasOldPassword()) {
+		if(!$this->hasOldPassword()) {
 			Debug::error("{$f} current password is undefined");
 		}
 		return $this->oldPassword;
@@ -115,7 +115,7 @@ class DatabaseUserDefinition extends DatabaseRoleData
 	public function setRandomPasswordFlag($value = true)
 	{
 		$f = __METHOD__; //DatabaseUserDefinition::getShortClass()."(".static::getShortClass().")->setRandomPasswordFlag()";
-		if ($this->getStatementType() === STATEMENT_TYPE_ALTER_CURRENT_USER) {
+		if($this->getStatementType() === STATEMENT_TYPE_ALTER_CURRENT_USER) {
 			Debug::error("{$f} random password is unsupported by alter current user statement");
 			return false;
 		}
@@ -170,32 +170,32 @@ class DatabaseUserDefinition extends DatabaseRoleData
 	{
 		$f = __METHOD__; //DatabaseUserDefinition::getShortClass()."(".static::getShortClass().")->getAuthOptionString()";
 		$string = "";
-		if ($this->getDiscardOldPasswordFlag()) {
+		if($this->getDiscardOldPasswordFlag()) {
 			$string .= " discard old password";
 			return $string;
-		} elseif ($this->hasAuthPlugin() || $this->hasPassword() || $this->getRandomPasswordFlag()) {
+		}elseif($this->hasAuthPlugin() || $this->hasPassword() || $this->getRandomPasswordFlag()) {
 			$string .= " identified";
 			$qs = $this->hasQueryStatement() ? $this->getQueryStatement() : null;
 			$current_user = $qs instanceof AlterUserStatement && $qs->getCurrentUserFlag();
-			if (! $current_user && $this->hasAuthPlugin()) {
+			if(!$current_user && $this->hasAuthPlugin()) {
 				$string .= " with " . $this->getAuthPlugin();
 			}
-			if ($this->hasPassword() || $this->getRandomPasswordFlag()) {
-				if ($this->getRandomPasswordFlag()) {
-					if ($current_user) {
+			if($this->hasPassword() || $this->getRandomPasswordFlag()) {
+				if($this->getRandomPasswordFlag()) {
+					if($current_user) {
 						Debug::error("{$f} cannot have random password for alter current user");
 					}
 					$string .= " by random password";
-				} elseif ($this->hasPassword()) {
+				}elseif($this->hasPassword()) {
 					$string .= " by " . single_quote($this->getPassword());
-				} else {
+				}else{
 					Debug::error("{$f} neither of the above");
 				}
-				if (! $qs instanceof CreateUserStatement) {
-					if ($this->hasOldPassword()) {
+				if(!$qs instanceof CreateUserStatement) {
+					if($this->hasOldPassword()) {
 						$string .= " replace " . single_quote($this->getOldPassword());
 					}
-					if ($this->getRetainCurrentPasswordFlag()) {
+					if($this->getRetainCurrentPasswordFlag()) {
 						$string .= " retain current password";
 					}
 				}
@@ -207,9 +207,9 @@ class DatabaseUserDefinition extends DatabaseRoleData
 	public function toSQL(): string
 	{
 		$f = __METHOD__; //DatabaseUserDefinition::getShortClass()."(".static::getShortClass().")->toSQL()";
-		try {
+		try{
 			return parent::toSQL() . $this->getAuthOptionString();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

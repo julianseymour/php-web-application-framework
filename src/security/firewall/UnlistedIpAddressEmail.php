@@ -22,7 +22,7 @@ class UnlistedIpAddressEmail extends ConfirmationCodeEmail{
 
 	public function setSubjectData($subject){
 		$f = __METHOD__;
-		if (! $subject instanceof UnlistedIpAddressConfirmationCode) {
+		if(!$subject instanceof UnlistedIpAddressConfirmationCode) {
 			$class = $subject->getClass();
 			Debug::error("{$f} subject must be an unlisted IP address confirmation code, but it is a \"{$class}\"");
 		}

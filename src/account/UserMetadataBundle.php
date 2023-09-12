@@ -27,9 +27,9 @@ class UserMetadataBundle extends DatumBundle
 		$f = __METHOD__; //UserMetadataBundle::getShortClass()."(".static::getShortClass().")->__construct()";
 		$print = false;
 		parent::__construct($name, $ds);
-		if ($ds !== null) {
+		if($ds !== null) {
 			$this->setDataStructure($ds);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::warning("{$f} data structure is null");
 		}
 	}
@@ -47,7 +47,7 @@ class UserMetadataBundle extends DatumBundle
 	public function generateComponents(?DataStructure $ds = null): array
 	{
 		$f = __METHOD__; //UserMetadataBundle::getShortClass()."(".static::getShortClass().")->generateComponents()";
-		try {
+		try{
 			$print = false;
 			$components = [];
 			$name = $this->getName();
@@ -65,7 +65,7 @@ class UserMetadataBundle extends DatumBundle
 				ACCOUNT_TYPE_SHADOW,
 				ACCOUNT_TYPE_TRANSLATOR
 			]);
-			if ($this->hasPersistenceMode()) {
+			if($this->hasPersistenceMode()) {
 				$type->setPersistenceMode($this->getPersistenceMode());
 			}
 			$type_string = new VirtualDatum("{$name}AccountTypeString");
@@ -93,10 +93,10 @@ class UserMetadataBundle extends DatumBundle
 			$username_key->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 			$username_key->setOnUpdate(REFERENCE_OPTION_CASCADE);
 			$username_key->setOnDelete(REFERENCE_OPTION_SET_NULL);
-			if ($this->getConstraintFlag()) {
+			if($this->getConstraintFlag()) {
 				$username_key->constrain();
 			}
-			if ($this->hasPersistenceMode()) {
+			if($this->hasPersistenceMode()) {
 				$username_key->setPersistenceMode($this->getPersistenceMode());
 			}
 			// where condition for creating alises to load from username table
@@ -109,11 +109,11 @@ class UserMetadataBundle extends DatumBundle
 			$name_datum->setSubqueryWhereCondition($where);
 			$name_datum->setSubqueryColumnName("name");
 			$name_datum->setReferenceColumn($username_key);
-			if ($this->hasDefaultValue()) {
+			if($this->hasDefaultValue()) {
 				$default = $this->getDefaultValue();
 				$name_datum->setDefaultValue($default);
 			}
-			if ($this->hasPersistenceMode()) {
+			if($this->hasPersistenceMode()) {
 				$name_datum->setPersistenceMode($this->getPersistenceMode());
 			}
 			// display name
@@ -125,7 +125,7 @@ class UserMetadataBundle extends DatumBundle
 			$display_name->setSubqueryWhereCondition($where);
 			$display_name->setSubqueryColumnName("displayName");
 			$display_name->setHumanReadableName(_("Display name"));
-			if ($this->hasPersistenceMode()) {
+			if($this->hasPersistenceMode()) {
 				$display_name->setPersistenceMode($this->getPersistenceMode());
 			}
 			// normalized name
@@ -134,7 +134,7 @@ class UserMetadataBundle extends DatumBundle
 			$normalized_name->setSubqueryClass(UsernameData::class);
 			$normalized_name->setSubqueryWhereCondition($where);
 			$normalized_name->setSubqueryColumnName("normalizedName");
-			if ($this->hasPersistenceMode()) {
+			if($this->hasPersistenceMode()) {
 				$normalized_name->setPersistenceMode($this->getPersistenceMode());
 			}
 			// foreign key referencing the user, the most important part
@@ -146,60 +146,60 @@ class UserMetadataBundle extends DatumBundle
 			// $userKey->setForeignDataTypeName("{$name}DataType");
 			$userKey->setForeignDataSubtypeName($subtypeName);
 			$userKey->setIndexFlag(true);
-			if ($this->hasRelationshipType()) {
+			if($this->hasRelationshipType()) {
 				$userKey->setRelationshipType($this->getRelationshipType());
-			} else {
+			}else{
 				$userKey->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 			}
-			if ($this->getAutoloadFlag()) {
+			if($this->getAutoloadFlag()) {
 				$userKey->setAutoloadFlag(true);
 			}
-			if ($this->getConstraintFlag()) {
+			if($this->getConstraintFlag()) {
 				$type->retainOriginalValue();
-				if (! $type->getRetainOriginalValueFlag()) {
+				if(!$type->getRetainOriginalValueFlag()) {
 					Debug::print("{$f} immediately after setting the flag, account type does not retain original value");
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} user account type retains its original value");
 				}
 				$userKey->constrain()->retainOriginalValue();
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} constraint flag is not set");
 			}
-			if ($this->hasPersistenceMode()) {
+			if($this->hasPersistenceMode()) {
 				$userKey->setPersistenceMode($this->getPersistenceMode());
 			}
-			if ($this->isNullable()) {
+			if($this->isNullable()) {
 				$type->setNullable(true);
 				$name_datum->setNullable(true);
 				$username_key->setNullable(true);
 				$userKey->setNullable(true);
 			}
-			if ($this->hasDataStructure()) {
+			if($this->hasDataStructure()) {
 				$ds = $this->getDataStructure();
 				$closure = function ($event, $target) use ($ds, $name, $f, $print) {
-					if ($event->getProperty("columnName") !== "{$name}Key") {
+					if($event->getProperty("columnName") !== "{$name}Key") {
 						return;
 					}
 					$struct = $event->getProperty("data");
-					if ($struct->hasAccountType() && $ds->hasColumn("{$name}AccountType")) {
+					if($struct->hasAccountType() && $ds->hasColumn("{$name}AccountType")) {
 						$ds->setColumnValue("{$name}AccountType", $struct->getAccountType());
 					}
-					if ($struct->hasColumn("{$name}TemporaryRole") && $struct->hasTemporaryRole()) {
+					if($struct->hasColumn("{$name}TemporaryRole") && $struct->hasTemporaryRole()) {
 						$ds->setColumnValue("{$name}TemporaryRole", $struct->getTemporaryRole());
 					}
-					if ($struct->hasForeignDataStructure("userNameKey")) {
-						if ($print) {
+					if($struct->hasForeignDataStructure("userNameKey")) {
+						if($print) {
 							Debug::print("{$f} username data is defined; setting it now");
 						}
 						$ds->setForeignDataStructure("{$name}NameKey", $struct->getForeignDataStructure("userNameKey"));
-					} elseif ($ds->hasColumn("{$name}NameKey") && $struct->hasColumnValue("userNameKey")) {
+					}elseif($ds->hasColumn("{$name}NameKey") && $struct->hasColumnValue("userNameKey")) {
 						$ds->setColumnValue("{$name}NameKey", $struct->getColumnValue("userNameKey"));
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} username data is not defined");
 					}
-					if ($struct->hasColumnValue("name")) {
+					if($struct->hasColumnValue("name")) {
 						$ds->setColumnValue("{$name}Name", $struct->getName());
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::error("{$f} user does not have a defined name");
 					}
 				};
@@ -207,7 +207,7 @@ class UserMetadataBundle extends DatumBundle
 			}
 			array_push($components, $type, $role, $type_string, $display_name, $name_datum, $userKey, $username_key, $normalized_name);
 			return $components;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

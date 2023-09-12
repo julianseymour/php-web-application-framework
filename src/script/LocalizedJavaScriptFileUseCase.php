@@ -11,8 +11,7 @@ abstract class LocalizedJavaScriptFileUseCase extends JavaScriptFileUseCase{
 	public function getUriSegmentParameterMap():?array{
 		return [
 			"action",
-			"locale",
-			"filename"
+			"locale"
 		];
 	}
 }

@@ -15,7 +15,7 @@ abstract class ControlStatementCommand extends Command implements JavaScriptInte
 	public function __construct($expr = null)
 	{
 		parent::__construct();
-		if (isset($expr)) {
+		if(isset($expr)) {
 			$this->setExpression($expr);
 		}
 	}
@@ -29,7 +29,7 @@ abstract class ControlStatementCommand extends Command implements JavaScriptInte
 	public function echoInnerJson(bool $destroy = false): void
 	{
 		$f = __METHOD__; //ControlStatementCommand::getShortClass()."(".static::getShortClass().")->echoInnerJson()";
-		if ($this->hasExpression()) {
+		if($this->hasExpression()) {
 			Json::echoKeyValuePair('expression', $this->expression, $destroy);
 		}
 		parent::echoInnerJson($destroy);

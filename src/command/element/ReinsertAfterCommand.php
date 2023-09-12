@@ -19,7 +19,7 @@ class ReinsertAfterCommand extends ReinsertElementCommand
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		$target = new GetElementByIdCommand($this->getReferenceElementId());

@@ -9,7 +9,7 @@ class TextDatum extends FullTextStringDatum{
 	use CharacterSetTrait;
 
 	public function getHumanWritableValue(){
-		if ($this->getNeverLeaveServer()) {
+		if($this->getNeverLeaveServer()) {
 			return null;
 		}
 		return $this->getValue();
@@ -17,7 +17,7 @@ class TextDatum extends FullTextStringDatum{
 
 	public function getColumnTypeString(): string{
 		$string = "text";
-		if ($this->hasCharacterSet()) {
+		if($this->hasCharacterSet()) {
 			$charset = $this->getCharacterSet();
 			$string .= " character set {$charset}";
 		}
@@ -37,7 +37,7 @@ class TextDatum extends FullTextStringDatum{
 	public function setValue($v){
 		$f = __METHOD__;
 		$print = false;
-		if ($v == "[object Object]") {
+		if($v == "[object Object]") {
 			$cn = $this->getName();
 			Debug::print("{$f} Value \"[object Object]\". Column name is \"{$cn}\". Remote IP address is {$_SERVER['REMOTE_ADDR']}");
 		}

@@ -17,7 +17,7 @@ abstract class LoadoutGenerator extends Basic{
 	protected $paginator;
 	
 	public function setPaginator(?Paginator $paginator): ?Paginator{
-		if ($paginator == null) {
+		if($paginator == null) {
 			unset($this->paginator);
 			return null;
 		}
@@ -27,7 +27,7 @@ abstract class LoadoutGenerator extends Basic{
 	public function getPaginator(UseCase $use_case): ?Paginator{
 		$f = __METHOD__;
 		$print = false;
-		if (! $this->hasPaginator()) {
+		if(!$this->hasPaginator()) {
 			$paginator = new Paginator();
 			if($print){
 				Debug::printStackTraceNoExit("{$f} instantiating a plain old paginator");
@@ -54,7 +54,7 @@ abstract class LoadoutGenerator extends Basic{
 		$f = __METHOD__;
 		$print = false;
 		$dependencies = $this->getNonRootNodeTreeSelectStatements($ds, $use_case);
-		if ($dependencies) {
+		if($dependencies) {
 			if($print){
 				Debug::print("{$f} generating a loadout from ".count($dependencies)." relationships");
 			}
@@ -69,7 +69,7 @@ abstract class LoadoutGenerator extends Basic{
 		$f = __METHOD__;
 		$print = false;
 		$dependencies = $this->getRootNodeTreeSelectStatements($ds, $use_case);
-		if ($dependencies) {
+		if($dependencies) {
 			if($print){
 				Debug::print("{$f} generating a loadout from ".count($dependencies)." relationships");
 			}

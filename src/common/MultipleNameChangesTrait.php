@@ -10,7 +10,7 @@ trait MultipleNameChangesTrait
 
 	public function rename($oldname, $newname)
 	{
-		if (! $this->hasNameChanges()) {
+		if(!$this->hasNameChanges()) {
 			$this->nameChanges = [];
 		}
 		return $this->nameChanges[$oldname] = $newname;
@@ -24,8 +24,8 @@ trait MultipleNameChangesTrait
 	public function changeNames($nameChanges)
 	{
 		$f = __METHOD__; //"MultipleNameChangesTrait(".static::getShortClass().")->changeNames()";
-		foreach ($nameChanges as $oldname => $newname) {
-			if (! is_string($oldname) || ! is_string($newname)) {
+		foreach($nameChanges as $oldname => $newname) {
+			if(!is_string($oldname) || ! is_string($newname)) {
 				Debug::error("{$f} both old and new names must be strings");
 			}
 		}
@@ -35,7 +35,7 @@ trait MultipleNameChangesTrait
 	public function getNameChanges()
 	{
 		$f = __METHOD__; //"MultipleNameChangesTrait(".static::getShortClass().")->getNameChanges()";
-		if (! $this->hasNameChanges()) {
+		if(!$this->hasNameChanges()) {
 			Debug::error("{$f} name changes are undefined");
 		}
 		return $this->nameChanges;

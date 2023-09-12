@@ -12,14 +12,14 @@ abstract class Constraint extends Basic implements SQLInterface
 	public function __construct($symbol = null)
 	{
 		parent::__construct();
-		if ($symbol !== null) {
+		if($symbol !== null) {
 			$this->setSymbol($symbol);
 		}
 	}
 
 	public function toSQL(): string
 	{
-		if ($this->hasSymbol()) {
+		if($this->hasSymbol()) {
 			return "constraint " . $this->getSymbol() . " ";
 		}
 		return "";

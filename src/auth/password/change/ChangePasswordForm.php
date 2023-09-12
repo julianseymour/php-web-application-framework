@@ -39,7 +39,7 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 		$print = false;
 		$names = parent::getValidateInputNames();
 		array_push($names, "password_new");
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning the following indices");
 			Debug::printArray($names);
 		}
@@ -48,7 +48,7 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$vn = $input->getColumnName();
 			switch ($vn) {
 				case "password":
@@ -61,14 +61,14 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$mode = $this->getAllocationMode();
 			$inputs = parent::getAdHocInputs();
 			$npi = new PasswordInput($mode);
@@ -92,14 +92,14 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 			$npi->pushSuccessor($suffix);
 			$inputs[$npi->getNameAttribute()] = $npi;
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	protected function attachInputValidators(InputInterface $input): InputInterface{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if(!$input->hasColumnName()){
 				return $input;
@@ -110,7 +110,7 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 					$input->pushValidator(new PasswordValidator("password"));
 					break;
 				case "password_new":
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} attaching input validators to new password input");
 					}
 					$input->setMinimumLengthAttribute(12);
@@ -119,7 +119,7 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 				default:
 			}
 			return parent::attachInputValidators($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

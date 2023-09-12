@@ -11,7 +11,7 @@ trait ReferenceElementIdTrait
 	public function setReferenceElementId($id)
 	{
 		$f = __METHOD__; //"ReferenceElementIdColumnTrait(".static::getShortClass().")->setReferenceElementId()";
-		if ($id == null) {
+		if($id == null) {
 			unset($this->referenceElementId);
 			return null;
 		}
@@ -26,7 +26,7 @@ trait ReferenceElementIdTrait
 	public function getReferenceElementId()
 	{
 		$f = __METHOD__; //"ReferenceElementIdColumnTrait(".static::getShortClass().")->getReferenceElementId()";
-		if (! $this->hasReferenceElementId()) {
+		if(!$this->hasReferenceElementId()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} insertion target ID is undefined; declared {$decl}");
 		}

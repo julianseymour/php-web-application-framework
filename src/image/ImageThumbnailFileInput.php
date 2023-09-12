@@ -18,7 +18,7 @@ class ImageThumbnailFileInput extends FileInput
 		$print = false;
 		$context = $this->getContext();
 		$ds = $context->getDataStructure();
-		if ($ds->isUninitialized()) {
+		if($ds->isUninitialized()) {
 			if($print){
 				$decl = $ds->getDeclarationLine();
 				Debug::print("{$f} context is uninitialized, instantiated {$decl}");

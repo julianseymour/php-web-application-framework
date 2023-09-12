@@ -35,43 +35,43 @@ class UpdateElementCommand extends MultipleElementCommand{
 
 	public function __construct(...$elements){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$final_elements = [];
-			if (count($elements) === 1 && is_array($elements[0])) {
-				if ($print) {
+			if(count($elements) === 1 && is_array($elements[0])) {
+				if($print) {
 					Debug::print("{$f} did not unpack array");
 				}
 				$elements = $elements[0];
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} array is unpacked");
 				}
 				$temp = [];
-				foreach ($elements as $e) {
+				foreach($elements as $e) {
 					$temp[$e->getIdAttribute()] = $e;
 				}
 				$elements = &$temp;
 			}
-			foreach ($elements as $old_id => $element) {
-				if (is_array($element)) {
+			foreach($elements as $old_id => $element) {
+				if(is_array($element)) {
 					Debug::error("{$f} element is an array");
-				} elseif (is_string($element)) {
+				}elseif(is_string($element)) {
 					Debug::error("{$f} this function no longer accepts strings");
-				} elseif (! $element->getContentsGeneratedFlag()) {
-					if ($print) {
+				}elseif(!$element->getContentsGeneratedFlag()) {
+					if($print) {
 						Debug::print("{$f} element has not been finalized");
 					}
 					$element->generateContents();
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} element has already been finalized");
 				}
-				if ($element->hasPredecessors()) {
+				if($element->hasPredecessors()) {
 					$predecessors = $element->getPredecessors();
 					$element->setPredecessors(null);
-					foreach ($predecessors as $p) {
-						if ($p instanceof Element && $p->getNoUpdateFlag()) {
-							if ($print) {
+					foreach($predecessors as $p) {
+						if($p instanceof Element && $p->getNoUpdateFlag()) {
+							if($print) {
 								Debug::print("{$f} skipping predecessor element with noUpdate flag");
 								continue;
 							}
@@ -81,12 +81,12 @@ class UpdateElementCommand extends MultipleElementCommand{
 				}
 				$element->setReplacementId($old_id);
 				$final_elements[$old_id] = $element; // array_push($final_elements, $element);
-				if ($element->hasSuccessors()) {
+				if($element->hasSuccessors()) {
 					$successors = $element->getSuccessors();
 					$element->setSuccessors(null);
-					foreach ($successors as $s) {
-						if ($s instanceof Element && $s->getNoUpdateFlag()) {
-							if ($print) {
+					foreach($successors as $s) {
+						if($s instanceof Element && $s->getNoUpdateFlag()) {
+							if($print) {
 								Debug::print("{$f} skipping successor element with noUpdate flag");
 								continue;
 							}
@@ -96,73 +96,73 @@ class UpdateElementCommand extends MultipleElementCommand{
 				}
 			}
 			// $temp_elements = null;
-			foreach ($final_elements as $element) {
+			foreach($final_elements as $element) {
 				$element->setCatchReportedSubcommandsFlag(true);
 				$element->setSubcommandCollector($this);
-				if (! $element->hasIdAttribute()) {
+				if(!$element->hasIdAttribute()) {
 					// $element->setAttribute("temp_id", $element->removeAttribute("id"));
 					$ec = is_object($element) ? $element->getClass() : gettype($element);
 					Debug::warning("{$f} element of class \"{$ec}\" has no ID attribute");
 					$element->announceYourself();
 				}
 			}
-			if ($print) {
+			if($print) {
 				$keys = array_keys($final_elements);
 				Debug::print("{$f} about to call parent constructor with the following keys:");
 				Debug::printArray($keys);
 			}
 			parent::__construct($final_elements);
 			// $this->getElements();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function echoInnerJson(bool $destroy = false): void{
 		$f = __METHOD__;
-		try {
+		try{
 			$i = 0;
 			echo "\"elements\":";
 			$elements = $this->getElements();
 			$assoc = is_associative($elements);
-			if ($assoc) {
+			if($assoc) {
 				echo "{";
-			} else {
+			}else{
 				echo "[";
 			}
-			foreach ($elements as $key => $element) {
-				if ($i ++ > 0) {
+			foreach($elements as $key => $element) {
+				if($i ++ > 0) {
 					echo ",";
 				}
-				if ($assoc) {
+				if($assoc) {
 					echo "\"{$key}\":";
 				}
-				if ($element instanceof Element) {
-					if ($element->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY) {
+				if($element instanceof Element) {
+					if($element->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY) {
 						$element->appendSavedChildren($destroy);
 					}
-					if ($this->getInnerFlag()) {
+					if($this->getInnerFlag()) {
 						$element->setElementTag("fragment");
 						$element->clearAttributes();
 					}
 				}
 				Json::echo($element, $destroy, false);
 			}
-			if ($assoc) {
+			if($assoc) {
 				echo "}";
-			} else {
+			}else{
 				echo "]";
 			}
 			echo ",";
 			// Json::echoKeyValuePair("elements", $this->getElements(), $destroy);
-			if ($this->hasEffect()) {
+			if($this->hasEffect()) {
 				Json::echoKeyValuePair("effect", $this->getEffect());
 			}
-			if ($this->getInnerFlag()) {
+			if($this->getInnerFlag()) {
 				Json::echoKeyValuePair("inner", 1);
 			}
 			parent::echoInnerJson($destroy);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

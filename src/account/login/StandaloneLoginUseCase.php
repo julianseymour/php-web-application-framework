@@ -15,8 +15,8 @@ class StandaloneLoginUseCase extends UnresponsiveLoginUseCase{
 		$print = false;
 		switch ($status) {
 			case SUCCESS:
-				if (user() instanceof AnonymousUser) {
-					if ($print) {
+				if(user() instanceof AnonymousUser) {
+					if($print) {
 						Debug::print("{$f} user is unregistered; returning parent function");
 					}
 					return parent::getResponder($status);
@@ -25,7 +25,7 @@ class StandaloneLoginUseCase extends UnresponsiveLoginUseCase{
 			case RESULT_BFP_MFA_CONFIRM:
 				return new StandaloneMfaResponder();
 			default:
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} default case");
 				}
 				return parent::getResponder($status);

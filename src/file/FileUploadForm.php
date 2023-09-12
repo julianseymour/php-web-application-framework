@@ -48,7 +48,7 @@ abstract class FileUploadForm extends AjaxForm{
 		$vn = $input->getColumnName();
 		switch ($vn) {
 			case "originalFilename":
-				if ($this->getUploadMultipleFlag()) {
+				if($this->getUploadMultipleFlag()) {
 					$input->setMultipleAttribute(null);
 				}
 			default:

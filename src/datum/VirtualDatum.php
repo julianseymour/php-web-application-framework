@@ -95,7 +95,7 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 	}
 
 	public function setAccessor(?Closure $accessor): ?Closure{
-		if ($accessor === null) {
+		if($accessor === null) {
 			unset($this->accessor);
 			return null;
 		}
@@ -104,7 +104,7 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 
 	public function getAccessor(): Closure{
 		$f = __METHOD__;
-		if (! $this->hasAccessor()) {
+		if(!$this->hasAccessor()) {
 			Debug::error("{$f} accessor is undefined");
 		}
 		return $this->accessor;
@@ -115,7 +115,7 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 	}
 
 	public function setExistencePredicate(?Closure $existencePredicate): ?Closure{
-		if ($existencePredicate === null) {
+		if($existencePredicate === null) {
 			unset($this->existencePredicate);
 			return null;
 		}
@@ -124,7 +124,7 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 
 	public function getExistencePredicate(): ?Closure{
 		$f = __METHOD__;
-		if (! $this->hasExistencePredicate()) {
+		if(!$this->hasExistencePredicate()) {
 			Debug::error("{$f} existencePredicate is undefined");
 		}
 		return $this->existencePredicate;
@@ -135,7 +135,7 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 	}
 
 	public function setMutator(?Closure $mutator): ?Closure{
-		if ($mutator === null) {
+		if($mutator === null) {
 			unset($this->mutator);
 			return null;
 		}
@@ -144,14 +144,14 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 
 	public function getMutator(): ?Closure{
 		$f = __METHOD__;
-		if (! $this->hasExistencePredicate()) {
+		if(!$this->hasExistencePredicate()) {
 			Debug::error("{$f} mutator is undefined");
 		}
 		return $this->mutator;
 	}
 
 	public function getValue(){
-		if ($this->hasAccessor()) {
+		if($this->hasAccessor()) {
 			$accessor = $this->getAccessor();
 			return $accessor($this);
 		}
@@ -159,7 +159,7 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 	}
 
 	public function hasValue(): bool{
-		if ($this->hasExistencePredicate()) {
+		if($this->hasExistencePredicate()) {
 			$existencePredicate = $this->getExistencePredicate();
 			return $existencePredicate($this);
 		}

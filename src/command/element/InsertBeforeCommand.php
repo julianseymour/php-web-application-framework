@@ -15,7 +15,7 @@ class InsertBeforeCommand extends InsertElementCommand implements ServerExecutab
 	{
 		$f = __METHOD__; //InsertBeforeCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct($insert_here, ...$inserted_elements);
-		if (! $this->hasReferenceElementId() && ! $this->hasElement()) {
+		if(!$this->hasReferenceElementId() && ! $this->hasElement()) {
 			Debug::error("{$f} element and element ID are undefined");
 		}
 	}
@@ -40,9 +40,9 @@ class InsertBeforeCommand extends InsertElementCommand implements ServerExecutab
 		// $idcs = $this->getIdCommandString();
 		$target = $this->getElement();
 		$string = "";
-		if ($target instanceof JavaScriptInterface) {
+		if($target instanceof JavaScriptInterface) {
 			$nmcs = $target->toJavaScript();
-		} else {
+		}else{
 			$gottypr = gettype($target);
 			Debug::print("{$f} got ttpe \"{$gottypr}\"");
 			$nmcs = "near_me";
@@ -58,12 +58,12 @@ class InsertBeforeCommand extends InsertElementCommand implements ServerExecutab
 		}
 		$string .= "insertBeforeMultiple({$nmcs}, ";
 		$i = 0;
-		foreach ($this->getElements() as $element) {
-			if ($i ++ > 0) {
+		foreach($this->getElements() as $element) {
+			if($i ++ > 0) {
 				$string .= ",";
 			}
 			$ido = $element->getIdOverride();
-			if ($ido instanceof JavaScriptInterface) {
+			if($ido instanceof JavaScriptInterface) {
 				$ido = $ido->toJavaScript();
 			}
 			$string .= $ido;

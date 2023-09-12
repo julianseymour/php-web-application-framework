@@ -44,13 +44,13 @@ class RegistrationUsernameValidator extends UniqueValidator implements AjaxValid
 	protected function prevalidate(&$arr)
 	{
 		$f = __METHOD__; //RegistrationUsernameValidator::getShortClass()."(".static::getShortClass().")->prevalidate()";
-		try {
+		try{
 			$print = false;
-			if (! array_key_exists("name", $arr)) {
+			if(! array_key_exists("name", $arr)) {
 				Debug::warning("{$f} name array key does not exist");
 				Debug::printArray($arr);
 				Debug::printStackTrace();
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} received the following array:");
 				Debug::printArray($arr);
 			}
@@ -58,7 +58,7 @@ class RegistrationUsernameValidator extends UniqueValidator implements AjaxValid
 				NameDatum::normalize($arr['name'])
 			]);
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

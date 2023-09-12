@@ -76,4 +76,6 @@ abstract class Module extends Basic{
 	public abstract function afterAccountCreationHook(mysqli $mysqli, PlayableUser $user): int;
 	
 	public abstract function getModuleSpecificColumns(DataStructure $ds):?array;
+	
+	public abstract function getInstallDirectories():?array;
 }

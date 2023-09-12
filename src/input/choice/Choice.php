@@ -22,20 +22,20 @@ class Choice extends Basic{
 		$f = __METHOD__;
 		$print = false;
 		parent::__construct();
-		if ($value !== null) {
+		if($value !== null) {
 			$this->setValue($value);
 		}
-		if ($labelString !== null) {
+		if($labelString !== null) {
 			$this->setLabelString($labelString);
 		}
-		if ($select !== false) {
-			if (is_bool($select) && $select) {
+		if($select !== false) {
+			if(is_bool($select) && $select) {
 				$this->select();
-			} elseif (gettype($select) === gettype($value) && $select === $value) {
+			}elseif(gettype($select) === gettype($value) && $select === $value) {
 				$this->select();
 			}
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} new choice {$value} => {$labelString}");
 		}
 	}
@@ -71,7 +71,7 @@ class Choice extends Basic{
 
 	public function getWrapperClass(){
 		$f = __METHOD__;
-		if (! $this->hasWrapperClass()) {
+		if(!$this->hasWrapperClass()) {
 			Debug::error("{$f} wrapper class is undefined");
 		}
 		return $this->wrapperClass;
@@ -83,7 +83,7 @@ class Choice extends Basic{
 
 	public function setLabelString($ls){
 		$f = __METHOD__;
-		if ($ls === null) {
+		if($ls === null) {
 			unset($this->labelString);
 			return null;
 		}
@@ -96,7 +96,7 @@ class Choice extends Basic{
 
 	public function getLabelString(){
 		$f = __METHOD__;
-		if (! $this->hasLabelString()) {
+		if(!$this->hasLabelString()) {
 			Debug::error("{$f} label string is undefined");
 		}
 		return $this->labelString;

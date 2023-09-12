@@ -16,7 +16,7 @@ use Exception;
 class SecurityNotificationData extends TypedNotificationData{
 
 	public static function getPermissionStatic(string $name, $data){
-		if ($data->hasPermission($name)) {
+		if($data->hasPermission($name)) {
 			return $data->getPermission($name);
 		}
 		switch ($name) {
@@ -37,10 +37,10 @@ class SecurityNotificationData extends TypedNotificationData{
 
 	protected function afterGenerateInitialValuesHook(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$this->setNotificationType(NOTIFICATION_TYPE_SECURITY);
 			return parent::afterGenerateInitialValuesHook();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

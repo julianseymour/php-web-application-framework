@@ -6,11 +6,11 @@ class AfterEjectValueEvent extends Event
 
 	public function __construct($value, $properties = null)
 	{
-		if (! is_array($properties)) {
+		if(!is_array($properties)) {
 			$properties = [
 				'value' => $value
 			];
-		} else {
+		}else{
 			$properties['value'] = $value;
 		}
 		parent::__construct(EVENT_AFTER_EJECT, $properties);

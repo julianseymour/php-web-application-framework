@@ -23,30 +23,30 @@ class TypeValidator extends Validator{
 
 	public static function validateType($value, $check){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($check instanceof Closure) {
-				if ($print) {
+			if($check instanceof Closure) {
+				if($print) {
 					Debug::print("{$f} calling a closure");
 				}
 				return $check($value) ? SUCCESS : FAILURE;
-			} elseif (is_bool($check)) {
+			}elseif(is_bool($check)) {
 				return is_bool($check) ? SUCCESS : FAILURE;
-			} elseif (is_int($check)) {
+			}elseif(is_int($check)) {
 				return is_int($value) ? SUCCESS : FAILURE;
-			} elseif (is_double($check)) {
+			}elseif(is_double($check)) {
 				return is_double($value) ? SUCCESS : FAILURE;
-			} elseif (is_float($check)) {
+			}elseif(is_float($check)) {
 				return is_float($value) ? SUCCESS : FAILURE;
-			} elseif (is_string($check)) {
-				if ($value === null) {
-					if (starts_with($check, "?")) {
+			}elseif(is_string($check)) {
+				if($value === null) {
+					if(starts_with($check, "?")) {
 						return SUCCESS;
 					}
 					return FAILURE;
-				} elseif (starts_with($check, "?")) {
+				}elseif(starts_with($check, "?")) {
 					$check = str_replace("?", "", $check);
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} validator is \"{$check}\"");
 					}
 				}
@@ -90,62 +90,62 @@ class TypeValidator extends Validator{
 					case "sha1":
 						return is_sha1($value) ? SUCCESS : FAILURE;
 					default:
-						if (class_exists($check) || interface_exists($check)) {
-							if ($print) {
+						if(class_exists($check) || interface_exists($check)) {
+							if($print) {
 								$gottype = gettype($value);
 								Debug::print("{$f} check is a class name \"{$check}\"");
-								if ($value instanceof $check) {
+								if($value instanceof $check) {
 									Debug::print("{$f} yes, value is an instanceof \"{$check}\"");
-								} else {
+								}else{
 									
 									Debug::print("{$f} no, {$gottype} value is not an instanceof \"{$check}\"");
 								}
 							}
-							if (is_object($value)) {
+							if(is_object($value)) {
 								return $value instanceof $check ? SUCCESS : FAILURE;
-							} elseif (is_string($value)) {
+							}elseif(is_string($value)) {
 								return is_a($value, $check, true) ? SUCCESS : FAILURE;
-							}elseif ($print) {
+							}elseif($print) {
 								Debug::print("{$f} value is a {$gottype}, and fails type check \"{$check}\'");
 							}
 							return FAILURE;
-						} else {
+						}else{
 							Debug::error("{$f} class \"{$check}\" does not exist");
 						}
 				}
-			} elseif (is_object($check)) {
-				if ($check instanceof VariadicExpressionCommand) {
+			}elseif(is_object($check)) {
+				if($check instanceof VariadicExpressionCommand) {
 					$expressions = $check->getParameters();
-					if ($check instanceof AndCommand) {
-						foreach ($expressions as $expr) {
+					if($check instanceof AndCommand) {
+						foreach($expressions as $expr) {
 							$status = TypeValidator::validateType($value, $expr);
-							if ($status !== SUCCESS) {
+							if($status !== SUCCESS) {
 								return $status;
 							}
 						}
 						return SUCCESS;
-					} elseif ($check instanceof OrCommand) {
-						if ($print) {
+					}elseif($check instanceof OrCommand) {
+						if($print) {
 							Debug::print("{$f} check is an or expression");
 						}
-						foreach ($expressions as $expr) {
+						foreach($expressions as $expr) {
 							$status = TypeValidator::validateType($value, $expr);
-							if ($status === SUCCESS) {
-								if ($print) {
+							if($status === SUCCESS) {
+								if($print) {
 									Debug::print("{$f} returning SUCCESS");
 								}
 								return $status;
 							}
 						}
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} or expression failed");
 						}
 						return FAILURE;
-					} else {
+					}else{
 						$class = $check->getClass();
 						Debug::error("{$f} invalid variadic expression class \"{$class}\"");
 					}
-				} else {
+				}else{
 					$class = $check->getClass();
 					Debug::error("{$f} invalid class \"{$class}\"");
 				}
@@ -167,7 +167,7 @@ class TypeValidator extends Validator{
 				return SUCCESS;
 			}
 			return FAILURE;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

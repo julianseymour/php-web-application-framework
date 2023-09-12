@@ -27,12 +27,12 @@ trait SubjectiveTrait
 	public function getSubjectClass()
 	{
 		$f = __METHOD__; //"SubjectiveTrait(".static::getShortClass().")->getSubjectClass()";
-		try {
-			if ($this->hasSubjectData()) {
+		try{
+			if($this->hasSubjectData()) {
 				return $this->getSubjectData()->getClass();
 			}
 			return $this->getColumn("subjectKey")->getForeignDataStructureClass();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -45,19 +45,19 @@ trait SubjectiveTrait
 	public function getSubjectDataType()
 	{
 		$f = __METHOD__; //"SubjectiveTrait(".static::getShortClass().")->getSubjectDataType()";
-		try {
+		try{
 			// Debug::print("{$f} entered");
 			$type = $this->getColumnValue('subjectDataType');
-			if (isset($type)) {
+			if(isset($type)) {
 				return $type;
-			} elseif ($this->hasSubjectData()) {
+			}elseif($this->hasSubjectData()) {
 				$target = $this->getSubjectData();
 				$type = $target->getDataType();
 				return $this->setSubjectDataType($type);
 			}
 			Debug::error("{$f} target type is undefined, as is the target object");
 			return DATATYPE_UNKNOWN;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -72,18 +72,18 @@ trait SubjectiveTrait
 
 	public function setSubjectData(DataStructure $obj): ?DataStructure{
 		$f = __METHOD__;
-		try {
+		try{
 			$status = $obj->getObjectStatus();
-			if ($status === ERROR_NOT_FOUND) {
+			if($status === ERROR_NOT_FOUND) {
 				Debug::error("{$f} object was deleted");
 				return null;
 			}
 			$ret = $this->setForeignDataStructure('subjectKey', $obj);
-			if (! $this->hasSubjectData()) {
+			if(!$this->hasSubjectData()) {
 				Debug::error("{$f} immediately after setting subject data, it is undefined");
 			}
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

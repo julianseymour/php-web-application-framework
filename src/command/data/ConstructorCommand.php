@@ -22,13 +22,13 @@ class ConstructorCommand extends Command implements JavaScriptInterface, ValueRe
 	{
 		$f = __METHOD__; //ConstructorCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct();
-		if ($objectClass == null) {
+		if($objectClass == null) {
 			Debug::error("{$f} object class is null");
 		}
 		$this->setObjectClass($objectClass);
-		if (isset($params) && count($params) > 0) {
+		if(isset($params) && count($params) > 0) {
 			$arr = [];
-			foreach ($params as $param) {
+			foreach($params as $param) {
 				array_push($arr, $param);
 			}
 			$this->setParameters($arr);
@@ -50,7 +50,7 @@ class ConstructorCommand extends Command implements JavaScriptInterface, ValueRe
 	public function getObjectClass()
 	{
 		$f = __METHOD__; //ConstructorCommand::getShortClass()."(".static::getShortClass().")->getObjectClass()";
-		if (! $this->hasObjectClass()) {
+		if(!$this->hasObjectClass()) {
 			Debug::error("{$f} object class is undefined");
 		}
 		return $this->objectClass;
@@ -70,7 +70,7 @@ class ConstructorCommand extends Command implements JavaScriptInterface, ValueRe
 	public function getConstructedObject()
 	{
 		$f = __METHOD__; //ConstructorCommand::getShortClass()."(".static::getShortClass().")->getConstructedObject()";
-		if (! $this->hasConstructedObject()) {
+		if(!$this->hasConstructedObject()) {
 			Debug::error("{$f} constructed object is undefined");
 		}
 		return $this->constructedObject;
@@ -83,7 +83,7 @@ class ConstructorCommand extends Command implements JavaScriptInterface, ValueRe
 
 	public function evaluate(?array $params = null)
 	{
-		if (! empty($params)) {
+		if(!empty($params)) {
 			$this->setParameters($params);
 		}
 		return $this->resolve();
@@ -93,26 +93,26 @@ class ConstructorCommand extends Command implements JavaScriptInterface, ValueRe
 	{
 		$f = __METHOD__; //ConstructorCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
 		$print = false;
-		if ($this->hasConstructedObject()) {
-			if ($print) {
+		if($this->hasConstructedObject()) {
+			if($print) {
 				Debug::print("{$f} constructed object is already defined");
 			}
 			return $this->getConstructedObject();
 		}
 		$objectClass = $this->getObjectClass();
-		if ($objectClass instanceof ValueReturningCommandInterface) {
+		if($objectClass instanceof ValueReturningCommandInterface) {
 			while ($objectClass instanceof ValueReturningCommandInterface) {
 				$objectClass = $objectClass->evaluate();
 			}
 		}
-		if (! is_string($objectClass)) {
+		if(!is_string($objectClass)) {
 			Debug::error("{$f} object class is not a string");
-		} elseif (! class_exists($objectClass)) {
+		}elseif(! class_exists($objectClass)) {
 			Debug::error("{$f} class \"{$objectClass}\" does not exist");
 		}
 		$params = $this->hasParameters() ? $this->getParameters() : [];
 		$ret = new $objectClass(...$params);
-		if ($print) {
+		if($print) {
 			$ret_did = $ret->getDebugId();
 			$my_did = $this->getDebugId();
 			Debug::print("{$f} constructed object of class {$objectClass} with debug ID \"{$ret_did}\"; my debug ID is \"{$my_did}\"");
@@ -123,11 +123,11 @@ class ConstructorCommand extends Command implements JavaScriptInterface, ValueRe
 	public function toJavaScript(): string
 	{
 		$objectClass = get_short_class($this->getObjectClass());
-		if ($this->hasParameters()) {
+		if($this->hasParameters()) {
 			$params = $this->getParameterString(true);
-		} elseif (is_a($objectClass, DataStructure::class, true)) {
+		}elseif(is_a($objectClass, DataStructure::class, true)) {
 			$params = "null, context.getResponseText()";
-		} else {
+		}else{
 			$params = "";
 		}
 		return "new {$objectClass}({$params})";

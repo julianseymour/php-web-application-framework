@@ -80,7 +80,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 
 	public function getUploadDirectory():string{
 		$f = __METHOD__;
-		if (! $this->hasUploadDirectory()) {
+		if(!$this->hasUploadDirectory()) {
 			Debug::error("{$f} upload directory is undefined");
 		}
 		return $this->getColumnValue("uploadDirectory");
@@ -92,7 +92,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 
 	protected function beforeInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
-		if (! $this->hasSize()) {
+		if(!$this->hasSize()) {
 			Debug::error("{$f} size is undefined");
 		}
 		return parent::beforeInsertHook($mysqli);
@@ -107,28 +107,28 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	 */
 	public function attach($id = null):string{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$cache = false;
-			if (cache()->enabled() && $this->hasCacheKey()) {
+			if(cache()->enabled() && $this->hasCacheKey()) {
 				$key = $this->getCacheKey() . "_attached";
-				if ($this->getCache()->hasAPCu($key)) {
-					if ($print) {
+				if($this->getCache()->hasAPCu($key)) {
+					if($print) {
 						Debug::print("{$f} cache hit");
 					}
 					$chunks = $this->getCache()->getAPCu($key);
-				} else {
-					if ($print) {
+				}else{
+					if($print) {
 						Debug::print("{$f} cache miss");
 					}
 					$cache = true;
 				}
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} cache is disabled");
 			}
 			$dir = $this->getFullFileDirectory();
 			$filename = $this->getFilename();
-			if (! $cache) {
+			if(!$cache) {
 				$chunks = chunk_split(base64_encode(file_get_contents("{$dir}/{$filename}")));
 			}
 			$eol = "\r\n";
@@ -136,19 +136,19 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 			$attach .= "Content-Type:{$mime};name=\"{$filename}\"{$eol}";
 			$attach .= "Content-Disposition:attachment{$eol}";
 			$attach .= "Content-Transfer-Encoding:base64{$eol}";
-			if ($id == null) {
+			if($id == null) {
 				$id = rand(1000, 99999);
 			}
 			$attach .= "X-Attachment-Id:{$id}{$eol}{$eol}";
 			$attach .= "{$chunks}{$eol}";
-			if ($cache) {
-				if ($print) {
+			if($cache) {
+				if($print) {
 					Debug::print("{$f} updating cache");
 				}
 				$this->getCache()->setAPCu($key, $attach, time() + 30 * 60);
 			}
 			return $attach;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -163,15 +163,15 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 
 	public static function sendHeader(string $filename, $mime_code=null):string{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} filename is \"{$filename}\"");
 			}
 			if($mime_code === null){
 				$splat = explode(".", $filename);
 				$extension = strtolower($splat[count($splat) - 1]);
-				if ($print) {
+				if($print) {
 					Debug::print("{$f} extension is \"{$extension}\"");
 				}
 				switch ($extension) {
@@ -210,7 +210,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 					break;
 			}
 			return $mime_code;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -240,19 +240,19 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	protected function beforeDeleteHook(mysqli $mysqli): int
 	{
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		try {
+		try{
 			$filename = $this->getFullFilePath();
-			if (! file_exists($filename)) {
+			if(! file_exists($filename)) {
 				// Debug::print("{$f} already deleted");
 				// return STATUS_DELETED;
-			} else {
+			}else{
 				$deleted = unlink($filename);
-				if (! $deleted) {
+				if(!$deleted) {
 					Debug::error("{$f} deletion failed");
 				}
 			}
 			return parent::beforeDeleteHook($mysqli);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -276,7 +276,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	public function getVirtualColumnValue(string $column_name)
 	{
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		try {
+		try{
 			switch ($column_name) {
 				case "extension":
 					return $this->getExtension();
@@ -285,7 +285,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 				default:
 					return parent::getVirtualColumnValue($column_name);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -303,7 +303,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::declareColumns($columns, $ds);
 			$mime_type = new StringEnumeratedDatum("mimeType", 8);
 			$mime_type->setValidEnumerationMap(mods()->getValidMimeTypes());
@@ -325,14 +325,14 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 			$uploadDirectory = new TextDatum("uploadDirectory");
 			$uploadDirectory->volatilize();
 			array_push($columns, $mime_type, $ofn, $filename, $size, $file_hash, $web_path, $extension, $uploadedTempFilename, $uploadedTempFileSize, $uploadDirectory);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function setUploadedTempFilename($name){
 		$f = __METHOD__;
-		if (! isset($name)) {
+		if(! isset($name)) {
 			Debug::error("{$f} received null parameter");
 		}
 		// Debug::print("{$f} setting temp filename to \"{$name}\"");
@@ -345,7 +345,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 
 	public function getUploadedTempFilename(){
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		if (! $this->hasUploadedTempFilename()) {
+		if(!$this->hasUploadedTempFilename()) {
 			Debug::error("{$f} uploaded tempfilename is undefined");
 		}
 		return $this->getColumnValue("uploadedTempFilename");
@@ -353,40 +353,40 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 
 	protected function writeFile(){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::printStackTraceNoExit("{$f} entered");
 			}
 			$file = $this->getFileToWrite();
-			if (! $this->hasSize()) {
+			if(!$this->hasSize()) {
 				Debug::error("{$f} size is undefined");
 			}
 			$size = $this->getSize();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} file size is {$size} bytes");
 			}
 			$directory = $this->getFullFileDirectory();
-			if (! is_dir($directory)) {
-				if ($print) {
+			if(!is_dir($directory)) {
+				if($print) {
 					Debug::print("{$f} directory \"{$directory}\" does not exist; making it now");
 				}
 				mkdir($directory, 0755, true);
 			}
 			$full_path = $this->getFullFilePath();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to write to file path \"{$full_path}\"");
 			}
 			$bytes = file_put_contents($full_path, $file);
-			if ($bytes > 0) {
-				if ($print) {
+			if($bytes > 0) {
+				if($print) {
 					Debug::print("{$f} successfully wrote file \"{$full_path}\"");
 				}
 				return SUCCESS;
 			}
 			Debug::error("{$f} failed to write file");
 			return $this->setObjectStatus(ERROR_FILE_PUT_CONTENTS);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -423,19 +423,19 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	protected function resampleImageToMaxDimensions()
 	{
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		try {
+		try{
 			$uploaded_filename = $this->getUploadedTempFilename();
 			$mime = $this->getMimeType();
 			$dst_w = $this->getImageWidth();
 			$dst_h = $this->getImageHeight();
-			if (! isset($dst_h) || ! isset($dst_w)) {
+			if(! isset($dst_h) || ! isset($dst_w)) {
 				Debug::error("{$f} invalid dimensions");
 			}
 			$resampled_filename = ImageData::resampleImage($uploaded_filename, $mime, $dst_w, $dst_h);
 			$this->setImageHeight($dst_h);
 			$this->setImageWidth($dst_w);
 			return $resampled_filename;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -448,49 +448,49 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	protected function processImageDimensions()
 	{
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		try {
+		try{
 			$src_w = null;
 			$src_h = null;
 			$uploaded_filename = $this->getUploadedTempFilename();
 			list ($src_w, $src_h) = getimagesize($uploaded_filename);
 			$mime = $this->getMimeType();
-			if ($mime === MIME_TYPE_GIF) {
+			if($mime === MIME_TYPE_GIF) {
 				// Debug::print("{$f} this is a gif");
 				$this->setImageHeight($src_h);
 				$this->setImageWidth($src_w);
 				return SUCCESS;
-			} elseif (false !== array_search($mime, [
+			}elseif(false !== array_search($mime, [
 				MIME_TYPE_JPEG,
 				MIME_TYPE_PNG
 			])) {
 				// Debug::print("{$f} this is a JPEG/PNG");
-				if ($src_h > $src_w) {
-					if ($src_h > IMAGE_MAX_DIMENSION) {
+				if($src_h > $src_w) {
+					if($src_h > IMAGE_MAX_DIMENSION) {
 						$dst_h = IMAGE_MAX_DIMENSION;
 						$ratio = IMAGE_MAX_DIMENSION / $src_h;
 						$dst_w = floor($ratio * $src_w);
 						// Debug::print("{$f} image is too tall");
-					} else {
+					}else{
 						$dst_h = $src_h;
 						$dst_w = $src_w;
 						// Debug::print("{$f} image is within acceptible dimensions");
 					}
-				} elseif ($src_w > IMAGE_MAX_DIMENSION) {
+				}elseif($src_w > IMAGE_MAX_DIMENSION) {
 					$dst_w = IMAGE_MAX_DIMENSION;
 					$ratio = IMAGE_MAX_DIMENSION / $src_w;
 					$dst_h = floor($ratio * $src_h);
-				} else {
+				}else{
 					$dst_h = $src_h;
 					$dst_w = $src_w;
 					// Debug::print("{$f} image is within acceptible dimensions ({$dst_w}x{$dst_h})");
 				}
 				$this->setImageHeight($dst_h);
 				$this->setImageWidth($dst_w);
-			} else {
+			}else{
 				Debug::error("{$f} invalid mime type \"{$mime}\"");
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -503,7 +503,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	public function processResizedFiles($arr)
 	{
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		try {
+		try{
 			$posted = str_replace(' ', '+', $arr['resized']);
 			$splat1 = explode(',', $posted);
 			$splat2 = explode(";", $splat1[0]);
@@ -516,7 +516,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 			$image = base64_decode($splat1[1]);
 			$this->setFileHash(sha1($image));
 			$put = file_put_contents($temp_name, $image);
-			if (! $put) {
+			if(!$put) {
 				Debug::error("{$f} file_put_contents returned false");
 			}
 			$this->setUploadedTempFilename($temp_name);
@@ -524,7 +524,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 			// Debug::print("{$f} calculated file size {$file_size}");
 			$this->setUploadedTempFileSize($file_size);
 			$status = $this->processMimeType();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} processMimeType returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -532,7 +532,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 			// Debug::print("{$f} returning normally");
 			$this->setObjectStatus(STATUS_READY_WRITE);
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -540,9 +540,9 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	protected function processMimeType()
 	{
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} yes, this gets called");
 			}
 			$finfo = new finfo(FILEINFO_MIME_TYPE);
@@ -555,40 +555,40 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 				EXTENSION_GIF => MIME_TYPE_GIF
 			];
 			$extension = array_search($needle, $mime_types, true);
-			if ($extension === false) {
-				if ($print) {
+			if($extension === false) {
+				if($print) {
 					Debug::print("{$f} this is an arbitrary file attachment");
 				}
 				$this->setMimeType(MIME_TYPE_OCTET_STREAM);
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} image attachment");
 				}
 				$check = getimagesize($temp_name);
 				$mime = $check["mime"];
-				if ($check === false) {
+				if($check === false) {
 					Debug::error("{$f} illegal self-reported mime type \"{$mime}\"");
 					return $this->setObjectStatus(ERROR_MIME_TYPE);
 				}
 				$mime = $this->setMimeType($mime_types[$extension]);
-				if ($mime === MIME_TYPE_GIF) {
-					if ($print) {
+				if($mime === MIME_TYPE_GIF) {
+					if($print) {
 						Debug::print("{$f} this is a GIF -- about to check its filesize");
 					}
 					$file_size = $this->getUploadedTempFileSize();
-					if ($file_size > FILE_SIZE_LIMIT) {
+					if($file_size > FILE_SIZE_LIMIT) {
 						Debug::error("{$f} excessive file size");
 						return $this->setObjectStatus(ERROR_FILE_SIZE);
 					}
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} file size of this GIF is ok");
 					}
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} this is not a GIF upload");
 				}
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -606,7 +606,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	public function setFileHash($hash)
 	{
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		if ($this->hasFileHash()) {
+		if($this->hasFileHash()) {
 			Debug::error("{$f} there is no convceivable reason why we need to change file hash to something else");
 		}
 		// Debug::print("{$f} setting file hash to \"{$hash}\"");
@@ -626,7 +626,7 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	public function getFileContents()
 	{
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		if (! $this->hasFileContents()) {
+		if(!$this->hasFileContents()) {
 			Debug::error("{$f} file contents are undefined");
 		}
 		return $this->fileContents;
@@ -635,23 +635,23 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 	public function processRepackedIncomingFiles($files)
 	{
 		$f = __METHOD__; //FileData::getShortClass()."(".static::getShortClass().")->".__METHOD__."()";
-		try {
+		try{
 			$print = false;
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} entered with the following array:");
 				Debug::printArray($files);
 			}
-			if (! is_array($files)) { // instanceof Countable){
+			if(!is_array($files)) { // instanceof Countable){
 				Debug::error("{$f} files must be countable");
-			} elseif (count($files) > 1) {
+			}elseif(count($files) > 1) {
 				Debug::error("{$f} not implemented: processing multiple file upload");
-			} elseif (! array_key_exists(0, $files)) {
+			}elseif(! array_key_exists(0, $files)) {
 				Debug::warning("{$f} files array lacks an index 0");
 				Debug::printArray(array_keys($files));
 				Debug::printStackTrace();
 			}
 			$file = $files[0];
-			if (is_array($file)) {
+			if(is_array($file)) {
 				Debug::print($file);
 				Debug::error("{$f} file is the above printed array");
 			}
@@ -677,14 +677,14 @@ abstract class FileData extends UserOwned implements CacheableInterface{
 			$this->setUploadedTempFileSize($file->getSize());
 			$this->setFileHash(sha1(file_get_contents($temp_name)));
 			$status = $this->processMimeType();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} processMimeType returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			$this->setObjectStatus(STATUS_READY_WRITE);
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

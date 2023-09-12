@@ -16,9 +16,9 @@ class TemplateElementFunctionGenerator extends AbstractTemplateFunctionGenerator
 	public function generate($element): ?JavaScriptFunction
 	{
 		$f = __METHOD__; //TemplateElementFunctionGenerator::getShortClass()."(".static::getShortClass().")::generate()";
-		try {
+		try{
 			$print = false;
-			if (! $element->isTemplateworthy()) {
+			if(!$element->isTemplateworthy()) {
 				Debug::error("{$f} be sure to mark this class as templateworthy if you're going to generate a template function");
 			}
 			$element->generateContents();
@@ -29,12 +29,12 @@ class TemplateElementFunctionGenerator extends AbstractTemplateFunctionGenerator
 			$commands = [];
 			// $element->generateContents();
 			// create document fragment, if applicable
-			if ($element->hasPredecessors() || $element->hasSuccessors()) {
-				if ($print) {
+			if($element->hasPredecessors() || $element->hasSuccessors()) {
+				if($print) {
 					Debug::print("{$f} yes, this has predecessor or successor nodes");
 				}
 				$fragment = $element->setDocumentFragment(new DocumentFragment());
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} no, this does not have predecessor or successor nodes");
 			}
 			// generate commands for this node
@@ -42,41 +42,41 @@ class TemplateElementFunctionGenerator extends AbstractTemplateFunctionGenerator
 			$counter ++;
 			$commands = array_merge($commands, $my_commands);
 			// return statement
-			if ($element->hasDocumentFragment()) {
-				if ($print) {
+			if($element->hasDocumentFragment()) {
+				if($print) {
 					Debug::print("{$f} yes, this object has a document fragment");
 				}
-				if (! isset($fragment)) {
-					if ($print) {
+				if(! isset($fragment)) {
+					if($print) {
 						Debug::print("{$f} fragment was no locally defined");
 					}
 					$fragment = $element->getDocumentFragment();
-				} elseif ($print) {
+				}elseif($print) {
 					Debug::print("{$f} fragment was declared locally");
 				}
 				$fragment_commands = static::getFragmentTemplateFunctionCommands($fragment, null, $counter);
 				$counter ++;
 				$commands = array_merge($commands, $fragment_commands);
 				$return = new ReturnCommand(new GetDeclaredVariableCommand($fragment));
-			} else {
-				if ($print) {
+			}else{
+				if($print) {
 					Debug::print("{$f} no, this object does not have a document fragment");
 				}
 				$vname = $element->getIdOverride();
-				if (is_string($vname) || $vname instanceof StringifiableInterface) {
+				if(is_string($vname) || $vname instanceof StringifiableInterface) {
 					$vname = new GetDeclaredVariableCommand($vname);
 				}
 				$return = new ReturnCommand($vname);
 			}
 			array_push($commands, $return);
 			// insert commands into function
-			if (! empty($commands)) {
+			if(!empty($commands)) {
 				$function->pushSubcommand(...$commands);
-			} else {
+			}else{
 				Debug::error("{$f} this function should never be without commands at the end");
 			}
 			return $function;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -11,10 +11,10 @@ trait PrioritizedTrait
 	public function setPriority($p)
 	{
 		$f = __METHOD__; //"PrioritizedTrait(".static::getShortClass().")->setPriority()";
-		if ($p == null) {
+		if($p == null) {
 			unset($this->priorityLevel);
 			return null;
-		} elseif (! is_string($p)) {
+		}elseif(!is_string($p)) {
 			Debug::error("{$f} priority must be a string");
 		}
 		return $this->priorityLevel = strtolower($p);
@@ -28,7 +28,7 @@ trait PrioritizedTrait
 	public function getPriority()
 	{
 		$f = __METHOD__; //"PrioritizedTrait(".static::getShortClass().")->getPriority()";
-		if (! $this->hasPriority()) {
+		if(!$this->hasPriority()) {
 			Debug::error("{$f} priority is undefined");
 		}
 		return $this->priorityLevel;

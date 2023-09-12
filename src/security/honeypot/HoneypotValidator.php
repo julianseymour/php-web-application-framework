@@ -22,9 +22,9 @@ class HoneypotValidator extends Validator
 	public function setFormClass($class)
 	{
 		$f = __METHOD__; //HoneypotValidator::getShortClass()."(".static::getShortClass().")->setFormClass({$class})";
-		if (! class_exists($class)) {
+		if(! class_exists($class)) {
 			Debug::error("{$f} class \"{$class}\" does not exist");
-		} elseif (! is_a($class, FormElement::class, true)) {
+		}elseif(!is_a($class, FormElement::class, true)) {
 			Debug::error("{$f} class is not a form");
 		}
 		return $this->formClass = $class;
@@ -33,7 +33,7 @@ class HoneypotValidator extends Validator
 	public function __construct($form_class)
 	{
 		parent::__construct();
-		if (! empty($form_class)) {
+		if(!empty($form_class)) {
 			$this->setFormClass($form_class);
 		}
 	}
@@ -46,7 +46,7 @@ class HoneypotValidator extends Validator
 	public function getFormClass()
 	{
 		$f = __METHOD__; //HoneypotValidator::getShortClass()."(".static::getShortClass().")->getFormClass()";
-		if (! $this->hasFormClass()) {
+		if(!$this->hasFormClass()) {
 			Debug::error("{$f} form class is undefined");
 		}
 		return $this->formClass;
@@ -55,9 +55,9 @@ class HoneypotValidator extends Validator
 	public function evaluate(&$validate_me): int
 	{
 		$f = __METHOD__; //HoneypotValidator::getShortClass()."(".static::getShortClass().")->evaluate()";
-		try {
+		try{
 			$honeypots = $this->getFormClass()::getHoneypotCountArray();
-			if (empty($honeypots)) {
+			if(empty($honeypots)) {
 				return SUCCESS;
 			}
 			$cskp = app()->acquireCurrentServerKeypair(db()->getConnection(PublicReadCredentials::class));
@@ -66,12 +66,12 @@ class HoneypotValidator extends Validator
 				$decoy_count = $honeypots[$pot_keys[$i]];
 				$pot_num = $i + 1;
 				$index = "__pot{$pot_num}";
-				if (! hasInputParameter($index)) {
+				if(! hasInputParameter($index)) {
 					Debug::printPost("{$f} input parameter \"{$index}\" is undefined");
 				}
 				$solution = base64_decode(getInputParameter($index));
 				$decrypted = $cskp->decrypt($solution);
-				if (! is_json($decrypted)) {
+				if(!is_json($decrypted)) {
 					static::debugError("{$f} \"{$decrypted}\" is not JSON");
 				}
 				$json_parsed = json_decode($decrypted, true);
@@ -82,20 +82,20 @@ class HoneypotValidator extends Validator
 				// Debug::print("{$f} legit input name is \"{$new_name}\"");
 				$sign_me = "{$nonce}:{$new_name}:{$name}";
 				$signature = base64_decode($json_parsed['signature_64']);
-				if (! $cskp->verifySignedMessage($signature, $sign_me)) {
+				if(!$cskp->verifySignedMessage($signature, $sign_me)) {
 					Debug::warning("{$f} honeypot signature failed");
 					return ERROR_TAMPER_POST;
 				} else
 					for ($j = 0; $j < $decoy_count; $j ++) {
 						$decoy_name = Hunnypot::generateDecoyNameAttribute($nonce, $j);
-						if (hasInputParameter($decoy_name)) {
+						if(hasInputParameter($decoy_name)) {
 							$dn = getInputParameter($decoy_name);
 							// Debug::print("{$f} user filled in a honeypot at index \"{$decoy_name}\" with \"{$dn}\"");
 							return ERROR_HONEYPOT;
 						}
 					}
 				// Debug::print("{$f} user did not fill in any honeypots imitating input \"{$name}\"");
-				if (hasInputParameter($new_name)) {
+				if(hasInputParameter($new_name)) {
 					// Debug::print("{$f} filling in POST[{$name}]");
 					setInputParameter($name, getInputParameter($new_name));
 					$validate_me[$name] = $validate_me[$new_name];
@@ -104,7 +104,7 @@ class HoneypotValidator extends Validator
 			}
 			// Debug::print("{$f} all clear");
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

@@ -27,7 +27,7 @@ trait TablespaceNameTrait
 	public function getTablespaceName()
 	{
 		$f = __METHOD__; //"TablespaceNameTrait(".static::getShortClass().")->getTablespaceName()";
-		if (! $this->hasTablespaceName()) {
+		if(!$this->hasTablespaceName()) {
 			Debug::error("{$f} tablespace name is undefined");
 		}
 		return $this->tablespaceName;

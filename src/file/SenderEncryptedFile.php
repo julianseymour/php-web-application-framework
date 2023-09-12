@@ -24,7 +24,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 	 */
 	public function generateSharedMetadata($their_file){
 		$f = __METHOD__;
-		try {
+		try{
 			Debug::print("{$f} entered");
 			$their_file->setMimeType($this->getMimeType());
 			$their_file->setOriginalFilename($this->getOriginalFilename());
@@ -33,7 +33,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 			$aes_key = $this->getFileAesKey();
 			$length = strlen($aes_key);
 			$shouldbe = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES;
-			if ($length !== $shouldbe) {
+			if($length !== $shouldbe) {
 				Debug::error("{$f} file AES key is wrong length ({$length}, should be {$shouldbe})");
 			}
 			$their_file->setFileAesKey($aes_key);
@@ -44,7 +44,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 			$nonce = $this->generateFileAesNonce();
 			$length = strlen($nonce);
 			$shouldbe = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES;
-			if ($length !== $shouldbe) {
+			if($length !== $shouldbe) {
 				Debug::error("{$f} nonce is incorrect length ({$length}, should be {$shouldbe})");
 			}
 			$their_file->setFileAesNonce($nonce);
@@ -56,7 +56,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 				case MIME_TYPE_PNG:
 					$h = $this->getImageHeight();
 					$w = $this->getImageWidth();
-					if (! isset($h) || ! isset($w)) {
+					if(! isset($h) || ! isset($w)) {
 						Debug::error("{$f} invalid dimensions {$h}x{$w}");
 						Debug::printStackTrace();
 					}
@@ -70,12 +70,12 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 			$aes_key = $this->getFileAesKey();
 			$length = strlen($aes_key);
 			$shouldbe = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES;
-			if ($length !== $shouldbe) {
+			if($length !== $shouldbe) {
 				Debug::error("{$f} file AES key is wrong length ({$length}, should be {$shouldbe})");
 			}
 			Debug::print("{$f} returning normally");
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -84,7 +84,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 	 * Do not call this except in writeFile -- it is generated based off of the current date
 	 */
 	public function getUploadDirectory():string{
-		if ($this->hasUploadDirectory()) {
+		if($this->hasUploadDirectory()) {
 			return parent::getUploadDirectory();
 		}
 		return "/var/www/uploads/encrypted";
@@ -92,12 +92,12 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 
 	public function generateFilename():string{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if($print){
 				Debug::print("{$f} entered");
 			}
-			if ($this->getMessageBox() === MESSAGE_BOX_INBOX) {
+			if($this->getMessageBox() === MESSAGE_BOX_INBOX) {
 				Debug::print("{$f} this is the recipient's copy of the header; filename should already be set");
 				return $this->getFilename();
 			}
@@ -109,7 +109,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 			$this->setFilename($full_path);
 			Debug::print("{$f} successfully generated filename \"{$full_path}\"");
 			return $full_path;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -120,7 +120,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 
 	public function generateFileAesKey(){
 		$f = __METHOD__;
-		try {
+		try{
 			if($print){
 				Debug::print("{$f} entered");
 			}
@@ -129,22 +129,22 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 			$aes_key = $this->getFileAesKey();
 			$length = strlen($aes_key);
 			$shouldbe = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_KEYBYTES;
-			if ($length !== $shouldbe) {
+			if($length !== $shouldbe) {
 				Debug::error("{$f} file AES key is wrong length ({$length}, should be {$shouldbe})");
 			}
 			Debug::print("{$f} returning normally");
 			return $aes_key;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function processMimeType(){
 		$f = __METHOD__;
-		try {
+		try{
 			Debug::print("{$f} entered; about to call parent function");
 			$status = parent::processMimeType(); // Files($arr, $index);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} parent function returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -158,9 +158,9 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 					return $this->processImageDimensions();
 				case MIME_TYPE_OCTET_STREAM:
 					$client = $this->getUserData();
-					if ($client instanceof Administrator) {
+					if($client instanceof Administrator) {
 						Debug::print("{$f} user is admin");
-					} else {
+					}else{
 						Debug::warning("{$f} user is not admin and thus is not allowed to upload arbitrary files");
 						return $this->setObjectStatus(ERROR_MIME_TYPE);
 					}
@@ -170,7 +170,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 			}
 			Debug::print("{$f} returning normally");
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -182,30 +182,30 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 	 */
 	protected function compressFile(){
 		$f = __METHOD__;
-		try {
+		try{
 			$original_filename = $this->getOriginalFilename();
 			$mime = $this->getMimeType();
 			$compressed_filename = $this->getCompressedFilename();
 			Debug::print("{$f} about to zip file \"{$compressed_filename}\"");
 			$zip_filename = ZipFileData::zipSingleFile($compressed_filename, $original_filename);
-			if (false !== array_search($mime, [
+			if(false !== array_search($mime, [
 				MIME_TYPE_PNG,
 				MIME_TYPE_JPEG
 			])) {
 				Debug::print("{$f} this is a png or jpg -- about to unlink compressed tempfile name");
-				if (! unlink($compressed_filename)) {
+				if(! unlink($compressed_filename)) {
 					Debug::error("{$f} failed to delete compressed tempfile \"{$compressed_filename}\"");
 				}
 			}
 			$file_zip = file_get_contents($zip_filename);
-			if (unlink($zip_filename)) {
+			if(unlink($zip_filename)) {
 				Debug::print("{$f} deleted temp zipfile");
-			} else {
+			}else{
 				Debug::error("{$f} tempfile deletion unsuccessful");
 				return $this->setObjectStatus(ERROR_UNLINK);
 			}
 			return $file_zip;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -217,7 +217,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 	 */
 	protected function encryptFile(){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if($print){
 				Debug::printStackTraceNoExit("{$f} entered");
@@ -227,7 +227,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 			$nonce = $this->getFileAesNonce();
 			$file_cipher = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($file_zip, null, $nonce, $aes_key);
 			return $file_cipher;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -239,7 +239,7 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 	 */
 	public function getFileToWrite(){
 		$f = __METHOD__;
-		if ($this->hasFileContents()) {
+		if($this->hasFileContents()) {
 			return $this->getFileContents();
 		}
 		$fc = $this->encryptFile();
@@ -250,23 +250,23 @@ class SenderEncryptedFile extends ProspectiveEncryptedFile{
 
 	protected function beforeInsertHook(mysqli $mysqli): int{ // XXX need case for recipient to use same file
 		$f = __METHOD__;
-		try {
+		try{
 			Debug::print("{$f} entered");
 			$this->getFileToWrite();
 			$ret = parent::beforeInsertHook($mysqli);
-			if ($mysqli == null) {
+			if($mysqli == null) {
 				Debug::error("{$f} mysql connection failed");
 				return $this->setObjectStatus(ERROR_MYSQL_CONNECT);
 			}
 			Debug::print("{$f} about to write file");
 			$status = $this->writeFile();
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} writing file returned error status \"{$err}\"");
 			}
 			Debug::print("{$f} wrote file; about to call parent function");
 			return $ret;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

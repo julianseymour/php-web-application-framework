@@ -16,7 +16,7 @@ trait TextContentTrait
 	public function getTextContent()
 	{
 		$f = __METHOD__; //"TextContentTrait(".static::getShortClass().")->getTextContent()";
-		if (! $this->hasTextContent()) {
+		if(!$this->hasTextContent()) {
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} textContent is undefined. Created {$decl}");
 		}
@@ -25,7 +25,7 @@ trait TextContentTrait
 
 	public function setTextContent($textContent)
 	{
-		if ($textContent === null) {
+		if($textContent === null) {
 			unset($this->textContent);
 			return null;
 		}

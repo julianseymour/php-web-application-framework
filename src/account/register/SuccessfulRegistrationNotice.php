@@ -20,7 +20,7 @@ class SuccessfulRegistrationNotice extends DivElement{
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$context = $this->getContext();
 			$a = new ProgressiveHyperlinkElement();
 			$a->setHrefAttribute('/contact_us');
@@ -33,7 +33,7 @@ class SuccessfulRegistrationNotice extends DivElement{
 			$flip_label->setInnerHTML(_("Login"));
 			$this->appendChild($flip_label);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

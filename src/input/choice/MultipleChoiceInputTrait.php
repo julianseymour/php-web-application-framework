@@ -16,7 +16,7 @@ trait MultipleChoiceInputTrait
 	public function getChoiceGenerator()
 	{
 		$f = __METHOD__; //"MultipleChoiceInputTrait(".static::getShortClass().")->getChoiceGenerator()";
-		if (! $this->hasChoiceGenerator()) {
+		if(!$this->hasChoiceGenerator()) {
 			Debug::error("{$f} choice generator is undefined");
 		}
 		return $this->choiceGenerator;
@@ -24,7 +24,7 @@ trait MultipleChoiceInputTrait
 
 	public function setChoiceGenerator($gen)
 	{
-		if ($gen == null) {
+		if($gen == null) {
 			unset($this->choiceGenerator);
 			return null;
 		}

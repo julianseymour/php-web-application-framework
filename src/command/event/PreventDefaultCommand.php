@@ -12,7 +12,7 @@ class PreventDefaultCommand extends Command implements JavaScriptInterface
 
 	public function __construct($vn = null)
 	{
-		if ($vn !== null) {
+		if($vn !== null) {
 			$this->setVariableName($vn);
 		}
 	}
@@ -25,7 +25,7 @@ class PreventDefaultCommand extends Command implements JavaScriptInterface
 	public function toJavaScript(): string
 	{
 		$name = $this->getVariableName();
-		if ($name instanceof JavaScriptInterface) {
+		if($name instanceof JavaScriptInterface) {
 			$name = $name->toJavaScript();
 		}
 		return "{$name}." . $this->getCommandId() . "()";
@@ -33,7 +33,7 @@ class PreventDefaultCommand extends Command implements JavaScriptInterface
 
 	public function getVariableName()
 	{
-		if (! $this->hasVariableName()) {
+		if(!$this->hasVariableName()) {
 			return "event";
 		}
 		return $this->variableName;

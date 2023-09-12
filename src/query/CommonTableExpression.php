@@ -40,7 +40,7 @@ class CommonTableExpression extends QueryStatement implements StaticPropertyType
 	public function setSubquery($subquery)
 	{
 		$f = __METHOD__; //CommonTableExpression::getShortClass()."(".static::getShortClass().")->setSubquery()";
-		if ($subquery == null) {
+		if($subquery == null) {
 			unset($this->subquery);
 			return null;
 		}
@@ -55,7 +55,7 @@ class CommonTableExpression extends QueryStatement implements StaticPropertyType
 	public function getSubquery()
 	{
 		$f = __METHOD__; //CommonTableExpression::getShortClass()."(".static::getShortClass().")->getSubquery()";
-		if (! $this->hasSubquery()) {
+		if(!$this->hasSubquery()) {
 			Debug::error("{$f} subquery is undefined");
 		}
 		return $this->subquery;
@@ -64,15 +64,15 @@ class CommonTableExpression extends QueryStatement implements StaticPropertyType
 	public function getQueryStatementString()
 	{
 		$f = __METHOD__; //CommonTableExpression::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
-		try {
+		try{
 			// cte_name [(col_name [, col_name] ...)] AS (subquery)
 			$string = $this->getName();
-			if ($this->hasColumnNames()) {
+			if($this->hasColumnNames()) {
 				$string .= " (" . implode_back_quotes(',', $this->getColumnNames()) . ")";
 			}
 			$string .= " as (" . $this->getSubquery() . ")";
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -85,7 +85,7 @@ class CommonTableExpression extends QueryStatement implements StaticPropertyType
 	 */
 	public static function isSupported($mysqli = null): bool
 	{
-		if ($mysqli == null) {
+		if($mysqli == null) {
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
 		}
 		Debug::error($mysqli->server_info);

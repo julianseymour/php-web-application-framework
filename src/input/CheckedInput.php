@@ -54,7 +54,7 @@ abstract class CheckedInput extends InputElement
 
 	public function select(bool $value = true): CheckedInput
 	{
-		if ($value) {
+		if($value) {
 			return $this->check();
 		}
 		return $this->uncheck();
@@ -81,13 +81,13 @@ abstract class CheckedInput extends InputElement
 		$f = __METHOD__; //CheckedInput::getShortClass()."(".static::getShortClass().")->processArray()";
 		$print = false;
 		$name = $this->getNameAttribute();
-		if (! array_key_exists($name, $arr)) {
-			if ($print) {
+		if(! array_key_exists($name, $arr)) {
+			if($print) {
 				Debug::print("{$f} value not found; setting value attribute to false");
 			}
 			$this->setValueAttribute(false);
 			return SUCCESS;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} returning parent function");
 		}
 		return parent::processArray($arr);

@@ -24,7 +24,7 @@ abstract class ObserverCommand extends ElementCommand
 	public function __construct($element = null, $callback = null)
 	{
 		parent::__construct($element);
-		if (isset($callback)) {
+		if(isset($callback)) {
 			$this->setCallback($callback);
 		}
 	}
@@ -50,13 +50,13 @@ abstract class ObserverCommand extends ElementCommand
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //ObserverCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$string = "";
 			// let observer = new IntersectionObserver(callback, options);
 			$mcs = static::getCommandId();
 			// $params = $this->getParameterString(true);
 			$cb = $this->getCallback();
-			if (is_string($cb)) {
+			if(is_string($cb)) {
 				$cb = new GetDeclaredVariableCommand($cb);
 			}
 			$observer_declared = DeclareVariableCommand::let("observer", new ConstructorCommand($mcs, $cb) // "new {$mcs}({$params})"
@@ -65,13 +65,13 @@ abstract class ObserverCommand extends ElementCommand
 			$string .= $observer_declared->toJavaScript() . "\n";
 			// observer.observe(element);
 			$element = $this->getElement();
-			if ($element instanceof Element && $element->hasIdOverride()) {
+			if($element instanceof Element && $element->hasIdOverride()) {
 				$e = $element->getIdOverride();
-			} else {
+			}else{
 				Debug::error("{$f} element needs an ID override");
 				$e = new GetElementByIdCommand($element);
 			}
-			if ($e instanceof JavaScriptInterface) {
+			if($e instanceof JavaScriptInterface) {
 				$e = $e->toJavaScript();
 			}
 			$e = new GetDeclaredVariableCommand($e);
@@ -86,7 +86,7 @@ abstract class ObserverCommand extends ElementCommand
 			$listener = new CallFunctionCommand("{$e}.addEventListener", "remove_observer", new GetDeclaredVariableCommand("remove"));
 			$string .= $listener->toJavaScript();
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

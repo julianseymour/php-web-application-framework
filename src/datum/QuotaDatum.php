@@ -13,7 +13,7 @@ class QuotaDatum extends UnsignedIntegerDatum
 
 	public function getIntervalSeconds()
 	{
-		if ($this->hasIntervalSeconds()) {
+		if($this->hasIntervalSeconds()) {
 			return null;
 		}
 		return $this->intervalSeconds;

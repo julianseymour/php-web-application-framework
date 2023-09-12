@@ -296,7 +296,7 @@ const initializeBackgroundSync = async function(){
 		if(print){
 			console.log(f+": added message event listener; about to register service worker");
 		}
-		navigator.serviceWorker.register('/service-worker.js'.concat('?locale=').concat(LOCALE));
+		navigator.serviceWorker.register('/sw.js'.concat('?locale=').concat(LOCALE));
 		if(print){
 			console.log(f+": called navigator.serviceWorker.register");
 		}

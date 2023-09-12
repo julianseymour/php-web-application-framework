@@ -101,7 +101,7 @@ class ShadowUser extends UserData{
 
 	public function getFullName():string{
 		$first = $this->getFirstName();
-		if (! $this->hasLastName()) {
+		if(!$this->hasLastName()) {
 			return $first;
 		}
 		$session = new LanguageSettingsData();

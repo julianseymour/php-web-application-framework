@@ -25,11 +25,11 @@ abstract class NotificationElement extends DivElement
 
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		$f = __METHOD__;
-		try {
+		try{
 			$this->setIdOverride("note");
 			parent::__construct($mode, $context);
 			$this->addClassAttribute("notification");
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -101,13 +101,13 @@ abstract class NotificationElement extends DivElement
 
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$notification_content = $this->getNotificationContent();
 			$this->appendChild($notification_content);
 			$forms = $this->getIndividualNotificationForms();
 			$this->appendChild(...$forms);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

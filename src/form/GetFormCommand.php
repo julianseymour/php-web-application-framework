@@ -24,7 +24,7 @@ class GetFormCommand extends ElementCommand implements ServerExecutableCommandIn
 	{
 		$f = __METHOD__; //GetFormCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct($element);
-		if (! $this->hasElement()) {
+		if(!$this->hasElement()) {
 			Debug::error("{$f} element is undefined");
 		}
 	}

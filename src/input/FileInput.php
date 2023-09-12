@@ -52,7 +52,7 @@ class FileInput extends InputElement
 	public function getCaptureAttribute()
 	{
 		$f = __METHOD__; //FileInput::getShortClass()."(".static::getShortClass().")->getCaptureAttribute()";
-		if (! $this->hasCaptureAttribute()) {
+		if(!$this->hasCaptureAttribute()) {
 			Debug::error("{$f} capture attribute is undefined");
 		}
 		return $this->getAttribute("capture");

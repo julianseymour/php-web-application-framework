@@ -36,33 +36,33 @@ abstract class ProgramFlowControlUnit extends Basic{
 	public function URISegmentParameterExists(string $name):bool{
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if ($this->hasImplicitParameter($name)) {
+		if($this->hasImplicitParameter($name)) {
 			if($print){
 				Debug::print("{$f} implicit parameter \"{$name}\" exists");
 			}
 			return true;
 		}
 		$map = $this->getUriSegmentParameterMap();
-		if (! isset($map) || ! is_array($map)) {
-			if ($print) {
+		if(! isset($map) || ! is_array($map)) {
+			if($print) {
 				Debug::print("{$f} no input parameters are mapped to URI segments");
 			}
 			return false;
 		}
 		$offset =  array_search($name, $this->getUriSegmentParameterMap());
-		if (false === $offset) {
-			if ($print) {
+		if(false === $offset) {
+			if($print) {
 				Debug::print("{$f} parameter \"{$name}\" is not mapped to a URI segment for use case of class ".get_short_class($this));
 			}
 			return false;
-		} elseif ($offset > request()->getRequestURISegmentCount() - 1) {
-			if ($print) {
+		}elseif($offset > request()->getRequestURISegmentCount() - 1) {
+			if($print) {
 				Debug::print("{$f} offset {$offset} exceeds URI segment count");
 			}
 			return false;
 		}
 		$value = getRequestURISegment($offset);
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} value at offset {$offset} is \"{$value}\"");
 		}
 		return $value !== null && $value !== "";

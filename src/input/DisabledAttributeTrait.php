@@ -19,7 +19,7 @@ trait DisabledAttributeTrait
 	public function getDisabledAttribute()
 	{
 		$f = __METHOD__; //"DisabledAttributeTrait(".static::getShortClass().")->getDisabledAttribute()";
-		if (! $this->hasDisabledAttribute()) {
+		if(!$this->hasDisabledAttribute()) {
 			Debug::error("{$f} disabled attribute is undefined");
 		}
 		return $this->getAttribute("disabled");

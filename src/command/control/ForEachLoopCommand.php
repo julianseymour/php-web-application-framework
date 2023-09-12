@@ -36,7 +36,7 @@ class ForEachLoopCommand extends LoopCommand
 	public function getIteratedObject()
 	{
 		$f = __METHOD__;
-		if (! $this->hasIteratedObject()) {
+		if(!$this->hasIteratedObject()) {
 			Debug::error("{$f} iterated object is undefined");
 		}
 		return $this->iteratedObject;
@@ -50,54 +50,54 @@ class ForEachLoopCommand extends LoopCommand
 	public function resolve()
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$iteratee = $this->getIteratedObject();
 			while ($iteratee instanceof ValueReturningCommandInterface) {
-				if ($print) {
+				if($print) {
 					$class = $iteratee->getClass();
 					Debug::print("{$f} iterated object is a value-returning media command of class \"{$class}\"");
 				}
 				$iteratee = $iteratee->evaluate();
 			}
-			if (! is_array($iteratee)) {
-				if (is_object($iteratee)) {
+			if(!is_array($iteratee)) {
+				if(is_object($iteratee)) {
 					$gottype = $iteratee->getClass();
-				} else {
+				}else{
 					$gottype = gettype($iteratee);
 				}
 				Debug::error("{$f} the object sent as the second parameter for this class's cunstructor must resolve to an array; received parameter resolved to type \"{$gottype}\"");
 			}
-			if ($print) {
+			if($print) {
 				$count = count($iteratee);
 				Debug::print("{$f} iterating over {$count} objects");
 			}
-			if ($print) {
+			if($print) {
 				$count = $this->getCodeBlockCount();
 				Debug::print("{$f} {$count} code blocks");
 			}
 			$iterator = $this->getIterator();
-			if ($print) {
+			if($print) {
 				$ic = count($iteratee);
 				Debug::print("{$f} iterating over {$ic} iterators");
 				$debug_ids = [];
-				foreach ($iteratee as $i) {
+				foreach($iteratee as $i) {
 					$did = $i->getDebugId();
-					if (array_key_exists($did, $debug_ids)) {
+					if(array_key_exists($did, $debug_ids)) {
 						Debug::error("{$f} object with debug ID \"{$did}\" has more than one instance");
 					}
 					$debug_ids[$did] = $i;
 				}
 				Debug::print("{$f} no collisions detected");
 			}
-			foreach ($iteratee as $i) {
+			foreach($iteratee as $i) {
 				$iterator->setValue($i);
 				$this->resolveCodeBlocks();
 			}
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning normally I guess");
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -105,22 +105,22 @@ class ForEachLoopCommand extends LoopCommand
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__;
-		try {
+		try{
 			$it = $this->getIterator();
-			if ($it instanceof JavaScriptInterface) {
+			if($it instanceof JavaScriptInterface) {
 				$it = $it->toJavaScript();
 			}
 			$arr = $this->getIteratedObject();
-			if ($arr instanceof JavaScriptInterface) {
+			if($arr instanceof JavaScriptInterface) {
 				$arr = $arr->toJavaScript();
 			}
 			$s = "for({$it} in {$arr}){\n";
-			foreach ($this->getCodeBlocks() as $b) {
+			foreach($this->getCodeBlocks() as $b) {
 				$s .= "\t" . $b->toJavaScript() . ";\n";
 			}
 			$s .= "}\n";
 			return $s;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

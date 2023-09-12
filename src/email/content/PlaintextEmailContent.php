@@ -16,7 +16,7 @@ class PlaintextEmailContent extends EmailContent{
 	}
 
 	public function getCharacterSet(): string{
-		if (! $this->hasCharacterSet()) {
+		if(!$this->hasCharacterSet()) {
 			return "utf-8";
 		}
 		return $this->getCharacterSet();
@@ -36,10 +36,10 @@ class PlaintextEmailContent extends EmailContent{
 		$f = __METHOD__;
 		$eol = "\r\n";
 		$ret = "";
-		if ($this->hasParentNode()) {
+		if($this->hasParentNode()) {
 			$content_type = $this->getContentType();
 			$ret .= "Content-Type:{$content_type}{$eol}{$eol}";
-		} else {
+		}else{
 			Debug::error("{$f} parent node is undefined");
 		}
 		$ret .= $this->getTextContent() . "{$eol}";

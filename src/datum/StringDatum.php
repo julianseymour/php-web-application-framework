@@ -59,26 +59,26 @@ abstract class StringDatum extends Datum{
 	public function getHumanReadableValue(){
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if ($this->getNeverLeaveServer()) {
+		if($this->getNeverLeaveServer()) {
 			return null;
 		}
 		$value = $this->getValue();
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} value is \"{$value}\"");
 		}
 		$value = htmlspecialchars($value);
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} HTML entitied value is \"{$value}\"");
 		}
-		if ($this->getNl2brFlag()) {
+		if($this->getNl2brFlag()) {
 			$value = nl2br($value);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} nl2br'd value is \"{$value}\"");
 			}
 		}
-		if ($this->getBBCodeFlag()) {
+		if($this->getBBCodeFlag()) {
 			$value = bbcode_parse_extended(null, $value);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} bbcode parsed value is \"{$value}\"");
 			}
 		}
@@ -86,7 +86,7 @@ abstract class StringDatum extends Datum{
 	}
 
 	public function setFlag(string $name, bool $value = true): bool{
-		if ($value === true && $name === "bbcode") {
+		if($value === true && $name === "bbcode") {
 			$this->setNl2brFlag($value);
 		}
 		return parent::setFlag($name, $value);
@@ -102,10 +102,10 @@ abstract class StringDatum extends Datum{
 
 	public function setCase($case){
 		$f = __METHOD__; 
-		if ($case == null) {
+		if($case == null) {
 			unset($this->case);
 			return null;
-		} elseif (! is_int($case)) {
+		}elseif(!is_int($case)) {
 			Debug::error("{$f} case is undefined");
 		}
 		switch ($case) {
@@ -129,7 +129,7 @@ abstract class StringDatum extends Datum{
 
 	public function getCase(){
 		$f = __METHOD__;
-		if (! $this->hasCase()) {
+		if(!$this->hasCase()) {
 			Debug::error("{$f} case is undefined");
 		}
 		return $this->case;
@@ -137,15 +137,15 @@ abstract class StringDatum extends Datum{
 
 	public function cast($v){
 		$f = __METHOD__;
-		if ($v instanceof ValueReturningCommandInterface) {
+		if($v instanceof ValueReturningCommandInterface) {
 			while ($v instanceof ValueReturningCommandInterface) {
 				$v = $v->evaluate();
 			}
 		}
-		if ($this->isAlphanumeric()) {
+		if($this->isAlphanumeric()) {
 			$v = strip_nonalphanumeric($v);
 		}
-		if ($this->hasCase()) {
+		if($this->hasCase()) {
 			switch ($this->getCase()) {
 				case CASE_LOWER:
 					return strtolower($v);
@@ -160,9 +160,9 @@ abstract class StringDatum extends Datum{
 
 	public function setRequiredLength(?int $l):?int{
 		$f = __METHOD__;
-		if (! is_int($l)) {
+		if(!is_int($l)) {
 			Debug::error("{$f} length is not an integer");
-		} elseif ($l < 1) {
+		}elseif($l < 1) {
 			Debug::error("{$f} length is not positive");
 		}
 		return $this->setMaximumLength($this->setMinimumLength($l));
@@ -174,7 +174,7 @@ abstract class StringDatum extends Datum{
 
 	public function getRequiredLength():int{
 		$f = __METHOD__;
-		if (! $this->hasRequiredLength()) {
+		if(!$this->hasRequiredLength()) {
 			Debug::error("{$f} required length is undefined");
 		}
 		return $this->getMinimumLength();
@@ -194,7 +194,7 @@ abstract class StringDatum extends Datum{
 
 	public function getRegularExpression(){
 		$f = __METHOD__; //StringDatum::getShortClass()."(".static::getShortClass().")->getRegularExpression()";
-		if (! $this->hasRegularExpression()) {
+		if(!$this->hasRegularExpression()) {
 			Debug::error("{$f} regular expression is undefined");
 		}
 		return $this->regularExpression;
@@ -202,9 +202,9 @@ abstract class StringDatum extends Datum{
 
 	public function setMinimumLength(?int $l):?int{
 		$f = __METHOD__;
-		if (! is_int($l)) {
+		if(!is_int($l)) {
 			Debug::error("{$f} length is not an integer");
-		} elseif ($l < 1) {
+		}elseif($l < 1) {
 			Debug::error("{$f} length is not positive");
 		}
 		return $this->minimumLength = $l;
@@ -216,7 +216,7 @@ abstract class StringDatum extends Datum{
 
 	public function getMinimumLength():int{
 		$f = __METHOD__;
-		if (! $this->hasMinimumLength()) {
+		if(!$this->hasMinimumLength()) {
 			Debug::error("{$f} minimum length is undefined");
 		}
 		return $this->minimumLength;
@@ -224,9 +224,9 @@ abstract class StringDatum extends Datum{
 
 	public function setMaximumLength(?int $l):?int{
 		$f = __METHOD__;
-		if (! is_int($l)) {
+		if(!is_int($l)) {
 			Debug::error("{$f} length is not an integer");
-		} elseif ($l < 1) {
+		}elseif($l < 1) {
 			Debug::error("{$f} length is not positive");
 		}
 		return $this->maximumLength = $l;
@@ -238,7 +238,7 @@ abstract class StringDatum extends Datum{
 
 	public function getMaximumLength():int{
 		$f = __METHOD__;
-		if (! $this->hasMaximumLength()) {
+		if(!$this->hasMaximumLength()) {
 			$index = $this->getName();
 			Debug::error("{$f} maximum length is undefined for datum \"{$index}\"");
 		}
@@ -249,22 +249,22 @@ abstract class StringDatum extends Datum{
 		$f = __METHOD__;
 		$print = false;
 		$length = strlen($v);
-		if ($this->hasRequiredLength() && $length !== $this->getRequiredLength()) {
+		if($this->hasRequiredLength() && $length !== $this->getRequiredLength()) {
 			if($print){
 				Debug::error("{$f} invalid string \"{$v}\" length {$length}");
 			}
 			return FAILURE;
-		} elseif ($this->hasMinimumLength() && $length < $this->getMinimumLength()) {
+		}elseif($this->hasMinimumLength() && $length < $this->getMinimumLength()) {
 			if($print){
 				Debug::error("{$f} string \"{$v}\" is too short at length {$length}");
 			}
 			return FAILURE;
-		} elseif ($this->hasMaximumLength() && $length > $this->getMaximumLength()) {
+		}elseif($this->hasMaximumLength() && $length > $this->getMaximumLength()) {
 			if($print){
 				Debug::error("{$f} string \"{$v}\" is too long at length {$length}");
 			}
 			return FAILURE;
-		} elseif ($this->hasRegularExpression() && ! preg_match($this->getRegularExpression(), $v)) {
+		}elseif($this->hasRegularExpression() && ! preg_match($this->getRegularExpression(), $v)) {
 			if($print){
 				Debug::error("{$f} string \"{$v}\" failed matching regular expression");
 			}

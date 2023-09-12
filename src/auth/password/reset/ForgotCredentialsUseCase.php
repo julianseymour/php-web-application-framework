@@ -26,14 +26,14 @@ class ForgotCredentialsUseCase extends PreauthenticationUseCase{
 
 	public function processForgotCredentialsRequest(){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$mode = getInputParameter('select_login_forgot');
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			$user_class = $this->getAuthenticatedUserClass();
 			$correspondent = new $user_class();
 			$query = new SelectStatement();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to call {$user_class}->getTableName()");
 				$correspondent->getTableName();
 			}
@@ -41,7 +41,7 @@ class ForgotCredentialsUseCase extends PreauthenticationUseCase{
 			$query->setTableName($correspondent->getTableName());
 			switch ($mode) {
 				case 'forgot_password':
-					if (! hasInputParameter('name')) {
+					if(! hasInputParameter('name')) {
 						Debug::warning("{$f} username field is blank");
 						return ERROR_NULL_USERNAME;
 					}
@@ -51,24 +51,24 @@ class ForgotCredentialsUseCase extends PreauthenticationUseCase{
 					$results = $result->fetch_all(MYSQLI_ASSOC);
 					$result->free_result();
 					$count = count($results);
-					if ($count === 0) {
-						if ($print) {
+					if($count === 0) {
+						if($print) {
 							Debug::warning("{$f} no results");
 						}
 						return RESULT_RESET_SUBMIT;
-					} elseif ($count > 1) {
+					}elseif($count > 1) {
 						Debug::error("{$f} {$count} results");
 					}
 					$status = $correspondent->processQueryResultArray($mysqli, $results[0]);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						Debug::error("{$f} loading user with name \"{$name}\" failed");
 						return $this->setObjectStatus($status);
-					} elseif (! $correspondent->getForgotPasswordEnabled()) {
+					}elseif(!$correspondent->getForgotPasswordEnabled()) {
 						return $this->setObjectStatus(ERROR_FORGOT_PASSWORD_DISABLED);
 					}
 					break;
 				case 'forgot_name':
-					if (! hasInputParameter('email')) {
+					if(! hasInputParameter('email')) {
 						Debug::warning("{$f} email address is undefined");
 						return $this->setObjectStatus(ERROR_EMAIL_UNDEFINED);
 					}
@@ -76,10 +76,10 @@ class ForgotCredentialsUseCase extends PreauthenticationUseCase{
 					$status = $correspondent->load($mysqli, new WhereCondition("normalizedEmailAddress", OPERATOR_EQUALS), [
 						$email
 					]);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						Debug::error("{$f} loading user with email \"{$email}\" failed");
 						return $this->setObjectStatus($status);
-					} elseif (! $correspondent->getForgotUsernameEnabled()) {
+					}elseif(!$correspondent->getForgotUsernameEnabled()) {
 						$correspondent->setObjectStatus(ERROR_FORGOT_USERNAME_DISABLED);
 					}
 					break;
@@ -87,18 +87,18 @@ class ForgotCredentialsUseCase extends PreauthenticationUseCase{
 					Debug::printPost("{$f} invalid forgot credentials request method");
 					break;
 			}
-			if (! $correspondent->hasSerialNumber()) {
+			if(!$correspondent->hasSerialNumber()) {
 				Debug::error("{$f} correspondent object has undefined object number");
 			}
 			$status = $correspondent->loadForeignDataStructures($mysqli);
-			iF ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} loading foreign data structures returned error status \"{$err}\"");
-			} elseif ($correspondent->isRegistrable()) {
+			}elseif($correspondent->isRegistrable()) {
 				registry()->register($correspondent);
 			}
 			$status = $correspondent->filterIpAddress($mysqli, $_SERVER['REMOTE_ADDR'], false);
-			if ($status !== SUCCESS) {
+			if($status !== SUCCESS) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} validating IP address returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -106,25 +106,25 @@ class ForgotCredentialsUseCase extends PreauthenticationUseCase{
 			$user = user();
 			$correspondent->setCorrespondentObject($user);
 			$user->setCorrespondentObject($correspondent);
-			if (! $correspondent->hasEmailAddress()) {
+			if(!$correspondent->hasEmailAddress()) {
 				Debug::error("{$f} loaded a user who lacks email address");
 			}
 			$status = ResetPasswordConfirmationCode::submitStatic($mysqli, $correspondent);
-			if ($status !== RESULT_RESET_SUBMIT) {
+			if($status !== RESULT_RESET_SUBMIT) {
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} submitting reset password confirmation code returned error status \"{$err}\"");
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} successfully submat a confirmation code for password reset");
 			}
 			return $user->setObjectStatus($status);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function execute(): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			$guest = AuthenticateUseCase::getAnonymousUser();
@@ -141,7 +141,7 @@ class ForgotCredentialsUseCase extends PreauthenticationUseCase{
 				Debug::print("{$f} returning with error status \"{$err}\"");
 			}
 			return $this->setObjectStatus($status);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

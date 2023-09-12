@@ -39,12 +39,12 @@ class GetElementByIdCommand extends ElementCommand implements ValueReturningComm
 		 * }
 		 */
 		// XXX before JavaScriptCommmandInterface
-		if ($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface) {
 			$id = $id->toJavaScript();
-		} elseif (is_string($id) || $id instanceof StringifiableInterface) {
+		}elseif(is_string($id) || $id instanceof StringifiableInterface) {
 			$id = single_quote($id);
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} ID attribute is \"{$id}\"");
 		}
 		return "document.getElementById({$id})";

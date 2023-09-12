@@ -19,7 +19,6 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		return defined('CACHE_ENABLED') && CACHE_ENABLED === true; // && $this->getFlag("enabled");
 	}
@@ -29,7 +28,6 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		return isset($this->filesystemCachePool) && $this->filesystemCachePool instanceof \Cache\Adapter\Filesystem\FilesystemCachePool;
 	}
@@ -39,9 +37,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
-		if ($this->hasFilesystemCachePool()) {
+		if($this->hasFilesystemCachePool()) {
 			return $this->filesystemCachePool;
 		}
 		return $this->filesystemCachePool = new \Cache\Adapter\Filesystem\FilesystemCachePool(new \League\Flysystem\Filesystem(new \League\Flysystem\Adapter\Local("/var/www")));
@@ -52,7 +49,6 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		return isset($this->APCuCachePool) && $this->APCuCachePool instanceof \Cache\Adapter\Apcu\ApcuCachePool;
 	}
@@ -62,9 +58,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
-		if ($this->hasAPCuCachePool()) {
+		if($this->hasAPCuCachePool()) {
 			if($print){
 				Debug::print("{$f} already allocated, returning");
 			}
@@ -77,20 +72,22 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 
 	public function has($key): bool{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
 			if($print){
 				Debug::print("{$f} entered with key \"{$key}\"");
-				Debug::checkMemoryUsage(__METHOD__, 96000000);
 			}
-			if ($key instanceof CacheableInterface) {
-				if (! $key->isCacheable()) {
+			if($key instanceof CacheableInterface) {
+				if(!$key->isCacheable()) {
 					return false;
 				}
 				$key = $key->getCacheKey();
 			}
+			if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+				Debug::error("{$f} invalid key \"{$key}\"");
+			}
 			return $this->getAPCuCachePool()->has($key) || $this->getFilesystemCachePool()->has($key);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -100,18 +97,20 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered with key \"{$key}\"");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
-		if ($key instanceof CacheableInterface) {
-			if (! $key->isCacheable()) {
+		if($key instanceof CacheableInterface) {
+			if(!$key->isCacheable()) {
 				Debug::error("{$f} uncacheable object");
 			}
 			$key = $key->getCacheKey();
 		}
-		if ($this->getAPCuCachePool()->has($key)) {
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}
+		if($this->getAPCuCachePool()->has($key)) {
 			return $this->APCuCachePool->get($key);
 		}
-		if ($this->getFilesystemCachePool()->has($key)) {
+		if($this->getFilesystemCachePool()->has($key)) {
 			return $this->filesystemCachePool->get($key);
 		}
 		return null;
@@ -122,18 +121,20 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
-		if ($key instanceof CacheableInterface) {
-			if (! $key->isCacheable()) {
+		if($key instanceof CacheableInterface) {
+			if(!$key->isCacheable()) {
 				Debug::warning("{$f} uncacheable object");
 				throw new \Psr\SimpleCache\InvalidArgumentException("Uncachable object");
 				return false;
 			}
 			$key = $key->getCacheKey();
 		}
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}
 		global $__START;
-		if (isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
 			$ttl += $__START;
 		}
 		$this->getAPCuCachePool()->set($key, $value, $ttl);
@@ -146,21 +147,23 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
-		if ($key instanceof CacheableInterface) {
-			if (! $key->isCacheable()) {
+		if($key instanceof CacheableInterface) {
+			if(!$key->isCacheable()) {
 				Debug::warning("{$f} uncacheable object");
-			} elseif (! $key->hasCacheKey()) {
+			}elseif(!$key->hasCacheKey()) {
 				throw new \Psr\SimpleCache\InvalidArgumentException("Object lacks a cache key");
 				return false;
 			}
 			$key = $key->getCacheKey();
 		}
-		if ($this->getAPCuCachePool()->has($key)) {
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}
+		if($this->getAPCuCachePool()->has($key)) {
 			$this->APCuCachePool->delete($key);
 		}
-		if ($this->getFilesystemCachePool()->has($key)) {
+		if($this->getFilesystemCachePool()->has($key)) {
 			$this->filesystemCachePool->delete($key);
 		}
 		return true;
@@ -171,25 +174,27 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
-		if ($key instanceof CacheableInterface) {
-			if (! $key->isCacheable()) {
+		if($key instanceof CacheableInterface) {
+			if(!$key->isCacheable()) {
 				Debug::warning("{$f} uncacheable object");
-			} elseif (! $key->hasCacheKey()) {
+			}elseif(!$key->hasCacheKey()) {
 				throw new \Psr\SimpleCache\InvalidArgumentException("Object lacks a cache key");
 				return false;
 			}
 			$key = $key->getCacheKey();
 		}
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}
 		global $__START;
-		if (isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
 			$ttl += $__START;
 		}
-		if ($this->getAPCuCachePool()->has($key)) {
+		if($this->getAPCuCachePool()->has($key)) {
 			$this->APCuCachePool->set($key, $this->APCuCachePool->get($key), $ttl);
 		}
-		if ($this->getFilesystemCachePool()->has($key)) {
+		if($this->getFilesystemCachePool()->has($key)) {
 			$this->filesystemCachePool->set($key, $this->filesystemCachePool->get($key), $ttl);
 		}
 		return true;
@@ -198,12 +203,13 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function expireAPCu($key, int $ttl){
 		$f = __METHOD__;
 		$print = false;
-		if($print){
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}elseif($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		global $__START;
-		if (isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
 			$ttl += $__START;
 		}
 		$pool = $this->getAPCuCachePool();
@@ -213,12 +219,13 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function expireFile($key, int $ttl){
 		$f = __METHOD__;
 		$print = false;
-		if($print){
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}elseif($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		global $__START;
-		if (isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
 			$ttl += $__START;
 		}
 		$pool = $this->getFilesystemCachePool();
@@ -230,7 +237,6 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		$this->getAPCuCachePool()->clear();
 		return true;
@@ -241,7 +247,6 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		$this->getFilesystemCachePool()->clear();
 		return true;
@@ -252,7 +257,6 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		$this->clearAPCu();
 		$this->clearFile();
@@ -262,10 +266,10 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function getMultiple($keys, $default = null){
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
-		if ($this->hasAPCuCachePool()) {
+		if($this->hasAPCuCachePool()) {
 			return $this->APCuCachePool->getMultiple($keys, $default);
 		}
-		if ($this->hasFilesystemCachePool()) {
+		if($this->hasFilesystemCachePool()) {
 			return $this->filesystemCachePool->getMultiple($keys, $default);
 		}
 		return [];
@@ -276,7 +280,6 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		$this->getAPCuCachePool()->setMultiple($values, $ttl);
 		$this->getFilesystemCachePool()->setMultiple($values, $ttl);
@@ -288,7 +291,6 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		return $this->getAPCuCachePool()->deleteMultiple($keys) && $this->getFilesystemCachePool()->deleteMultiple($keys);
 	}
@@ -296,9 +298,10 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function hasFile($key): bool{
 		$f = __METHOD__;
 		$print = false;
-		if($print){
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}elseif($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		return $this->getFilesystemCachePool()->has($key);
 	}
@@ -306,9 +309,10 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function getFile($key, $default = null){
 		$f = __METHOD__;
 		$print = false;
-		if($print){
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}elseif($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		return $this->getFilesystemCachePool()->get($key, $default);
 	}
@@ -316,12 +320,13 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function setFile($key, $value, $ttl = null): bool{
 		$f = __METHOD__;
 		$print = false;
-		if($print){
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}elseif($print){
 			Debug::print("{$f} entered");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		global $__START;
-		if (isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
 			$ttl += $__START;
 		}
 		return $this->getFilesystemCachePool()->set($key, $value, $ttl);
@@ -330,9 +335,10 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function hasAPCu($key): bool{
 		$f = __METHOD__;
 		$print = false;
-		if($print){
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}elseif($print){
 			Debug::print("{$f} entered with key \"{$key}\"");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		$pool = $this->getAPCuCachePool();
 		if($print){
@@ -344,9 +350,10 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function getAPCu($key, $default = null){
 		$f = __METHOD__;
 		$print = false;
-		if($print){
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}elseif($print){
 			Debug::print("{$f} entered with key \"{$key}\"");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		$pool = $this->getAPCuCachePool();
 		if($print){
@@ -358,12 +365,13 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function setAPCu($key, $value, $ttl = null): bool{
 		$f = __METHOD__;
 		$print = false;
-		if($print){
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
+			Debug::error("{$f} invalid key \"{$key}\"");
+		}elseif($print){
 			Debug::print("{$f} entered with key \"{$key}\"");
-			Debug::checkMemoryUsage(__METHOD__, 96000000);
 		}
 		global $__START;
-		if (isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
 			$ttl += $__START;
 		}
 		return $this->getAPCuCachePool()->set($key, $value, $ttl);

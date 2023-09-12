@@ -11,7 +11,7 @@ class VarCharDatum extends CharDatum
 	public function getColumnTypeString(): string
 	{
 		$string = "var" . parent::getColumnTypeString();
-		if ($this->hasCharacterSet()) {
+		if($this->hasCharacterSet()) {
 			$charset = $this->getCharacterSet();
 			$string .= " character set {$charset}";
 		}

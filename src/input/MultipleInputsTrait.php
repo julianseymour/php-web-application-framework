@@ -19,7 +19,7 @@ trait MultipleInputsTrait
 	public function getInputs(): array
 	{
 		$f = __METHOD__;
-		if (! $this->hasInputs()) {
+		if(!$this->hasInputs()) {
 			Debug::error("{$f} inputs are undefined");
 		}
 		return $this->inputs;
@@ -27,7 +27,7 @@ trait MultipleInputsTrait
 
 	public function setInputs(?array $inputs): ?array
 	{
-		if ($inputs === null) {
+		if($inputs === null) {
 			unset($this->inputs);
 			return null;
 		}
@@ -47,14 +47,14 @@ trait MultipleInputsTrait
 	public function getInput($field)
 	{
 		$f = __METHOD__;
-		try {
-			if (! $this->hasInput($field)) {
+		try{
+			if(!$this->hasInput($field)) {
 				Debug::warning("{$f} input with index \"{$field}\" is undefined");
 				Debug::printArray($this->inputs);
 				Debug::printStackTrace();
 			}
 			return $this->inputs[$field];
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

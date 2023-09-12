@@ -19,14 +19,14 @@ class AntiXsrfTokenCommand extends Command implements JavaScriptInterface, Value
 	public function evaluate(?array $params = null)
 	{
 		$f = __METHOD__; //AntiXsrfTokenCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
-		try {
+		try{
 			$session = new AntiXsrfTokenData();
-			if (! $session->hasAntiXsrfToken()) {
+			if(!$session->hasAntiXsrfToken()) {
 				Debug::error("{$f} XSRF token was undefined in SESSION");
 				// $session->initializeSessionToken(1);
 			}
 			return $session->getAntiXsrfToken();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

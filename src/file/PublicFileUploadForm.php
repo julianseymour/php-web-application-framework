@@ -26,9 +26,9 @@ class PublicFileUploadForm extends FileUploadForm
 	public function getFormDataIndices(): ?array
 	{
 		$context = $this->getContext();
-		if ($context->isInitialized()) {
+		if($context->isInitialized()) {
 			$arr = parent::getFormDataIndices();
-		} else {
+		}else{
 			$arr = [];
 		}
 		$arr['description'] = TextareaInput::class;

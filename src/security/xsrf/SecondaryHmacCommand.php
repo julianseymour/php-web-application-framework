@@ -34,12 +34,12 @@ class SecondaryHmacCommand extends Command implements JavaScriptInterface, Value
 	{
 		$f = __METHOD__; //SecondaryHmacCommand::getShortClass()."(".static::getShortClass().")->setUri()";
 		$print = false;
-		if ($uri == null) {
+		if($uri == null) {
 			unset($this->uri);
 			return null;
-		} elseif (str_contains($uri, "?")) {
+		}elseif(str_contains($uri, "?")) {
 			$uri = explode("?", $uri)[0];
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} split string at ? to make new URI \"{$uri}\"");
 			}
 		}
@@ -50,7 +50,7 @@ class SecondaryHmacCommand extends Command implements JavaScriptInterface, Value
 	{
 		$f = __METHOD__; //SecondaryHmacCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
 		$session = new AntiXsrfTokenData();
-		if (! $session->hasAntiXsrfToken()) {
+		if(!$session->hasAntiXsrfToken()) {
 			Debug::error("{$f} session is uninitialized");
 			$session->initializeSessionToken(1);
 		}
@@ -73,13 +73,13 @@ class SecondaryHmacCommand extends Command implements JavaScriptInterface, Value
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //SecondaryHmacCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$action = $this->getUri();
-			if ($action instanceof JavaScriptInterface) {
+			if($action instanceof JavaScriptInterface) {
 				$action = $action->toJavaScript();
 			}
 			return "getSecondaryHmac('{$action}')";
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

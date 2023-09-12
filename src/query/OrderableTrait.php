@@ -15,7 +15,7 @@ trait OrderableTrait
 
 	public function getOrderBy(): array{
 		$f = __METHOD__; //"OrderableTrait(".static::getShortClass().")->getOrderBy()";
-		if (! $this->hasOrderBy()) {
+		if(!$this->hasOrderBy()) {
 			Debug::error("{$f} order by is undefined");
 		}
 		return $this->orderByExpression;
@@ -23,8 +23,8 @@ trait OrderableTrait
 
 	public function setOrderBy(...$order_by): array{
 		$f = __METHOD__; //"OrderableTrait(".static::getShortClass().")->setOrderBy()";
-		foreach (array_keys($order_by) as $i) {
-			if (is_string($order_by[$i])) {
+		foreach(array_keys($order_by) as $i) {
+			if(is_string($order_by[$i])) {
 				$order_by[$i] = new OrderByClause($order_by[$i], DIRECTION_ASCENDING);
 			}
 		}
@@ -41,21 +41,21 @@ trait OrderableTrait
 	protected function getOrderByString(): string
 	{
 		$f = __METHOD__; //"OrderableTrait(".static::getShortClass().")->getOrderByString()";
-		if (! $this->hasOrderBy()) {
+		if(!$this->hasOrderBy()) {
 			Debug::error("{$f} order by is undefined");
 		}
 		$string = "";
 		$count = count($this->orderByExpression);
 		for ($i = 0; $i < $count; $i ++) {
 			$term = $this->orderByExpression[$i];
-			if (is_array($term)) {
+			if(is_array($term)) {
 				Debug::error("{$f} somehow, the order by term is an array");
-			} elseif ($i > 0) {
+			}elseif($i > 0) {
 				$string .= ", ";
-			} elseif (is_int($term)) {
+			}elseif(is_int($term)) {
 				Debug::error("{$f} term is the integer \"{$term}\"");
 			}
-			if ($term instanceof SQLInterface) {
+			if($term instanceof SQLInterface) {
 				$term = $term->toSQL();
 			}
 			$string .= $term;

@@ -16,7 +16,7 @@ trait MultipleValidatorsTrait{
 	}
 
 	public function pushValidator(...$validators){
-		foreach ($validators as $validator) {
+		foreach($validators as $validator) {
 			$validator->setInput($this);
 		}
 		return $this->pushArrayProperty("validators", ...$validators);

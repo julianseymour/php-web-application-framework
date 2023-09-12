@@ -29,27 +29,27 @@ class SymmetricEncryptionScheme extends EncryptionScheme{
 	public static function encrypt(string $value, string $key, ?string $nonce = null):string{
 		$f = __METHOD__;
 		$print = false;
-		if (! is_string($value)) {
+		if(!is_string($value)) {
 			$typeof = gettype($value);
 			Debug::error("{$f} sodium_crypto_aead_xchacha20poly1305_ietf_encrypt() expects parameter 1 to be string, {$typeof} given");
 			return null;
 		}
 		$length = strlen($nonce);
 		$proper = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES;
-		if ($length !== $proper) {
+		if($length !== $proper) {
 			Debug::error("{$f} nonce is incorrect length ({$length}, should be {$proper})");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} encrypting value with hash " . sha1($value));
 			Debug::print("{$f} ... using key with hash " . sha1($key));
-			if ($nonce !== null) {
+			if($nonce !== null) {
 				Debug::print("{$f} ... and nonce with hash " . sha1($nonce));
 			}
 			// Debug::printStackTraceNoExit();
 		}
 		$cipher = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($value, null, $nonce, $key);
-		if ($print) {
+		if($print) {
 			$cleartext = static::decrypt($cipher, $key, $nonce);
-			if ($value !== $cleartext) {
+			if($value !== $cleartext) {
 				Debug::error("{$f} decrypted value does not equal the original");
 			}
 		}
@@ -74,21 +74,21 @@ class SymmetricEncryptionScheme extends EncryptionScheme{
 		$ds = $datum->getDataStructure();
 		$index = "{$vn}AesNonce";
 		$proper = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES;
-		if ($ds->hasColumnValue($index)) {
-			if ($print) {
+		if($ds->hasColumnValue($index)) {
+			if($print) {
 				Debug::print("{$f} data structure already has a value for column {$index}");
 			}
 			$nonce = $ds->getColumnValue($index);
-		} else {
-			if ($print) {
+		}else{
+			if($print) {
 				Debug::print("{$f} about to generate a nonce of length {$proper}");
 			}
 			$nonce = $ds->setColumnValue($index, random_bytes($proper));
 		}
 		$length = strlen($nonce);
-		if ($length !== $proper) {
+		if($length !== $proper) {
 			Debug::error("{$f} generated a nonce with incorrect length ({$length}, should be {$proper})");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} returning nonce with hash " . sha1($nonce));
 		}
 		return $nonce;
@@ -97,13 +97,13 @@ class SymmetricEncryptionScheme extends EncryptionScheme{
 	protected function extractTranscryptionKey(Datum $datum):?string{
 		$f = __METHOD__;
 		$print = false;
-		if ($print) {
+		if($print) {
 			$vn = $datum->getName();
 			Debug::print("{$f} about to extract transcryption key for datum \"{$vn}\"");
 		}
 		$ds = $datum->getDataStructure();
 		$tkn = $datum->getTranscryptionKeyName();
-		if ($print) {
+		if($print) {
 			$cn = $datum->getName();
 			$dsc = $ds->getClass();
 			$dsk = $ds->getIdentifierValue();
@@ -119,7 +119,7 @@ class SymmetricEncryptionScheme extends EncryptionScheme{
 
 	public function extractDecryptionKey(Datum $datum):?string{
 		$f = __METHOD__;
-		if (! $datum->hasDataStructure()) {
+		if(!$datum->hasDataStructure()) {
 			Debug::error("{$f} we are being asked to extract a transcryption key from an orphaned datum");
 		}
 		return $this->extractTranscryptionKey($datum);
@@ -128,23 +128,23 @@ class SymmetricEncryptionScheme extends EncryptionScheme{
 	public static function decrypt(string $cipher, string $key, ?string $nonce = null):?string{
 		$f = __METHOD__;
 		$print = false;
-		if (empty($cipher)) {
+		if(empty($cipher)) {
 			Debug::error("{$f} cipher is undefined");
-		} elseif (empty($key)) {
+		}elseif(empty($key)) {
 			Debug::error("{$f} decryption key is undefined");
-		} elseif (empty($nonce)) {
+		}elseif(empty($nonce)) {
 			Debug::error("{$f} nonce is undefined");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} cipher has hash " . sha1($cipher));
 			Debug::print("{$f} nonce has hash " . sha1($nonce));
 			Debug::print("{$f} key has hash " . sha1($key));
 		}
 		$clear = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($cipher, null, $nonce, $key);
-		if ($print) {
+		if($print) {
 			$length = strlen($clear);
-			if ($clear === null || $clear === "" || $length === 0) {
+			if($clear === null || $clear === "" || $length === 0) {
 				Debug::error("{$f} cleartext is null or empty string");
-			} else {
+			}else{
 				Debug::print("{$f} cleartext is length {$length} with hash " . sha1($clear));
 			}
 		}

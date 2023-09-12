@@ -14,7 +14,7 @@ trait DuplicateKeyHandlerTrait{
 
 	public function getDuplicateKeyHandler():string{
 		$f = __METHOD__;
-		if (! $this->hasDuplicateKeyHandler()) {
+		if(!$this->hasDuplicateKeyHandler()) {
 			Debug::error("{$f} duplicate key handler is undefined");
 		}
 		return $this->duplicateKeyHandler;
@@ -22,10 +22,10 @@ trait DuplicateKeyHandlerTrait{
 
 	public function setDuplicateKeyHandler(?string $s):?string{
 		$f = __METHOD__;
-		if ($s == null) {
+		if($s == null) {
 			unset($this->duplicateKeyHandler);
 			return null;
-		} elseif (! is_string($s)) {
+		}elseif(!is_string($s)) {
 			Debug::error("{$f} duplicate key handler must be a string");
 		}
 		$s = strtolower($s);

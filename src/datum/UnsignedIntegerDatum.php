@@ -21,7 +21,7 @@ class UnsignedIntegerDatum extends IntegerDatum{
 	}
 
 	public function getMinimumValue():int{
-		if (! isset($this->minimumValue)) {
+		if(! isset($this->minimumValue)) {
 			return 0;
 		}
 		return parent::getMinimumValue();

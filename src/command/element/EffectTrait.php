@@ -18,7 +18,7 @@ trait EffectTrait
 
 	public function setEffect($effect)
 	{
-		if ($effect == null) {
+		if($effect == null) {
 			unset($this->effect);
 			return null;
 		}

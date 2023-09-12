@@ -100,7 +100,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 
 	public static function getAccountTypeStringStatic(string $account_type):?string{
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($account_type) {
 				case ACCOUNT_TYPE_ERROR:
 					return _("Error");
@@ -122,7 +122,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 					Debug::error("{$f} invalid account type \"{$account_type}\"");
 					return null;
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -157,7 +157,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 
 	public function getArrayMembershipConfiguration($config_id): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$config = parent::getArrayMembershipConfiguration($config_id);
 			switch ($config_id) {
 				case CONST_DEFAULT:
@@ -166,7 +166,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 				default:
 					return $config;
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -177,7 +177,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
-		try {
+		try{
 			parent::declareColumns($columns, $ds);
 			$account_type = new StringEnumeratedDatum("subtype");
 			$account_type->setHumanReadableName(_("Account type"));
@@ -202,7 +202,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 			$country_code = new StringEnumeratedDatum("regionCode");
 			$country_code->setNullable(false);
 			array_push($columns, $account_type, $language, $account_str, $timezone, $correspondentKey, $correspondentPublicKey, $temporaryRole, $country_code);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -224,7 +224,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 	}
 	
 	public function timezone_offset(){
-		if (! $this->hasTimezone()) {
+		if(!$this->hasTimezone()) {
 			return 0;
 		}
 		$server_timezone = new DateTimeZone(date_default_timezone_get());
@@ -274,7 +274,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 
 	public function getVirtualColumnValue(string $column_name){
 		$f = __METHOD__;
-		try {
+		try{
 			switch ($column_name) {
 				case "accountTypeString":
 					return $this->getAccountTypeString();
@@ -283,7 +283,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 				default:
 					return parent::getVirtualColumnValue($column_name);
 			}
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -301,13 +301,13 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 
 	public function setTemporaryRole($role){
 		$f = __METHOD__;
-		try {
-			if (empty($role)) {
+		try{
+			if(empty($role)) {
 				Debug::error("{$f} received null parameter");
 			}
 			// Debug::print("{$f} returning \"{$role}\"");
 			return $this->setColumnValue("temporaryRole", $role);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -318,7 +318,7 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 
 	public function getTemporaryRole(){
 		$f = __METHOD__;
-		if (! $this->hasTemporaryRole()) {
+		if(!$this->hasTemporaryRole()) {
 			Debug::error("{$f} role is undefined");
 		}
 		return $this->getColumnValue("temporaryRole");
@@ -333,13 +333,13 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 	 */
 	public function getGroupRoles(mysqli $mysqli, GroupData $group): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if ($this->hasGroupRoles($group)) {
+			if($this->hasGroupRoles($group)) {
 				return $this->groupRoles[$group->getIdentifierValue()];
 			}
 			$roles = [];
-			if ($this->getIdentifierValue() === $this->getFounderKey()) {
+			if($this->getIdentifierValue() === $this->getFounderKey()) {
 				$roles[USER_ROLE_FOUNDER] = USER_ROLE_FOUNDER;
 			}
 			// if the user has an invitation, they're a member. Otherwise they're a stranger
@@ -350,22 +350,22 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 				$group->getIdentifierValue(),
 				$this->getIdentifierValue()
 			]);
-			if (is_array($invitation)) {
-				if ($print) {
+			if(is_array($invitation)) {
+				if($print) {
 					Debug::print("{$f} query results have been cached");
 				}
 				$count = count($invitation);
-			} else {
+			}else{
 				$count = $invitation->num_rows;
 				$invitation = $invitation->fetch_all(MYSQLI_ASSOC);
 			}
-			if ($count === 0) {
-				if ($print) {
+			if($count === 0) {
+				if($print) {
 					Debug::print("{$f} invitation does not exist");
 				}
 				$roles['stranger'] = 'stranger';
 				return $this->setGroupRoles($group, $roles);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} this user is a member of the group");
 			}
 			$roles['member'] = 'member';
@@ -385,39 +385,39 @@ abstract class UserData extends DataStructure implements StaticSubtypeInterface,
 				$__START,
 				$group->getIdentifierValue()
 			]);
-			if (! is_array($names)) {
+			if(!is_array($names)) {
 				$names = $names->fetch_all(MYSQLI_ASSOC);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} query results have been cached");
 			}
 			$temp = [];
-			foreach ($names as $r) {
+			foreach($names as $r) {
 				$name = RoleDeclaration::escapeCustomRoleName($r['name']);
 				$temp[$name] = $name;
 			}
 			unset($names);
 			// verify none of them encroach on built-in roles or account types
-			if (! empty(array_intersect($temp, array_merge(app()->getReservedRoles(), array_keys(mods()->getUserClasses()))))) {
+			if(!empty(array_intersect($temp, array_merge(app()->getReservedRoles(), array_keys(mods()->getUserClasses()))))) {
 				Debug::warning("{$f} list of role names includes reserved roles and/or account types");
 				return [
 					USER_ROLE_ERROR => USER_ROLE_ERROR
 				];
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} none of the custom roles conflict with reserved roles or account types");
 			}
 			$roles = array_merge($roles, $temp);
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning the following roles:");
 				Debug::printArray($roles);
 			}
 			return $this->setGroupRoles($group, $roles);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function hasGroupRoles($group): bool{
-		if ($group instanceof GroupData) {
+		if($group instanceof GroupData) {
 			$group = $group->getIdentifierValue();
 		}
 		return isset($this->groupRoles) && is_array($this->groupRoles) && array_key_exists($group, $this->groupRoles);

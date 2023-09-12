@@ -15,7 +15,7 @@ trait ParentScopedTrait
 
 	public function setParentScope(?Scope $parent): ?Scope
 	{
-		if ($parent == null) {
+		if($parent == null) {
 			unset($this->parentScope);
 			return null;
 		}
@@ -25,7 +25,7 @@ trait ParentScopedTrait
 	public function getParentScope(): Scope
 	{
 		$f = __METHOD__; //"ParentScopedTrait(".static::getShortClass().")->getParentScope()";
-		if (! $this->hasParentScope()) {
+		if(!$this->hasParentScope()) {
 			Debug::error("{$f} parent scope is undefined");
 		}
 		return $this->parentScope;

@@ -16,7 +16,7 @@ class IsScrolledIntoViewCommand extends ElementCommand implements ValueReturning
 	public function toJavaScript(): string
 	{
 		$idcs = $this->getIdCommandString();
-		if ($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface) {
 			$idcs = $idcs->toJavaScript();
 		}
 		return "isScrolledIntoView({$idcs})";

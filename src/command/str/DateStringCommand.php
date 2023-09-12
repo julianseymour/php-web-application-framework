@@ -16,10 +16,10 @@ class DateStringCommand extends StringTransformationCommand{
 
 	public function __construct($subject, $timezone = null, ?string $format = null){
 		parent::__construct($subject);
-		if ($timezone !== null) {
+		if($timezone !== null) {
 			$this->setTimezone($timezone);
 		}
-		if ($format !== null) {
+		if($format !== null) {
 			$this->setFormat($format);
 		}
 	}
@@ -33,7 +33,7 @@ class DateStringCommand extends StringTransformationCommand{
 	}
 
 	public function setTimezone($timezone){
-		if ($timezone === null) {
+		if($timezone === null) {
 			unset($this->timezone);
 			return null;
 		}
@@ -41,7 +41,7 @@ class DateStringCommand extends StringTransformationCommand{
 	}
 
 	public function getTimezone(){
-		if ($this->hasTimezone()) {
+		if($this->hasTimezone()) {
 			return $this->timezone;
 		}
 		return null;
@@ -52,7 +52,7 @@ class DateStringCommand extends StringTransformationCommand{
 	}
 
 	public function setFormat($format){
-		if ($format === null) {
+		if($format === null) {
 			unset($this->format);
 			return null;
 		}
@@ -61,7 +61,7 @@ class DateStringCommand extends StringTransformationCommand{
 
 	public function getFormat(){
 		$f = __METHOD__;
-		if (! $this->hasFormat()) {
+		if(!$this->hasFormat()) {
 			Debug::error("{$f} format is undefined");
 		}
 		return $this->format;
@@ -79,12 +79,12 @@ class DateStringCommand extends StringTransformationCommand{
 		if(!in_array($timezone, DateTimeZone::listIdentifiers())){
 			$timezone = date_default_timezone_get();
 		}
-		if ($this->hasFormat()) {
+		if($this->hasFormat()) {
 			$format = $this->getFormat();
 			while ($format instanceof ValueReturningCommandInterface) {
 				$format = $format->evaluate();
 			}
-		} else {
+		}else{
 			$format = null;
 		}
 		return getDateStringFromTimestamp($ts, $timezone, $format);
@@ -92,7 +92,7 @@ class DateStringCommand extends StringTransformationCommand{
 
 	public function toJavaScript(): string{
 		$ts = $this->getSubject();
-		if ($ts instanceof JavaScriptInterface) {
+		if($ts instanceof JavaScriptInterface) {
 			$ts = $ts->toJavaScript();
 		}
 		return "parseDateStringFromTimestamp({$ts})";

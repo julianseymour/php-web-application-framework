@@ -23,9 +23,9 @@ trait SecondaryEngineAttributeTrait
 	public function getSecondaryEngineAttribute()
 	{
 		$f = __METHOD__; //"SecondaryEngineAttributeTrait(".static::getShortClass().")->getSecondaryEngineAttribute()";
-		if (! $this->hasSecondaryEngineAttribute()) {
+		if(!$this->hasSecondaryEngineAttribute()) {
 			Debug::error("{$f} secondary engine attribute is undefined");
-		} elseif (! $this->hasEngineAttribute()) {
+		}elseif(!$this->hasEngineAttribute()) {
 			Debug::error("{$f} please define primary engine attribute before asking for the secondary");
 		}
 		return $this->secondaryEngineAttributeString;

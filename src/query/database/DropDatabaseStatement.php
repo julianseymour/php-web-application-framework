@@ -13,7 +13,7 @@ class DropDatabaseStatement extends QueryStatement
 	public function __construct($databaseName = null)
 	{
 		parent::__construct();
-		if ($databaseName !== null) {
+		if($databaseName !== null) {
 			$this->setDatabaseName($databaseName);
 		}
 	}
@@ -29,7 +29,7 @@ class DropDatabaseStatement extends QueryStatement
 	{
 		// DROP {DATABASE | SCHEMA} [IF EXISTS] db_name
 		$string = "drop database ";
-		if ($this->getIfExistsFlag()) {
+		if($this->getIfExistsFlag()) {
 			$string .= "if exists ";
 		}
 		$string .= $this->getDatabaseName();

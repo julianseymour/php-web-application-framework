@@ -58,7 +58,7 @@ abstract class RequestEvent extends UserFingerprint implements EmailNoteworthyIn
 		$config = parent::getArrayMembershipConfiguration($config_id);
 		switch ($config_id) {
 			case "default":
-				if ($this->hasColumn("insertIpAddress")) {
+				if($this->hasColumn("insertIpAddress")) {
 					$config['insertIpAddress'] = true;
 				}
 			default:

@@ -21,7 +21,7 @@ class AntiXsrfTokenValidator extends Validator
 
 	public function __construct($uri = null)
 	{
-		if (empty($uri)) {
+		if(empty($uri)) {
 			$uri = request()->getRequestURI();
 		}
 		$this->setUri($uri);
@@ -32,12 +32,12 @@ class AntiXsrfTokenValidator extends Validator
 	{
 		$f = __METHOD__; //AntiXsrfTokenValidator::getShortClass()."(".static::getShortClass().")->setUri()";
 		$print = false;
-		if ($uri == null) {
+		if($uri == null) {
 			unset($this->uri);
 			return null;
-		} elseif (str_contains($uri, "?")) {
+		}elseif(str_contains($uri, "?")) {
 			$uri = explode("?", $uri)[0];
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} split string at ? to make new URI \"{$uri}\"");
 			}
 		}
@@ -51,7 +51,7 @@ class AntiXsrfTokenValidator extends Validator
 	 * $user = "writer_xsrf";
 	 * $pass = "tempXSRFWriterPassword"; //XXX
 	 * $mysqli = new mysqli($host, $user, $pass);
-	 * if ($mysqli->connect_error)
+	 * if($mysqli->connect_error)
 	 * {
 	 * Debug::error("{$f}: error connecting to XSRF incident log database: \"{$mysqli->error}\"");
 	 * return null;
@@ -70,20 +70,20 @@ class AntiXsrfTokenValidator extends Validator
 	{
 		$f = __METHOD__; //AntiXsrfTokenValidator::getShortClass()."(".static::getShortClass().")->evaluate()";
 		$print = false;
-		if (! array_key_exists('xsrf_token', $validate_me)) {
-			if ($print) {
+		if(! array_key_exists('xsrf_token', $validate_me)) {
+			if($print) {
 				Debug::print("{$f} anti-XSRF token was not posted");
 				Debug::print($validate_me);
 			}
 			return ERROR_XSRF;
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} user submitted a form - about to check XSRF token");
 		}
 		$uri = $this->getUri();
-		if (! AntiXsrfTokenData::verifySessionToken($uri)) {
+		if(! AntiXsrfTokenData::verifySessionToken($uri)) {
 			Debug::warning("{$f} session token failed verification");
 			return $this->setObjectStatus(ERROR_XSRF);
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::print("{$f} anti-XSRF token validated successfully");
 		}
 		return SUCCESS;

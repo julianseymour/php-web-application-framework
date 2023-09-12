@@ -68,7 +68,7 @@ class WithClause extends Basic implements StaticPropertyTypeInterface, SQLInterf
 	public function setRecursiveFlag($value = true)
 	{
 		$f = __METHOD__; //WithClause::getShortClass()."(".static::getShortClass().")->setRecursiveFlag()";
-		if ($value && $this->hasCommonTableExpressions() && $this->getCommonTableExpressionCount() > 1) {
+		if($value && $this->hasCommonTableExpressions() && $this->getCommonTableExpressionCount() > 1) {
 			Debug::error("{$f} unsupported: syntax for ");
 		}
 		return $this->setFlag("recursive", $value);
@@ -90,7 +90,7 @@ class WithClause extends Basic implements StaticPropertyTypeInterface, SQLInterf
 	public function toSQL(): string
 	{
 		$f = __METHOD__; //WithClause::getShortClass()."(".static::getShortClass().")->toSQL()";
-		try {
+		try{
 			// mine:
 			/*
 			 * with recursive commonTableExpression as (
@@ -142,19 +142,19 @@ class WithClause extends Basic implements StaticPropertyTypeInterface, SQLInterf
 			 * WITH [RECURSIVE] cte_name [(col_name [, col_name] ...)] AS (subquery) [, cte_name [(col_name [, col_name] ...)] AS (subquery)] ...
 			 */
 			$string .= "with ";
-			if ($this->getRecursiveFlag()) {
+			if($this->getRecursiveFlag()) {
 				$string .= "recursive ";
 			}
 			$ctes = [];
-			foreach ($this->getCommonTableExpressions() as $c) {
-				if ($c instanceof SQLInterface) {
+			foreach($this->getCommonTableExpressions() as $c) {
+				if($c instanceof SQLInterface) {
 					$c = $c->toSQL();
 				}
 				array_push($ctes, $c);
 			}
 			$string .= implode(',', $ctes);
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

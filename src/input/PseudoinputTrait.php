@@ -21,7 +21,7 @@ trait PseudoinputTrait{
 	}
 
 	public function getForm(){
-		if (! $this->hasForm()) {
+		if(!$this->hasForm()) {
 			return null;
 		}
 		return $this->form;

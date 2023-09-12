@@ -15,8 +15,8 @@ trait EscapeTypeTrait
 	{
 		$f = __METHOD__; //"EscapeTypeTrait(".static::getShortClass().")->getEscapeType()";
 		$print = false;
-		if (! $this->hasEscapeType()) {
-			if ($print) {
+		if(!$this->hasEscapeType()) {
+			if($print) {
 				Debug::warning("{$f} escape type is undefined");
 			}
 			return null;
@@ -26,7 +26,7 @@ trait EscapeTypeTrait
 
 	public function setEscapeType(?string $type): ?string
 	{
-		if ($type === null) {
+		if($type === null) {
 			unset($this->escapeType);
 			return null;
 		}

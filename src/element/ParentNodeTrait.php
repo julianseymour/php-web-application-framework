@@ -20,7 +20,7 @@ trait ParentNodeTrait
 	public function getParentNode()
 	{
 		$f = __METHOD__; //"ParentNodeTrait(".static::getShortClass().")->getParentNode()";
-		if (! $this->hasParentNode()) {
+		if(!$this->hasParentNode()) {
 			Debug::error("{$f} parent node is undefined");
 		}
 		return $this->parentNode;
@@ -28,7 +28,7 @@ trait ParentNodeTrait
 
 	public function setParentNode($node)
 	{
-		if ($node === null) {
+		if($node === null) {
 			unset($this->parentNode);
 			return null;
 		}

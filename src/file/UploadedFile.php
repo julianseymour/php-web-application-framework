@@ -17,7 +17,7 @@ class UploadedFile implements \Psr\Http\Message\UploadedFileInterface
 	private $size;
 
 	public function __construct($array = null){
-		if ($array !== null) {
+		if($array !== null) {
 			$this->setArray($array);
 		}
 	}
@@ -25,9 +25,9 @@ class UploadedFile implements \Psr\Http\Message\UploadedFileInterface
 	public function setArray(array $array):array{
 		$f = __METHOD__;
 		$print = false;
-		if (! array_keys_exist($array, "error", "size", "name", "tmp_name")) {
+		if(! array_keys_exist($array, "error", "size", "name", "tmp_name")) {
 			Debug::error("{$f} missing one or more array indices");
-		} elseif ($print) {
+		}elseif($print) {
 			Debug::printArray($array);
 		}
 		$this->setError($array['error']);

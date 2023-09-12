@@ -20,7 +20,7 @@ class ShowNotificationCommand extends Command
 	public function getTitle()
 	{
 		$f = __METHOD__; //ShowNotificationCommand::getShortClass()."(".static::getShortClass().")->getTitle()";
-		if (! $this->hasTitle()) {
+		if(!$this->hasTitle()) {
 			Debug::error("{$f} title is undefined");
 		}
 		return $this->title;
@@ -39,7 +39,7 @@ class ShowNotificationCommand extends Command
 	public function getOptions()
 	{
 		$f = __METHOD__; //ShowNotificationCommand::getShortClass()."(".static::getShortClass().")->getOptions()";
-		if (! $this->hasOptions()) {
+		if(!$this->hasOptions()) {
 			Debug::error("{$f} options are undefined");
 		}
 		return $this->options;
@@ -53,10 +53,10 @@ class ShowNotificationCommand extends Command
 	public function __construct($title = null, $options = null)
 	{
 		parent::__construct();
-		if (! empty($title)) {
+		if(!empty($title)) {
 			$this->setTitle($title);
 		}
-		if (! empty($options)) {
+		if(!empty($options)) {
 			$this->setOptions($options);
 		}
 	}
@@ -64,7 +64,7 @@ class ShowNotificationCommand extends Command
 	public function echoInnerJson(bool $destroy = false): void
 	{
 		Json::echoKeyValuePair('title', $this->getTitle(), $destroy);
-		if ($this->hasOptions()) {
+		if($this->hasOptions()) {
 			Json::echoKeyValuePair('options', $this->getOptions(), $destroy);
 		}
 		parent::echoInnerJson($destroy);

@@ -21,7 +21,7 @@ class PasswordValidator extends Validator
 	public function __construct($password_index = null)
 	{
 		parent::__construct();
-		if (! empty($password_index)) {
+		if(!empty($password_index)) {
 			$this->setName($password_index);
 		}
 	}
@@ -34,11 +34,11 @@ class PasswordValidator extends Validator
 	public function evaluate(&$validate_me): int
 	{
 		$name = $this->getName();
-		if (! hasInputParameter($name)) {
+		if(! hasInputParameter($name)) {
 			return $this->getSpecialFailureStatus();
 		}
 		$user = user();
-		if (password_verify(getInputParameter($name), $user->getPasswordHash())) {
+		if(password_verify(getInputParameter($name), $user->getPasswordHash())) {
 			return SUCCESS;
 		}
 		return $this->getSpecialFailureStatus();

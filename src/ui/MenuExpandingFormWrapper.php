@@ -24,12 +24,12 @@ class MenuExpandingFormWrapper extends ExpandingFormWrapperElement
 	public function getNestedFormClass()
 	{
 		$f = __METHOD__; //MenuExpandingFormWrapper::getShortClass()."(".static::getShortClass().")->getNestedFormClass()";
-		try {
-			if (! $this->hasNestedFormClass()) {
+		try{
+			if(!$this->hasNestedFormClass()) {
 				Debug::error("{$f} nested form class is undefined");
 			}
 			return $this->nestedFormClass;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -68,7 +68,7 @@ class MenuExpandingFormWrapper extends ExpandingFormWrapperElement
 	public function generateChildNodes(): ?array
 	{
 		$f = __METHOD__; //MenuExpandingFormWrapper::getShortClass()."(".static::getShortClass().")::generateChildNodes()";
-		try {
+		try{
 			$context = $this->getContext();
 			$mode = $this->getAllocationMode();
 			$form_class = $this->getNestedFormClass();
@@ -76,7 +76,7 @@ class MenuExpandingFormWrapper extends ExpandingFormWrapperElement
 			$form = new $form_class($mode, $context);
 			$this->setExpanderContents($form);
 			return $this->getChildNodes();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

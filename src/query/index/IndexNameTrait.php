@@ -21,7 +21,7 @@ trait IndexNameTrait
 	public function getIndexName()
 	{
 		$f = __METHOD__; //"IndexNameTrait(".static::getShortClass().")->getIndexName()";
-		if (! $this->hasIndexName()) {
+		if(!$this->hasIndexName()) {
 			Debug::error("{$f} index name is undefined");
 		}
 		return $this->indexName;

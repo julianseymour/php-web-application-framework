@@ -21,7 +21,7 @@ abstract class SetEventHandlerCommand extends Command implements JavaScriptInter
 	{
 		$f = __METHOD__; //SetEventHandlerCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct();
-		if (isset($call_function)) {
+		if(isset($call_function)) {
 			$this->setCallFunctionCommand($call_function);
 		}
 	}
@@ -51,7 +51,7 @@ abstract class SetEventHandlerCommand extends Command implements JavaScriptInter
 	public function getCallFunctionCommand()
 	{
 		$f = __METHOD__; //SetEventHandlerCommand::getShortClass()."(".static::getShortClass().")->getCallFunctionCommand()";
-		if (! $this->hasCallFunctionCommand()) {
+		if(!$this->hasCallFunctionCommand()) {
 			Debug::error("{$f} callFunctionCommand is undefined");
 		}
 		return $this->callFunctionCommand;
@@ -60,18 +60,18 @@ abstract class SetEventHandlerCommand extends Command implements JavaScriptInter
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //SetEventHandlerCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$print = false;
 			$e = $this->getIdCommandString();
-			if ($e instanceof JavaScriptInterface) {
+			if($e instanceof JavaScriptInterface) {
 				$e = $e->toJavaScript();
 			}
 			$cf = $this->getCallFunctionCommand();
-			if ($this->hasEscapeType()) {
+			if($this->hasEscapeType()) {
 				$pt = $this->getEscapeType();
 				switch ($pt) {
 					case ESCAPE_TYPE_FUNCTION:
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} escapeType is function -- wrapping callFunctionCommand in script element");
 						}
 						$script = new JavaScriptFunction(null, ...$cf->getParameters());
@@ -79,7 +79,7 @@ abstract class SetEventHandlerCommand extends Command implements JavaScriptInter
 						$cf = $script->toJavaScript();
 						break;
 					case ESCAPE_TYPE_STRING:
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} escape type string");
 						}
 						$q = $this->getQuoteStyle();
@@ -92,16 +92,16 @@ abstract class SetEventHandlerCommand extends Command implements JavaScriptInter
 				}
 			}
 			$command = $this->getCommandId();
-			if ($command instanceof JavaScriptInterface) {
+			if($command instanceof JavaScriptInterface) {
 				$command = $command->toJavaScript();
 			}
 			$string = "{$e}.{$command} = {$cf}";
 			// $string .= "\nif(!isset({$e}.{$command})){return error(f, \"{$command} attribute is undefined\");}";
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} returning \"{$string}\"");
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

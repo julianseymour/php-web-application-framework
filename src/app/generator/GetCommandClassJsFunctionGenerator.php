@@ -10,7 +10,7 @@ class GetCommandClassJsFunctionGenerator extends ClassReturningJsFunctionGenerat
 
 	public function generate($context): ?JavaScriptFunction
 	{
-		if ($context === null) {
+		if($context === null) {
 			$context = mods();
 		}
 		return static::generateGetJavaScriptClassFunction("getCommandClass", $context->getClientCommandClasses());

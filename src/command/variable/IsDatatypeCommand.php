@@ -26,7 +26,7 @@ abstract class IsDatatypeCommand extends ExpressionCommand implements JavaScript
 			$value = $value->evaluate();
 		}
 		$ret = static::is_type($value);
-		if ($this->isNegated()) {
+		if($this->isNegated()) {
 			return ! $ret;
 		}
 		return $ret;

@@ -22,7 +22,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 
 	public function __construct(string $name, ?int $type = null){
 		parent::__construct($name);
-		if ($type !== null) {
+		if($type !== null) {
 			$this->setRelationshipType($type);
 		}
 	}
@@ -56,23 +56,23 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 		$f = __METHOD__;
 		$print = false;
 		$column_name = $this->getName();
-		if (is_bool($value)) {
-			if ($print) {
+		if(is_bool($value)) {
+			if($print) {
 				Debug::print("{$f} received a boolean value for column \"{$column_name}\"");
 			}
 			return parent::configureArrayMembership($value);
-		} elseif (! is_array($value) && ! is_string($value)) {
+		}elseif(!is_array($value) && ! is_string($value)) {
 			Debug::error("{$f} this function accepts bool, string and array");
 		}
 		parent::configureArrayMembership(true);
 		$this->setAddToResponseFlag(true);
 		$ds = $this->getDataStructure();
-		if ($ds->hasForeignDataStructureList($column_name)) {
-			foreach ($ds->getForeignDataStructureList($column_name) as $fds) {
+		if($ds->hasForeignDataStructureList($column_name)) {
+			foreach($ds->getForeignDataStructureList($column_name) as $fds) {
 				$fds->configureArrayMembership($value);
 			}
 		}
-		if ($print) {
+		if($print) {
 			Debug::print("{$f} returning the following:");
 			Debug::print($value);
 		}
@@ -80,7 +80,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 	}
 
 	public function getHumanReadableName(){
-		if (! $this->hasHumanReadableName() && $this->hasForeignDataStructureClass()) {
+		if(!$this->hasHumanReadableName() && $this->hasForeignDataStructureClass()) {
 			return $this->getForeignDataStructureClass()::getPrettyClassNames();
 		}
 		return parent::getHumanReadableName();
@@ -90,21 +90,21 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 		$f = __METHOD__;
 		$print = false;
 		$keyvalues = $input->getValueAttribute();
-		if (! is_array($keyvalues)) {
+		if(!is_array($keyvalues)) {
 			Debug::error("{$f} input->getValueAttribute() must return an array");
 		}
 		$column_name = $this->getName();
-		foreach ($keyvalues as $key => $value) {
-			if (is_object($value)) {
+		foreach($keyvalues as $key => $value) {
+			if(is_object($value)) {
 				Debug::error("{$f} should not be setting objects as value attributes");
 			}
-			if ($print) {
+			if($print) {
 				$did = $this->getDebugId();
 				Debug::printStackTraceNoExit("{$f} setting {$column_name}[{$key}] = {$value} for column with debug ID \"{$did}\"");
 			}
 			$update = ! $this->inArray($value);
 			$this->value[$key] = $value;
-			if ($update && ! $this->getUpdateFlag()) {
+			if($update && ! $this->getUpdateFlag()) {
 				$this->setUpdateFlag(true);
 			}
 		}
@@ -112,9 +112,9 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 	}
 
 	public static function getDatabaseEncodedValueStatic($arr){
-		if (! empty($arr)) {
-			foreach ($arr as $key => $value) {
-				if (is_object($value)) {
+		if(!empty($arr)) {
+			foreach($arr as $key => $value) {
+				if(is_object($value)) {
 					$arr[$key] = $value->toArray();
 				}
 			}
@@ -154,7 +154,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 	}
 
 	public function getRetainOriginalValueFlag(): bool{
-		if ($this->getTemplateFlag()) {
+		if($this->getTemplateFlag()) {
 			return true;
 		}
 		$pm = $this->getPersistenceMode();
@@ -167,7 +167,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 	}
 
 	public function getValueCount(): int{
-		if (! $this->hasValue()) {
+		if(!$this->hasValue()) {
 			return 0;
 		}
 		return count($this->value);
@@ -175,101 +175,101 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 
 	public function updateIntersectionTables(mysqli $mysqli): int{
 		$f = __METHOD__;
-		try {
-			if ($this->getPersistenceMode() === PERSISTENCE_MODE_VOLATILE) {
+		try{
+			if($this->getPersistenceMode() === PERSISTENCE_MODE_VOLATILE) {
 				Debug::error("{$f} this should not get called on volatile relationships");
 			}
 			$originals = $this->hasOriginalValue() ? $this->getOriginalValue() : [];
 			$ds = $this->getDataStructure();
 			$name = $this->getName();
 			$print = false;
-			if (! $this->hasValue()) {
-				if ($print) {
+			if(!$this->hasValue()) {
+				if($print) {
 					Debug::error("{$f} values is undefined");
 				}
 			}
 			$values = $this->getValue();
-			if ($print) {
+			if($print) {
 				Debug::print("{$f} about to update intersection tables with the following values:");
 				Debug::print($values);
-				if (! $ds->hasForeignDataStructureList($name)) {
+				if(!$ds->hasForeignDataStructureList($name)) {
 					Debug::print("{$f} host data structure does not have any list members for relationship \"{$name}\"");
-				} else {
+				}else{
 					$count = $ds->getForeignDataStructureCount($name);
 					Debug::print("{$f} data structure has {$count} foreign structures for relationship \"{$name}\"");
 				}
 			}
 			// insert intersection tables for all relationships that are not already in the database
-			if (! empty($values)) {
-				if ($print) {
-					if (defined("DEBUG_IP_ADDRESS") && $_SERVER['REMOTE_ADDR'] === DEBUG_IP_ADDRESS) {
+			if(!empty($values)) {
+				if($print) {
+					if(defined("DEBUG_IP_ADDRESS") && $_SERVER['REMOTE_ADDR'] === DEBUG_IP_ADDRESS) {
 						$value_count = $this->getValueCount();
 						$struct_count = $ds->getForeignDataStructureCount($name);
-						if ($value_count !== $struct_count) {
+						if($value_count !== $struct_count) {
 							Debug::error("{$f} value count {$value_count} differs from structure count {$struct_count} for column \"{$name}\"");
 						}
 					}
 				}
-				foreach ($values as $key) {
-					if (in_array($key, $originals, true)) {
-						if ($print) {
+				foreach($values as $key) {
+					if(in_array($key, $originals, true)) {
+						if($print) {
 							Debug::print("{$f} key \"{$key}\" is in the original values, no need to insert a new intersection");
 						}
 						continue;
-					} elseif ($ds->hasForeignDataStructureListMember($name, $key)) {
-						if ($print) {
+					}elseif($ds->hasForeignDataStructureListMember($name, $key)) {
+						if($print) {
 							Debug::print("{$f} data structure has a new {$name} with key \"{$key}\"");
 						}
 						$fds = $ds->getForeignDataStructureListMember($name, $key);
-					} elseif ($ds->getInsertedFlag()) {
-						if ($print) {
+					}elseif($ds->getInsertedFlag()) {
+						if($print) {
 							Debug::print("{$f} data structure was already inserted");
 						}
-						if (! registry()->has($key)) {
+						if(! registry()->has($key)) {
 							Debug::error("{$f} registry does not know about an object with key \"{$key}\"");
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} host was inserted inserted; going to get the foreign data structure list member from registry");
 						}
 						$fds = registry()->get($key);
-					} else {
+					}else{
 						Debug::warning("{$f} host data structure lacks foreign data structure list \"{$name}\" member with key \"{$key}\", and it is was not just inserted");
 						continue;
 					}
 					$dsc = $ds->getClass();
 					$fdsc = $fds->getClass();
-					if ($print) {
+					if($print) {
 						Debug::print("{$f} about to insert intersection data for relationship \"{$name}\" between {$dsc} and {$fdsc}");
 					}
 					$intersection = new IntersectionData($dsc, $fdsc, $name);
-					if ($this->getDataStructure()->hasIdentifierValue()) {
+					if($this->getDataStructure()->hasIdentifierValue()) {
 						$intersection->setHostKey($ds->getIdentifierValue());
 					}
-					if ($this->hasValue()) {
+					if($this->hasValue()) {
 						$intersection->setForeignKey($key);
 					}
 					$status = $intersection->insert($mysqli);
-					if ($status !== SUCCESS) {
+					if($status !== SUCCESS) {
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} inserting intersection data for foreign key \"{$key}\" returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					} elseif ($print) {
+					}elseif($print) {
 						Debug::print("{$f} successfully inserted intersection data for foreign key \"{$key}\"");
 					}
 				}
 			}
 			// return early is this is happening during an insert
-			if ($ds->getInsertingFlag()) {
-				if ($print) {
+			if($ds->getInsertingFlag()) {
+				if($print) {
 					Debug::print("{$f} host data structure is being inserted; returning early");
 				}
 				return SUCCESS;
 			}
 			// delete intersection tables for all relationships that are only part of the original values
-			if (! empty($originals)) {
+			if(!empty($originals)) {
 				$delete_us = array_diff($originals, $values);
-				if (! empty($delete_us)) {
+				if(!empty($delete_us)) {
 					$intersections = $this->getAllPossibleIntersectionData();
-					foreach ($intersections as $intersection) {
+					foreach($intersections as $intersection) {
 						$db = $intersection->getDatabaseName();
 						$table = $intersection->getTableName();
 						$where = new WhereCondition("foreignKey", OPERATOR_IN);
@@ -282,23 +282,23 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 							...array_values($delete_us)
 						]);
 						$where->setParameterCount($query->getParameterCount() - 2);
-						if ($print) {
+						if($print) {
 							Debug::print("{$f} deletion query from table \"{$table}\" is \"{$query}\" with the following parameters:");
 							Debug::printArray($query->getParameters());
 						}
 						$status = $query->executeGetStatus($mysqli);
-						if ($status !== SUCCESS) {
+						if($status !== SUCCESS) {
 							$err = ErrorMessage::getResultMessage($status);
 							Debug::warning("{$f} executing deletion query \"{$query}\" returned error status \"{$err}\"");
 							return $this->setObjectStatus($status);
-						} elseif ($print) {
+						}elseif($print) {
 							Debug::print("{$f} successfully executed deletion query \"{$query}\"");
 						}
 					}
 				}
 			}
 			return SUCCESS;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -333,15 +333,15 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 	public function pushValue(...$values): int{
 		$f = __METHOD__;
 		$print = false;
-		if (count($values) === 1 && is_array($values[0])) {
+		if(count($values) === 1 && is_array($values[0])) {
 			$values = $values[0];
 		}
-		if (count($values) === 0) {
+		if(count($values) === 0) {
 			Debug::error("{$f} don't call this function without parameters");
-		} elseif (! isset($this->value) || ! is_array($this->value)) {
+		}elseif(! isset($this->value) || ! is_array($this->value)) {
 			$this->value = [];
 		}
-		if ($print) {
+		if($print) {
 			$column_name = $this->getName();
 			$did = $this->getDebugId();
 			// Debug::printStackTraceNoExit("{$f} pushing the following values to datum with debug ID {$did}:");
@@ -350,11 +350,11 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 			Debug::printArray($this->value);
 		}
 		$pushed = array_push($this->value, ...$values);
-		if (! $this->hasValue()) {
+		if(!$this->hasValue()) {
 			Debug::error("{$f} immediately after pushing values, hasValue returned false");
-		} elseif ($print) {
-			foreach ($values as $value) {
-				if (! $this->inArray($value)) {
+		}elseif($print) {
+			foreach($values as $value) {
+				if(!$this->inArray($value)) {
 					Debug::warning("{$f} immedately after pushing values, value {$value} is not in the array. About to print values");
 					Debug::printArray($this->value);
 					Debug::printStackTrace();
@@ -369,23 +369,23 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 
 	public final function pushValueFromQueryResult(...$values): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (count($values) === 1 && is_array($values[0])) {
+			if(count($values) === 1 && is_array($values[0])) {
 				$values = $values[0];
 			}
-			if ($this->getRetainOriginalValueFlag()) {
-				if ($print) {
+			if($this->getRetainOriginalValueFlag()) {
+				if($print) {
 					Debug::print("{$f} retain original value flag is set");
 				}
 				$this->pushOriginalValue(...$values);
-			} elseif ($print) {
+			}elseif($print) {
 				Debug::print("{$f} retain original value flag is not set");
 			}
-			if (! isset($this->value) || ! is_array($this->value)) {
+			if(! isset($this->value) || ! is_array($this->value)) {
 				$this->value = [];
 			}
-			if ($print) {
+			if($print) {
 				$did = $this->getDebugId();
 				Debug::printStackTraceNoExit("{$f} pushing the following values to datum with debug ID {$did}:");
 				Debug::printArray(array(
@@ -393,17 +393,17 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 				));
 			}
 			return array_push($this->value, ...$values);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
 
 	public function pushOriginalValue(...$values): int{
 		$f = __METHOD__;
-		if (count($values) === 1 && is_array($values[0])) {
+		if(count($values) === 1 && is_array($values[0])) {
 			$values = $values[0];
 		}
-		if (! isset($this->originalValue) || ! is_array($this->originalValue)) {
+		if(! isset($this->originalValue) || ! is_array($this->originalValue)) {
 			$this->originalValue = [];
 		}
 		return array_push($this->originalValue, ...$values);

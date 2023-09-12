@@ -83,9 +83,9 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
-		try {
+		try{
 			$print = false;
-			if (! $input->hasColumnName()) {
+			if(!$input->hasColumnName()) {
 				if($print){
 					Debug::print("{$f} username does not have a column name");
 				}
@@ -112,7 +112,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 				case "name":
 					return SUCCESS;
 				case "password":
-					if ($print) {
+					if($print) {
 						Debug::printStackTraceNoExit("{$f} reconfiguring password input");
 					}
 					$id = "reg_password";
@@ -142,7 +142,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 				default:
 			}
 			return parent::reconfigureInput($input);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -161,7 +161,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 
 	public function generateFormFooter(): void{
 		$command = CommandBuilder::getElementById("register_timezone")->setValue(new GetUserTimezoneCommand());
-		if (! (Request::isXHREvent() || Request::isFetchEvent())) {
+		if(! (Request::isXHREvent() || Request::isFetchEvent())) {
 			$script = new ScriptElement();
 			$script->appendChild($command);
 			$this->appendChild($script);
@@ -171,7 +171,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
-		try {
+		try{
 			$inputs = parent::getAdHocInputs();
 			$mode = $this->getAllocationMode();
 			$context_input = new HiddenInput($mode);
@@ -199,7 +199,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 			$ai->setWrapperElement($agree_terms_wrapper);
 			$onclick = "agreeTermsClickHandler(event, this);";
 			$ai->setOnClickAttribute($onclick);
-			foreach ([
+			foreach([
 				$ai,
 				$context_input
 			] as $input) {
@@ -209,7 +209,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 			$hcaptcha->setIdAttribute('register_hcaptcha');
 			$inputs['hCaptcha'] = $hcaptcha;
 			return $inputs;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}
@@ -250,7 +250,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 				$innerHTML = _("Register");
 				$button->setInnerHTML($innerHTML);
 				// $button->setOnClickAttribute($this->get());
-				if (Request::isXHREvent()) {
+				if(Request::isXHREvent()) {
 					$subcommand = new SoftDisableInputCommand($button);
 					$this->reportSubcommand($subcommand);
 				}

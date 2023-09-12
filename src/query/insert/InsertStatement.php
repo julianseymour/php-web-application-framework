@@ -30,7 +30,7 @@ class InsertStatement extends AbstractInsertStatement
 	public function getColumnAliases()
 	{
 		$f = __METHOD__; //InsertStatement::getShortClass()."(".static::getShortClass().")->getColumnAliases()";
-		if (! $this->hasColumnAliases()) {
+		if(!$this->hasColumnAliases()) {
 			Debug::error("{$f} column aliases are undefined");
 		}
 		return $this->getProperty("columnAliases");
@@ -96,25 +96,25 @@ class InsertStatement extends AbstractInsertStatement
 	public function getQueryStatementString(): string
 	{
 		$f = __METHOD__; //InsertStatement::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
-		try {
+		try{
 			// INSERT
 			$string = "insert ";
 			$string .= $this->getInsertQueryStatementString();
 			$alias = $this->hasAlias() ? $this->getAlias() : null;
 			// [AS row_alias[(col_alias [, col_alias] ...)]]
-			if ($this->hasAlias()) {
+			if($this->hasAlias()) {
 				$string .= " as " . $alias;
-				if ($this->hasColumnAliases()) {
+				if($this->hasColumnAliases()) {
 					$string .= "(" . implode(',', $this->getColumnAliases()) . ")";
 				}
 			}
 			$string .= $this->getValueAssignmentString();
 			// [ON DUPLICATE KEY UPDATE assignment_list]
-			if ($this->hasDuplicateColumnExpressions()) {
+			if($this->hasDuplicateColumnExpressions()) {
 				$string .= " on duplicate key update " . $this->getAssignmentListString($this->getDuplicateColumnExpressions(), $alias);
 			}
 			return $string;
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

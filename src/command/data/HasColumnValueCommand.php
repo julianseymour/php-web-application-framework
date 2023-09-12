@@ -17,7 +17,7 @@ class HasColumnValueCommand extends ColumnValueCommand{
 
 	public function evaluate(?array $params = null){
 		$f = __METHOD__;
-		try {
+		try{
 			$print = $this->getDebugFlag();
 			$context = $this->getDataStructure();
 			while ($context instanceof ValueReturningCommandInterface) {
@@ -27,20 +27,20 @@ class HasColumnValueCommand extends ColumnValueCommand{
 			while ($vn instanceof ValueReturningCommandInterface) {
 				$vn = $vn->evaluate();
 			}
-			if ($print) {
+			if($print) {
 				$key = $context->getIdentifierValue();
 				$sc = get_short_class($context);
 				$did = $context->getDebugId();
 				$decl = $context->getDeclarationLine();
-				if ($context->hasColumnValue($vn)) {
+				if($context->hasColumnValue($vn)) {
 					$value = $context->getColumnValue($vn);
 					Debug::print("{$f} yes, context of class \"{$sc}\" with key \"{$key}\" has a value for column \"{$vn}\", and its \"{$value}\"");
-				} else {
+				}else{
 					Debug::print("{$f} no, context of class \"{$sc}\" with key \"{$key}\" and debig ID {$did} instantiated {$decl} does not have a value for column \"{$vn}\"");
 				}
 			}
 			return $context->hasColumnValue($vn);
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

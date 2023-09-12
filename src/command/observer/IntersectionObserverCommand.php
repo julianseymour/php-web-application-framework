@@ -64,7 +64,7 @@ class IntersectionObserverCommand extends ObserverCommand
 	public function echoInnerJson(bool $destroy = false): void
 	{
 		Json::echoKeyValuePair('threshold', $this->getThreshold(), $destroy);
-		if ($this->hasRootId()) {
+		if($this->hasRootId()) {
 			Json::echoKeyValuePair('rootId', $this->getRootId(), $destroy);
 		}
 		Json::echoKeyValuePair('rootMargin', $this->getRootMargin(), $destroy);
@@ -92,23 +92,23 @@ class IntersectionObserverCommand extends ObserverCommand
 	public function toJavaScript(): string
 	{
 		$f = __METHOD__; //IntersectionObserverCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
-		try {
+		try{
 			$string = "";
 			$threshold = $this->getThreshold();
-			if ($threshold instanceof JavaScriptInterface) {
+			if($threshold instanceof JavaScriptInterface) {
 				$threshold = $threshold->toJavaScript();
 			}
 			$root_margin = $this->getRootMargin();
-			if ($root_margin instanceof JavaScriptInterface) {
+			if($root_margin instanceof JavaScriptInterface) {
 				$root_margin = $root_margin->toJavaScript();
 			}
 			$options = [
 				'threshold' => $threshold,
 				'rootMargin' => $root_margin
 			];
-			if ($this->hasRootId()) {
+			if($this->hasRootId()) {
 				$root_id = $this->getRootId();
-				if ($root_id instanceof JavaScriptInterface) {
+				if($root_id instanceof JavaScriptInterface) {
 					$root_id = $root_id->toJavaScript();
 				}
 				$options['rootId'] = $root_id;
@@ -117,7 +117,7 @@ class IntersectionObserverCommand extends ObserverCommand
 			$options_declared->setEscapeType(ESCAPE_TYPE_OBJECT);
 			$string .= $options_declared->toJavaScript() . ";\n";
 			return $string . parent::toJavaScript();
-		} catch (Exception $x) {
+		}catch(Exception $x) {
 			x($f, $x);
 		}
 	}

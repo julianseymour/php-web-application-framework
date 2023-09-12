@@ -11,7 +11,7 @@ abstract class GetElementDimensionCommand extends ElementCommand implements Valu
 	{
 		$f = __METHOD__; //GetElementDimensionCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
 		$e = $this->getIdCommandString();
-		if ($e instanceof JavaScriptInterface) {
+		if($e instanceof JavaScriptInterface) {
 			$e = $e->toJavaScript();
 		}
 		$command = $this->getCommandId();
