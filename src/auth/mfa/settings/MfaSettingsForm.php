@@ -1,12 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\mfa\settings;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\auth\mfa\MfaSeedDatum;
-use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordDatum;
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\core\Document;
@@ -24,7 +23,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 
 	public function isLocked(): bool{
 		$f = __METHOD__;
-		if(!$this->hasValidator()) {
+		if(!$this->hasValidator()){
 			// Debug::print("{$f} form lacks a validator");
 			return true;
 		}
@@ -35,7 +34,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 			Debug::error("{$f} validator is uninitialized. Debug ID is {$did}, declared {$decl}");
 		}
 		$status = $validator->getObjectStatus();
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} validator has error status \"{$err}\"");
 			return true;
@@ -47,21 +46,22 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 	public function getAdHocInputs(): ?array{
 		$f = __METHOD__;
 		try{
+			$mode = $this->getAllocationMode();
 			$inputs = parent::getAdHocInputs();
 			$context = $this->getContext();
-			if($this->isLocked() || ! $context->hasMfaSeed()) {
+			if($this->isLocked() || ! $context->hasMfaSeed()){
 				return $inputs;
 			}
 			$mfa_status = $context->getMFAStatus();
-			switch ($mfa_status) {
+			switch($mfa_status){
 				case MFA_STATUS_ENABLED:
 				case MFA_STATUS_DISABLED:
-					$otp_in1 = new NumberInput();
+					$otp_in1 = new NumberInput($mode);
 					$otp_in1->setIdAttribute("mfa-confirm1");
 					$otp_in1->setNameAttribute("mfa-confirm1");
 					$otp_in1->setLabelString(substitute(_("Verification code %1%"), 1));
 					$otp_in1->setWrapperElement(new DivElement());
-					$otp_in2 = new NumberInput();
+					$otp_in2 = new NumberInput($mode);
 					$otp_in2->setIdAttribute("mfa-confirm2");
 					$otp_in2->setNameAttribute("mfa-confirm2");
 					$otp_in2->setLabelString(substitute(_("Verification code %1%"), 2));
@@ -69,7 +69,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 					foreach([
 						$otp_in1,
 						$otp_in2
-					] as $input) {
+					] as $input){
 						$inputs[$input->getNameAttribute()] = $input;
 						$input->setWrapperElement(
 							Document::createElement("div")->withStyleProperties([
@@ -84,7 +84,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 					Debug::error("{$f} invalid MFA status \"{$mfa_status}\"");
 					return null;
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -111,17 +111,17 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 		try{
 			$context = $this->getContext();
 			$mfa_status = $context->getMFAStatus();
-			if($context->hasMfaSeed()) {
-				if($this->isLocked()) {
+			if($context->hasMfaSeed()){
+				if($this->isLocked()){
 					$map = [
 						DIRECTIVE_VALIDATE
 					];
-					if($mfa_status === MFA_STATUS_DISABLED) {
+					if($mfa_status === MFA_STATUS_DISABLED){
 						array_push($map, DIRECTIVE_REGENERATE);
 						array_push($map, DIRECTIVE_UNSET);
 					}
 					return $map;
-				}elseif($mfa_status) {
+				}elseif($mfa_status){
 					return [
 						DIRECTIVE_UNSET
 					];
@@ -138,7 +138,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 			return [
 				DIRECTIVE_REGENERATE
 			];
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -146,9 +146,9 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
 		try{
-			$input->setWrapperElement(new DivElement());
+			$ret = parent::reconfigureInput($input);
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "password":
 					$input->setNameAttribute("mfa-password");
 					$placeholder = new ConcatenateCommand(
@@ -158,15 +158,15 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 						")"
 					);
 					$input->setLabelString($placeholder);
-					$input->setWrapperElement(Document::createElement("div")->withStyleProperties([
+					$input->getWrapperElement()->setStyleProperties([
 						"margin-top" => "1rem",
 						"position" => "relative"
-					]));
-					return parent::reconfigureInput($input);
+					]);
+					break;
 				default:
-					return parent::reconfigureInput($input);
 			}
-		}catch(Exception $x) {
+			return $ret;
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -176,9 +176,9 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 		try{
 			$enter_password = _("Enter your password");
 			$context = $this->getContext();
-			if($this->isLocked()) {
+			if($this->isLocked()){
 				$div = new DivElement();
-				if($context->hasMfaSeed()) {
+				if($context->hasMfaSeed()){
 					$innerHTML = _("Enter your password to reveal QR code and recovery seed"); 
 				}else{
 					$innerHTML = _("Enter your password to generate a new QR code");
@@ -187,14 +187,14 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 				$this->appendChild($div);
 				return;
 			}
-			if(!$context->hasMfaSeed()) {
+			if(!$context->hasMfaSeed()){
 				$innerHTML = _("Enter your password to generate a new QR code");
 			}else{
 				$mode = $this->getAllocationMode();
 				$qr = new MfaQrCodeElement($mode, $context);
 				$this->appendChild($qr);
 				$mfa_status = $context->getMFAStatus();
-				switch ($mfa_status) {
+				switch($mfa_status){
 					case MFA_STATUS_DISABLED:
 						$innerHTML = _("Enter your password and two consecutive QR codes to enable multifactor authentication");
 						break;
@@ -209,7 +209,7 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 			$div = new DivElement();
 			$div->setInnerHTML($innerHTML);
 			$this->appendChild($div);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -225,17 +225,16 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 	public function getFormDataIndices(): ?array{
 		$d = directive();
 		$map = [];
-		if($d === DIRECTIVE_REGENERATE || $d === DIRECTIVE_UNSET) {
+		if($d === DIRECTIVE_REGENERATE || $d === DIRECTIVE_UNSET){
 			$map['MFASeed'] = GhostInput::class;
 		}
-		if($d === DIRECTIVE_UNSET || $d === DIRECTIVE_UPDATE) {
+		if($d === DIRECTIVE_UNSET || $d === DIRECTIVE_UPDATE){
 			$map['MFAStatus'] = GhostButton::class;
 		}
 		return $map;
 	}
 
-	public function getValidator(): ?Validator
-	{
+	public function getValidator(): ?Validator{
 		$f = __METHOD__;
 		if($this->hasValidator()){
 			return $this->validator;
@@ -244,13 +243,11 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 		return $this->setValidator(new UpdateMfaSettingsValidator($use_case));
 	}
 
-	public static function getMaxHeightRequirement(): string
-	{
+	public static function getMaxHeightRequirement(): string{
 		return "413px";
 	}
 
-	public static function getFormDispatchIdStatic(): ?string
-	{
+	public static function getFormDispatchIdStatic(): ?string{
 		return "mfa_settings";
 	}
 
@@ -264,9 +261,9 @@ class MfaSettingsForm extends ExpandingMenuNestedForm{
 		$has_seed = $context->hasMfaSeed();
 		$mfa_status = $context->getMFAStatus();
 		$button = $this->generateGenericButton($name);
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_REGENERATE:
-				if($this->isLocked() && $has_seed && ! $mfa_status) {
+				if($this->isLocked() && $has_seed && ! $mfa_status){
 					$innerHTML = _("Generate new QR code");
 				}else{
 					$innerHTML = _("Generate QR code");

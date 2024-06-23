@@ -38,8 +38,8 @@ class ActivationForm extends AjaxForm{
 		try{
 			$request = request();
 			$use_case = use_case();
-			if(!$request->hasInputParameter('blob_64', $use_case)) {
-				Debug::error("{$f} blob 64 is undefined dammit");
+			if(!$request->hasInputParameter('blob_64', $use_case)){
+				Debug::error("{$f} blob 64 is undefined");
 			}
 
 			$inputs = parent::getAdHocInputs();
@@ -60,12 +60,12 @@ class ActivationForm extends AjaxForm{
 				$blob_input,
 				$context_input,
 				$login_input
-			] as $input) {
+			] as $input){
 				$inputs[$input->getNameAttribute()] = $input;
 			}
 
 			return $inputs;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -80,7 +80,7 @@ class ActivationForm extends AjaxForm{
 		$f = __METHOD__;
 		try{
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case 'name':
 					$input->setLabelString(_("Username"));
 					break;
@@ -95,7 +95,7 @@ class ActivationForm extends AjaxForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -117,7 +117,7 @@ class ActivationForm extends AjaxForm{
 
 	public function generateButtons(string $directive): ?array{
 		$f = __METHOD__;
-		switch ($directive) {
+		switch($directive){
 			case DIRECTIVE_LOGIN:
 				$button = new ButtonInput();
 				$button->setNameAttribute("directive");

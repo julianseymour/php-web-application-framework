@@ -3,6 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
@@ -20,9 +21,7 @@ abstract class KeypadInput extends InputElement{
 
 	protected $placeholderMode;
 
-	protected $placeholderLabel;
-
-	public function configure(AjaxForm $form): int{
+	public function configure(?AjaxForm $form=null): int{
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
 		if($print){
@@ -41,7 +40,7 @@ abstract class KeypadInput extends InputElement{
 			$this->setFlag("configured", true);
 		}
 		$ret = parent::configure($form);
-		if($this->hasContext()) {
+		if($this->hasContext()){
 			$datum = $this->getContext();
 			$cn = $datum->getName();
 		}else{
@@ -72,29 +71,28 @@ abstract class KeypadInput extends InputElement{
 			}
 		}
 		if($this->hasLabelString()){
-			if($print) {
+			if($print){
 				Debug::print("{$f} label string is defined");
 			}
 			$hrvn = $this->getLabelString();
 			if(
-				!$this instanceof TextareaInput &&
-				(
+				!$this instanceof TextareaInput && (
 					(
 						$this->hasPlaceholderMode() && 
 						$this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK
 					) || config()->getDefaultPlaceholderMode() === INPUT_PLACEHOLDER_MODE_SHRINK
 				)
 			){
-				if($print) {
+				if($print){
 					Debug::print("{$f} placeholder mode is \"shrink\"");
 				}
-				if(!$this instanceof RangeInput) {
-					if($print) {
+				if(!$this instanceof RangeInput){
+					if($print){
 						Debug::print("{$f} this is not a range input");
 					}
 					$this->setPlaceholderAttribute("");
-					if(!$this->hasWrapperElement()) {
-						if($print) {
+					if(!$this->hasWrapperElement()){
+						if($print){
 							Debug::print("{$f} input does not already have a wrapper");
 						}
 						$div1 = new DivElement();
@@ -110,23 +108,23 @@ abstract class KeypadInput extends InputElement{
 						]);
 						$div1->setWrapperElement($div2);
 						$this->setWrapperElement($div1);
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} input already has a wrapper");
 					}
 					$span = new SpanElement($this->getAllocationMode());
 					$span->addClassAttribute("placeholder_label");
 					$span->setInnerHTML($hrvn);
-					$this->unshiftSuccessors($span);
-				}elseif($print) {
+					$this->unshiftSuccessor($span);
+				}elseif($print){
 					Debug::print("{$f} this is a range input");
 				}
-			} elseif(!$this->hasPlaceholderMode() || $this->hasPlaceholderMode() && $this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL || config()->getDefaultPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL){
-				if($print) {
+			}elseif(!$this->hasPlaceholderMode() || $this->hasPlaceholderMode() && $this->getPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL || config()->getDefaultPlaceholderMode() === INPUT_PLACEHOLDER_MODE_NORMAL){
+				if($print){
 					Debug::print("{$f} normal placeholders");
 				}
-				if(!$this->hasPlaceholderAttribute()) {
+				if(!$this->hasPlaceholderAttribute()){
 					$this->setPlaceholderAttribute($hrvn);
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} placeholder attribute is already defined");
 				}
 				if(!$this->hasWrapperElement()){
@@ -141,20 +139,17 @@ abstract class KeypadInput extends InputElement{
 			}elseif($print){
 				Debug::print("{$f} none of the above");
 			}
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} input for column \"{$cn}\" does not have a label string");
 		}
 		return $ret;
 	}
 
 	public function setPlaceholderMode($mode){
-		$f = __METHOD__;
-		$print = false;
-		if($mode === null) {
-			unset($this->placeholderMode);
-			return null;
+		if($this->hasPlaceholderMode()){
+			$this->release($this->placeholderMode);
 		}
-		return $this->placeholderMode = $mode;
+		return $this->placeholderMode = $this->claim($mode);
 	}
 
 	public function hasPlaceholderMode(): bool{
@@ -169,123 +164,72 @@ abstract class KeypadInput extends InputElement{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($txt instanceof ValueReturningCommandInterface) {
-				while ($txt instanceof ValueReturningCommandInterface) {
+			if($txt instanceof ValueReturningCommandInterface){
+				while($txt instanceof ValueReturningCommandInterface){
 					$txt = $txt->evaluate();
 				}
 			}
 			$formatted = str_replace("\"", "\\\"", $txt);
 			$this->setAttribute("placeholder", $formatted);
-			if(empty($formatted)) {
+			if(empty($formatted)){
 				return $this->getPlaceholderAttribute();
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} returning \"{$formatted}\"");
 			}
 			return $this->getPlaceholderAttribute();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function hasPlaceholderLabel()
-	{
-		return isset($this->placeholderLabel);
-	}
-
-	protected function generateSuccessors(): ?array{
+	public function hasPlaceholderAttribute():bool{
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
-			Debug::print("{$f} entered; about to call parent function");
-		}
-		$nodes = $this->ejectSuccessors(); // parent::generateSuccessors();
-		if(!$this->hasPlaceholderLabel()) {
-			if($print) {
-				Debug::print("{$f} placeholder label is undefined");
-			}
-			return $nodes;
-		}elseif($print) {
-			Debug::print("{$f} placeholder label is defined -- about to unshift it");
-		}
-		if(empty($nodes)) {
-			if($print) {
-				Debug::print("{$f} there are no other successors");
-			}
-			$nodes = [
-				$this->placeholderLabel
-			];
-		}else{
-			if($print) {
-				Debug::print("{$f} unshifting placeholder label before existing successors");
-			}
-			array_unshift($nodes, $this->placeholderLabel);
-		}
-		if($print) {
-			$count = count($nodes);
-			Debug::print("{$f} returning {$count} nodes");
-			foreach($nodes as $n) {
-				Debug::print("{$f} {$n}");
-			}
-		}
-		return $nodes;
-	}
-
-	public function hasPlaceholderAttribute(){
-		$f = __METHOD__;
-		$print = false;
-		if($this->hasAttribute("placeholder")) {
-			if($print) {
+		if($this->hasAttribute("placeholder")){
+			if($print){
 				Debug::print("{$f} yes, this input has a placeholder attribute");
 			}
-			if(!empty($this->getAttribute("placeholder"))) {
-				if($print) {
+			if(!empty($this->getAttribute("placeholder"))){
+				if($print){
 					Debug::print("{$f} this input's placeholder attribute is not empty");
 				}
 				return true;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} unfortunately, this input's placeholder attribute is empty");
 			}
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} this input does not have a placeholder attribute");
 		}
 		return false;
 	}
 
-	public function getPlaceholderAttribute()
-	{
+	public function getPlaceholderAttribute(){
 		return $this->getAttribute("placeholder");
 	}
 
-	public function getAllowEmptyInnerHTML()
-	{
+	public function getAllowEmptyInnerHTML():bool{
 		return true;
 	}
 
-	public function setDirectionNameAttribute($value)
-	{
+	public function setDirectionNameAttribute($value){
 		return $this->setAttribute("dirname", $value);
 	}
 
-	public function hasDirectionNameAttribute()
-	{
+	public function hasDirectionNameAttribute():bool{
 		return $this->hasAttribute("dirname");
 	}
 
-	public function getDirectionNameAttribute()
-	{
+	public function getDirectionNameAttribute(){
 		return $this->getAttribute("dirname");
 	}
 
-	public function directionName($value)
-	{
+	public function directionName($value){
 		$this->setAttribute("dirname", $value);
 		return $this;
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		// unset($this->placeholderLabel);
-		unset($this->placeholderMode);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->placeholderMode, $deallocate);
 	}
 }

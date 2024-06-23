@@ -186,9 +186,6 @@ class AjaxForm extends Basic{
 				console.log(f+": submitter is object of class "+submitter.constructor.name);
 				console.log(submitter.form.onsubmit.toString());
 			}
-			//submitter.style['pointer-events'] = 'none';
-			//submitter.style['cursor'] = 'not-allowed';
-			
 			let form = submitter.form;
 			if(print){
 				let str = "";
@@ -198,7 +195,6 @@ class AjaxForm extends Basic{
 				console.log(str);
 			}
 			let evh = form.onsubmit;
-			
 			if(!isset(evh)){//XXX find a way to circumvent this if it's one of the few forms that naturally does not have a submit event handler
 				if(form.getAttribute("nosubmit") == 1){
 					if(print){
@@ -213,7 +209,6 @@ class AjaxForm extends Basic{
 				console.log(f+": about to log form's event handler");
 				console.log(evh);
 			}
-			
 			let valid = true;
 			let inputs = form.elements;
 			for(let i = 0; i < inputs.length; i++){
@@ -227,7 +222,6 @@ class AjaxForm extends Basic{
 					break;
 				}
 			}
-			
 			if(valid){
 				if(print){
 					console.log(f+": about to get loading container");
@@ -317,8 +311,6 @@ class AjaxForm extends Basic{
 			}else{
 				let x = "Form \"".concat(form_id).concat("\" already has an event handler assigned");
 				console.error(x);
-				//form.onsubmit = null;
-				//return error(f, x);
 			}
 			if(print){
 				console.log(f+": form has ID \""+form.id+"\"");
@@ -328,7 +320,7 @@ class AjaxForm extends Basic{
 					event.preventDefault();
 					form.setAttribute("disabled", "1");
 					let f = "submit event listener";
-					let print = form.id == "notify_form";
+					let print = false;
 					if(print){
 						let err = f+": about to submit form ID \""+form_id+"\"";
 						window.alert(err);
@@ -355,10 +347,6 @@ class AjaxForm extends Basic{
 								console.log(f+": form submitted successfully; about to terminate loading animation on loading container "+load_id);
 							}
 							let load_c = document.getElementById(load_id);
-							/*if(!load_c.hasAttribute("button")){
-								let err = "Button ID attribute not found";
-								return error(f, err);
-							}*/
 							form.removeAttribute("disabled");
 							AjaxForm.terminateLoadAnimation(load_id);
 							resetSessionTimeoutAnimation(true);
@@ -398,7 +386,7 @@ class AjaxForm extends Basic{
 			evh = form.onsubmit;
 			if(typeof evh == 'undefined'){
 				if(print){
-					console.log(f+": form's submit event is undefined"); //XXX mobile chrome stops here
+					console.log(f+": form's submit event is undefined");
 				}
 				return;
 			}
@@ -455,13 +443,13 @@ class AjaxForm extends Basic{
 	 * this cannot be declared inline in setSubmitFormHandler because the messenger also uses it without going through the load animation sequence
 	 * @param form : form element to submit
 	 * @param callback_success : callback for when the XHR is successful
-	 * @param callback_error : callback invoked if somthing fucks up
+	 * @param callback_error : callback invoked if an error occurs
 	 * @returns void
 	 */
 	static submitForm(form, callback_success, callback_error){
 		let f = "AjaxForm.submitForm()";
 		try{
-			let print = form.id == "notify_Form";
+			let print = false;
 			if(print){
 				console.log(f+": entered");
 			}
@@ -541,14 +529,4 @@ class AjaxForm extends Basic{
 			error(f, x);
 		}
 	}
-	
-	/*static softDisableInputs(){
-		let f = "softDisableInputs()";
-		try{
-			let prinbt = true;
-			let forms = 
-		}catch(x){
-			error(f, x);
-		}
-	}*/
 }

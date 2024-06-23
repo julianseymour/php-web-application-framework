@@ -2,18 +2,14 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\account\correspondent;
 
-use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
-use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
 use Exception;
 use mysqli;
 
 trait CorrespondentKeyColumnTrait{
-
-	use MultipleColumnDefiningTrait;
 
 	public abstract function getIdentifierValue();
 
@@ -28,7 +24,7 @@ trait CorrespondentKeyColumnTrait{
 	public function getCorrespondentDisplayName():string{
 		$f = __METHOD__;
 		$correspondent = $this->getCorrespondentObject();
-		if($correspondent == null) {
+		if($correspondent == null){
 			Debug::error("{$f} correspondent object is undefined");
 		}
 		return $correspondent->getDisplayName();
@@ -113,7 +109,7 @@ trait CorrespondentKeyColumnTrait{
 	 */
 	public function getCorrespondentObject():UserData{
 		$f = __METHOD__;
-		if(!$this->hasCorrespondentObject()) {
+		if(!$this->hasCorrespondentObject()){
 			$correspondentKey = $this->getCorrespondentKey();
 			$key = $this->getIdentifierValue();
 			Debug::error("{$f} correspondent object with key \"{$correspondentKey}\" is undefined for object with key \"{$key}\"");
@@ -123,11 +119,11 @@ trait CorrespondentKeyColumnTrait{
 
 	public function acquireCorrespondentObject(mysqli $mysqli){
 		$f = __METHOD__;
-		if($this->hasCorrespondentObject()) {
+		if($this->hasCorrespondentObject()){
 			return $this->getCorrespondentObject();
 		}
 		$correspondent = $this->acquireForeignDataStructure($mysqli, 'correspondentKey');
-		if($correspondent === null) {
+		if($correspondent === null){
 			Debug::error("{$f} acquireForeignDataStructure returned null");
 		}
 		return $this->setCorrespondentObject($correspondent);
@@ -160,12 +156,12 @@ trait CorrespondentKeyColumnTrait{
 	public function getCorrespondentSerialNumber():int{
 		$f = __METHOD__;
 		try{
-			if(!$this->hasCorrespondentObject()) {
+			if(!$this->hasCorrespondentObject()){
 				Debug::error("{$f} correspondent object is undefined");
 				$this->setObjectStatus(ERROR_NULL_CORRESPONDENT_OBJECT);
 			}
 			return $this->getCorrespondentObject()->getSerialNumber();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

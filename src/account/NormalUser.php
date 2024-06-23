@@ -16,7 +16,7 @@ use Exception;
 
 class NormalUser extends AuthenticatedUser{
 
-	public static function getAccountTypeStatic():string{
+	public static function getSubtypeStatic():string{
 		return ACCOUNT_TYPE_USER;
 	}
 
@@ -54,7 +54,7 @@ class NormalUser extends AuthenticatedUser{
 
 	public function getStaticRoles(): ?array{
 		$roles = parent::getStaticRoles();
-		if($this->hasActivationTimestamp()) {
+		if($this->hasActivationTimestamp()){
 			$roles["active"] = 'active';
 		}else{
 			$roles['inactive'] = 'inactive';
@@ -92,7 +92,7 @@ class NormalUser extends AuthenticatedUser{
 			];
 			$kyc->setValidEnumerationMap($map);
 			array_push($columns, $kyc, $active_t);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -102,7 +102,7 @@ class NormalUser extends AuthenticatedUser{
 	}
 
 	public function getAccountType():string{
-		return static::getAccountTypeStatic();
+		return static::getSubtypeStatic();
 	}
 
 	public static function getPrettyClassName():string{
@@ -116,7 +116,7 @@ class NormalUser extends AuthenticatedUser{
 	public static function checkUserExists(mysqli $mysqli, string $key):bool{
 		$f = __METHOD__; 
 		$user = static::getObjectFromKey($mysqli, $key);
-		if($user === null || $user->getObjectStats() !== SUCCESS) {
+		if($user === null || $user->getObjectStats() !== SUCCESS){
 			Debug::warning("{$f} user with key {$key} doesn't exist");
 			return false;
 		}else{

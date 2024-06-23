@@ -13,7 +13,7 @@ class ClearUserCacheForm extends AjaxForm{
 
 	public function generateButtons(string $directive): ?array{
 		$f = __METHOD__; //ClearUserCacheForm::getShortClass()."(".static::getShortClass().")->generateButtons()";
-		switch ($directive) {
+		switch($directive){
 			case DIRECTIVE_SUBMIT:
 				$button = $this->generateGenericButton($directive);
 				$button->setInnerHTML(_("Clear cache"));

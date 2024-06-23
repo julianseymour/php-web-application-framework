@@ -52,7 +52,7 @@ class CloseMenuLabel extends LabelElement{
 			return [
 				$close_menu_label
 			];
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

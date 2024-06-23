@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
@@ -20,19 +21,19 @@ class HasColumnValueCommand extends ColumnValueCommand{
 		try{
 			$print = $this->getDebugFlag();
 			$context = $this->getDataStructure();
-			while ($context instanceof ValueReturningCommandInterface) {
+			while($context instanceof ValueReturningCommandInterface){
 				$context = $context->evaluate();
 			}
 			$vn = $this->getColumnName();
-			while ($vn instanceof ValueReturningCommandInterface) {
+			while($vn instanceof ValueReturningCommandInterface){
 				$vn = $vn->evaluate();
 			}
-			if($print) {
-				$key = $context->getIdentifierValue();
+			if($print){
+				$key = $context->hasIdentifierValue() ? $context->getIdentifierValue() : "[unidentifiable]";
 				$sc = get_short_class($context);
 				$did = $context->getDebugId();
 				$decl = $context->getDeclarationLine();
-				if($context->hasColumnValue($vn)) {
+				if($context->hasColumnValue($vn)){
 					$value = $context->getColumnValue($vn);
 					Debug::print("{$f} yes, context of class \"{$sc}\" with key \"{$key}\" has a value for column \"{$vn}\", and its \"{$value}\"");
 				}else{
@@ -40,16 +41,16 @@ class HasColumnValueCommand extends ColumnValueCommand{
 				}
 			}
 			return $context->hasColumnValue($vn);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function getConditionalString(){
+	public function getConditionalString():string{
 		return $this->__toString();
 	}
 
-	public function negate(): NegationCommand{
+	public function negate():NegationCommand{
 		return CommandBuilder::negate($this);
 	}
 }

@@ -1,11 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\email;
 
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\notification\NoteworthyTrait;
 
-trait EmailNoteworthyTrait
-{
+trait EmailNoteworthyTrait{
 
 	use NoteworthyTrait;
 

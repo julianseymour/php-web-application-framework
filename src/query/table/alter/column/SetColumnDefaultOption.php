@@ -26,8 +26,8 @@ class SetColumnDefault extends AlterColumnOption
 
 	public function getDefault()
 	{
-		if($this->hasDefault()) {
-			if(is_string($this->default)) {
+		if($this->hasDefault()){
+			if(is_string($this->default)){
 				return escape_quotes($this->default, QUOTE_STYLE_SINGLE);
 			}
 			return $this->default;

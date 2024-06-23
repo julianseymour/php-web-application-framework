@@ -27,6 +27,7 @@ class TranslatedStringData extends DataStructure implements StaticDatabaseNameIn
 		$value = new TextDatum("value");
 		$value->setFulltextFlag(true);
 		$value->setAdminInterfaceFlag(true);
+		$value->setNullable(true);
 		$columns = [
 			$multi,
 			$value
@@ -43,7 +44,7 @@ class TranslatedStringData extends DataStructure implements StaticDatabaseNameIn
 	
 	protected function afterSetForeignDataStructureHook(string $column_name, DataStructure $struct): int{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		$ret = parent::afterSetForeignDataStructureHook($column_name, $struct);
 		if($column_name === "multilingualStringKey"){
 			if($print){
@@ -64,16 +65,20 @@ class TranslatedStringData extends DataStructure implements StaticDatabaseNameIn
 					if($tsk->hasConverseRelationshipKeyName()){
 						$subject = $struct->getForeignDataStructure('translatedObjectKey');
 						$crkn = $tsk->getConverseRelationshipKeyName();
-						$column = $subject->getColumn($crkn);
-						if($column->hasHumanReadableName()){
-							$lang = Internationalization::getLanguageNameFromCode($code);
-							$hrn = $column->getHumanReadableName()." ({$lang})";
-							$this->getColumn('value')->setHumanReadableName($hrn);
-							if($print){
-								Debug::print("{$f} set human readable name to \"{$hrn}\"");
+						if($subject->hasColumn($crkn)){
+							$column = $subject->getColumn($crkn);
+							if($column->hasHumanReadableName()){
+								$lang = Internationalization::getLanguageNameFromCode($code);
+								$hrn = $column->getHumanReadableName()." ({$lang})";
+								$this->getColumn('value')->setHumanReadableName($hrn);
+								if($print){
+									Debug::print("{$f} set human readable name to \"{$hrn}\"");
+								}
+							}elseif($print){
+								Debug::print("{$f} the column we're translating ({$crkn}) doesn't have a human readable name");
 							}
 						}elseif($print){
-							Debug::print("{$f} the column we're translating ({$crkn}) doesn't have a human readable name");
+							Debug::print("{$f} subject ".$subject->getDebugString()." does not have a column \"{$crkn}\"");
 						}
 					}elseif($print){
 						Debug::print("{$f} translated object key column does not know its converse relationship key name");
@@ -86,5 +91,17 @@ class TranslatedStringData extends DataStructure implements StaticDatabaseNameIn
 			}
 		}
 		return $ret;
+	}
+	
+	public function hasValue():bool{
+		return $this->hasColumnValue('value');
+	}
+	
+	public function setValue($value){
+		return $this->setColumnValue('value', $value);
+	}
+	
+	public function getValue(){
+		return $this->getColumnValue('value');
 	}
 }

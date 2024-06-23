@@ -102,14 +102,14 @@ abstract class UserFingerprint extends UserOwned
 	protected function afterGenerateInitialValuesHook(): int
 	{
 		$f = __METHOD__; //UserFingerprint::getShortClass()."(".static::getShortClass().")->afterGenerateInitialValuesHook()";
-		if($this->hasColumn("userAgent")) {
-			if(! isset($_SERVER['HTTP_USER_AGENT'])) {
+		if($this->hasColumn("userAgent")){
+			if(!isset($_SERVER['HTTP_USER_AGENT'])){
 				Debug::warning("{$f} HTTP user agent is undefined");
 			}else{
 				$this->setUserAgent($_SERVER['HTTP_USER_AGENT']);
 			}
 		}
-		if($this->hasColumn("reasonLogged") && ! $this->hasReasonLogged()) {
+		if($this->hasColumn("reasonLogged") && ! $this->hasReasonLogged()){
 			$this->setReasonLogged(BECAUSE_NOREASON);
 		}
 		return parent::afterGenerateInitialValuesHook();
@@ -118,7 +118,7 @@ abstract class UserFingerprint extends UserOwned
 	public function getVirtualColumnValue(string $column_name)
 	{
 		// $f = __METHOD__;
-		switch ($column_name) {
+		switch($column_name){
 			case "dismissable":
 				return $this->isDismissable();
 			case "reasonLoggedString":
@@ -131,7 +131,7 @@ abstract class UserFingerprint extends UserOwned
 
 	public function hasVirtualColumnValue(string $column_name): bool
 	{
-		switch ($column_name) {
+		switch($column_name){
 			case "dismissable":
 				return $this->isDismissable();
 			case "reasonLoggedString":
@@ -145,16 +145,16 @@ abstract class UserFingerprint extends UserOwned
 	{
 		$f = __METHOD__;
 		$config = parent::getArrayMembershipConfiguration($config_id);
-		foreach(array_keys($config) as $column_name) {
-			if(!$this->hasColumn($column_name)) {
+		foreach(array_keys($config) as $column_name){
+			if(!$this->hasColumn($column_name)){
 				Debug::error("{$f} datum \"{$column_name}\" does not exist");
 			}
 		}
 		// Debug::print("{$f} parent function returned the following array:");
 		// Debug::printArray($config);
-		switch ($config_id) {
+		switch($config_id){
 			case "default":
-				if($this->hasColumn("reasonLoggedString")) {
+				if($this->hasColumn("reasonLoggedString")){
 					$config['reasonLoggedString'] = true;
 				}
 			default:
@@ -169,8 +169,8 @@ abstract class UserFingerprint extends UserOwned
 		// $ip = new IpAddressDatum("ipAddress", "ip");
 		$user_agent = new TextDatum("userAgent"); // we could use the name field for this, but we'll need that for filtering by login username as well
 		$user_agent->setNullable(true);
-		$closure = function (TextDatum $d) {
-			if(isset($_SERVER['HTTP_USER_AGENT'])) {
+		$closure = function (TextDatum $d){
+			if(isset($_SERVER['HTTP_USER_AGENT'])){
 				$d->setValue($_SERVER['HTTP_USER_AGENT']);
 			}else{
 				$d->setValue("");
@@ -212,7 +212,7 @@ abstract class UserFingerprint extends UserOwned
 	public static function getReasonLoggedStringStatic($reason){
 		$f = __METHOD__;
 		try{
-			switch ($reason) {
+			switch($reason){
 				case BECAUSE_USER:
 					return _("User submitted");
 				case BECAUSE_REGISTER:
@@ -241,7 +241,7 @@ abstract class UserFingerprint extends UserOwned
 				default:
 					return _("No reason");
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -255,7 +255,7 @@ abstract class UserFingerprint extends UserOwned
 	}
 
 	public function generateExpiredTimestamp(){
-		if($this->hasInsertTimestamp()) {
+		if($this->hasInsertTimestamp()){
 			return $this->getExpiredTimestamp();
 		}
 		return $this->generateInsertTimestamp() - LOCKOUT_DURATION;

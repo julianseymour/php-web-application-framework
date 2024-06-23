@@ -17,7 +17,7 @@ trait NameColumnTrait{
 
 	public function setName(string $name): string{
 		$f = __METHOD__;
-		if($this->hasColumn("normalizedName")) {
+		if($this->hasColumn("normalizedName")){
 			$this->setNormalizedName(NameDatum::normalize($name));
 		}
 		return $this->setColumnValue("name", $name);

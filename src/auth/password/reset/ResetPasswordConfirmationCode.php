@@ -28,12 +28,12 @@ class ResetPasswordConfirmationCode extends AnonymousConfirmationCode{
 		try{
 			// Debug::print("{$f} entered");
 			$post = getInputParameters();
-			if(! isset($post['select_login_forgot'])) {
+			if(!isset($post['select_login_forgot'])){
 				Debug::warning("{$f} reason logged is undefined");
 				$reason = BECAUSE_NOREASON;
 			}else{
 				$mode = $post['select_login_forgot'];
-				switch ($mode) {
+				switch($mode){
 					case 'forgot_password':
 						$reason = BECAUSE_FORGOTPASS;
 						break;
@@ -51,7 +51,7 @@ class ResetPasswordConfirmationCode extends AnonymousConfirmationCode{
 			$status = parent::afterGenerateInitialValuesHook();
 			Debug::print("{$f} returning normally");
 			return $status;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -82,9 +82,9 @@ class ResetPasswordConfirmationCode extends AnonymousConfirmationCode{
 
 	public static function getPermissionStatic(string $name, $data){
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
-				if(user() instanceof AnonymousUser) {
+				if(user() instanceof AnonymousUser){
 					Debug::print("{$f} current user is guest -- this should succeed");
 				}
 				return new AnonymousAccountTypePermission($name);

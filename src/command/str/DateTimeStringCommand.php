@@ -8,7 +8,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use DateTimeZone;
 
-class DateTimeStringCommand extends DateStringCommand{
+class DateTimeStringCommand extends AbstractDateTimeStringCommand{
 
 	public static function getCommandId(): string{
 		return "DateTime";
@@ -17,7 +17,7 @@ class DateTimeStringCommand extends DateStringCommand{
 	public function evaluate(?array $params = null){
 		$f = __METHOD__;
 		$ts = $this->getSubject();
-		while ($ts instanceof ValueReturningCommandInterface) {
+		while($ts instanceof ValueReturningCommandInterface){
 			$ts = $ts->evaluate();
 		}
 		if($ts === null){
@@ -25,15 +25,15 @@ class DateTimeStringCommand extends DateStringCommand{
 			Debug::error("{$f} timestamp is null. INstantiated {$decl}");
 		}
 		$timezone = $this->getTimezone();
-		while ($timezone instanceof ValueReturningCommandInterface) {
+		while($timezone instanceof ValueReturningCommandInterface){
 			$timezone = $timezone->evaluate();
 		}
 		if(!in_array($timezone, DateTimeZone::listIdentifiers())){
 			$timezone = date_default_timezone_get();
 		}
-		if($this->hasFormat()) {
+		if($this->hasFormat()){
 			$format = $this->getFormat();
-			while ($format instanceof ValueReturningCommandInterface) {
+			while($format instanceof ValueReturningCommandInterface){
 				$format = $format->evaluate();
 			}
 		}else{
@@ -44,7 +44,7 @@ class DateTimeStringCommand extends DateStringCommand{
 
 	public function toJavaScript(): string{
 		$ts = $this->getSubject();
-		if($ts instanceof JavaScriptInterface) {
+		if($ts instanceof JavaScriptInterface){
 			$ts = $ts->toJavaScript();
 		}
 		return "parseTimestamp({$ts})";

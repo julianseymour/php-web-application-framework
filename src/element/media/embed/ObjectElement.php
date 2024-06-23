@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element\media\embed;
 
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
@@ -7,8 +8,7 @@ use JulianSeymour\PHPWebApplicationFramework\element\attributes\FormAttributeTra
 use JulianSeymour\PHPWebApplicationFramework\element\attributes\NameAttributeTrait;
 use JulianSeymour\PHPWebApplicationFramework\element\attributes\TypeAttributeTrait;
 
-class ObjectElement extends Element
-{
+class ObjectElement extends Element{
 
 	use DimensionAttributesTrait;
 	use FormAttributeTrait;
@@ -16,15 +16,26 @@ class ObjectElement extends Element
 	use TypeAttributeTrait;
 
 	// XXX data, typemustmatch, usemap
-	public static function getElementTagStatic(): string
-	{
+	public static function getElementTagStatic(): string{
 		return "object";
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"useFormAttribute"
 		]);
+	}
+	
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"useForAttribute"
+		]);
+	}
+	
+	public function dispose(bool $deallocate=false):void{
+		if($this->hasForm()){
+			$this->releaseForm($deallocate);
+		}
+		parent::dispose($deallocate);
 	}
 }

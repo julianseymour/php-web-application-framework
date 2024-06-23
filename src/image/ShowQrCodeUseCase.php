@@ -39,14 +39,14 @@ class ShowQrCodeUseCase extends UseCase{
 			return;
 		}
 		$segments = $request->getRequestURISegments();
-		if($print) {
+		if($print){
 			Debug::print("{$f} segments[1] is \"{$segments[1]}\"");
 		}
 		$data = base64url_decode($segments[1]);
-		if($print) {
+		if($print){
 			Debug::print("{$f} base 64 decoded data is \"{$data}\"");
 		}
-		if(! interface_exists(QROutputInterface::class)) {
+		if(! interface_exists(QROutputInterface::class)){
 			Debug::error("{$f} QROutputInterface does not exist");
 		}else{
 			Debug::print("{$f} QROutputInterface exists, congratulations");
@@ -107,7 +107,7 @@ class ShowQrCodeUseCase extends UseCase{
 		]);
 		try{
 			$im = (new QRCode($options))->render($data);
-		}catch(Throwable $e) {
+		}catch(Throwable $e){
 			exit($e->getMessage());
 		}
 		header('Content-type: image/png');

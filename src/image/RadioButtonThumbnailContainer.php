@@ -1,18 +1,20 @@
 <?php
-namespace JulianSeymour\PHPWebApplicationFramework\image;
 
+namespace JulianSeymour\PHPWebApplicationFramework\image;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
 use JulianSeymour\PHPWebApplicationFramework\input\RadioButtonInput;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
-class RadioButtonThumbnailContainer extends RadioButtonInput
-{
+ErrorMessage::deprecated(__FILE__);
 
-	protected function generateSuccessors(): array{
-		$f = __METHOD__; //RadioButtonThumbnailContainer::getShortClass()."(".static::getShortClass().")->generateSuccessors()";
+class RadioButtonThumbnailContainer extends RadioButtonInput{
+
+	protected function getSelfGeneratedSuccessors(): array{
+		$f = __METHOD__;
 		$value = $this->getValueAttribute();
-		if(empty($value)) {
+		if(empty($value)){
 			$span = new SpanElement();
 			$span->setAllowEmptyInnerHTML(true);
 			$span->setInnerHTML("Nothing");
@@ -20,13 +22,11 @@ class RadioButtonThumbnailContainer extends RadioButtonInput
 				$span
 			];
 		}
-		$ds = $this->getMutex()
-			->getContext()
-			->getDataStructure();
+		$ds = $this->getMutex()->getContext()->getDataStructure();
 		$tree_name = ImageData::getPhylumName();
 		$images = $ds->hasForeignDataStructureList($tree_name) ? $ds->getForeignDataStructureList($tree_name) : [];
-		foreach($images as $image) {
-			if($image->getIdentifierValue() === $this->getValueAttribute()) {
+		foreach($images as $image){
+			if($image->getIdentifierValue() === $this->getValueAttribute()){
 				Debug::print("{$f} value match -- about to print thumbnail");
 				$img = new ImageElement();
 				$img->setSourceAttribute($image->getWebThumbnailPath());

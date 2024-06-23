@@ -13,7 +13,7 @@ class SetUniversalFormActionCommand extends Command
 	public function __construct($action = null)
 	{
 		parent::__construct();
-		if($action !== null) {
+		if($action !== null){
 			$this->setUri($action);
 		}
 	}

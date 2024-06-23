@@ -12,7 +12,7 @@ abstract class ValidateAnonymousConfirmationCodeUseCase extends ValidateConfirma
 		$f = __METHOD__;
 		try{
 			return true;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

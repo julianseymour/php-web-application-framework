@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\query\database;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 trait DatabaseNameTrait{
@@ -10,13 +12,12 @@ trait DatabaseNameTrait{
 
 	public function setDatabaseName(?string $db):?string{
 		$f = __METHOD__;
-		if($db == null) {
-			unset($this->databaseName);
-			return null;
-		}elseif(!is_string($db)) {
+		if(!is_string($db)){
 			Debug::error("{$f} database name must be a string");
+		}elseif($this->hasDatabaseName()){
+			$this->release($this->databaseName);
 		}
-		return $this->databaseName = $db;
+		return $this->databaseName = $this->claim($db);
 	}
 
 	public function hasDatabaseName():bool{

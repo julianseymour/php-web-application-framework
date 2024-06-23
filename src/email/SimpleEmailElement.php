@@ -37,7 +37,7 @@ class SimpleEmailElement extends DivElement{
 			$div->setInnerHTML($context->getPlaintextBody());
 			$middle->appendChild($div);
 			return $middle;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -51,6 +51,6 @@ class SimpleEmailElement extends DivElement{
 		$body = $this->getBodyElement();
 		$footer = new EmailFooterElement($mode, $context);
 		$this->appendChild($header, $body, $footer);
-		return $this->getChildNodes();
+		return $this->hasChildNodes() ? $this->getChildNodes() : [];
 	}
 }

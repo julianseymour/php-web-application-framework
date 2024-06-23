@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\file\pdf;
 
+use JulianSeymour\PHPWebApplicationFramework\common\ContextualTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
@@ -9,15 +10,15 @@ use JulianSeymour\PHPWebApplicationFramework\file\CleartextFileData;
 
 class PDFData extends CleartextFileData{
 
+	use ContextualTrait;
+	
 	protected $element;
-
-	protected $context;
 
 	protected $fileGenerationMode;
 
 	public function getWebFileDirectory():string{
 		$dir = '/pdf/';
-		if($this->getFileGenerationMode() === FILE_GENERATION_MODE_DOMPDF) {
+		if($this->getFileGenerationMode() === FILE_GENERATION_MODE_DOMPDF){
 			$context = $this->getContext();
 			$key = $context->getIdentifierValue();
 			$datatype = $context->getDataType();
@@ -45,34 +46,21 @@ class PDFData extends CleartextFileData{
 		ErrorMessage::unimplemented(__METHOD__);
 	}
 
-	public function hasContext():bool{
-		return isset($this->context);
-	}
-
 	public function setContext($context){
-		$this->context = $context;
 		$this->setFileGenerationMode(FILE_GENERATION_MODE_DOMPDF);
-		return $this->getContext();
-	}
-
-	public function getContext()
-	{
-		$f = __METHOD__; //PDFData::getShortClass()."(".static::getShortClass().")->getContext()";
-		if(!$this->hasContext()) {
-			Debug::error("{$f} context is undefined");
+		if($this->hasContext()){
+			$this->releaseContext();
 		}
-		return $this->context;
+		return $this->context = $this->claim($context);
 	}
 
-	public function hasElement()
-	{
+	public function hasElement():bool{
 		return isset($this->element) && is_object($this->element) && $this->element instanceof Element;
 	}
 
-	public function setElement($element)
-	{
+	public function setElement($element){
 		$this->element = $element;
-		if($element->hasContext()) {
+		if($element->hasContext()){
 			$this->setContext($element->getContext());
 		}else{
 			$this->setFileGenerationMode(FILE_GENERATION_MODE_DOMPDF);
@@ -80,22 +68,19 @@ class PDFData extends CleartextFileData{
 		return $this->getElement();
 	}
 
-	public function getElement()
-	{
-		$f = __METHOD__; //PDFData::getShortClass()."(".static::getShortClass().")->getElement()";
-		if(!$this->hasElement()) {
+	public function getElement(){
+		$f = __METHOD__;
+		if(!$this->hasElement()){
 			Debug::error("{$f} element is undefined");
 		}
 		return $this->element;
 	}
 
-	public function getFileGenerationMode()
-	{
+	public function getFileGenerationMode(){
 		return $this->fileGenerationMode;
 	}
 
-	public function setFileGenerationMode($mode)
-	{
+	public function setFileGenerationMode($mode){
 		return $this->fileGenerationMode = $mode;
 	}
 
@@ -104,8 +89,7 @@ class PDFData extends CleartextFileData{
 	 *
 	 * @param Element $element
 	 */
-	public static function validateDompdfCompatibility(Element $element)
-	{
+	public static function validateDompdfCompatibility(Element $element){
 		// list of incompatible tags:
 		$incompatible = [
 			"button",
@@ -119,12 +103,12 @@ class PDFData extends CleartextFileData{
 			"textarea",
 			"thead"
 		];
-		if(in_array($element->getElemenTag(), $incompatible, true)) {
+		if(in_array($element->getElemenTag(), $incompatible, true)){
 			return false;
 		}
-		if($element->hasChildNodes()) {
-			foreach($element->getChildNodes() as $child) {
-				if(! static::validateDompdfCompatibility($child)) {
+		if($element->hasChildNodes()){
+			foreach($element->getChildNodes() as $child){
+				if(! static::validateDompdfCompatibility($child)){
 					return false;
 				}
 			}
@@ -134,16 +118,16 @@ class PDFData extends CleartextFileData{
 
 	public function outputFileToBrowser():void{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
-		if($this->getFileGenerationMode() !== FILE_GENERATION_MODE_DOMPDF) {
+		$print = false && $this->getDebugFlag();
+		if($this->getFileGenerationMode() !== FILE_GENERATION_MODE_DOMPDF){
 			parent::outputFileToBrowser();
 			return;
-		}elseif($this->hasElement()) {
+		}elseif($this->hasElement()){
 			$element = $this->getElement();
-			if($element->getAllocationMode() !== ALLOCATION_MODE_DOMPDF_COMPATIBLE) {
+			if($element->getAllocationMode() !== ALLOCATION_MODE_DOMPDF_COMPATIBLE){
 				Debug::error("{$f} child generation mode must be DOMPDF-compatible");
 			}
-		}elseif(!$this->hasElementClass()) {
+		}elseif(!$this->hasElementClass()){
 			Debug::error("{$f} element class is undefined");
 		}else{
 			$ec = $this->getElementClass();

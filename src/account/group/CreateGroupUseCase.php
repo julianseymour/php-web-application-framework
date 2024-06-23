@@ -72,12 +72,12 @@ class CreateGroupUseCase extends InteractiveUseCase
 	{
 		$f = __METHOD__;
 		$print = false;
-		if(request()->matchDirective(DIRECTIVE_INSERT) && request()->matchForm(CreateGroupForm::class)) {
-			if($print) {
+		if(request()->matchDirective(DIRECTIVE_INSERT) && request()->matchForm(CreateGroupForm::class)){
+			if($print){
 				Debug::print("{$f} we are creating a new group");
 			}
 			return DATATYPE_GROUP_INVITE;
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} ");
 		}
 	}
@@ -99,10 +99,10 @@ class CreateGroupUseCase extends InteractiveUseCase
 	}
 
 	public function getResponder(int $status): ?Responder{
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			return parent::getResponder($status);
 		}
-		switch (directive()) {
+		switch(directive()){
 			case DIRECTIVE_INSERT:
 				return new InsertAfterResponder();
 			default:
@@ -113,8 +113,8 @@ class CreateGroupUseCase extends InteractiveUseCase
 	public function getPageContent(): ?array{
 		$mode = ALLOCATION_MODE_LAZY;
 		$elements = [];
-		if(user()->hasForeignDataStructureList(GroupData::getPhylumName())) {
-			foreach(user()->getForeignDataStructureList(GroupData::getPhylumName()) as $group) {
+		if(user()->hasForeignDataStructureList(GroupData::getPhylumName())){
+			foreach(user()->getForeignDataStructureList(GroupData::getPhylumName()) as $group){
 				array_push($elements, new EditGroupForm($mode, $group));
 			}
 		}

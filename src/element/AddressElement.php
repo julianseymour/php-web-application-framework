@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element;
 
 /**
@@ -6,11 +7,9 @@ namespace JulianSeymour\PHPWebApplicationFramework\element;
  *
  * @author j
  */
-class AddressElement extends Element
-{
+class AddressElement extends Element{
 
-	public static function getElementTagStatic(): string
-	{
+	public static function getElementTagStatic(): string{
 		return "address";
 	}
 }

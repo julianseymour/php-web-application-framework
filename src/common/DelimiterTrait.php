@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 trait DelimiterTrait{
@@ -10,7 +12,7 @@ trait DelimiterTrait{
 	
 	public function getDelimiter(): string{
 		$f = __METHOD__;
-		if(!$this->hasDelimiter()) {
+		if(!$this->hasDelimiter()){
 			Debug::error("{$f} undefined delimiter");
 		}
 		return $this->delimiter;
@@ -21,11 +23,10 @@ trait DelimiterTrait{
 	}
 	
 	public function setDelimiter(?string $delimiter): ?string{
-		if($delimiter == null) {
-			unset($this->delimiter);
-			return null;
+		if($this->hasDelimiter()){
+			$this->release($this->delimiter);
 		}
-		return $this->delimiter = $delimiter;
+		return $this->delimiter = $this->claim($delimiter);
 	}
 	
 	public function delimit(?string $delimiter):object{

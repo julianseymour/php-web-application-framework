@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\script;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
+
 class ServiceWorkerJavaScriptBundleUseCase extends LocalizedJavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
@@ -13,7 +15,9 @@ class ServiceWorkerJavaScriptBundleUseCase extends LocalizedJavaScriptFileUseCas
 			"formdata.js"
 		];
 		foreach($files as $fn){
-			JavaScriptFileRouter::getUseCaseFromFilename($fn)->echoResponse();
+			$uc = JavaScriptFileRouter::getUseCaseFromFilename($fn);
+			$uc->echoResponse();
+			deallocate($uc);
 		}
 	}
 	

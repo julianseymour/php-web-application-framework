@@ -19,7 +19,7 @@ trait DimensionAttributesTrait
 	public function getHeightAttribute()
 	{
 		$f = __METHOD__; //"DimensionAttributesTrait(".static::getShortClass().")->getHeightAttribute()";
-		if(!$this->hasHeightAttribute()) {
+		if(!$this->hasHeightAttribute()){
 			Debug::error("{$f} height attribute is undefined");
 		}
 		return $this->getAttribute("height");
@@ -38,7 +38,7 @@ trait DimensionAttributesTrait
 	public function getWidthAttribute()
 	{
 		$f = __METHOD__; //"DimensionAttributesTrait(".static::getShortClass().")->getWidthAttribute()";
-		if(!$this->hasWidthAttribute()) {
+		if(!$this->hasWidthAttribute()){
 			Debug::error("{$f} width attribute is undefined");
 		}
 		return $this->getAttribute("width");

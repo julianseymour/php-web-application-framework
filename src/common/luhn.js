@@ -6,7 +6,7 @@ function luhn(imei){
 		let check = imei % 10;
 		imei = Math.floor(imei/10);
 		let double = true;
-		while (imei > 9){
+		while(imei > 9){
 			let digit = imei % 10;
 			//console.log(f+": current digit is "+digit);
 			if(double){

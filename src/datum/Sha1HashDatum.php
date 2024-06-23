@@ -1,33 +1,28 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 use function JulianSeymour\PHPWebApplicationFramework\is_sha1;
 
-class Sha1HashDatum extends CharDatum
-{
+class Sha1HashDatum extends CharDatum{
 
-	public function __construct($name)
-	{
+	public function __construct($name){
 		parent::__construct($name, 40);
 	}
 
-	public static function validateStatic($value): int
-	{
+	public static function validateStatic($value): int{
 		return is_sha1($value) ? SUCCESS : FAILURE;
 	}
 
-	public function getUrlEncodedValue()
-	{
+	public function getUrlEncodedValue(){
 		return $this->getValue();
 	}
 
-	public function getHumanWritableValue()
-	{
+	public function getHumanWritableValue(){
 		return $this->getValue();
 	}
 
-	public function getHumanReadableValue()
-	{
+	public function getHumanReadableValue(){
 		return $this->getValue();
 	}
 }

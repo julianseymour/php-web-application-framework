@@ -16,7 +16,7 @@ class Internationalization extends Basic{
 
 	public static function getLanguageNameFromCode(string $code):string{
 		$f = __METHOD__;
-		switch ($code) {
+		switch($code){
 			case LANGUAGE_ENGLISH:
 				return "English";
 			case LANGUAGE_SPANISH:
@@ -40,7 +40,7 @@ class Internationalization extends Basic{
 
 	public static function doesLanguageUseLatinAlphabet(string $code):bool{
 		$f = __METHOD__;
-		switch ($code) {
+		switch($code){
 			case LANGUAGE_ARABIC:
 			case LANGUAGE_CHINESE:
 			case LANGUAGE_FARSI:

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password;
 
 use function JulianSeymour\PHPWebApplicationFramework\argon_hash;
@@ -24,6 +25,7 @@ class PasswordData extends DataStructure{
 	use PasswordDerivedColumnsTrait;
 	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		$f = __METHOD__;
 		$hash = new PasswordDatum("password");
 		$privateKey = new BlobDatum("privateKey");
 		$public = new SodiumCryptoBoxPublicKeyDatum("publicKey");
@@ -59,16 +61,16 @@ class PasswordData extends DataStructure{
 	/**
 	 * generate the password hash, asymmetric keypair, etc needed for authentication and so forth
 	 */
-	public static function generate($password, $storage_keypair = null, $crypto_sign_seed = null){
+	public static function generate($password, $storage_keypair = null, $crypto_sign_seed = null):?PasswordData{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			// 1. generate 2 nonces to salt the dumb user's shitty password
+			// 1. generate 2 nonces as salt
 			$keyGenerationNonce = random_bytes(SODIUM_CRYPTO_PWHASH_SALTBYTES);
-			if($password !== null) {
+			if($password !== null){
 				// 2. Generate a secret key from your password
 				$deterministicSecretKey = argon_hash($password, $keyGenerationNonce); // uses the user's password to generate a code that encrypts the rest of the data. This must be done separately for individual user
-				if(strlen($deterministicSecretKey) != 32) { // SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES){
+				if(strlen($deterministicSecretKey) != 32){ // SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES){
 					Debug::error("{$f} secret key is " . strlen($deterministicSecretKey) . " bytes; required length is 32");
 					return null;
 				}
@@ -78,8 +80,8 @@ class PasswordData extends DataStructure{
 					'time_cost' => 4,
 					'threads' => 3
 				];
-				if($print) {
-					if(defined("PASSWORD_ARGON2ID")) {
+				if($print){
+					if(defined("PASSWORD_ARGON2ID")){
 						Debug::print("{$f} the server supports argon2id");
 					}else{
 						Debug::print("{$f} the server does not support argon2id");
@@ -88,8 +90,8 @@ class PasswordData extends DataStructure{
 				$password_hash = password_hash($password, PASSWORD_ARGON2I, $options);
 			}
 			// 4. USER surrogate keypair. Use the surrogate public key to encrypt sensitive data; private key never leaves volatile memory and is stored only in encrypted form. This function now requires a keypair to make it useful for changing passwords without replacing the keypair, which stays the same between key changes
-			if(! isset($storage_keypair)) {
-				if($print) {
+			if(!isset($storage_keypair)){
+				if($print){
 					Debug::print("{$f} keypair is null; generating a new keypair");
 				}
 				$storage_keypair = sodium_crypto_box_keypair();
@@ -97,7 +99,7 @@ class PasswordData extends DataStructure{
 			$publicKey = sodium_crypto_box_publickey($storage_keypair);
 			$privateKey = sodium_crypto_box_secretkey($storage_keypair);
 			// 5. Generate a reauthentication key so the password hash is not used as the sole parameter for reauthentication b/c it is stored in plaintext for someone who is able to breach both database and session
-			if(! isset($crypto_sign_seed)) {
+			if(!isset($crypto_sign_seed)){
 				// Debug::print("{$f} signature keypair seed is null; generating a new one now");
 				$crypto_sign_seed = random_bytes(SODIUM_CRYPTO_SIGN_SEEDBYTES);
 				if($print){
@@ -107,18 +109,16 @@ class PasswordData extends DataStructure{
 				Debug::print("{$f} signature seed \"".base64_encode($crypto_sign_seed)."\" was provided");
 			}
 			$length = strlen($crypto_sign_seed);
-			if($length !== SODIUM_CRYPTO_SIGN_SEEDBYTES) {
+			if($length !== SODIUM_CRYPTO_SIGN_SEEDBYTES){
 				$shoodbi = SODIUM_CRYPTO_SIGN_SEEDBYTES;
 				Debug::error("{$f} incorrect seed length ({$length}, should be {$shoodbi}");
 			}elseif($print){
 				Debug::print("{$f} signature seed is the correct length");
 			}
-
 			// 6. generate signature keypair using the reauthentication key as a seed
 			$signature_keypair = sodium_crypto_sign_seed_keypair($crypto_sign_seed);
 			$signaturePublicKey = sodium_crypto_sign_publickey($signature_keypair);
 			$signaturePrivateKey = sodium_crypto_sign_secretkey($signature_keypair);
-			
 			$cipher = AsymmetricEncryptionScheme::encrypt($crypto_sign_seed, $publicKey);
 			if($print){
 				if(AsymmetricEncryptionScheme::decrypt($cipher, $storage_keypair) !== $crypto_sign_seed){
@@ -127,13 +127,10 @@ class PasswordData extends DataStructure{
 					Debug::print("{$f} it's working now");
 				}
 			}
-			
 			// 7. generate a session recovery nonce that is used to disassociate an object from this user except for anyone who can decrypt this nonce
 			$session_recov_nonce = random_bytes(32);
-
-			$that = new PasswordData();
-
-			if($password !== null) {
+			$that = new PasswordData();			
+			if($password !== null){
 				$that->setDeterministicSecretKey($deterministicSecretKey);
 				$that->setPasswordHash($password_hash);
 			}
@@ -144,8 +141,7 @@ class PasswordData extends DataStructure{
 			$that->setSignaturePrivateKey($signaturePrivateKey);
 			$that->setSignatureSeed($crypto_sign_seed);
 			$that->setSessionRecoveryNonce($session_recov_nonce);
-
-			if($print) {
+			if($print){
 				$vars = [
 					'deterministicSecretKey' => $deterministicSecretKey,
 					'password_hash' => $password_hash,
@@ -157,18 +153,20 @@ class PasswordData extends DataStructure{
 					'signatureSeed' => $crypto_sign_seed,
 					'sessionRecoveryNonce' => $session_recov_nonce
 				];
-				foreach($vars as $i => $v) {
+				foreach($vars as $i => $v){
 					Debug::print("{$f} {$i}: " . sha1($v));
 				}
-				// Debug::printStackTraceNoExit();
 			}
-
 			return $that;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
+	protected static function getExcludedConstructorFunctionNames():?array{
+		return array_merge(parent::getExcludedConstructorFunctionNames(), ["generate"]);
+	}
+	
 	public function hasDeterministicSecretKey():bool{
 		return $this->hasColumnValue("deterministicSecretKey");
 	}

@@ -1,29 +1,29 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\table\alter\column;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnNamesTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\table\alter\AlterOption;
 
-class OrderByOption extends AlterOption
-{
+class OrderByOption extends AlterOption{
 
 	use MultipleColumnNamesTrait;
 
-	public function __construct(...$columnNames)
-	{
+	public function __construct(...$columnNames){
 		parent::__construct();
 		$this->setColumnNames($columnNames);
 	}
 
-	public function toSQL(): string
-	{
+	public function toSQL(): string{
 		return "order by " . $this->getColumnNameString();
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->properties);
-		unset($this->propertyTypes);
+	public function dispose(bool $deallocate=false): void{
+		if($this->hasProperties()){
+			$this->releaseProperties($deallocate);
+		}
+		parent::dispose($deallocate);
+		$this->release($this->propertyTypes, $deallocate);
 	}
 }

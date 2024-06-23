@@ -47,8 +47,8 @@ abstract class JavaScriptFileUseCase extends UseCase{
 	public final function echoResponse(): void{
 		$f = __METHOD__;
 		try{
-			$print = $this->getDebugFlag();
-			if(! hasInputParameter("filename", $this)) {
+			$print = false && $this->getDebugFlag();
+			if(!hasInputParameter("filename", $this)){
 				if($print){
 					Debug::warning("{$f} filename parameter does not exist");
 				}
@@ -59,28 +59,28 @@ abstract class JavaScriptFileUseCase extends UseCase{
 				Debug::print("{$f} filename is \"{$filename}\"");
 			}
 			$cache = false;
-			if(cache()->enabled() && JAVASCRIPT_CACHE_ENABLED) {
+			if(cache()->enabled() && JAVASCRIPT_CACHE_ENABLED){
 				$locale = $this->getInputParameter("locale");
 				$cache_key = "{$locale}_{$filename}";
-				if(cache()->hasFile($cache_key)) {
-					if($print) {
+				if(cache()->hasFile($cache_key)){
+					if($print){
 						Debug::print("{$f} cache hit");
 					}
 					echo cache()->getFile($cache_key);
 					return;
 				}else{
-					if($print) {
+					if($print){
 						Debug::print("{$f} cache miss");
 					}
 					$cache = true;
 					ob_start();
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} caching is disabled");
 			}
 			$this->echoJavaScriptFileContents();
-			if($cache) {
-				if($print) {
+			if($cache){
+				if($print){
 					Debug::print("{$f} updating cache for file \"{$cache_key}\"");
 				}
 				$string = ob_get_clean();
@@ -89,7 +89,7 @@ abstract class JavaScriptFileUseCase extends UseCase{
 				unset($string);
 			}
 			return;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

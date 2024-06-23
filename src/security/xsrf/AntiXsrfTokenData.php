@@ -1,13 +1,14 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\xsrf;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
-use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use Exception;
 
 class AntiXsrfTokenData extends DataStructure{
@@ -21,135 +22,135 @@ class AntiXsrfTokenData extends DataStructure{
 		array_push($columns, $xsrf_token, $secondary);
 	}
 
-	public function getSecondaryToken(){
+	public function getSecondaryToken():string{
 		$f = __METHOD__;
-		if(!$this->hasSecondaryToken()) {
+		if(!$this->hasSecondaryToken()){
 			Debug::error("{$f} secondary token is undefined");
 		}
 		return $this->getColumnValue("secondary_token");
 	}
 
-	public function hasSecondaryToken(){
+	public function hasSecondaryToken():bool{
 		return $this->hasColumnValue("secondary_token") && $this->getColumnValue("secondary_token") !== "";
 	}
 
-	public function setSecondaryToken($value){
+	public function setSecondaryToken(string $value):string{
 		return $this->setColumnValue("secondary_token", $value);
 	}
 
-	public function ejectSecondaryToken(){
+	public function ejectSecondaryToken():?string{
 		return $this->ejectColumnValue("secondary_token");
 	}
 
-	public function hasAntiXsrfToken(){
+	public function hasAntiXsrfToken():bool{
 		return $this->hasColumnValue("xsrf_token") && $this->getColumnValue("xsrf_token") !== "";
 	}
 
-	public function getAntiXsrfToken(){
+	public function getAntiXsrfToken():string{
 		return $this->getColumnValue("xsrf_token");
 	}
 
-	public function setAntiXsrfToken($value){
+	public function setAntiXsrfToken(string $value):string{
 		return $this->setColumnValue("xsrf_token", $value);
 	}
 
-	public function getSecondaryHmac($action){
+	public function getSecondaryHmac(string $action):string{
 		$f = __METHOD__;
 		$print = false;
 		$hmac = hash_hmac('sha256', $action, $this->getSecondaryToken());
-		if($print) {
+		if($print){
 			Debug::print("{$f} returning \"{$hmac}\" for URI \"{$action}\"");
 		}
 		return $hmac;
 	}
 
-	public static function verifySessionToken($uri){
+	public static function verifySessionToken(string $uri):bool{
 		$f = __METHOD__;
 		try{
 			$print = false;
 			$session = new AntiXsrfTokenData();
-			if(! isset($_SESSION) || ! $session->hasAntiXsrfToken()) {
+			if(!isset($_SESSION) || ! $session->hasAntiXsrfToken()){
 				Debug::error("{$f}: primary session token is unset");
 				return false;
-			}elseif(! hasInputParameter('xsrf_token')) {
+			}elseif(! hasInputParameter('xsrf_token')){
 				Debug::error("{$f}: anti-XSRF token is NOT set in post");
 				return false;
 			}
 			$xsrf_token = $session->getAntiXsrfToken();
 			$posted_token = getInputParameter('xsrf_token');
-			if(empty($posted_token)) {
+			if(empty($posted_token)){
 				Debug::error("{$f} posted token is empty");
 				return false;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} posted token is \"{$posted_token}\"");
 			}
-			if(! hash_equals($xsrf_token, $posted_token)) {
+			if(! hash_equals($xsrf_token, $posted_token)){
 				Debug::warning("{$f} primary session token \"{$xsrf_token}\" does not match posted value \"{$posted_token}\"");
 				// static::logIncident($f);
 				return false;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} session and post tokens match");
 			}
 			$secondary = $session->getSecondaryToken();
-			if(empty($secondary)) {
+			if(empty($secondary)){
 				Debug::error("{$f} secondary token is undefined");
 				return false;
 			}
 			$known = hash_hmac('sha256', $uri, $secondary);
-			if(! hasInputParameter('secondary_hmac')) {
+			if(! hasInputParameter('secondary_hmac')){
 				Debug::error("{$f} secondary hmac is unset");
 				return false;
 			}
 			$hmac = getInputParameter('secondary_hmac');
-			if($print) {
+			if($print){
 				Debug::print("{$f} secondary hmac is already set as \"{$hmac}\"");
 			}
-			if(hash_equals($known, $hmac)) {
-				if($print) {
+			if(hash_equals($known, $hmac)){
+				if($print){
 					Debug::print("{$f} success, both URIs match \"{$uri}\" with hmac \"{$known}\" for secondary session token \"{$_SESSION['secondary_token']}\"");
 				}
 				return true;
 			}
 			Debug::error("{$f} error: POSTed secondary token hmac \"{$hmac}\" differs from calculated session hmac \"{$known}\" for secondary session token \"{$secondary}\" and URI \"{$uri}\"");
-			// static::logIncident($f); //XXX
 			return false;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public static function initializeSessionToken($i){
+	public static function initializeSessionToken(int $i):void{
 		$f = __METHOD__;
 		try{
 			$print = false;
 			$session = new AntiXsrfTokenData();
-			switch ($i) {
+			switch($i){
 				case (1):
-					if(!$session->hasAntiXsrfToken()) {
-						if(hasInputParameter('xsrf_token')) {
+					if(!$session->hasAntiXsrfToken()){
+						if(hasInputParameter('xsrf_token')){
 							Debug::warning("{$f} error: session xsrf token not set");
 						}
 						$xsrf_token = bin2hex(random_bytes(32));
 						$session->setAntiXsrfToken($xsrf_token);
-						if($print) {
+						if($print){
 							Debug::print("{$f} initialized session token to {$xsrf_token}");
 						}
 					}
-					return;
+					break;
 				case (2):
-					if(!$session->hasSecondaryToken()) {
+					if(!$session->hasSecondaryToken()){
 						$secondary = bin2hex(random_bytes(32));
 						$session->setSecondaryToken($secondary);
-						if($print) {
+						if($print){
 							Debug::print("{$f} initialized secondary token to {$secondary}");
 						}
 					}
-					return;
+					break;
 				default:
 					Debug::error("{$f}: ({$i}) tokens received");
 					return;
 			}
-		}catch(Exception $x) {
+			deallocate($session);
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

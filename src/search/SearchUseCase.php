@@ -22,6 +22,7 @@ use JulianSeymour\PHPWebApplicationFramework\db\load\Loadout;
 use JulianSeymour\PHPWebApplicationFramework\db\load\LoadoutGenerator;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\paginate\Paginator;
 use JulianSeymour\PHPWebApplicationFramework\use_case\ClientUseCaseInterface;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
@@ -52,7 +53,7 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 	}
 
 	public function getSearchFormClass(){
-		if($this->hasPredecessor()) {
+		if($this->hasPredecessor()){
 			return $this->getPredecessor()->getSearchFormClass();
 		}
 		return SearchForm::class;
@@ -89,14 +90,14 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 	public function getResultContainer(){
 		$mode = ALLOCATION_MODE_LAZY;
 		$result_container = $this->getInsertHereElement();
-		if($this->hasSearchResults()) {
+		if($this->hasSearchResults()){
 			$elements = [];
-			foreach($this->getSearchResults() as $r) {
+			foreach($this->getSearchResults() as $r){
 				$ec = $this->getSearchResultElementClass($r);
 				$e = new $ec($mode, $r);
 				array_push($elements, $e);
 			}
-			if(!empty($elements)) {
+			if(!empty($elements)){
 				$result_container->appendChild(...$elements);
 			}
 		}
@@ -105,7 +106,7 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 
 	public function getPageContent(): ?array{
 		$f = __METHOD__;
-		if($this->hasPredecessor()) {
+		if($this->hasPredecessor()){
 			return $this->getPredecessor()->getPageContent();
 		}
 		$result_container = $this->getResultContainer();
@@ -115,10 +116,10 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		];
 	}
 
-	public function getLoadoutGeneratorClass(?PlayableUser $object = null): ?string{
+	public function getLoadoutGeneratorClass(?PlayableUser $object = null):?string{
 		$f = __METHOD__;
 		$print = false;
-		if($this->hasPredecessor()) {
+		if($this->hasPredecessor()){
 			$predecessor = $this->getPredecessor();
 			$ret = $predecessor->getLoadoutGeneratorClass($object);
 			if($print){
@@ -131,18 +132,18 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		return SearchLoadoutGenerator::class;
 	}
 
-	public function execute(): int{
+	public function execute():int{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(! static::isSearchEvent()) {
-				if($print) {
+			if(! static::isSearchEvent()){
+				if($print){
 					Debug::print("{$f} this is not a search event");
 				}
 				return $this->setObjectStatus(SUCCESS);
 			}
 			$search_params = getInputParameters();
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to print input parameters array");
 				Debug::printArray($search_params);
 			}
@@ -152,76 +153,76 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 			}
 			$use_case = $this->hasPredecessor() ? $this->getPredecessor() : $this;
 			$paginator = $generator->getPaginator($use_case);
-			if(!$paginator->getProcessedFormFlag()) {
+			if(!$paginator->getProcessedFormFlag()){
 				$form = $this->getSearchForm();
 				$status = $paginator->processForm($form, $search_params);
-				if($status !== SUCCESS) {
+				if($status !== SUCCESS){
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} processing form returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} paginator has already processed its search form");
 			}
 			$queries = $generator->getSearchLoadoutGenerator()->getSelectStatements($use_case);
 			$count = count($queries);
-			if($count === 0) {
+			if($count === 0){
 				Debug::error("{$f} generated 0 queries");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} generated {$count} queries");
 			}
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
 			$terms = $paginator->getSearchTerms();
 			$objects = [];
-			foreach($queries as $classname => $query) {
-				if(!$query->hasTableName() && ! $query->hasJoinExpressions()) {
+			foreach($queries as $classname => $query){
+				if(!$query->hasTableName() && ! $query->hasJoinExpressions()){
 					$query->setTableName("undefined");
 					Debug::error("{$f} query \"{$query}\" for class \"{$classname}\" lacks a table name");
-				}elseif(!$query->hasMatchFunction()) {
+				}elseif(!$query->hasMatchFunction()){
 					Debug::error("{$f} query statement lacks a match function");
-				}elseif($query->hasTableName() && $query->getTableName() === "data.fields") {
+				}elseif($query->hasTableName() && $query->getTableName() === "data.fields"){
 					Debug::error("{$f} table name is data.fields");
 				}
 				// update type definition string and parameter list for individual class
 				$bind_params = $paginator->duplicateMultipleFieldParameters($classname, $terms);
 				$param_count = count($bind_params);
-				if($print) {
+				if($print){
 					Debug::print("{$f} parameter count after repeatedly merging terms is {$param_count}");
 				}
 				// modify query with searchable timestamps
-				if($paginator->hasSearchableTimestamps()) {
+				if($paginator->hasSearchableTimestamps()){
 					$bind_timestamps = $paginator->getSearchableTimestampParameters($classname);
-					if(!empty($bind_timestamps)) {
+					if(!empty($bind_timestamps)){
 						$bind_params = array_merge($bind_params, $bind_timestamps);
 					}
 				}
 				// hooks for extending search terms and type definition string in use case
 				$generator = $this->getLoadoutGenerator();
 				$hook_params = $generator->extendSearchParameters($classname);
-				if(!empty($hook_params)) {
-					if($print) {
+				if(!empty($hook_params)){
+					if($print){
 						Debug::print("{$f} merging hook parameters");
 					}
 					$bind_params = array_merge($bind_params, $hook_params);
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} hook parameters empty");
 				}
 				// prepare and execute query
 				$typedef = getTypeSpecifier($bind_params);
 				$length = strlen($typedef);
 				$count = count($bind_params);
-				if($length !== $count) {
+				if($length !== $count){
 					Debug::error("{$f} type definition string length \"{$length}\" does not equal parameter count \"{$count}\"");
 				}
-				if($print) {
+				if($print){
 					$qstring = $query->toSQL();
 					Debug::print("{$f} about to execute query \"{$qstring}\" with type definition string \"{$typedef}\" including timestamps if applicable");
 					// Debug::printArray($bind_params);
 				}
 				$result = $query->prepareBindExecuteGetResult($mysqli, $typedef, ...$bind_params);
 				$results = $result->fetch_all(MYSQLI_ASSOC);
-				if($print) {
-					if(empty($results)) {
+				if($print){
+					if(empty($results)){
 						Debug::print("{$f} no results for query \"{$qstring}\"");
 						continue;
 					}else{
@@ -230,7 +231,7 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 					}
 				}
 				// create objects from results
-				foreach($results as $r) {
+				foreach($results as $r){
 					$object = new $classname();
 					$object->processQueryResultArray($mysqli, $r);
 					$object->loadIntersectionTableKeys($mysqli);
@@ -238,7 +239,7 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 					$generator = $this->getLoadoutGenerator(user());
 					if($generator instanceof LoadoutGenerator){
 						$loadout = $generator->generateNonRootLoadout($object, $this);
-						if($loadout instanceof Loadout) {
+						if($loadout instanceof Loadout){
 							$loadout->expandTree($mysqli, $object);
 						}
 					}elseif($print){
@@ -250,17 +251,17 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 				}
 			}
 			$count = count($objects);
-			if($count === 0) {
-				if($print) {
+			if($count === 0){
+				if($print){
 					Debug::print("{$f} zero search results");
 				}
 				return $this->setObjectStatus(ERROR_0_SEARCH_RESULTS);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} search returned {$count} results");
 			}
 			$this->setSearchResults($objects);
 			return $this->setObjectStatus(SUCCESS);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -271,13 +272,13 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 
 	public function setSearchResults($results){
 		$f = __METHOD__;
-		if($results === null) {
+		if($results === null){
 			Debug::print("{$f} search results are null");
-		}elseif(!is_array($results)) {
+		}elseif(!is_array($results)){
 			Debug::error("{$f} search results is something other than an array or null");
-		}elseif(! Request::isXHREvent() && ! Request::isFetchEvent()) {
+		}elseif(! Request::isXHREvent() && ! Request::isFetchEvent()){
 			$user = user();
-			foreach($results as $r) {
+			foreach($results as $r){
 				$phylum = $r->getPhylumName();
 				$user->setForeignDataStructureListMember($phylum, $r);
 			}
@@ -291,7 +292,7 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 
 	public function getSearchResults(){
 		$f = __METHOD__;
-		if(!$this->hasSearchResults()) {
+		if(!$this->hasSearchResults()){
 			return null;
 			Debug::error("{$f} search results are undefined");
 		}
@@ -299,7 +300,7 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 	}
 
 	public function getInsertHereElement(?DataStructure $ds = null){
-		if($this->hasPredecessor()) {
+		if($this->hasPredecessor()){
 			return $this->getPredecessor()->getInsertHereElement(null);
 		}
 		$e = new DivElement(ALLOCATION_MODE_LAZY);
@@ -308,15 +309,15 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		return $e;
 	}
 
-	public function getPageContentGenerator(): UseCase{
-		if($this->hasPredecessor()) {
+	public function getPageContentGenerator():UseCase{
+		if($this->hasPredecessor()){
 			return $this->getPredecessor();
 		}
 		return $this;
 	}
 
-	public function getResponder(int $status): ?Responder{
-		if(request()->getProgressiveHyperlinkFlag()) {
+	public function getResponder(int $status):?Responder{
+		if(request()->getProgressiveHyperlinkFlag()){
 			return new ProgressiveHyperlinkResponder();
 		}
 		return new SearchResponder();
@@ -326,15 +327,32 @@ class SearchUseCase extends UseCase implements ClientUseCaseInterface{
 		return directive() === DIRECTIVE_SEARCH;
 	}
 
-	public function getClientUseCaseName(): ?string{
+	public function getClientUseCaseName():?string{
 		$f = __METHOD__;
-		if($this->hasPredecessor()) {
+		if($this->hasPredecessor()){
 			$predecessor = $this->getPredecessor();
-			if(!$predecessor instanceof ClientUseCaseInterface) {
+			if(!$predecessor instanceof ClientUseCaseInterface){
 				Debug::error("{$f} predecessor is not a client compatible use case");
 			}
 			return $predecessor->getClientUseCaseName();
 		}
 		return "search";
+	}
+	
+	public function getPaginator():?Paginator{
+		$f = __METHOD__;
+		$print = false;
+		if($this->hasPaginator()){
+			if($print){
+				Debug::print("{$f} paginator was already defined");
+			}
+			return parent::getPaginator();
+		}elseif($print){
+			Debug::print("{$f} instantiating a new SearchPaginator");
+		}
+		$paginator = new SearchPaginator();
+		$use_case = $this->hasPredecessor() ? $this->getPredecessor() : $this;
+		$paginator->setSearchClasses($use_case->getSearchClasses());
+		return $this->setPaginator($paginator);
 	}
 }

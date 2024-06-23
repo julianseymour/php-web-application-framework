@@ -1,21 +1,28 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\table\alter;
 
-trait ValidationTrait
-{
+use function JulianSeymour\PHPWebApplicationFramework\release;
+
+trait ValidationTrait{
 
 	protected $validate;
 
-	public function setValidation($validate)
-	{
-		if(!is_bool($validate)) {
+	public function setValidation($validate){
+		if(!is_bool($validate)){
 			$validate = boolval($validate);
 		}
-		return $this->validate = $validate;
+		if($this->hasValidation()){
+			$this->release($this->validate);
+		}
+		return $this->validate = $this->claim($validate);
 	}
 
-	public function getValidation()
-	{
-		return $this->validate === true;
+	public function hasValidation():bool{
+		return isset($this->validate);
+	}
+	
+	public function getValidation(){
+		return $this->validate;
 	}
 }

@@ -26,19 +26,19 @@ class EncryptedDatabaseCredentials extends DatabaseCredentials implements Static
 	public static function validateMysqlPassword($secret_key){
 		$f = __METHOD__;
 		try{
-			if(! preg_match("#[a-z]+#", $secret_key)) {
+			if(! preg_match("#[a-z]+#", $secret_key)){
 				Debug::warning("{$f} Password has no lower case letters");
-			}elseif(! preg_match("#[A-Z]+#", $secret_key)) {
+			}elseif(! preg_match("#[A-Z]+#", $secret_key)){
 				Debug::warning("{$f} Password has no capital letters");
-			}elseif(! preg_match("#[0-9]+#", $secret_key)) {
+			}elseif(! preg_match("#[0-9]+#", $secret_key)){
 				Debug::warning("Password has no numbers");
-			}elseif(! preg_match("#\W+#", $secret_key)) {
+			}elseif(! preg_match("#\W+#", $secret_key)){
 				Debug::warning("{$f} Password has no nonalphanumeric characters");
 			}else{
 				return true;
 			}
 			return false;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -55,8 +55,8 @@ class EncryptedDatabaseCredentials extends DatabaseCredentials implements Static
 		$f = __METHOD__;
 		try{
 			$secret_key = substr(base64_encode(random_bytes(32)), 0, 32);
-			if(static::validateMysqlPassword($secret_key)) {
-				if(substr_count($secret_key, "'") > 0) {
+			if(static::validateMysqlPassword($secret_key)){
+				if(substr_count($secret_key, "'") > 0){
 					Debug::warning("{$f} password has an apostrophe in it");
 					$secret_key = str_replace("'", "?", $secret_key);
 				}else{
@@ -67,7 +67,7 @@ class EncryptedDatabaseCredentials extends DatabaseCredentials implements Static
 			}
 			Debug::warning("{$f} try again");
 			return static::generateMysqlPassword();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

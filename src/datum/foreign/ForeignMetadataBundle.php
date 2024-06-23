@@ -2,7 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\datum\foreign;
 
-use function JulianSeymour\PHPWebApplicationFramework\f;
+use function JulianSeymour\PHPWebApplicationFramework\backwards_ref_enabled;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\common\ElementBindableTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\HumanReadableNameTrait;
@@ -17,6 +17,7 @@ use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\event\AfterSetForeignDataStructureEvent;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\common\SubtypeInterface;
 
 /**
  * A foreign key that potentially references one of many parent tables.
@@ -56,28 +57,48 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 			COLUMN_FILTER_CONTRACT_VERTEX,
 			COLUMN_FILTER_EAGER,
 			COLUMN_FILTER_INTERSECTION,
+			"parentKey",
 			COLUMN_FILTER_RECURSIVE_DELETE
 		]);
 	}
 
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			COLUMN_FILTER_ADD_TO_RESPONSE,
+			COLUMN_FILTER_AUTOLOAD,
+			COLUMN_FILTER_CONSTRAIN,
+			COLUMN_FILTER_CONTRACT_VERTEX,
+			COLUMN_FILTER_EAGER,
+			COLUMN_FILTER_INTERSECTION,
+			"parentKey",
+			COLUMN_FILTER_RECURSIVE_DELETE
+		]);
+	}
+	
 	public function setHostKeyName($name){
-		return $this->intersectionHostKeyName = $name;
+		if($this->hasIntersectionHostKeyName()){
+			$this->release($this->intersectionHostKeyName);
+		}
+		return $this->intersectionHostKeyName = $this->claim($name);
 	}
 
-	public function hasIntersectionHostKeyName(){
+	public function hasIntersectionHostKeyName():bool{
 		return isset($this->intersectionHostKeyName);
 	}
 
 	public function getIntersectionHostKeyName(){
 		$f = __METHOD__;
-		if(!$this->hasIntersectionHostKeyName()) {
+		if(!$this->hasIntersectionHostKeyName()){
 			Debug::error("{$f} host key name is undefined");
 		}
 		return $this->intersectionHostKeyName;
 	}
 
 	public function setIntersectionForeignKeyName(?string $name):?string{
-		return $this->intersectionForeignKeyName = $name;
+		if($this->hasIntersectionForeignKeyName()){
+			$this->release($this->intersectionForeignKeyName);
+		}
+		return $this->intersectionForeignKeyName = $this->claim($name);
 	}
 
 	public function hasIntersectionForeignKeyName():bool{
@@ -85,7 +106,7 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 	}
 
 	public function getIntersectionForeignKeyName():string{
-		$f = __METHOD__;if(!$this->hasIntersectionForeignKeyName()) {
+		$f = __METHOD__;if(!$this->hasIntersectionForeignKeyName()){
 			Debug::error("{$f} foreign key name is undefined");
 		}
 		return $this->intersectionForeignKeyName;
@@ -96,18 +117,24 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 	}
 
 	public function getDefaultDataType():string{
-		if($this->hasDefaultDataType()) {
+		if($this->hasDefaultDataType()){
 			return $this->defaultDataType;
 		}
 		return DATATYPE_UNKNOWN;
 	}
 
 	public function setDefaultDataType(?string $type):?string{
-		return $this->defaultDataType = $type;
+		if($this->hasDefaultDataType()){
+			$this->release($this->defaultDataType);
+		}
+		return $this->defaultDataType = $this->claim($type);
 	}
 
 	public function setValidDataTypes(?array $types):?array{
-		return $this->validDataTypes = $types;
+		if($this->hasValidDataTypes()){
+			$this->release($this->validDataTypes);
+		}
+		return $this->validDataTypes = $this->claim($types);
 	}
 
 	public function hasValidDataTypes():bool{
@@ -116,7 +143,7 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 
 	public function getValidDataTypes():array{
 		$f = __METHOD__;
-		if(!$this->hasValidDataTypes()) {
+		if(!$this->hasValidDataTypes()){
 			Debug::error("{$f} valid datatypes undefined");
 		}
 		return $this->validDataTypes;
@@ -128,54 +155,56 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 			$name = $this->getName();
 			$foreignKeyName = "{$name}Key";
 			$foreign_key = new ForeignKeyDatum($foreignKeyName);
-			if($this->getConstraintFlag()) {
+			if($this->getConstraintFlag()){
 				$foreign_key->setConstraintFlag(true);
-				if($this->hasKeyParts()) {
+				if($this->hasKeyParts()){
 					$foreign_key->setKeyParts($this->getKeyParts());
 				}
 			}
-			if($this->hasForeignDataStructureClassResolver()) {
+			if($this->hasForeignDataStructureClassResolver()){
 				$fdscr = $this->getForeignDataStructureClassResolver();
 				$foreign_key->setForeignDataStructureClassResolver($fdscr);
-			}elseif($this->hasForeignDataStructureClass()) {
+			}elseif($this->hasForeignDataStructureClass()){
 				$fdsc = $this->getForeignDataStructureClass();
 				$foreign_key->setForeignDataStructureClass($fdsc);
 			}
-			// XXX moved the thing at the bottom from up here
-			if($this->hasConverseRelationshipKeyName()) {
+			if($this->hasConverseRelationshipKeyName()){
 				$foreign_key->setConverseRelationshipKeyName($this->getConverseRelationshipKeyName());
 			}
-			if($this->getAutoloadFlag()) {
+			if($this->getAutoloadFlag()){
 				$foreign_key->setAutoloadFlag(true);
 			}
-			if($this->isNullable()) {
+			if($this->isNullable()){
 				$foreign_key->setNullable(true);
 				$foreign_key->setDefaultValue(null);
 			}
-			if($this->hasUpdateBehavior()) {
+			if($this->hasUpdateBehavior()){
 				$foreign_key->setUpdateBehavior($this->getUpdateBehavior());
 			}
-			if($this->hasRelationshipType()) {
+			if($this->hasRelationshipType()){
 				$foreign_key->setRelationshipType($this->getRelationshipType());
 			}
-			if($this->hasElementClass()) {
+			if($this->hasElementClass()){
 				$foreign_key->setElementClass($this->getElementClass());
 			}
-			if($this->hasEmbeddedName()) {
+			if($this->hasEmbeddedName()){
 				$foreign_key->embed($this->getEmbeddedName());
 			}
-			if($this->getConstraintFlag() && !$this->hasForeignDataStructureClass()) { // XXX testing: this used to not be conditional; moved it from line 131
+			if($this->getConstraintFlag() && !$this->hasForeignDataStructureClass()){
 				$foreign_key->setPersistenceMode(PERSISTENCE_MODE_INTERSECTION);
 				$foreign_key->setRetainOriginalValueFlag(true);
 			}
-			if($this->getRecursiveDeleteFlag()) {
+			if($this->getRecursiveDeleteFlag()){
 				$foreign_key->setRecursiveDeleteFlag(true);
 			}
-			if($this->hasTimeToLive()) {
+			if($this->hasTimeToLive()){
 				$foreign_key->setTimeToLive($this->getTimeToLive());
 			}
+			if($this->hasRank() && !BACKWARDS_REFERENCES_ENABLED){
+				$foreign_key->setRank($this->getRank());
+			}
 			return $foreign_key;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -198,136 +227,178 @@ class ForeignMetadataBundle extends DatumBundle implements ForeignKeyDatumInterf
 			$datatype = new DataTypeDatum($typehint_name);
 			$datatype->setForeignKeyName($foreignKeyName);
 			$datatype->setRetainOriginalValueFlag(true);
-			if($this->isNullable()) {
+			if($this->isNullable()){
 				$datatype->setNullable(true);
 			}
-			if($this->hasDefaultDataType()) {
+			if($this->hasDefaultDataType()){
 				$datatype->setDefaultValue($this->getDefaultDataType());
 			}
-			if($this->hasValidDataTypes()) {
+			if($this->hasValidDataTypes()){
 				$datatype->setValidEnumerationMap($this->getValidDataTypes());
 			}
 			$foreign_key->setForeignDataTypeName($typehint_name);
-			if($this->hasOnDelete()) {
+			if($this->hasOnDelete()){
 				$foreign_key->setOnDelete($this->getOnDelete());
 			}
-			if($this->hasOnUpdate()) {
+			if($this->hasOnUpdate()){
 				$foreign_key->setOnUpdate($this->getOnUpdate());
 			}
-			if($this->hasForeignDataType()) {
-				if($print) {
+			if($this->hasForeignDataType()){
+				if($print){
 					Debug::print("{$f} foreign data type is already defined and static");
 				}
 				$type = $this->getForeignDataType();
 				$foreign_key->setForeignDataType($type);
 				$foreign_key->setForeignDataTypeName($typehint_name);
-				$datatype->volatilize(); // XXX deal with fallout from embedding
+				$datatype->volatilize();
 				$datatype->setValue($type);
 				$datatype->setOriginalValue($type); // needed otherwise it will think the intersection table has changed even when it hasn't
 			}else{
-				if($print) {
+				if($print){
 					Debug::print("{$f} dynamic foreign data type");
 				}
-				if($this->hasEmbeddedName()) {
+				if($this->hasEmbeddedName()){
 					$datatype->embed($this->getEmbeddedName());
 				}
-				if($this->hasDataStructure()) {
-					if($print) {
+				if($this->hasDataStructure()){
+					if($print){
 						Debug::print("{$f} data structure is defined; adding a afterSetForeignDataStructure event listener to automatically set foreign datatype");
 					}
 					$ds = $this->getDataStructure();
-					$closure = function ($event, $target) use ($ds, $foreignKeyName, $typehint_name, $f, $print) {
+					$closure = function ($event, $target) use ($ds, $foreignKeyName, $typehint_name, $f, $print){
 						$print = false;
 						$columnName = $event->getProperty("columnName");
-						if($columnName !== $foreignKeyName) {
-							if($print) {
+						if($columnName !== $foreignKeyName){
+							if($print){
 								Debug::print("{$f} column name \"{$columnName} is not \"{$foreignKeyName}\"; skipping datatype update");
 							}
 							return;
-						}elseif($print) {
+						}elseif($print){
 							Debug::print("{$f} column name is \"{$columnName}\"; about to automatically update foreign datatype");
 						}
 						$struct = $event->getProperty("data");
 						$type = $struct->getDataType();
 						$class = $ds->getClass();
-						if($print) {
+						if($print){
 							Debug::print("About to call {$class}->setColumnValue('{$typehint_name}', '{$type}')");
 						}
 						$ds->setColumnValue($typehint_name, $type);
 					};
 					$ds->addEventListener(EVENT_AFTER_SET_FOREIGN, $closure);
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} data structure is undefined");
 				}
 			}
 
 			array_push($components, $datatype);
 			// subtype hint
-			$subtype_name = "{$name}Subtype";
-			$subtype = new StringEnumeratedDatum($subtype_name);
-			$subtype->setRetainOriginalValueFlag(true);
-			if($this->isNullable()) {
-				$subtype->setNullable(true);
-			}
-			// if($this->hasForeignDataSubtypeName()){
-			// $foreign_key->setForeignDataSubtypeName($this->getForeignDataSubtypeName());
-			// }else{
-			$foreign_key->setForeignDataSubtypeName($subtype_name);
-			// }
-			if($this->hasDataStructure()) {
-				if($print) {
-					Debug::print("{$f} foreign data structure is defined; about to add afterSetForeignDataStructure event listener to update foreign object subtype");
+			if($this->hasForeignDataStructureClass()){
+				$fdsc = $this->getForeignDataStructureClass();
+				if($print){
+					Debug::print("{$f} asking foreign data structure class \"{$fdsc}\" whether to use a subtype datum");
 				}
-				$ds = $this->getDataStructure();
-				$closure = function (AfterSetForeignDataStructureEvent $event, DataStructure $target) use ($foreignKeyName, $subtype_name, $f, $print) {
-					$columnName = $event->getProperty("columnName");
-					if($columnName !== $foreignKeyName) {
-						if($print) {
-							Debug::print("{$f} column name \"{$columnName}\" is not \"{$foreignKeyName}\", skipping event");
-						}
-						return;
-					}elseif($print) {
-						Debug::print("{$f} column name is \"{$columnName}\"; about to set subtype");
-					}
-					$struct = $event->getProperty("data");
-					if($struct->hasColumnValue('subtype') || $struct instanceof StaticSubtypeInterface) {
-						$subtype = $struct->getSubtype();
-						if($print) {
-							$class = $target->getClass();
-							Debug::print("About to call {$class}->setColumnValue('{$subtype_name}', '{$subtype}')");
-						}
-						$target->setColumnValue($subtype_name, $subtype);
-					}elseif($print) {
-						Debug::print("{$f} object does not have a subtype");
-					}
-				};
-				$ds->addEventListener(EVENT_AFTER_SET_FOREIGN, $closure);
-			}elseif($print) {
-				Debug::print("{$f} foreign data structure is undefined, skipping event listener");
+				$use_subtype = is_a($fdsc, SubtypeInterface::class, true);
+			}elseif($this->hasForeignDataStructureClassResolver()){
+				$resolver = $this->getForeignDataStructureClassResolver();
+				if($print){
+					Debug::print("{$f} asking the foreign data class resolver \"{$resolver}\" whether to include a subtype datum");
+				}
+				$subtypability = $resolver::getSubtypability();
+				$use_subtype = $subtypability !== SUBTYPABILITY_NONE;
+			}else{
+				$use_subtype = true;
 			}
-			if($this->hasEmbeddedName()) {
-				$subtype->embed($this->getEmbeddedName());
-			}elseif($print) {
-				Debug::print("{$f} this bundle does not embed itself");
+			if($use_subtype){
+				$subtype_name = "{$name}Subtype";
+				$subtype = new StringEnumeratedDatum($subtype_name);
+				$subtype->setRetainOriginalValueFlag(true);
+				if($this->hasForeignDataStructureClassResolver()){
+					if($print){
+						Debug::print("{$f} asking the foreign data structure class resolver whether the subtype should be nullable");
+					}
+					$resolver = $this->getForeignDataStructureClassResolver();
+					$subtypability = $resolver::getSubtypability();
+					$nullable = $subtypability === SUBTYPABILITY_PARTIAL;
+				}else{
+					if($print){
+						Debug::print("{$f} without a foreign data structure class resolver, we cannot make assumptions about the nullability of the subtype column");
+					}
+					$nullable = true;
+				}
+				if($nullable || $this->isNullable()){
+					$subtype->setNullable(true);
+				}
+				$foreign_key->setForeignDataSubtypeName($subtype_name);
+				if($this->hasDataStructure()){
+					if($print){
+						Debug::print("{$f} foreign data structure is defined; about to add afterSetForeignDataStructure event listener to update foreign object subtype");
+					}
+					$ds = $this->getDataStructure();
+					$closure = function (AfterSetForeignDataStructureEvent $event, DataStructure $target) use ($foreignKeyName, $subtype_name, $f, $print){
+						$columnName = $event->getProperty("columnName");
+						if($columnName !== $foreignKeyName){
+							if($print){
+								Debug::print("{$f} column name \"{$columnName}\" is not \"{$foreignKeyName}\", skipping event");
+							}
+							return;
+						}elseif($print){
+							Debug::print("{$f} column name is \"{$columnName}\"; about to set subtype");
+						}
+						$struct = $event->getProperty("data");
+						if($struct->hasColumnValue('subtype') || $struct instanceof StaticSubtypeInterface){
+							$subtype = $struct->getSubtype();
+							if($print){
+								$class = $target->getClass();
+								Debug::print("About to call {$class}->setColumnValue('{$subtype_name}', '{$subtype}')");
+							}
+							$target->setColumnValue($subtype_name, $subtype);
+						}elseif($print){
+							Debug::print("{$f} object does not have a subtype");
+						}
+					};
+					$ds->addEventListener(EVENT_AFTER_SET_FOREIGN, $closure);
+				}elseif($print){
+					Debug::print("{$f} foreign data structure is undefined, skipping event listener");
+				}
+				if($this->hasEmbeddedName()){
+					$subtype->embed($this->getEmbeddedName());
+				}elseif($print){
+					Debug::print("{$f} this bundle does not embed itself");
+				}
+				array_push($components, $subtype);
+			}elseif($print){
+				Debug::print("{$f} we are omitting the subtype column");
 			}
-			array_push($components, $subtype);
 			return $components;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($x, $f);
 		}
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->defaultDataType);
-		unset($this->intersectionForeignKeyName);
-		unset($this->intersectionHostKeyName);
-		unset($this->validDataTypes);
+	public function dispose(bool $deallocate=false): void{
+		if($this->hasDataStructure()){
+			$this->releaseDataStructure();
+		}
+		parent::dispose($deallocate);
+		$this->release($this->converseRelationshipKeyName, $deallocate);
+		$this->release($this->defaultDataType, $deallocate);
+		$this->release($this->foreignDataIdentifierName, $deallocate);
+		$this->release($this->foreignDataStructureClass, $deallocate);
+		$this->release($this->foreignDataStructureClassResolver, $deallocate);
+		$this->release($this->foreignDataType, $deallocate);
+		$this->release($this->foreignDataTypeName, $deallocate);
+		$this->release($this->humanReadableName, $deallocate);
+		$this->release($this->intersectionForeignKeyName, $deallocate);
+		$this->release($this->intersectionHostKeyName, $deallocate);
+		$this->release($this->possibleIntersections, $deallocate);
+		$this->release($this->relationshipType, $deallocate);
+		$this->release($this->relativeSequence, $deallocate);
+		$this->release($this->updateBehavior, $deallocate);
+		$this->release($this->validDataTypes, $deallocate);
+		$this->release($this->vertexContractions, $deallocate);
 	}
 
-	public function updateIntersectionTables(mysqli $mysqli): int
-	{
-		ErrorMessage::unimplemented(f());
+	public function updateIntersectionTables(mysqli $mysqli): int{
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 }

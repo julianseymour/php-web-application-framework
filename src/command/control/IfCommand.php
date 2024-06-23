@@ -3,6 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\command\control;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\data\HasChildrenCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\data\HasColumnValueCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\data\HasForeignDataStructureCommand;
@@ -18,7 +19,6 @@ use JulianSeymour\PHPWebApplicationFramework\json\Json;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 
 /**
  * if a condition is satisfied, invoke thenCommands; otherwise invoke elseCommands
@@ -31,10 +31,10 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 	public function __construct($expr = null, $then = null, $else = null){
 		$f = __METHOD__;
 		parent::__construct($expr);
-		if(!empty($then)) {
+		if(!empty($then)){
 			$this->setThenCommands($then);
 		}
-		if(!empty($else)) {
+		if(!empty($else)){
 			$this->setElseCommands($else);
 		}
 	}
@@ -45,6 +45,21 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 		]);
 	}
 
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"subsequent"
+		]);
+	}
+	
+	public function dispose(bool $deallocate=false):void{
+		$f = __METHOD__;
+		$print = false && $this->getDebugFlag();
+		parent::dispose($deallocate);
+		if($this->hasParentScope()){
+			$this->release($this->parentScope, $deallocate);
+		}
+	}
+	
 	public function setSubsequentFlag(bool $value): bool{
 		return $this->setFlag("subsequent", $value);
 	}
@@ -63,8 +78,8 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 
 	public static function hasColumnValue($context, string $index){
 		$f = __METHOD__;
-		if($context instanceof DataStructure) {
-			$expr = new HasColumnValueCommand($context, $index); // ->hasColumnValueCommand($index);
+		if($context instanceof DataStructure){
+			$expr = new HasColumnValueCommand($context, $index);
 		}else{
 			$expr = new HasColumnValueCommand($context, $index);
 		}
@@ -72,7 +87,9 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 	}
 
 	public static function equals($lhs, $rhs): IfCommand{
-		return static::if(BinaryExpressionCommand::equals($lhs, $rhs));
+		return static::if(
+			new BinaryExpressionCommand($lhs, OPERATOR_EQUALSEQUALS, $rhs)
+		);
 	}
 
 	public static function assign($lhs, $rhs): IfCommand{
@@ -105,13 +122,14 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 	 * @param ExpressionCommand $expr
 	 * @return IfCommand
 	 */
-	public static function if($expr){
+	public static function if($expr=null){
 		$class = static::class;
 		return new $class($expr);
 	}
 
-	public function then(...$blocks){
-		return $this->withProperty("then", $blocks);
+	public function then(...$blocks):IfCommand{
+		$this->setThenCommands($blocks);
+		return $this;
 	}
 
 	public function getEvaluatedCommands(){
@@ -132,21 +150,21 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 				}
 				$evaluated = $ex;
 			}
-			if($evaluated) {
-				if($this->hasThenCommands()) {
-					if($print) {
+			if($evaluated){
+				if($this->hasThenCommands()){
+					if($print){
 						Debug::print("{$f} expression evaluates to true and there are then commands");
 					}
 					return $this->getThenCommands();
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} expression evaluates to true and there are no then commands");
 				}
-			}elseif($this->hasElseCommands()) {
-				if($print) {
+			}elseif($this->hasElseCommands()){
+				if($print){
 					Debug::print("{$f} expression evaluates to false and there are else commands");
 				}
 				return $this->getElseCommands();
-			}elseif($print) {
+			}elseif($print){
 				$decl = $this->getDeclarationLine();
 				Debug::print("{$f} expression evaluates to false and there are no else commands. Declared {$decl}");
 			}
@@ -164,7 +182,7 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 				Debug::print("{$f} entered");
 			}
 			$commands = $this->getEvaluatedCommands();
-			foreach($commands as $cmd) {
+			foreach($commands as $cmd){
 				if($print){
 					$cc = $cmd->getShortClass();
 					$did = $cmd->getDebugId();
@@ -173,7 +191,7 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 				}
 				$cmd->resolve();
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -182,13 +200,13 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 		return "if";
 	}
 
-	public function hasThenCommands(){
+	public function hasThenCommands():bool{
 		return $this->hasArrayProperty("then");
 	}
 
 	public function getThenCommands(){
 		$f = __METHOD__;
-		if(!$this->hasThenCommands()) {
+		if(!$this->hasThenCommands()){
 			Debug::error("{$f} then commands are undefined");
 		}
 		return $this->getProperty("then");
@@ -197,23 +215,23 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 	public function setThenCommands($then){
 		$f = __METHOD__;
 		try{
-			if(!is_array($then)) {
+			if(!is_array($then)){
 				$then = [
 					$then
 				];
 			}
 			return $this->setArrayPropertY("then", $then);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function echoInnerJson(bool $destroy = false): void{
 		$f = __METHOD__;
-		if($this->hasThenCommands()) {
+		if($this->hasThenCommands()){
 			Json::echoKeyValuePair('then', $this->getThenCommands(), $destroy);
 		}
-		if($this->hasElseCommands()) {
+		if($this->hasElseCommands()){
 			Json::echoKeyValuePair('elseCommands', $this->getElseCommands(), $destroy);
 		}
 		parent::echoInnerJson($destroy);
@@ -221,10 +239,10 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 
 	public function evaluate(?array $params = null){
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		$result = $this->getExpression()->evaluate();
-		if($print) {
-			if($result) {
+		if($print){
+			if($result){
 				Debug::print("{$f} condition satisfied");
 			}else{
 				Debug::print("{$f} condition failed");
@@ -234,9 +252,9 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 	}
 
 	public function elseif($expression): IfCommand{
-		if($this->hasElseCommands() && $this->getElseCommandCount() === 1) {
+		if($this->hasElseCommands() && $this->getElseCommandCount() === 1){
 			$elseCommands = $this->getElseCommands();
-			if($elseCommands[0] instanceof IfCommand) {
+			if($elseCommands[0] instanceof IfCommand){
 				return $elseCommands[0]->elseif($expression);
 			}
 		}
@@ -248,52 +266,52 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 		]);
 		return $else;
 	}
-
+	
 	public function toJavaScript(): string{
 		$f = __METHOD__;
 		try{
 			$print = false;
 			$conditional = $this->getExpression();
-			if($conditional instanceof JavaScriptInterface) {
+			if($conditional instanceof JavaScriptInterface){
 				$conditional = $conditional->toJavaScript();
-			}elseif(is_bool($conditional)) {
-				if($conditional) {
+			}elseif(is_bool($conditional)){
+				if($conditional){
 					$conditional = "true";
 				}else{
 					$conditional = "false";
 				}
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to convert the if statement to string");
 			}
 			$string = "if({$conditional}){\n";
-			if($print) {
+			if($print){
 				Debug::print("{$f} converted the if statement to string");
 			}
-			foreach($this->getThenCommands() as $then) {
-				if(!$then instanceof JavaScriptInterface) {
+			foreach($this->getThenCommands() as $then){
+				if(!$then instanceof JavaScriptInterface){
 					$type = gettype($then);
 					Debug::error("{$f} then command is not a javascript command! It's a {$type}");
 				}
 				$string .= $then->toJavaScript() . ";\n";
-				if($print) {
+				if($print){
 					Debug::print("{$f} converted a then command to string");
 				}
 			}
-			if($this->hasElseCommands()) {
+			if($this->hasElseCommands()){
 				$string .= "}else";
 				$elseCommands = $this->getElseCommands();
-				if($this->getElseCommandCount() === 1 && $elseCommands[0] instanceof IfCommand) {
+				if($this->getElseCommandCount() === 1 && $elseCommands[0] instanceof IfCommand){
 					$string .= " " . $elseCommands[0]->toJavaScript();
 					$string .= "//end else if";
 				}else{
 					$string .= "{\n";
-					foreach($elseCommands as $else) {
-						if(!$else instanceof JavaScriptInterface) {
+					foreach($elseCommands as $else){
+						if(!$else instanceof JavaScriptInterface){
 							Debug::error("{$f} else command is not a javascript command!");
 						}
 						$string .= $else->toJavaScript() . ";\n";
-						if($print) {
+						if($print){
 							Debug::print("{$f} converted else command to string");
 						}
 					}
@@ -302,11 +320,11 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 			}else{
 				$string .= "}\n";
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning \"{$string}\"");
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -316,52 +334,52 @@ class IfCommand extends ControlStatementCommand implements ParentScopeInterface,
 		try{
 			$print = false;
 			$conditional = $this->getExpression();
-			if($conditional instanceof SQLInterface) {
+			if($conditional instanceof SQLInterface){
 				$conditional = $conditional->toSQL();
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to convert the if statement to string");
 			}
 			$string = "if {$conditional} then\n";
-			if($print) {
+			if($print){
 				Debug::print("{$f} converted the if statement to string");
 			}
-			foreach($this->getThenCommands() as $then) {
-				if(!$then instanceof SQLInterface) {
+			foreach($this->getThenCommands() as $then){
+				if(!$then instanceof SQLInterface){
 					$type = gettype($then);
 					Debug::error("{$f} then command is not a SQL command! It's a {$type}");
 				}
 				$string .= $then->toSQL() . "\n";
-				if($print) {
+				if($print){
 					Debug::print("{$f} converted a then command to string");
 				}
 			}
-			if($this->hasElseCommands()) {
+			if($this->hasElseCommands()){
 				$string .= "else";
 				$elseCommands = $this->getElseCommands();
-				if($this->getElseCommandCount() === 1 && $elseCommands[0] instanceof IfCommand) {
+				if($this->getElseCommandCount() === 1 && $elseCommands[0] instanceof IfCommand){
 					$elseCommands[0]->setSubsequentFlag(true);
 				}else{
 					$string .= "\n";
 				}
-				foreach($elseCommands as $else) {
-					if(!$else instanceof SQLInterface) {
+				foreach($elseCommands as $else){
+					if(!$else instanceof SQLInterface){
 						Debug::error("{$f} else command is not an SQL command!");
 					}
 					$string .= $else->toSQL() . "\n";
-					if($print) {
+					if($print){
 						Debug::print("{$f} converted else command to string");
 					}
 				}
 			}
-			if(!$this->getSubsequentFlag()) {
+			if(!$this->getSubsequentFlag()){
 				$string .= "end if;\n";
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning \"{$string}\"");
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

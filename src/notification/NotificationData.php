@@ -2,9 +2,9 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
-use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
+use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
@@ -13,6 +13,7 @@ use JulianSeymour\PHPWebApplicationFramework\account\owner\OwnerPermission;
 use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
 use JulianSeymour\PHPWebApplicationFramework\auth\permit\Permission;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\ConcreteSubtypeColumnInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
@@ -22,15 +23,14 @@ use JulianSeymour\PHPWebApplicationFramework\datum\TimestampDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\UnsignedIntegerDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
-use JulianSeymour\PHPWebApplicationFramework\notification\ui\NotificationIdSuffixCommand;
-use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
-use JulianSeymour\messenger\RetrospectiveMessage;
-use Exception;
-use mysqli;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
+use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
+use Exception;
+use mysqli;
 
-abstract class NotificationData extends UserCorrespondence implements StaticElementClassInterface, StaticTableNameInterface{
+abstract class NotificationData extends UserCorrespondence 
+implements ConcreteSubtypeColumnInterface, StaticElementClassInterface, StaticTableNameInterface{
 
 	use JavaScriptCounterpartTrait;
 	use StaticTableNameTrait;
@@ -49,7 +49,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	}
 
 	public function hasVirtualColumnValue(string $column_name): bool{
-		switch ($column_name) {
+		switch($column_name){
 			case "dismissable":
 				return $this->isDismissable();
 			default:
@@ -61,7 +61,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		$element_class = $this->getElementClass();
 		$element = new $element_class(ALLOCATION_MODE_NEVER, $this);
 		$preview = $element->getNotificationPreview();
-		while ($preview instanceof ValueReturningCommandInterface) {
+		while($preview instanceof ValueReturningCommandInterface){
 			$preview = $preview->evaluate();
 		}
 		$element = null;
@@ -71,10 +71,10 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	public function getVirtualColumnValue(string $column_name){
 		$f = __METHOD__;
 		try{
-			switch ($column_name) {
+			switch($column_name){
 				case "actions":
 					$arr = $this->getTypedNotificationClass()::getNotificationActionsStatic($this);
-					if($this->isDismissable()) {
+					if($this->isDismissable()){
 						array_push($arr, [
 							"action" => "dismiss",
 							"title" => _("Dismiss")
@@ -90,10 +90,9 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 				case "title":
 					return $this->getNotificationTitle();
 				default:
-					// Debug::warning("{$f} invalid virtual datum index \"{$column_name}\"; returning parent function");
 					return parent::getVirtualColumnValue($column_name);
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -103,7 +102,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		$element_class = $this->getElementClass();
 		$element = new $element_class(ALLOCATION_MODE_NEVER, $this);
 		$title = $element->getNotificationTitle();
-		while ($title instanceof ValueReturningCommandInterface) {
+		while($title instanceof ValueReturningCommandInterface){
 			$title = $title->evaluate();
 		}
 		Debug::print("{$f} notification title is \"{$title}\"");
@@ -113,10 +112,6 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public function getElementIdSuffix(){
 		return $this->getIdentifierValue();
-	}
-
-	public function getIdAttributeSuffixCommand(){
-		return new NotificationIdSuffixCommand($this);
 	}
 
 	public static function getTableNameStatic(): string{
@@ -139,7 +134,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 			$ndt = $user->getNotificationDeliveryTimestamp();
 			$this->setOldDeliveryTimestamp($ndt);
 			return parent::setUserData($user);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -168,30 +163,30 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public function requiresAttention():bool{
 		$f = __METHOD__;
-		if(!$this->hasSubjectData()) {
+		if(!$this->hasSubjectData()){
 			Debug::error("{$f} target object is undefined");
 		}
 		$target = $this->getSubjectData();
 		return $target->requiresAttention();
 	}
 
-	protected function beforeInsertHook(mysqli $mysqli): int{
+	public function beforeInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
 		$print = false;
-		if(!$this->hasNotificationState()) {
+		if(!$this->hasNotificationState()){
 			$this->setNotificationState(NOTIFICATION_STATE_UNREAD);
 		}
-		if($this->hasCorrespondentKey()) {
+		if($this->hasCorrespondentKey()){
 			$ck = $this->getCorrespondentKey();
-			if($print) {
+			if($print){
 				Debug::print("{$f} correspondent key is \"{$ck}\"");
 			}
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} this notification does not have a correspondent key");
 		}
 
-		if($print) {
-			if($this->hasCorrespondentAccountType()) {
+		if($print){
+			if($this->hasCorrespondentAccountType()){
 				$type = $this->getCorrespondentAccountType();
 				Debug::print("{$f} correspondent account type is \"{$type}\"");
 			}else{
@@ -201,25 +196,23 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		return parent::beforeInsertHook($mysqli);
 	}
 
-	protected static function getRetrospectiveMessageClass():string{
-		return RetrospectiveMessage::class;
-	}
-
 	public function acquireCorrespondentObject(mysqli $mysqli){
 		$f = __METHOD__;
 		try{
-			// Debug::print("{$f} entered");
-			if($this->getNotificationType() === NOTIFICATION_TYPE_SECURITY) {
+			$print = false;
+			if($this->getNotificationType() === NOTIFICATION_TYPE_SECURITY){
 				Debug::error("{$f} this should not get called for security notifications");
+			}elseif($print){
+				Debug::print("{$f} about to call parent function");
 			}
-			// Debug::print("{$f} about to call parent function");
 			$correspondent = parent::acquireCorrespondentObject($mysqli);
-			if(! isset($correspondent)) {
+			if(!isset($correspondent)){
 				Debug::error("{$f} acquireCorrespondentObject returned null");
+			}elseif($print){
+				Debug::print("{$f} returning a perfectly valid correspondent object");
 			}
-			// Debug::print("{$f} returning a perfectly valid correspondent object");
 			return $correspondent;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -233,7 +226,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	}
 
 	protected function afterSetForeignDataStructureHook(string $columnName, DataStructure $struct): int{
-		switch ($columnName) {
+		switch($columnName){
 			case "subjectKey":
 				$struct->setAutoloadFlags(true);
 				break;
@@ -252,8 +245,8 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 				// "userName",
 				"userTemporaryRole"
 			];
-			foreach($indices as $column_name) {
-				if(! array_key_exists($column_name, $columns)) {
+			foreach($indices as $column_name){
+				if(!array_key_exists($column_name, $columns)){
 					Debug::printArray(array_keys($columns));
 					Debug::error("{$f} column \"{$column_name}\" does not exist");
 				}
@@ -266,7 +259,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 			$columns['correspondentNameKey']->setNullable(true);
 			$columns['userNameKey']->setNullable(true);
 			// $columns['userKey']->setAutoloadFlag();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, x);
 		}
 	}
@@ -277,7 +270,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 			if($this->getTypedNotificationClass()::noCorrespondent()){
 				// Debug::print("{$f} this is a security notification, it doesn't have a correspondent");
 				return _("N/A");
-			}elseif(!$this->hasCorrespondentKey()) {
+			}elseif(!$this->hasCorrespondentKey()){
 				return _("Deleted correspondent");
 			}
 			return parent::getCorrespondentName();
@@ -294,7 +287,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		return $this->setColumnValue("pinnedTimestamp", $timestamp);
 	}
 
-	public function hasPinnedTimestamp(){
+	public function hasPinnedTimestamp():bool{
 		return $this->hasColumnValue("pinnedTimestamp");
 	}
 
@@ -302,7 +295,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		$f = __METHOD__;
 		try{
 			return substitute(_("Notification #%1%"), $this->getSerialNumber());
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -311,7 +304,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		return $this->getColumnValue('subtype');
 	}
 
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+	public static function declareColumns(array &$columns, ?DataStructure $ds=null):void{
 		$f = __METHOD__;
 		try{
 			parent::declareColumns($columns, $ds);
@@ -333,14 +326,15 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 			$subjectKey->setOnDelete($subjectKey->setOnUpdate(REFERENCE_OPTION_CASCADE));
 			$subjectKey->setNullable(true);
 			$subjectKey->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
-
+			$subjectKey->setConverseRelationshipKeyName('notifications');
+			
 			$pin_timestamp = new TimestampDatum("pinnedTimestamp");
 			$pin_timestamp->setUpdateToCurrentTimeFlag(true);
 			$pin_timestamp->setNullable(true);
 			$pin_timestamp->setDefaultValue(null);
 			$pin_timestamp->setHumanReadableName(_("Pinned timestamp"));
 			$pin_timestamp->setTrimmableFlag(false);
-
+			
 			$dismissable = new VirtualDatum("dismissable");
 			$link_uri = new VirtualDatum("linkUri");
 			$preview = new VirtualDatum("preview");
@@ -351,7 +345,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 			$actions = new VirtualDatum("actions");
 			array_push($columns, $type, $count, $state, $pin_timestamp, $dismissable, $link_uri, $preview, $title, $actions, $subjectKey, $oldTimestamp);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -382,7 +376,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public static function getNotificationStateStringStatic($status){
 		$f = __METHOD__;
-		switch ($status) {
+		switch($status){
 			case NOTIFICATION_STATE_UNREAD:
 				return _("Unread");
 			case NOTIFICATION_STATE_DISMISSED:
@@ -399,12 +393,12 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	public function excludeFromPhylumArray(){
 		$f = __METHOD__;
 		$print = false;
-		if($this->getNotificationState() === NOTIFICATION_STATE_DISMISSED) {
-			if($print) {
+		if($this->getNotificationState() === NOTIFICATION_STATE_DISMISSED){
+			if($print){
 				Debug::print("{$f} this notification was dismissed; ecxlude it");
 			}
 			return true;
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} this notification has not been dismissed; include it");
 		}
 		return false;
@@ -419,11 +413,11 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 		$print = false;
 		$sub_id = $config_id === "push" ? CONST_DEFAULT : $config_id;
 		$config = parent::getArrayMembershipConfiguration($sub_id);
-		if($print) {
+		if($print){
 			Debug::print("{$f} parent function returned the following array:");
 			Debug::printArray($config);
 		}
-		if(array_key_exists("name", $config)) {
+		if(array_key_exists("name", $config)){
 			Debug::error("{$f} notifications don't have names");
 		}
 		$class = $this->getTypedNotificationClass();
@@ -432,7 +426,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 
 	public static function getArrayMembershipConfigurationStatic($config_id, $that){
 		$sub_id = $config_id === "push" ? CONST_DEFAULT : $config_id;
-		switch ($config_id) {
+		switch($config_id){
 			case "push":
 				$config['actions'] = true;
 				$config['preview'] = true;
@@ -478,15 +472,15 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	public function getPushNotificationDeliverable(): string{
 		$f = __METHOD__;
 		$print = false;
-		if(!$this instanceof NotificationData) {
+		if(!$this instanceof NotificationData){
 			Debug::error("{$f} you were supposed to send a notification data structure");
 		}
-		if($print) {
+		if($print){
 			Debug::print("{$f} about to send push notification");
 		}
 		$recipient = $this->getUserData();
 		$ck = $this->getUserKey();
-		if($print) {
+		if($print){
 			Debug::print("{$f} about to encrypt user key \"{$ck}\"");
 		}
 		$arr = [
@@ -501,17 +495,17 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 	public static function getPermissionStatic(string $name, $data){
 		$f = __METHOD__;
 		try{
-			if($data->hasPermission($name)) {
+			if($data->hasPermission($name)){
 				return $data->getPermission($name);
 			}
-			switch ($name) {
+			switch($name){
 				case DIRECTIVE_INSERT:
-					return new Permission($name, function (PlayableUser $user, NotificationData $notification) {
-						if($user instanceof Administrator) {
+					return new Permission($name, function (PlayableUser $user, NotificationData $notification){
+						if($user instanceof Administrator){
 							return SUCCESS;
-						}elseif($notification->isOwnedBy($user)) {
+						}elseif($notification->isOwnedBy($user)){
 							return SUCCESS;
-						}elseif($user->getIdentifierValue() === $notification->getCorrespondentKey()) {
+						}elseif($user->getIdentifierValue() === $notification->getCorrespondentKey()){
 							return SUCCESS;
 						}
 						return FAILURE;
@@ -521,7 +515,7 @@ abstract class NotificationData extends UserCorrespondence implements StaticElem
 				default:
 					return parent::getPermissionStatic($name, $data);
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

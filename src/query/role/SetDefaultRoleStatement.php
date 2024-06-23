@@ -1,21 +1,20 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\role;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\user\MultipleDatabaseUserDefinitionsTrait;
 
-class SetDefaultRoleStatement extends RoleStatement
-{
+class SetDefaultRoleStatement extends RoleStatement{
 
 	use MultipleDatabaseUserDefinitionsTrait;
 
-	public function getRoleStatementString()
-	{
-		$f = __METHOD__; //SetDefaultRoleStatement::getShortClass()."(".static::getShortClass().")->getRoleStatementString()";
+	public function getRoleStatementString():string{
+		$f = __METHOD__;
 		$string = "default role ";
-		if($this->hasRoleType()) {
+		if($this->hasRoleType()){
 			$string .= $this->getRoleType();
-		}elseif($this->hasRoles()) {
+		}elseif($this->hasRoles()){
 			$string .= " " . implode(',', $this->getRoles());
 		}else{
 			Debug::error("{$f} neither of the above");
@@ -24,8 +23,7 @@ class SetDefaultRoleStatement extends RoleStatement
 		return $string;
 	}
 
-	public function getQueryStatementString()
-	{
+	public function getQueryStatementString():string{
 		return parent::getQueryStatementString() . " to " . implode(',', $this->getUsers());
 	}
 }

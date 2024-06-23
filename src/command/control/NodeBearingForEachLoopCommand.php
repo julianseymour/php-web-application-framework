@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\control;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -19,7 +20,7 @@ class NodeBearingForEachLoopCommand extends ForEachLoopCommand implements Alloca
 		$f = __METHOD__;
 		try{
 			$iteratee = $this->getIteratedObject();
-			while ($iteratee instanceof ValueReturningCommandInterface) {
+			while($iteratee instanceof ValueReturningCommandInterface){
 				$iteratee = $iteratee->evaluate();
 			}
 			$count = count($iteratee);
@@ -27,16 +28,16 @@ class NodeBearingForEachLoopCommand extends ForEachLoopCommand implements Alloca
 			$chilren = [];
 			$blocks = $this->getCodeBlocks();
 			$iterator = $this->getIterator();
-			foreach($iteratee as $i) {
+			foreach($iteratee as $i){
 				$iterator->setValue($i);
-				foreach($blocks as $b) {
-					if(is_object($b)) {
+				foreach($blocks as $b){
+					if(is_object($b)){
 						$bc = $b->getClass();
 						Debug::print("{$f} code block is a \"{$bc}\"");
-						if($b instanceof NodeBearingCommandInterface) {
+						if($b instanceof NodeBearingCommandInterface){
 							Debug::print("{$f} code block {$bc} is a node-bearing media command; extracting its nodes");
 							$chilren = array_merge($chilren, $b->extractChildNodes($mode));
-						}elseif($b instanceof ServerExecutableCommandInterface) {
+						}elseif($b instanceof ServerExecutableCommandInterface){
 							Debug::print("{$f} code block {$bc} is a resolvent media command; resolving it now");
 							$b->resolve();
 						}else{
@@ -51,7 +52,7 @@ class NodeBearingForEachLoopCommand extends ForEachLoopCommand implements Alloca
 			$count = count($chilren);
 			Debug::print("{$f} returning \"{$count}\" child nodes");
 			return $chilren;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -65,15 +66,15 @@ class NodeBearingForEachLoopCommand extends ForEachLoopCommand implements Alloca
 	}
 
 	public function incrementVariableName(int &$counter){
-		foreach($this->getCodeBlocks() as $b) {
-			if($b instanceof IncrementVariableNameInterface) {
+		foreach($this->getCodeBlocks() as $b){
+			if($b instanceof IncrementVariableNameInterface){
 				$b->incrementVariableName($counter);
 			}
 		}
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->allocationMode);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->allocationMode, $deallocate);
 	}
 }

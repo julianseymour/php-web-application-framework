@@ -31,7 +31,7 @@ abstract class CodeConfirmationAttempt extends AccessAttempt{
 			$confirmationCodeKey->setOnUpdate(REFERENCE_OPTION_CASCADE);
 			$confirmationCodeKey->setOnDelete(REFERENCE_OPTION_SET_NULL);
 			array_push($columns, $confirmationCodeKey);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -43,19 +43,19 @@ abstract class CodeConfirmationAttempt extends AccessAttempt{
 	public function acquireUserData(mysqli $mysqli):?UserData{
 		$f = __METHOD__;
 		try{
-			if($this->hasUserData()) {
+			if($this->hasUserData()){
 				Debug::print("{$f} client is already defined");
 				return $this->getUserData();
 			}
 			Debug::print("{$f} about to debug print GET");
 			$confirmation_code = $this->acquireConfirmationCodeObject($mysqli);
 			$client = $confirmation_code->acquireUserData($mysqli);
-			if(!$confirmation_code->hasSecretCode()) {
+			if(!$confirmation_code->hasSecretCode()){
 				Debug::error("{$f} confirmation code does not have its secret code");
 			}
 			// $this->setUserData($client);
 			return $this->setUserData($client);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -71,15 +71,15 @@ abstract class CodeConfirmationAttempt extends AccessAttempt{
 	public function getConfirmationCodeKey():?string{
 		$f = __METHOD__;
 		try{
-			if($this->hasConfirmationCodeKey()) {
+			if($this->hasConfirmationCodeKey()){
 				return $this->getColumnValue('confirmationCodeKey');
-			}elseif($this->hasConfirmationCodeObject()) {
+			}elseif($this->hasConfirmationCodeObject()){
 				$confirmation_code = $this->getConfirmationCodeObject();
 				$rk = $confirmation_code->getIdentifierValue();
 				return $this->setConfirmationCodeKey($rk);
 			}
 			return null;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -99,9 +99,9 @@ abstract class CodeConfirmationAttempt extends AccessAttempt{
 	public function setConfirmationCodeObject($confirmation_code){
 		$f = __METHOD__;
 		try{
-			if(isset($confirmation_code)) {
+			if(isset($confirmation_code)){
 				$status = $confirmation_code->getObjectStatus();
-				if($status === SUCCESS) {
+				if($status === SUCCESS){
 					$rk = $confirmation_code->getIdentifierValue();
 					$this->setConfirmationCodeKey($rk);
 				}else{
@@ -113,7 +113,7 @@ abstract class CodeConfirmationAttempt extends AccessAttempt{
 				Debug::print("{$f} confirmation code object is undefined");
 			}
 			return $this->setForeignDataStructure('confirmationCodeKey', $confirmation_code);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -125,14 +125,14 @@ abstract class CodeConfirmationAttempt extends AccessAttempt{
 			$indices = [
 				"reasonLogged"
 			];
-			foreach($indices as $index) {
-				if(! array_key_exists($index, $columns)) {
+			foreach($indices as $index){
+				if(!array_key_exists($index, $columns)){
 					Debug::warning("{$f} array key \"{$index}\" does not exist");
 					continue;
 				}
 				$columns[$index]->volatilize();
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

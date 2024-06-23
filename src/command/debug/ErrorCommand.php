@@ -16,7 +16,7 @@ class ErrorCommand extends LogCommand
 	{
 		$f = __METHOD__; //ErrorCommand::getShortClass()."(".static::getShortClass().")->resolve()";
 		$msg = $this->getMessage();
-		while ($msg instanceof ValueReturningCommandInterface) {
+		while($msg instanceof ValueReturningCommandInterface){
 			$msg = $msg->evaluate();
 		}
 		Debug::error($msg);

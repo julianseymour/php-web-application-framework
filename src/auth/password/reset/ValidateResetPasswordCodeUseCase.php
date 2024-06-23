@@ -15,7 +15,7 @@ class ValidateResetPasswordCodeUseCase extends ValidateAnonymousConfirmationCode
 	}
 
 	public function getDataOperandObject(): ?DataStructure{
-		$user_class = mods()->getUserClass(NormalUser::getAccountTypeStatic());
+		$user_class = mods()->getUserClass(NormalUser::getSubtypeStatic());
 		$user = new $user_class();
 		return $user;
 	}

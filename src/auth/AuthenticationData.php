@@ -4,6 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\auth;
 
 use function JulianSeymour\PHPWebApplicationFramework\argon_hash;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\getlocale;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -40,16 +41,16 @@ abstract class AuthenticationData extends DataStructure{
 		return PERSISTENCE_MODE_SESSION;
 	}
 
-	public function __construct(){
+	public function __construct(?int $mode=ALLOCATION_MODE_EAGER){
 		$f = __METHOD__;
-		parent::__construct();
-		if(!$this->hasColumn(static::getUserKeyColumnName())) {
+		parent::__construct($mode);
+		if($this->hasColumn(static::getUserKeyColumnName()) && !$this->hasColumn(static::getUserKeyColumnName())){
 			Debug::error("{$f} user key is undefined");
 		}
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_DELETE:
 				return SUCCESS;
 			default:
@@ -75,7 +76,7 @@ abstract class AuthenticationData extends DataStructure{
 
 	public function getUserAccountType():string{
 		$f = __METHOD__;
-		if(!$this->hasUserAccountType()) {
+		if(!$this->hasUserAccountType()){
 			Debug::error("{$f} user account type is undefined");
 		}
 		return $this->getColumnValue(static::getUserAccountTypeColumnName());
@@ -91,7 +92,7 @@ abstract class AuthenticationData extends DataStructure{
 
 	public function getUserData():PlayableUser{
 		$f = __METHOD__;
-		if(!$this->hasUserData()) {
+		if(!$this->hasUserData()){
 			Debug::error("{$f} user object is undefined");
 		}
 		return $this->getForeignDataStructure(static::getUserKeyColumnName());
@@ -142,7 +143,7 @@ abstract class AuthenticationData extends DataStructure{
 	}
 
 	public function getVirtualColumnValue(string $columnName){
-		switch ($columnName) {
+		switch($columnName){
 			case static::getUserAccountTypeColumnName() . "String":
 				return UserData::getAccountTypeStringStatic($this->getUserAccountType());
 			case static::getUserMetadataBundleName() . "DisplayName":
@@ -153,7 +154,7 @@ abstract class AuthenticationData extends DataStructure{
 	}
 
 	public function hasVirtualColumnValue(string $columnName): bool{
-		switch ($columnName) {
+		switch($columnName){
 			case static::getUserAccountTypeColumnName() . "String":
 				return $this->hasUserAccountType();
 			case static::getUserMetadataBundleName() . "DisplayName":
@@ -164,7 +165,7 @@ abstract class AuthenticationData extends DataStructure{
 	}
 
 	public function acquireUserData(mysqli $mysqli):PlayableUser{
-		if($this->hasUserData()) {
+		if($this->hasUserData()){
 			return $this->getUserData();
 		}
 		return $this->setUserData(mods()->getUserClass($this->getUserAccountType())::getObjectFromKey($mysqli, $this->getUserKey()));
@@ -175,6 +176,9 @@ abstract class AuthenticationData extends DataStructure{
 		try{
 			$name = new TextDatum(static::getUsernameColumnName());
 			$key = new UserMetadataBundle(static::getUserMetadataBundleName(), $ds);
+			if(!BACKWARDS_REFERENCES_ENABLED){
+				$key->setRank(RANK_PARENT);
+			}
 			$dsk = new Base64Datum(static::getDeterministicSecretKeyColumnName());
 			$reauth_nonce = new NonceDatum(static::getReauthenticationNonceColumnName());
 			$reauth_hash = new TextDatum(static::getReauthenticationHashColumnName());
@@ -182,13 +186,13 @@ abstract class AuthenticationData extends DataStructure{
 			$keygenNonce->volatilize();
 			$signature = new SodiumCryptoSignatureDatum(static::getSignatureColumnName());
 			array_push($columns, $name, $key, $dsk, $reauth_nonce, $reauth_hash, $keygenNonce, $signature);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
-		foreach($columns as $c) {
+		foreach($columns as $c){
 			$c->setNullable(true);
 		}
 	}
@@ -196,13 +200,13 @@ abstract class AuthenticationData extends DataStructure{
 	public function setDeterministicSecretKey(string $value):string{
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
+		if($print){
 			Debug::print("{$f} setting DSK to value with hash " . sha1($value));
 		}
 		$ret = $this->setColumnValue(static::getDeterministicSecretKeyColumnName(), $value);
-		if(!$this->hasDeterministicSecretKey()) {
+		if(!$this->hasDeterministicSecretKey()){
 			Debug::error("{$f} immediately after setting it, deterministic secret key is undefined");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} deterministic secret key was set correctly");
 		}
 		return $ret;
@@ -211,18 +215,18 @@ abstract class AuthenticationData extends DataStructure{
 	public function ejectDeterministicSecretKey():?string{
 		$f = __METHOD__;
 		$print = false;
-		if(!$this->hasDeterministicSecretKey()) {
+		if(!$this->hasDeterministicSecretKey()){
 			Debug::print("{$f} deterministic secret key is undefined");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} deterministic secret key is ready for ejection");
 			// Debug::printSession();
 		}
 		$ret = $this->ejectColumnValue(static::getDeterministicSecretKeyColumnName());
-		if($this->hasDeterministicSecretKey()) {
+		if($this->hasDeterministicSecretKey()){
 			Debug::warning("{$f} immediately after ejection, determministic secret key is still defined");
 			Debug::printSessionHash();
 			Debug::printStackTrace();
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} deterministic secret key was ejected properly");
 			// Debug::printStackTraceNoExit();
 		}
@@ -253,7 +257,7 @@ abstract class AuthenticationData extends DataStructure{
 		$f = __METHOD__;
 		$print = false;
 		$columnName = static::getUserKeyColumnName();
-		if($print) {
+		if($print){
 			Debug::print("{$f} setting column \"{$columnName}\" to \"{$value}\"");
 		}
 		return $this->setColumnValue($columnName, $value);
@@ -265,7 +269,7 @@ abstract class AuthenticationData extends DataStructure{
 
 	public function getSignature():string{
 		$f = __METHOD__;
-		if(!$this->hasSignature()) {
+		if(!$this->hasSignature()){
 			Debug::error("{$f} signature is undefined");
 		}
 		return $this->getColumnValue(static::getSignatureColumnName());
@@ -289,7 +293,7 @@ abstract class AuthenticationData extends DataStructure{
 			$this->setReauthenticationNonce($reauth_nonce);
 			$hash = password_hash($reauth_nonce . $reauth_key, PASSWORD_BCRYPT);
 			return $this->setReauthenticationHash($hash);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -306,23 +310,23 @@ abstract class AuthenticationData extends DataStructure{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				$has = $this->hasColumnValue("keyGenerationNonce");
-				if($has) {
+				if($has){
 					Debug::print("{$f} yes, the key generation nonce is defined");
 				}else{
 					Debug::print("{$f} no, the key generation nonce is undefined");
 				}
 			}
 			return $this->hasColumnValue("keyGenerationNonce");
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function getKeyGenerationNonce():string{
 		$f = __METHOD__;
-		if(!$this->hasKeyGenerationNonce()) {
+		if(!$this->hasKeyGenerationNonce()){
 			Debug::error("{$f} key generation nonce is undefined");
 		}
 		return $this->getColumnValue("keyGenerationNonce");
@@ -337,12 +341,12 @@ abstract class AuthenticationData extends DataStructure{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(!$this->hasDeterministicSecretKey()) {
-				if($user == null) {
+			if(!$this->hasDeterministicSecretKey()){
+				if($user == null){
 					Debug::error("{$f} you must provide a user to generate deterministic secret key");
 				}
 				$key = $this->generateDeterministicSecretKey($user);
-				if($print) {
+				if($print){
 					$hash = sha1($key);
 					Debug::print("{$f} generated deterministic secret key with hash \"{$hash}\"");
 				}
@@ -350,11 +354,11 @@ abstract class AuthenticationData extends DataStructure{
 			}
 			$key = $this->getColumnValue(static::getDeterministicSecretKeyColumnName());
 			$hash = sha1($key);
-			if($print) {
+			if($print){
 				Debug::print("{$f} deterministic secret key has hash \"{$hash}\"");
 			}
 			return $key;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -377,24 +381,24 @@ abstract class AuthenticationData extends DataStructure{
 	public function generateDeterministicSecretKey(PlayableUser $user):string{
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
+		if($print){
 			Debug::print("{$f} about to generate deterministic secret key");
 		}
-		if(!$this->hasKeyGenerationNonce()) {
+		if(!$this->hasKeyGenerationNonce()){
 			Debug::error("{$f} key generation nonce is undefined");
 		}
 		$nonce = $this->getKeyGenerationNonce();
 		$len = strlen($nonce);
-		if($len < 16) {
+		if($len < 16){
 			Debug::error("{$f} nonce length is {$len}");
 		}
-		if($print) {
+		if($print){
 			$hash = sha1($nonce);
 			Debug::print("{$f} key generation nonce has hash \"{$hash}\"");
 		}
 		$key = argon_hash($user->getPostedPassword(), $nonce);
 		$hash = sha1($key);
-		if($print) {
+		if($print){
 			Debug::print("{$f} generated a key with hash \"{$hash}\"");
 		}
 		return $key;
@@ -410,11 +414,11 @@ abstract class AuthenticationData extends DataStructure{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(!$user instanceof PlayableUser) {
+			if(!$user instanceof PlayableUser){
 				$gottype = is_object($user) ? $user->getClass() : gettype($user);
 				Debug::error("{$f} user data is a {$gottype}");
-			}elseif($user instanceof AuthenticatedUser && ! $user->hasUsernameData()) {
-				if(!$user->hasUsernameKey()) {
+			}elseif($user instanceof AuthenticatedUser && ! $user->hasUsernameData()){
+				if(!$user->hasUsernameKey()){
 					Debug::error("{$f} username key is not defined");
 				}
 				$decl = $user->getDeclarationLine();
@@ -423,7 +427,7 @@ abstract class AuthenticationData extends DataStructure{
 			}
 			$key = $user->getIdentifierValue();
 			$name = $user->getName();
-			if($print) {
+			if($print){
 				$class = get_class($user);
 				Debug::print("{$f} handing session control to user \"{$name}\" of class \"{$class}\" with key \"{$key}\"");
 			}
@@ -445,11 +449,13 @@ abstract class AuthenticationData extends DataStructure{
 						$user->getColumn($name)->setHumanReadableName($column->getHumanReadableName());
 					}
 				}
+				deallocate($dummy);
 			}elseif($print){
 				Debug::print("{$f} user has the same language code as defined in language settings data");
 			}
 			$lsd->setLanguageCode($lang);
 			$lsd->setRegionCode($region);
+			deallocate($lsd);
 			$locale = $user->getLocaleString();
 			if(!is_dir("/var/www/locale/{$locale}")){
 				$locale = Internationalization::getFallbackLocale($locale);
@@ -461,54 +467,54 @@ abstract class AuthenticationData extends DataStructure{
 				Debug::print("{$f} successfully set locale to \"".getlocale(LC_MESSAGES)."\"");
 			}
 			$this->setUserData($user);
-			if($print) {
+			if($print){
 				Debug::print("{$f} setting username to \"{$name}\"");
 			}
 			$this->setUsername($name);
 			$this->setUserKey($key);
-			if($user->hasKeyGenerationNonce()) {
+			if($user->hasKeyGenerationNonce()){
 				$this->setKeyGenerationNonce($user->getKeyGenerationNonce());
-				if(!$this->hasKeyGenerationNonce()) {
+				if(!$this->hasKeyGenerationNonce()){
 					$this->unsetColumnValues();
 					Debug::error("{$f} immediately after setting it, key generation nonce is undefined");
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::error("{$f} user does not have a defined key generation nonce");
 			}
 			$this->setUserAccountType($user->getAccountType());
-			if(!$this->hasDeterministicSecretKey()) {
-				if($print) {
+			if(!$this->hasDeterministicSecretKey()){
+				if($print){
 					Debug::print("{$f} deterministic secret key is undefined");
 				}
 				$this->setDeterministicSecretKey($this->generateDeterministicSecretKey($user)); // doesn't work for reauthentication
 			}
-			if(!$this->hasDeterministicSecretKey()) {
+			if(!$this->hasDeterministicSecretKey()){
 				Debug::error("{$f} dsk is undefined immediately after generation");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} deterministic secret key is defined");
 			}
-			if(cache()->enabled() && USER_CACHE_ENABLED) {
+			if(cache()->enabled() && USER_CACHE_ENABLED){
 				$user_key = $user->getIdentifierValue();
-				if($user->hasCacheValue()) {
-					if($print) {
+				if($user->hasCacheValue()){
+					if($print){
 						Debug::print("{$f} caching user data now");
 					}
 					$cache_value = $user->getCacheValue();
 					cache()->setAPCu($user_key, $cache_value, $user->getTimeToLive());
-				}elseif($user instanceof AnonymousUser) {
+				}elseif($user instanceof AnonymousUser){
 					// ok
-					if($print) {
+					if($print){
 						Debug::print("{$f} unregistered user does not have a temporary cache value");
 					}
 					cache()->expireAPCu($user_key, $user->getTimeToLive());
 				}else{
 					Debug::error("{$f} user data does not have a chacheable value");
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} user cache is disabled");
 			}
 			return $this->setUserData($user);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

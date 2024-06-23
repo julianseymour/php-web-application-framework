@@ -4,8 +4,8 @@ namespace JulianSeymour\PHPWebApplicationFramework\use_case;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\config;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
-use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\request;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -18,9 +18,10 @@ use JulianSeymour\PHPWebApplicationFramework\app\ResponseHooksTrait;
 use JulianSeymour\PHPWebApplicationFramework\app\pwa\ProgressiveHyperlinkResponder;
 use JulianSeymour\PHPWebApplicationFramework\auth\AfterAuthenticateEvent;
 use JulianSeymour\PHPWebApplicationFramework\auth\BeforeAuthenticateEvent;
+use JulianSeymour\PHPWebApplicationFramework\auth\permit\PermissiveInterface;
 use JulianSeymour\PHPWebApplicationFramework\auth\permit\PermissiveTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\DisabledFlagTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\DisabledFlagTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\db\load\LoadoutGenerator;
@@ -32,13 +33,14 @@ use JulianSeymour\PHPWebApplicationFramework\event\AfterExecuteEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\AfterLoadEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\BeforeExecuteEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\BeforeLoadEvent;
-use JulianSeymour\PHPWebApplicationFramework\event\EventListeningTrait;
+use JulianSeymour\PHPWebApplicationFramework\event\DeallocateEvent;
+use JulianSeymour\PHPWebApplicationFramework\event\ReleaseUseCasePredecessorEvent;
+use JulianSeymour\PHPWebApplicationFramework\paginate\Paginator;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
 use JulianSeymour\PHPWebApplicationFramework\security\access\AccessAttempt;
 use JulianSeymour\PHPWebApplicationFramework\security\xsrf\AntiXsrfTokenData;
 use JulianSeymour\PHPWebApplicationFramework\session\hijack\AntiHijackSessionData;
-use JulianSeymour\PHPWebApplicationFramework\session\timeout\RefreshSessionTimeoutResponder;
 use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\InteractiveUseCase;
 use Exception;
 use mysqli;
@@ -49,12 +51,11 @@ use mysqli;
  *
  * @author j
  */
-abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCounterpartInterface{
+abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCounterpartInterface, PermissiveInterface{
 
 	use ArrayPropertyTrait;
 	use DisabledFlagTrait;
 	use ErrorMessageTrait;
-	use EventListeningTrait;
 	use JavaScriptCounterpartTrait;
 	use PermissiveTrait;
 	use ResponseHooksTrait;
@@ -64,6 +65,8 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	protected $dataOperandObject;
 
 	protected $loadoutGenerator;
+	
+	protected $paginator;
 	
 	protected $predecessor;
 
@@ -78,19 +81,68 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 		try{
 			parent::__construct();
 			$this->setPermission(DIRECTIVE_TRANSITION_FROM, $this->getTransitionFromPermission());
-			if(isset($predecessor)) {
+			if(isset($predecessor)){
 				$this->setPredecessor($predecessor);
 			}
 			$this->setPermission("execute", $this->getExecutePermission());
 			$switches = $this->initializeSwitchUseCases();
-			if(!empty($switches)) {
-				$this->switchUseCases = $switches;
+			if(!empty($switches)){
+				$this->setSwitchUseCases($switches);
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
+	public function dispose(bool $deallocate=false):void{
+		$f = __METHOD__;
+		if($this->hasPredecessor()){
+			$this->releasePredecessor($deallocate);
+		}
+		if($this->hasProperties()){
+			$this->releaseProperties($deallocate);
+		}
+		parent::dispose($deallocate);
+		$this->release($this->bruteforceAttemptObject, $deallocate);
+		$this->release($this->dataOperandObject, $deallocate);
+		$this->release($this->errorMessage, $deallocate);
+		$this->release($this->loadoutGenerator, $deallocate);
+		$this->release($this->paginator, $deallocate);
+		$this->release($this->permissionGateway, $deallocate);
+		if($this->hasPermissions()){
+			$this->releasePermissions($deallocate);
+		}
+		$this->release($this->singlePermissionGateways, $deallocate);
+		if($this->hasPropertyTypes()){
+			$this->release($this->propertyTypes, $deallocate);
+		}
+		$this->release($this->switchUseCases, $deallocate);
+	}
+	
+	public function releasePredecessor(bool $deallocate=false){
+		$f = __METHOD__;
+		if(!$this->hasPredecessor()){
+			Debug::error("{$f} predecessor is undefined");
+		}
+		$p = $this->predecessor;
+		unset($this->predecessor);
+		if($this->hasAnyEventListener(EVENT_RELEASE_USE_CASE_PREDECESSOR)){
+			$this->dispatchEvent(new ReleaseUseCasePredecessorEvent($p, $deallocate));
+		}
+		$this->release($p, $deallocate);
+	}
+	
+	public function hasSwitchUseCases():bool{
+		return isset($this->switchUseCases);
+	}
+	
+	public function setSwitchUseCases(?array $switches):?array{
+		if($this->hasSwitchUseCases()){
+			$this->release($this->switchUseCases);
+		}
+		return $this->switchUseCases = $this->claim($switches);
+	}
+	
 	protected function initializeSwitchUseCases(): ?array{
 		return null;
 	}
@@ -106,11 +158,14 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 
 	public function setDataOperandObject($obj){
 		$f = __METHOD__;
-		if(!is_object($obj)) {
+		if(!is_object($obj)){
 			Debug::error("{$f} input parameter is not an object");
 		}
 		$obj->setOperandFlag(true);
-		return $this->dataOperandObject = $obj;
+		if($this->hasDataOperandObject()){
+			$this->release($this->dataOperandObject);
+		}
+		return $this->dataOperandObject = $this->claim($obj);
 	}
 
 	/**
@@ -120,17 +175,17 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	public function getDataOperandObject(): ?DataStructure{
 		$f = __METHOD__;
 		try{
-			if(!$this->hasDataOperandObject()) {
-				if($this->hasPredecessor()) {
+			if(!$this->hasDataOperandObject()){
+				if($this->hasPredecessor()){
 					$predecessor = $this->getPredecessor();
-					if($predecessor instanceof InteractiveUseCase && $predecessor->hasDataOperandObject()) {
+					if($predecessor instanceof InteractiveUseCase && $predecessor->hasDataOperandObject()){
 						return $this->setDataOperandObject($predecessor->getDataOperandObject());
 					}
 				}
 				Debug::error("{$f} processed data object is undefined");
 			}
 			return $this->dataOperandObject;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -143,7 +198,7 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 		return $this->getDataOperandObject()->getIdentifierValue();
 	}
 
-	public function hasDataOperandObject(){
+	public function hasDataOperandObject():bool{
 		return isset($this->dataOperandObject);
 	}
 
@@ -157,80 +212,88 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 
 	public function getExecutePermission(){
 		$f = __METHOD__;
-		if($this->hasPermission("execute")) {
+		if($this->hasPermission("execute")){
 			return $this->getPermission("execute");
 		}
 		$epc = $this->getExecutePermissionClass();
-		if(is_int($epc)) {
+		if(is_int($epc)){
 			return $epc;
-		}elseif(is_bool($epc)) {
-			if($epc) {
+		}elseif(is_bool($epc)){
+			if($epc){
 				return SUCCESS;
 			}
 			return FAILURE;
-		}elseif(! class_exists($epc)) {
+		}elseif(!class_exists($epc)){
 			Debug::error("{$f} class \"{$epc}\" does not exist");
 		}
-		return new $epc("execute");
+		$p = new $epc("execute");
+		return $p;
 	}
 
 	public function acquireCorrespondentObject(mysqli $mysqli): ?UserData{
 		$gcuc = new GetCorrespondentUseCase($this);
 		$gcuc->execute();
-		$gcuc->dispose();
+		deallocate($gcuc);
 		app()->setUseCase($this);
 		return user()->hasCorrespondentObject() ? user()->getCorrespondentObject() : null;
 	}
 
-	public static function declareFlags(): ?array{
+	public static function declareFlags():?array{
 		return array_merge(parent::declareFlags(), [
-			"reportTags",
 			"skipAsyncRequestMethodConfig"
 		]);
-	}
-
-	public function getReportTagsFlag(){
-		return $this->getFlag("reportTags");
-	}
-
-	public function setReportTagsFlag($flag){
-		$f = __METHOD__;
-		if($flag) {
-			// Debug::print("{$f} yes, we'll be reporting tags for this use case");
-		}else{
-			Debug::error("{$f} no, we won't be reporting tags for this use case");
-		}
-		return $this->setFlag("reportTags", $flag);
 	}
 
 	/**
 	 *
 	 * @return AccessAttempt
 	 */
-	public static function getBruteforceAttemptClass(): ?string{
+	public static function getBruteforceAttemptClass():?string{
 		return static::getLoginAttemptClass();
 	}
 
-	public function setPredecessor(UseCase $predecessor): ?UseCase{
+	public function setPredecessor(UseCase $predecessor):?UseCase{
 		$f = __METHOD__;
 		try{
-			$this->predecessor = $predecessor;
-			if($predecessor->hasLoadoutGenerator()) {
+			if($this->hasPredecessor()){
+				$this->releasePredecessor();
+			}
+			$this->predecessor = $this->claim($predecessor);
+			if($predecessor->hasLoadoutGenerator()){
 				$this->setLoadoutGenerator($predecessor->getLoadoutGenerator());
 			}
+			$that = $this;
+			$random1 = sha1(random_bytes(32));
+			$closure1 = function(DeallocateEvent $event, UseCase $target) use ($that, $random1){
+				$target->removeEventListener($event);
+				if($that->hasEventListener(EVENT_RELEASE_USE_CASE_PREDECESSOR, $random1)){
+					$that->removeEventListener(EVENT_RELEASE_USE_CASE_PREDECESSOR, $random1);
+				}
+				if($that->hasPredecessor()){
+					$that->releasePredecessor();
+				}
+			};
+			$predecessor->addEventListener(EVENT_DEALLOCATE, $closure1, $random1);
+			$closure2 = function(ReleaseUseCasePredecessorEvent $event, UseCase $target) use ($predecessor, $random1){
+				$target->removeEventListener($event);
+				if($predecessor->hasEventListener(EVENT_DEALLOCATE, $random1)){
+					$predecessor->removeEventListener(EVENT_DEALLOCATE, $random1);
+				};
+			};
+			$this->addEventListener(EVENT_RELEASE_USE_CASE_PREDECESSOR, $closure2, $random1);
 			return $predecessor;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function hasPredecessor(): bool{
-		return isset($this->predecessor) && $this->predecessor instanceof UseCase;
+		return isset($this->predecessor);
 	}
 
 	public function getPredecessor(): ?UseCase{
 		$f = __METHOD__;
-		if(!$this->hasPredecessor()) {
+		if(!$this->hasPredecessor()){
 			Debug::error("{$f} predecessor is undefined");
 		}
 		return $this->predecessor;
@@ -259,36 +322,29 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 		$f = __METHOD__;
 		try{
 			$print = false;
-			//Debug::checkMemoryUsage("Before creating HTML document");
 			Debug::resetElementConstructorCount();
-
-			if(ULTRA_LAZY) {
+			if(ULTRA_LAZY){
 				$mode = ALLOCATION_MODE_ULTRA_LAZY;
 			}else{
 				$mode = ALLOCATION_MODE_LAZY;
 			}
 			$use_case = $this->getPageContentGenerator();
 			$html_class = $this->getHTMLElementClass();
-			$document = new $html_class($mode, $use_case);
-			//app()->setDocumentRoot($document);
-			if($print) {
+			$html = new $html_class($mode, $use_case);
+			if($print){
 				$mem2 = memory_get_usage();
 				Debug::print("{$f} memory usage after HTMLElement binding and before echoElement: {$mem2}");
 			}
-			//Debug::checkMemoryUsage("Before echoing element");
-			gc_enable();
-			$document->echo(true);
-			if($print) {
+			//gc_enable();
+			$html->echo(true);
+			if($print){
 				$mem3 = memory_get_usage();
 				Debug::print("{$f} memory usage after echoElement: {$mem3}");
 			}
-		}catch(Exception $x) {
+			deallocate($html);
+		}catch(Exception $x){
 			x($f, $x);
 		}
-	}
-
-	protected static function getResponseClass(?UseCase $use_case = null): string{
-		ErrorMessage::deprecated(__METHOD__);
 	}
 
 	public function getPageContentGenerator(): UseCase{
@@ -312,8 +368,15 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	}
 
 	public function getLoadoutGeneratorClass(?PlayableUser $object=null):?string{
-		if($this->hasPredecessor()) {
+		$f = static::getShortClass()."->getLoadoutGeneratorClass()"; //__METHOD__;
+		$print = false && $this->getDebugFlag();
+		if($this->hasPredecessor()){
+			if($print){
+				Debug::print("{$f} asking our predecessor");
+			}
 			return $this->getPredecessor()->getLoadoutGeneratorClass($object);
+		}elseif($print){
+			Debug::print("{$f} asking the application config");
 		}
 		return config()->getLoadoutGeneratorClass($object);
 	}
@@ -323,7 +386,9 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	}
 
 	public function beforeLoadHook(mysqli $mysqli): int{
-		$this->dispatchEvent(new BeforeLoadEvent());
+		if($this->hasAnyEventListener(EVENT_BEFORE_LOAD)){
+			$this->dispatchEvent(new BeforeLoadEvent());
+		}
 		return SUCCESS;
 	}
 
@@ -332,17 +397,23 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	}
 
 	public function afterLoadHook(mysqli $mysqli): int{
-		$this->dispatchEvent(new AfterLoadEvent());
+		if($this->hasAnyEventListener(EVENT_AFTER_LOAD)){
+			$this->dispatchEvent(new AfterLoadEvent());
+		}
 		return SUCCESS;
 	}
 
 	public function beforeAuthenticateHook(): int{
-		$this->dispatchEvent(new BeforeAuthenticateEvent());
+		if($this->hasAnyEventListener(EVENT_BEFORE_AUTHENTICATE)){
+			$this->dispatchEvent(new BeforeAuthenticateEvent());
+		}
 		return SUCCESS;
 	}
 
 	public function afterAuthenticateHook(): int{
-		$this->dispatchEvent(new AfterAuthenticateEvent());
+		if($this->hasAnyEventListener(EVENT_AFTER_AUTHENTICATE)){
+			$this->dispatchEvent(new AfterAuthenticateEvent());
+		}
 		return SUCCESS;
 	}
 
@@ -358,12 +429,12 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	public function hasSwitchUseCase(int $status): bool{
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
-			if(!empty($this->switchUseCases) && array_key_exists($status, $this->switchUseCases)) {
+		if($print){
+			if(!empty($this->switchUseCases) && array_key_exists($status, $this->switchUseCases)){
 				Debug::print("{$f} yes, there is a switch use case for status {$status}");
 			}
 		}
-		switch ($status) {
+		switch($status){
 			case ERROR_BAD_REQUEST:
 			case ERROR_UNAUTHORIZED:
 			case ERROR_PAYMENT_REQUIRED:
@@ -406,17 +477,16 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 				return true;
 			default:
 		}
-		return ! empty($this->switchUseCases) && array_key_exists($status, $this->switchUseCases);
+		return $this->hasSwitchUseCases() && array_key_exists($status, $this->switchUseCases);
 	}
 
 	public function getSwitchUseCase(int $status){
 		$f = __METHOD__;
-		if(!$this->hasSwitchUseCase($status)) {
+		if(!$this->hasSwitchUseCase($status)){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::error("{$f} no switch use case for status \"{$err}\"");
 		}
-
-		switch ($status) {
+		switch($status){
 			case ERROR_FILE_NOT_FOUND:
 				return FileNotFoundUseCase::class;
 			case ERROR_INTERNAL:
@@ -479,61 +549,62 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 			// detect session hijack attempts and restart expired sessions
 			$hijacked = false;
 			$status = AntiHijackSessionData::protect();
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				Debug::warning("{$f} possible session hijacking attempt detected");
-				if(! session_regenerate_id(false)) {
+				if(! session_regenerate_id(false)){
 					Debug::error("{$f} error regenerating session ID");
 				}
 				$hijacked = true;
-			}elseif(isset($_SESSION['lastActiveTimestamp'])) {
-				if($print) {
+			}elseif(isset($_SESSION['lastActiveTimestamp'])){
+				if($print){
 					Debug::print("{$f} last activity timestamp is defined");
 				}
-				if(($ts - $_SESSION['lastActiveTimestamp']) >= intval(ini_get("session.gc_maxlifetime"))) {
-					if($print) {
+				if(($ts - $_SESSION['lastActiveTimestamp']) >= intval(ini_get("session.gc_maxlifetime"))){
+					if($print){
 						Debug::print("{$f} session has expired");
 					}
 					session_unset();
 					session_destroy();
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} session is still fresh");
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} last activity timestamp is undefined");
 			}
 			// regenerate expired session timestamp
-			if($hijacked || ! isset($_SESSION['regenerationTimestamp'])) {
-				if($print) {
+			if($hijacked || !isset($_SESSION['regenerationTimestamp'])){
+				if($print){
 					Debug::print("{$f} session was possibly hijacked or regeneration timestamp is undefined, resetting it now");
 				}
 				$_SESSION['regenerationTimestamp'] = $ts;
-			}elseif(($ts - $_SESSION['regenerationTimestamp'] >= SESSION_REGENERATION_INTERVAL)) {
-				if($print) {
+			}elseif(($ts - $_SESSION['regenerationTimestamp'] >= SESSION_REGENERATION_INTERVAL)){
+				if($print){
 					$old_session_id = session_id();
 					Debug::print("{$f} session \"{$old_session_id}\" is due for regeneration");
 				}
-				if(! session_regenerate_id(true)) {
+				if(! session_regenerate_id(true)){
 					Debug::error("{$f} error regenerating session ID");
 				}
-				if($print) {
+				if($print){
 					$new_session_id = session_id();
 					Debug::print("{$f} new session ID is \"{$new_session_id}\"");
 				}
 				$_SESSION['regenerationTimestamp'] = $ts;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} regeneration timestamp is defined and sufficiently fresh");
 			}
 			$_SESSION['lastActiveTimestamp'] = $ts;
 			AntiXsrfTokenData::initializeSessionToken(1);
 			AntiXsrfTokenData::initializeSessionToken(2);
 			$session = new AntiXsrfTokenData();
-			if(!$session->hasAntiXsrfToken()) {
+			if(!$session->hasAntiXsrfToken()){
 				Debug::error("{$f} session is uninitialized");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} anti-XSRF token is initialized");
 			}
+			deallocate($session);
 			return $hijacked;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -541,7 +612,7 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	protected function getValidCrossOriginHosts(): ?array{
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
+		if($print){
 			Debug::print("{$f} if you want to enable CORS for a specific use case, redeclare this function in a derived class");
 		}
 		return [];
@@ -552,14 +623,14 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 		try{
 			$print = false;
 			$hosts = $this->getValidCrossOriginHosts();
-			if(! array_key_exists('host', $parsed_origin) || empty($hosts) || false === array_search($parsed_origin['host'], $hosts)) {
+			if(!array_key_exists('host', $parsed_origin) || empty($hosts) || false === array_search($parsed_origin['host'], $hosts)){
 				Debug::warning("{$f} failed cross origin request validation");
 				return FAILURE;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} cross origin request validated");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -594,12 +665,12 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	public function validateTransition(): int{
 		$f = __METHOD__;
 		try{
-			if(!$this->hasPredecessor()) {
+			if(!$this->hasPredecessor()){
 				Debug::warning("{$f} predecessor is undefined");
 				return $this->setObjectStatus(ERROR_NULL_PREDECESSOR);
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -610,10 +681,10 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 
 	public function getTransitionToPermission(){
 		$ttp = $this->getTransitionToPermissionClass();
-		if(is_int($ttp)) {
+		if(is_int($ttp)){
 			return $ttp;
-		}elseif(is_bool($ttp)) {
-			if($ttp) {
+		}elseif(is_bool($ttp)){
+			if($ttp){
 				return SUCCESS;
 			}
 			return FAILURE;
@@ -622,17 +693,23 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	}
 
 	protected function beforeExecuteHook(): int{
-		$this->dispatchEvent(new BeforeExecuteEvent());
+		if($this->hasAnyEventListener(EVENT_BEFORE_EXECUTE)){
+			$this->dispatchEvent(new BeforeExecuteEvent());
+		}
 		return SUCCESS;
 	}
 
 	public function beforeTransitionHook(UseCase $successor): int{
-		$this->dispatchEvent(new UseCaseTransitionEvent($successor));
+		if($this->hasAnyEventListener(EVENT_USE_CASE_TRANSITION)){
+			$this->dispatchEvent(new UseCaseTransitionEvent($successor));
+		}
 		return true;
 	}
 
 	protected function afterExecuteHook($status): int{
-		$this->dispatchEvent(new AfterExecuteEvent($status));
+		if($this->hasAnyEventListener(EVENT_AFTER_EXECUTE)){
+			$this->dispatchEvent(new AfterExecuteEvent($status));
+		}
 		return SUCCESS;
 	}
 
@@ -643,17 +720,16 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
 		$print = false;
-		if($status === SUCCESS && request()->getProgressiveHyperlinkFlag()) {
-			if($print) {
-				Debug::print("{$f} returning ProgressiveHyperlinkResponder");
+		if($status === SUCCESS){
+			if(request()->getProgressiveHyperlinkFlag()){
+				if($print){
+					Debug::print("{$f} returning ProgressiveHyperlinkResponder");
+				}
+				return new ProgressiveHyperlinkResponder();
+			}elseif($print){
+				Debug::print("{$f} undefined behavior");
 			}
-			return new ProgressiveHyperlinkResponder();
-		}elseif(hasInputParameter('refresh_session')) {
-			if($print) {
-				Debug::print("{$f} refreshing session");
-			}
-			return new RefreshSessionTimeoutResponder();
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} nothing to do here");
 		}
 		return new Responder();
@@ -665,40 +741,43 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 			$print = false;
 			$user = user();
 			$status = $this->permit($user, "execute");
-			if($status === SUCCESS) {
+			if($status === SUCCESS){
 				$status = $this->beforeExecuteHook();
-				if($status !== SUCCESS) {
+				if($status !== SUCCESS){
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} beforeExecuteHook returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}else{
 					$result = $this->execute();
-					if(!is_int($result)) {
+					if(!is_int($result)){
 						Debug::error("{$f} result is not an integer");
 					}
 					$this->setObjectStatus($result);
-					if($print && $status !== SUCCESS) {
+					if($print && $status !== SUCCESS){
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} execute returned error status \"{$err}\"");
 					}
 					$status = $this->afterExecuteHook($status);
-					if($status !== SUCCESS) {
+					if($status !== SUCCESS){
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} afterExecuteHook returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} after execute hook successful");
 					}
 				}
 			}else{
-				if($print) {
+				if($print){
 					Debug::error("{$f} user was denied the execute permission");
 				}
-				$this->setPermission("execute", ERROR_FORBIDDEN);
+				if($this->hasPermission(DIRECTIVE_EXECUTE)){
+					$this->releasePermission(DIRECTIVE_EXECUTE, true);
+				}
+				$this->setPermission(DIRECTIVE_EXECUTE, ERROR_FORBIDDEN);
 				return $this->setObjectStatus($status);
 			}
 			return $this->setObjectStatus($result);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -711,6 +790,20 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 		return isset($this->loadoutGenerator) && $this->loadoutGenerator instanceof LoadoutGenerator;
 	}
 	
+	public function releaseLoadoutGenerator(bool $deallocate=false){
+		$f = __METHOD__;
+		$print = false;
+		if(!$this->hasLoadoutGenerator()){
+			Debug::error("{$f} loadout generator is undefined");
+		}
+		$lg = $this->loadoutGenerator;
+		unset($this->loadoutGenerator);
+		if($print){
+			Debug::printStackTraceNoExit("{$f} releasing ".$lg->getDebugString()." for this ".$this->getDebugString());
+		}
+		$this->release($lg, $deallocate);
+	}
+	
 	public function getLoadoutGenerator(?PlayableUser $user=null):?LoadoutGenerator{
 		$f = __METHOD__;
 		$print = false;
@@ -719,13 +812,16 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 				Debug::print("{$f} loadout was already generated");
 			}
 			return $this->loadoutGenerator;
+		}elseif($print){
+			Debug::print("{$f} creating loadout generator now");
 		}
 		$lgc = $this->getLoadoutGeneratorClass($user);
 		if($lgc){
+			$lg = new $lgc();
 			if($print){
-				Debug::print("{$f} returning a new {$lgc}");
+				Debug::printStackTraceNoExit("{$f} instantiated ".$lg->getDebugString()." for this ".$this->getDebugString());
 			}
-			return $this->setLoadoutGenerator(new $lgc());
+			return $this->setLoadoutGenerator($lg);
 		}elseif($print){
 			Debug::print("{$f} returning null");
 		}
@@ -733,11 +829,10 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 	}
 	
 	public function setLoadoutGenerator(?LoadoutGenerator $lg):?LoadoutGenerator{
-		if($lg === null){
-			unset($this->loadoutGenerator);
-			return null;
+		if($this->hasLoadoutGenerator()){
+			$this->release($this->loadoutGenerator);
 		}
-		$this->loadoutGenerator = $lg;
+		$this->loadoutGenerator = $this->claim($lg);
 		if($this->hasPredecessor()){
 			return $this->getPredecessor()->setLoadoutGenerator($lg);
 		}
@@ -749,5 +844,37 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 			return $this->getPredecessor();
 		}
 		return $this;
+	}
+	
+	public function setPaginator(?Paginator $paginator):?Paginator{
+		if($this->hasPaginator()){
+			$this->release($this->paginator);
+		}
+		$this->paginator = $this->claim($paginator);
+		if($this->hasPredecessor()){
+			$this->getPredecessor()->setPaginator($paginator);
+		}
+		return $paginator;
+	}
+	
+	public function getPaginator():?Paginator{
+		$f = __METHOD__;
+		$print = false;
+		if(!$this->hasPaginator()){
+			if($this->hasPredecessor()){
+				return $this->setPaginator($this->getPredecessor()->getPaginator());
+			}
+			$paginator = new Paginator();
+			if($print){
+				Debug::printStackTraceNoExit("{$f} instantiating a plain old paginator");
+			}
+			return $this->setPaginator($paginator);
+			Debug::error("{$f} paginator is undefined");
+		}
+		return $this->paginator;
+	}
+	
+	public function hasPaginator():bool{
+		return isset($this->paginator);
 	}
 }

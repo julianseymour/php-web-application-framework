@@ -1,11 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\style\selector;
 
-class SiblingSelector extends BinarySelector
-{
+class SiblingSelector extends BinarySelector{
 
-	public static function echoOperator()
-	{
+	public static function echoOperator():void{
 		echo "~ ";
 	}
 }

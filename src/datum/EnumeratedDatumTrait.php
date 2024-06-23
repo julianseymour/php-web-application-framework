@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
@@ -13,33 +15,32 @@ trait EnumeratedDatumTrait{
 	protected $valueLabelStringsMap;
 
 	public function setValidEnumerationMap(?array $map): ?array{
-		if($map === null) {
-			unset($this->validEnumerationMap);
-			return null;
+		if($this->hasValidEnumerationMap()){
+			$this->release($this->validENumaerationMap);
 		}
-		return $this->validEnumerationMap = $map;
+		return $this->validEnumerationMap = $this->claim($map);
 	}
 
 	public function hasValidEnumerationMap(): bool{
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
+		if($print){
 			$cn = $this->getName();
-			if(!is_array($this->validEnumerationMap)) {
+			if(!is_array($this->validEnumerationMap)){
 				$gottype = gettype($this->validEnumerationMap);
 				Debug::print("{$f} column {$cn}'s enumeration map is a {$gottype}");
-			}elseif(empty($this->validEnumerationMap)) {
+			}elseif(empty($this->validEnumerationMap)){
 				Debug::print("{$f} column {$cn}'s enumeration map is empty");
 			}else{
 				Debug::print("{$f} returning true");
 			}
 		}
-		return is_array($this->validEnumerationMap) && ! empty($this->validEnumerationMap);
+		return is_array($this->validEnumerationMap) && !empty($this->validEnumerationMap);
 	}
 
 	public function getValidEnumerationMap(): array{
 		$f = __METHOD__;
-		if(!$this->hasValidEnumerationMap()) {
+		if(!$this->hasValidEnumerationMap()){
 			$vn = $this->getName();
 			Debug::error("{$f} valid enumeration map is undefined for datum \"{$vn}\"");
 		}
@@ -51,28 +52,28 @@ trait EnumeratedDatumTrait{
 		try{
 			$print = false;
 			$vn = $this->getName();
-			if($this->getAlwaysValidFlag()) {
-				if($print) {
+			if($this->getAlwaysValidFlag()){
+				if($print){
 					Debug::print("{$f} this datum accepts all values");
 				}
 				return SUCCESS;
-			}elseif($this->hasValidEnumerationMap()) {
+			}elseif($this->hasValidEnumerationMap()){
 				$valid = $this->getValidEnumerationMap();
-				if($valid == null) {
+				if($valid == null){
 					Debug::error("{$f} valid enumeration map is undefined for variable \"{$vn}\"");
-				}elseif(in_array($value, $valid, true)) {
-					if($print) {
+				}elseif(in_array($value, $valid, true)){
+					if($print){
 						Debug::print("{$f} value \"{$value}\" is valid");
 					}
 					$checked = false;
-					foreach($valid as $checkme) {
-						if($checkme === $value) {
+					foreach($valid as $checkme){
+						if($checkme === $value){
 							$checked = true;
-						}elseif($print) {
+						}elseif($print){
 							Debug::print("{$f} \"{$checkme}\" is not the value");
 						}
 					}
-					if(!$checked) {
+					if(!$checked){
 						Debug::error("{$f} like hell it is");
 					}
 					return SUCCESS;
@@ -84,41 +85,42 @@ trait EnumeratedDatumTrait{
 			Debug::print($this->validEnumerationMap);
 			Debug::error("{$f} datum \"{$vn}\" lacks valid enumerations in class \"{$dsc}\"");
 			return FAILURE;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function hasValueLabelStringsMap(): bool{
-		return isset($this->valueLabelStringsMap) && is_array($this->valueLabelStringsMap) && ! empty($this->valueLabelStringsMap);
+		return isset($this->valueLabelStringsMap) && is_array($this->valueLabelStringsMap) && !empty($this->valueLabelStringsMap);
 	}
 
 	public function getValueLabelStringsMap(): array{
 		$f = __METHOD__;
-		if(!$this->hasValueLabelStringsMap()) {
+		if(!$this->hasValueLabelStringsMap()){
 			Debug::error("{$f} value => label strings map is undefined");
 		}
 		return $this->valueLabelStringsMap;
 	}
 
 	public function setValueLabelStringsMap(?array $map): ?array{
-		if($map === null) {
-			unset($this->valueLabelStringsMap);
-			return null;
+		if($this->hasValueLabelStringsMap()){
+			$this->release($this->valueLabelStringMap);
 		}
-		return $this->valueLabelStringsMap = $map;
+		return $this->valueLabelStringsMap = $this->claim($map);
 	}
 
 	public function mapLabelStringToValue($value, $ls){
-		if(! isset($this->valueLabelStringsMap) || ! is_array($this->valueLabelStringsMap)) {
+		if(!isset($this->valueLabelStringsMap) || !is_array($this->valueLabelStringsMap)){
 			$this->valueLabelStringsMap = [];
+		}elseif(array_key_exists($value, $this->valueLabelStringsMap)){
+			$this->release($this->valueLabelStringsMap[$value]);
 		}
-		return $this->valueLabelStringsMap[$value] = $ls;
+		return $this->valueLabelStringsMap[$value] = $this->claim($ls);
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->validEnumerationMap);
-		unset($this->valueLabelStringsMap);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->validEnumerationMap, $deallocate);
+		$this->release($this->valueLabelStringsMap, $deallocate);
 	}
 }

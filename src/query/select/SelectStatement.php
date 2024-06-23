@@ -3,7 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\query\select;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
-use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
@@ -64,48 +64,126 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	protected $havingCondition;
 
-	protected $lockMode;
-
-	protected $outfilename;
-
 	protected $loadEntryPoint;
 
+	protected $lockMode;
+
+	protected $lockOption;
+	
+	protected $outfilename;
+
+	protected $parentKeyName;
+	
+	protected static function getExcludedConstructorFunctionNames():?array{
+		return array_merge(parent::getExcludedConstructorFunctionNames(), ["select", "selectStatic"]);
+	}
+	
 	public function __construct(...$expressions){
 		parent::__construct();
-		// $this->requirePropertyType("expressions", "s");
-		// $this->requirePropertyType("exportVariableNames", "s");
-		// $this->requirePropertyType("joinExpressions", JoinExpression::class);
-		// $this->requirePropertyType("tableNames", "table");
-		// $this->requirePropertyType("partitionNames", "s");
-		// $this->requirePropertyType("unionClauses", UnionClause::class);
-		// $this->requirePropertyType("windowList", WindowSpecification::class);
-		if(isset($expressions) && count($expressions) > 0) {
+		if(isset($expressions) && count($expressions) > 0){
 			$this->setExpressions($expressions);
 		}
 	}
 
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasCharacterSet()){
+			$this->setCharacterSet(replicate($that->getCharacterSet()));
+		}
+		if($that->hasColumnTerminator()){
+			$this->setColumnTerminator(replicate($that->getColumnTerminator()));
+		}
+		if($that->hasDistinction()){
+			$this->setDistinction(replicate($that->getDistinction()));
+		}
+		if($that->hasDumpfilename()){
+			$this->setDumpfilename(replicate($that->getDumpfilename()));
+		}
+		if($that->hasEnclosureCharacter()){
+			$this->setEnclosureCharacter(replicate($that->getEnclosureCharacter()));
+			if($that->getOptionallyEnclosedFlag()){
+				$this->setOptionallyEnclosedFlag(true);
+			}
+		}
+		if($that->hasEscapeCharacter()){
+			$this->setEscapeCharacter(replicate($that->getEscapeCharacter()));
+		}
+		if($that->hasExportVariableNames()){
+			$this->setExportVariableNames(replicate($that->getExportVariableNames()));
+		}
+		if($that->hasExpressions()){
+			$this->setExpressions(replicate($that->getExpressions()));
+		}
+		if($that->hasGroupBy()){
+			$this->setGroupByClause(replicate($that->getGroupBy()));
+		}
+		if($this->hasHavingCondition()){
+			$this->setHavingCondition(replicate($that->getHavingCondition()));
+		}
+		if($that->hasJoinExpressions()){
+			$this->setJoinExpressions(replicate($that->getJoinExpressions()));
+		}
+		if($that->hasLockOption()){
+			$this->setLockOption(replicate($that->getLockOption()));
+		}
+		if($that->hasOrderBy()){
+			$this->setOrderBy(...replicate($that->getOrderBy()));
+		}
+		if($that->hasOutfilename()){
+			$this->setOutfilename(replicate($that->getOutfilename()));
+		}
+		if($that->hasPartitionNames()){
+			$this->setPartitionNames(replicate($that->getPartitionNames()));
+		}
+		if($that->hasTableNames()){
+			$this->setTableNames(replicate($that->getTableNames()));
+		}
+		if($that->hasUnionClauses()){
+			$this->setUnionClauses(replicate($that->getUnionClauses()));
+		}
+		if($that->hasWindowList()){
+			$this->setWindowList(replicate($that->getWindowList()));
+		}
+		return $ret;
+	}
+	
 	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
-			"unassigned",
 			"bigResult",
 			"bufferResult",
 			"calculateFoundRows",
 			"groupWithRollup",
 			PRIORITY_HIGH,
 			"noCache",
-			"ok",
 			"orderWithRollup",
 			"retainResult",
 			"straightJoin",
 			"smallResult",
 			"subquery",
-			"typeSpecified" // if true, the select statement will skip prefixing type specifier in for ColumnAliases in prepareBindExecuteGetStatement
+			"typeSpecified", // if true, the select statement will skip prefixing type specifier in for ColumnAliases in prepareBindExecuteGetStatement
+			"unassigned"
 		]);
 	}
 
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"bigResult",
+			"bufferResult",
+			"calculateFoundRows",
+			"groupWithRollup",
+			PRIORITY_HIGH,
+			"noCache",
+			"orderWithRollup",
+			"straightJoin",
+			"smallResult",
+			"subquery"
+		]);
+	}
+	
 	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
+		$or = new OrCommand("s", Command::class, ColumnAlias::class, SQLInterface::class);
 		return [
-			"expressions" => new OrCommand("s", Command::class, ColumnAlias::class, SQLInterface::class),
+			"expressions" => $or,
 			"exportVariableNames" => "s",
 			"joinExpressions" => JoinExpression::class,
 			"tableNames" => "table",
@@ -115,15 +193,66 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 		];
 	}
 	
+	public final function dispose(bool $deallocate=false): void{
+		$f = __METHOD__;
+		$print = false && $this->getDebugFlag();
+		if($print){
+			$decl = $this->getDeclarationLine();
+			Debug::checkMemoryUsage("Before disposing of select statement declared {$decl}", 112000000, true);
+		}
+		parent::dispose($deallocate);
+		$ds = $this->getDebugString();
+		$this->release($this->characterSet, $deallocate);
+		$this->release($this->columnTerminatorString, $deallocate);
+		$this->release($this->distinction, $deallocate);
+		$this->release($this->dumpfilename, $deallocate);
+		$this->release($this->enclosureCharacter, $deallocate);
+		$this->release($this->escapeCharacter, $deallocate);
+		$this->release($this->groupByClause, $deallocate);
+		$this->release($this->havingCondition, $deallocate);
+		$this->release($this->loadEntryPoint, $deallocate);
+		$this->release($this->lockMode, $deallocate);
+		$this->release($this->lockOption, $deallocate);
+		$this->release($this->orderByExpression, $deallocate);
+		$this->release($this->outfilename, $deallocate);
+		$this->release($this->parentKeyName, $deallocate);
+		$this->release($this->withClause, $deallocate);
+	}
+	
+	public function getParentKeyName():string{
+		$f = __METHOD__;
+		if(!$this->hasParentKeyName()){
+			Debug::error("{$f} parent key name is undefined for this ".$this->getDebugString());
+		}
+		return $this->parentKeyName;
+	}
+	
+	public function setParentKeyName(?string $pkn):?string{
+		if($this->hasParentKeyName()){
+			$this->release($this->parentKeyName);
+		}
+		return $this->parentKeyName = $this->claim($pkn);
+	}
+	
+	public function hasParentKeyName():bool{
+		return isset($this->parentKeyName);
+	}
+	
+	public function withParentKeyName(string $pkn):SelectStatement{
+		$this->setParentKeyName($pkn);
+		return $this;
+	}
+	
+	public function setExpressions($values){
+		return $this->setArrayProperty('expressions', $values);
+	}
+	
 	public function setLoadEntryPoint($point){
 		$f = __METHOD__;
-		if($point == null) {
-			unset($this->loadEntryPoint);
-			return null;
-		}elseif(!is_int($point)) {
+		if(!is_int($point)){
 			Debug::error("{$f} load entry point must be an integer");
 		}
-		switch ($point) {
+		switch($point){
 			case LOAD_ENTRY_POINT_UNDEFINED:
 			case LOAD_ENTRY_POINT_SELF:
 			case LOAD_ENTRY_POINT_INTERSECTION:
@@ -131,7 +260,10 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 			default:
 				Debug::error("{$f} invalid load entry point \"{$point}\"");
 		}
-		return $this->loadEntryPoint = $point;
+		if($this->hasLoadEntryPoint()){
+			$this->release($this->loadEntryPoint);
+		}
+		return $this->loadEntryPoint = $this->claim($point);
 	}
 
 	public function hasLoadEntryPoint():bool{
@@ -139,18 +271,18 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 	}
 
 	public function hasMatchFunction():bool{
-		if(!$this->hasWhereCondition()) {
+		if(!$this->hasWhereCondition()){
 			return false;
 		}
 		$wc = $this->getWhereCondition();
-		if($wc instanceof MatchFunction) {
+		if($wc instanceof MatchFunction){
 			return true;
 		}
 		return $wc->hasMatchFunction();
 	}
 
 	public function getLoadEntryPoint(){
-		if(!$this->hasLoadEntryPoint()) {
+		if(!$this->hasLoadEntryPoint()){
 			return LOAD_ENTRY_POINT_DEFAULT;
 		}
 		return $this->loadEntryPoint;
@@ -163,24 +295,23 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function setDumpfilename($name){
 		$f = __METHOD__;
-		if($name == null) {
-			unset($this->dumpfilename);
-			return null;
-		}elseif(!is_string($name)) {
+		if(!is_string($name)){
 			Debug::error("{$f} filename must be a string");
-		}elseif($this->getSubqueryFlag()) {
+		}elseif($this->getSubqueryFlag()){
 			Debug::error("{$f} dumpfile for subqueries is not allowed");
+		}elseif($this->hasDumpfilename()){
+			$this->release($this->dumpfilename);
 		}
-		return $this->dumpfilename = $name;
+		return $this->dumpfilename = $this->claim($name);
 	}
 
 	public function hasDumpfilename():bool{
-		return isset($this->dumpfilename) && is_string($this->dumpfilename) && ! empty($this->dumpfilename) && ! $this->getSubqueryFlag();
+		return isset($this->dumpfilename) && is_string($this->dumpfilename) && !empty($this->dumpfilename) && ! $this->getSubqueryFlag();
 	}
 
 	public function getDumpfilename(){
 		$f = __METHOD__;
-		if(!$this->hasDumpfilename()) {
+		if(!$this->hasDumpfilename()){
 			Debug::error("{$f} dumpfilename is undefined");
 		}
 		return $this->dumpfilename;
@@ -193,7 +324,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function setExportVariableNames($exportVariableNames){
 		$f = __METHOD__;
-		if($exportVariableNames != null && $this->getSubqueryFlag()) {
+		if($exportVariableNames != null && $this->getSubqueryFlag()){
 			Debug::error("{$f} export variable names for subqueries is not allowed");
 		}
 		return $this->setArrayProperty("exportVariableNames", $exportVariableNames);
@@ -221,11 +352,10 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 	}
 
 	public function setGroupByClause($columnNames){
-		if($columnNames == null) {
-			unset($this->groupByClause);
-			return null;
+		if($this->hasGroupBy()){
+			$this->release($this->groupByClause);
 		}
-		return $this->groupByClause = $columnNames;
+		return $this->groupByClause = $this->claim($columnNames);
 	}
 
 	public function hasGroupBy():bool{
@@ -233,7 +363,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 	}
 
 	public function getGroupBy(){
-		$f = __METHOD__;if(!$this->hasGroupBy()) {
+		$f = __METHOD__;if(!$this->hasGroupBy()){
 			Debug::error("{$f} group by is undefined");
 		}
 		return $this->groupByClause;
@@ -242,19 +372,17 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 	public function groupBy($groupBy, $withRollup = null): SelectStatement{
 		// [GROUP BY {col_name | expr | position}, ... [WITH ROLLUP]]
 		$this->setGroupByClause($groupBy);
-		if($withRollup !== null) {
+		if($withRollup !== null){
 			$this->setGroupWithRollupFlag($withRollup);
 		}
 		return $this;
 	}
 
 	public function setHavingCondition($having){
-		$f = __METHOD__;
-		if($having == null) {
-			unset($this->havingCondition);
-			return null;
+		if($this->hasHavingCondition()){
+			$this->release($this->havingCondition);
 		}
-		return $this->havingCondition = $having;
+		return $this->havingCondition = $this->claim($having);
 	}
 
 	public function hasHavingCondition():bool{
@@ -263,7 +391,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function getHavingCondition(){
 		$f = __METHOD__;
-		if(!$this->hasHavingCondition()) {
+		if(!$this->hasHavingCondition()){
 			Debug::error("{$f} having condition is undefined");
 		}
 		return $this->havingCondition;
@@ -276,43 +404,48 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function setLockOption(?string $option):?string{
 		$f = __METHOD__;
-		if($option == null) {
-			unset($this->lockOption);
-			return null;
-		}elseif(!is_string($option)) {
+		if(!is_string($option)){
 			Debug::error("{$f} lock option must be a string");
 		}
 		$option = strtolower($option);
-		switch ($option) {
+		switch($option){
 			case LOCK_OPTION_NOWAIT:
 			case LOCK_OPTION_SKIP_LOCKED:
 				break;
 			default:
 				Debug::error("{$f} invalid lock option \"{$option}\"");
 		}
-		return $this->lockOption = $option;
+		if($this->hasLockOption()){
+			$this->release($this->lockOption);
+		}
+		return $this->lockOption = $this->claim($option);
 	}
 
 	public function setOutfilename($name){
 		$f = __METHOD__;
-		if($name == null) {
-			unset($this->characterSet);
-			unset($this->exportOptions);
-			unset($this->outfilename);
-			return null;
-		}elseif($this->getSubqueryFlag()) {
+		if($this->getSubqueryFlag()){
 			Debug::error("{$f} outfile for subqueries is not allowed");
+		}elseif($this->hasOutfilename()){
+			$this->release($this->outfilename);
 		}
-		return $this->outfilename = $name;
+		if($this->hasCharacterSet()){
+			$this->release($this->characterSet);
+		}
+		if($this->hasExportOptions()){
+			$this->release($this->columnTerminatorString);
+			$this->release($this->enclosureCharacter);
+			$this->release($this->escapeCharacter);
+		}
+		return $this->outfilename = $this->claim($name);
 	}
 
 	public function hasOutfilename():bool{
-		return isset($this->outfilename) && is_string($this->outfilename) && ! empty($this->outfilename) && ! $this->getSubqueryFlag();
+		return isset($this->outfilename) && is_string($this->outfilename) && !empty($this->outfilename) && ! $this->getSubqueryFlag();
 	}
 
 	public function getOutfilename():string{
 		$f = __METHOD__;
-		if(!$this->hasOutfilename()) {
+		if(!$this->hasOutfilename()){
 			Debug::error("{$f} outfilename is undefined");
 		}
 		return $this->outfilename;
@@ -320,10 +453,10 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function intoOutfile($name, $charset = null, $exportOptions = null): SelectStatement{
 		$this->setOutfilename($name);
-		if($charset !== null) {
+		if($charset !== null){
 			$this->setCharacterSet($charset);
 		}
-		if($exportOptions !== null) {
+		if($exportOptions !== null){
 			$this->setExportOptions($exportOptions);
 		}
 		return $this;
@@ -331,13 +464,13 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function setWindowList($windowList){
 		$f = __METHOD__;
-		if($windowList == null) {
+		if($windowList == null){
 			return $this->setArrayProperty("windowList", $windowList);
 		}
-		foreach($windowList as $window_name => $window) {
-			if(!is_string($window_name)) {
+		foreach($windowList as $window_name => $window){
+			if(!is_string($window_name)){
 				Debug::error("{$f} array keys must be window name strings");
-			}elseif(!$window instanceof WindowSpecification) {
+			}elseif(!$window instanceof WindowSpecification){
 				Debug::error("{$f} array values must be instances of WindowSpecification");
 			}
 		}
@@ -368,9 +501,9 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 	public function from(...$dbtable): SelectStatement{
 		$f = __METHOD__;
 		$count = count($dbtable);
-		switch ($count) {
+		switch($count){
 			case 1:
-				if(!is_string($dbtable[0])) {
+				if(!is_string($dbtable[0])){
 					return $this->withJoinExpressions($dbtable[0]);
 				}
 				$this->setTableName($dbtable[0]);
@@ -400,7 +533,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 	 * @return SelectStatement
 	 */
 	public static function withRecursive($dbtable, $foreignKeyName, $parentKeyName = 'uniqueKey', $expression = null){
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")::withRecursive()";
+		$f = __METHOD__;
 		// $dbtable = "data.comments"; //name of table containing infinitely recursive hierarchical nodes
 		// $foreignKeyName = "parentKey"; //name of parent key linking those nodes together
 		// $parentKeyName = 'uniqueKey'; //name of key referenced by parentKey in the parent table
@@ -415,18 +548,14 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 		                                    // on childComment.foreignKeyName = parentComment.uniqueKey
 		                                    // ) select * from commonTableExpression;
 		$where = new BinaryExpressionCommand("child." . back_quote($foreignKeyName) . OPERATOR_EQUALS, "parent." . back_quote($parentKeyName));
-		if($expression === null) {
+		if($expression === null){
 			$expression = $where;
-		}elseif($expression instanceof VariadicExpressionCommand) {
+		}elseif($expression instanceof VariadicExpressionCommand){
 			$expression->pushParameters($where);
 		}else{
 			Debug::error("{$f} neither of the above");
 		}
-		return QueryBuilder::select()->from($cteName)->with(WithClause::recursive($cteName, QueryBuilder::select()->from($dbtable)
-			->where(new WhereCondition($foreignKeyName, OPERATOR_EQUALS))
-			->unionAll(QueryBuilder::select("child.*")->from(JoinedTable::join(TableFactor::create()->withTableName($dbtable)
-			->as("child"), TableFactor::create()->withTableName($cteName)
-			->as("parent"), $expression)))));
+		return QueryBuilder::select()->from($cteName)->with(WithClause::recursive($cteName, QueryBuilder::select()->from($dbtable)->where(new WhereCondition($foreignKeyName, OPERATOR_EQUALS))->unionAll(QueryBuilder::select("child.*")->from(JoinedTable::join(TableFactor::create()->withTableName($dbtable)->as("child"), TableFactor::create()->withTableName($cteName)->as("parent"), $expression)))));
 	}
 
 	public function setSubqueryFlag(bool $value = true):bool{
@@ -452,7 +581,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function setBufferResultFlag(bool $value = true):bool{
 		$f = __METHOD__;
-		if($value && $this->getSubqueryFlag()) {
+		if($value && $this->getSubqueryFlag()){
 			Debug::error("{$f} buffer results flag cannot be set on subqueries");
 		}
 		return $this->setFlag("bufferResult", $value);
@@ -482,7 +611,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function setHighPriorityFlag(bool $value = true):bool{
 		$f = __METHOD__;
-		if($value && ($this->getSubqueryFlag() || $this->hasUnionClauses())) {
+		if($value && ($this->getSubqueryFlag() || $this->hasUnionClauses())){
 			Debug::error("{$f} high priority cannot be used in selet statements that are part of unions");
 		}
 		return $this->setFlag(PRIORITY_HIGH, $value);
@@ -541,18 +670,13 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function setLockMode(?string $mode):?string{
 		$f = __METHOD__;
-		if($mode == null) {
-			unset($this->lockMode);
-			unset($this->lockOption);
-			$this->setArrayProperty("lockTableNames", null);
-			return null;
-		}elseif(!is_string($mode)) {
+		if(!is_string($mode)){
 			Debug::error("{$f} lock mode must be a string");
-		}elseif($this->getSubqueryFlag()) {
-			Debug::error("{$f} not 100% sure but I believe locking tables in a subquery is not legal so fuck off");
+		}elseif($this->getSubqueryFlag()){
+			Debug::error("{$f} locking tables in a subquery is unsupported");
 		}
 		$mode = strtolower($mode);
-		switch ($mode) {
+		switch($mode){
 			case LOCK_IN_SHARE_MODE:
 			case LOCK_FOR_SHARE:
 			case LOCK_FOR_UPDATE:
@@ -560,7 +684,16 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 			default:
 				Debug::error("{$f} invalid lock mode \"{$mode}\"");
 		}
-		return $this->lockMode = $mode;
+		if($this->hasLockMode()){
+			$this->release($this->lockMode);
+		}
+		if($this->hasLockOption()){
+			$this->release($this->lockOption);
+		}
+		/*if($this->hasLockTableNames()){
+			$this->ejectLockTableNames();
+		}*/
+		return $this->lockMode = $this->claim($mode);
 	}
 
 	public function hasLockMode():bool{
@@ -569,7 +702,7 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 
 	public function getLockMode():string{
 		$f = __METHOD__;
-		if(!$this->hasLockMode()) {
+		if(!$this->hasLockMode()){
 			Debug::error("{$f} lock mode is undefined");
 		}
 		return $this->lockMode;
@@ -595,120 +728,121 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 		return $this->getProperty("unionClauses");
 	}
 
-	public function union(...$selectStatements): SelectStatement
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->union()";
-		if(! isset($selectStatements)) {
+	public function union(...$selectStatements): SelectStatement{
+		$f = __METHOD__;
+		if(!isset($selectStatements)){
 			Debug::error("{$f} select statements undefined");
 		}
-		foreach($selectStatements as $selectStatement) {
+		foreach($selectStatements as $selectStatement){
 			$union = new UnionClause($selectStatement);
 			$this->pushUnionClause($union);
 		}
 		return $this;
 	}
 
-	public function unionAll(...$selectStatements): SelectStatement
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->unionAll()";
-		if(! isset($selectStatements)) {
+	public function unionAll(...$selectStatements): SelectStatement{
+		$f = __METHOD__;
+		if(!isset($selectStatements)){
 			Debug::error("{$f} select statements undefined");
 		}
-		foreach($selectStatements as $selectStatement) {
+		foreach($selectStatements as $selectStatement){
 			$this->pushUnionClause(UnionClause::all($selectStatement));
 		}
 		return $this;
 	}
 
-	public function unionDistinct(...$selectStatements): SelectStatement
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->unionDistinct()";
-		if(! isset($selectStatements)) {
+	public function unionDistinct(...$selectStatements): SelectStatement{
+		$f = __METHOD__;
+		if(!isset($selectStatements)){
 			Debug::error("{$f} select statements undefined");
 		}
-		foreach($selectStatements as $selectStatement) {
+		foreach($selectStatements as $selectStatement){
 			$this->pushUnionClause(UnionClause::distinct($selectStatement));
 		}
 		return $this;
 	}
 
-	public function pushWindows(...$values)
-	{
+	public function pushWindows(...$values){
 		return $this->pushArrayProperty("windowList", ...$values);
 	}
 
-	public function window($windows)
-	{
+	public function window($windows){
 		$this->setWindowList($windows);
 		return $this;
 	}
 
-	public function of(...$tableNames)
-	{
-		$f = __METHOD__; //SelectStatement::getShortClass()."(".static::getShortClass().")->of()";
-		if(!$this->hasLockMode()) {
+	public function of(...$tableNames){
+		$f = __METHOD__;
+		if(!$this->hasLockMode()){
 			Debug::error("{$f} don't call this function if lock mode is undefined");
 		}
 		$this->setTableNames($tableNames);
 		return $this;
 	}
 
-	public function lock($mode)
-	{
+	public function lock($mode){
 		$this->setLockMode($mode);
 		return $this;
 	}
 
+	public function getTypeSpecifiedFlag():bool{
+		return $this->getFlag("typeSpecified");
+	}
+	
+	public function setTypeSpecifiedFlag(bool $value=true):bool{
+		return $this->setFlag("typeSpecified", $value);
+	}
+	
 	public function getQueryStatementString(){
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($this->hasWithClause()) {
+			if($this->hasWithClause()){
 				$with = $this->getWithClause();
-				if($with instanceof SQLInterface) {
+				if($with instanceof SQLInterface){
 					$with = $with->toSQL();
 				}
 				$string = "{$with} ";
 			}
 			$string = "";
-			if($this->hasUnionClauses()) {
+			if($this->hasUnionClauses()){
 				$string .= "(";
 			}
 			$string .= "select ";
 			// [ALL | DISTINCT | DISTINCTROW ]
-			if($this->hasDistinction()) {
+			if($this->hasDistinction()){
 				$string .= $this->getDistinction() . " ";
 			}
 			// [HIGH_PRIORITY]
-			if($this->getHighPriorityFlag()) {
+			if($this->getHighPriorityFlag()){
 				$string .= PRIORITY_HIGH . " ";
 			}
 			// [STRAIGHT_JOIN]
-			if($this->getStraightJoinFlag()) {
+			if($this->getStraightJoinFlag()){
 				$string .= "straight_join ";
 			}
 			// [SQL_SMALL_RESULT] [SQL_BIG_RESULT] [SQL_BUFFER_RESULT]
-			if($this->getSmallResultFlag()) {
+			if($this->getSmallResultFlag()){
 				$string .= "sql_small_result ";
 			}
-			if($this->getBigResultFlag()) {
+			if($this->getBigResultFlag()){
 				$string .= "sql_big_result ";
 			}
-			if($this->getBufferResultFlag()) {
+			if($this->getBufferResultFlag()){
 				$string .= "sql_buffer_result ";
 			}
 			// [SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
-			if($this->getNoCacheFlag()) {
+			if($this->getNoCacheFlag()){
 				$string .= "sql_no_cache ";
 			}
-			if($this->getCalculateFoundRowsFlag()) {
+			if($this->getCalculateFoundRowsFlag()){
 				$string .= "sql_calc_found_rows ";
 			}
 			// select_expr [, select_expr] ...
-			if($this->hasExpressions()) {
+			if($this->hasExpressions()){
 				$expressions = [];
-				foreach($this->getExpressions() as $e) {
-					if($e instanceof SQLInterface) {
+				foreach($this->getExpressions() as $e){
+					if($e instanceof SQLInterface){
 						$e = $e->toSQL();
 					}else{
 						$e = back_quote($e);
@@ -720,99 +854,91 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 				$string .= "*";
 			}
 			// [FROM table_references [PARTITION partition_list]]
-			if($this->hasJoinExpressions() || $this->hasTableName()) {
+			if($this->hasJoinExpressions() || $this->hasTableName()){
 				$string .= " from ";
-				if($this->hasJoinExpressions()) {
+				if($this->hasJoinExpressions()){
 					$je = [];
-					foreach($this->getJoinExpressions() as $j) {
-						if($j instanceof SQLInterface) {
+					foreach($this->getJoinExpressions() as $j){
+						if($j instanceof SQLInterface){
 							$j = $j->toSQL();
 						}
 						array_push($je, $j);
 					}
 					$string .= implode(' ', $je);
-				}elseif($this->hasTableName()) {
-					if($this->hasDatabaseName()) {
+				}elseif($this->hasTableName()){
+					if($this->hasDatabaseName()){
 						$string .= back_quote($this->getDatabaseName()) . ".";
 					}
 					$string .= back_quote($this->getTableName());
 				}
-				if($this->hasPartitionNames()) {
+				if($this->hasPartitionNames()){
 					$string .= " " . implode(',', $this->getPartitionNames());
 				}
 			}
 			// [WHERE where_condition]
-			if($this->hasWhereCondition()) {
-				/*
-				 * $where = $this->getWhereCondition();
-				 * if($where->getOperator() === OPERATOR_LIKE){
-				 * $string .= " like ";
-				 * }else{
-				 * $string .= " where ";
-				 * }
-				 */
+			if($this->hasWhereCondition()){
 				$where = $this->getWhereCondition();
-				if($where instanceof SQLInterface) {
+				if($where instanceof SQLInterface){
 					$where = $where->toSQL();
 				}
 				$string .= " where {$where}";
 			}
 			// [GROUP BY {col_name | expr | position}, ... [WITH ROLLUP]]
-			if($this->hasGroupBy()) {
+			if($this->hasGroupBy()){
 				$string .= " group by ";
 				$group_by = $this->getGroupBy();
-				if(is_array($group_by)) {
+				if(is_array($group_by)){
 					$string .= implode(',', $group_by);
 				}else{
 					$string .= $group_by;
 				}
-				if($this->getGroupWithRollupFlag()) {
+				if($this->getGroupWithRollupFlag()){
 					$string .= " with rollup";
 				}
 			}
 			// [HAVING where_condition]
-			if($this->hasHavingCondition()) {
+			if($this->hasHavingCondition()){
 				$having = $this->getHavingCondition();
-				if($having instanceof SQLInterface) {
+				if($having instanceof SQLInterface){
 					$having = $having->toSQL();
 				}
 				$string .= " having {$having}";
 			}
 			// [WINDOW window_name AS (window_spec) [, window_name AS (window_spec)] ...]
-			if($this->hasWindowList()) {
+			if($this->hasWindowList()){
 				$string .= " window ";
 				$i = 0;
-				foreach($this->getWindowList() as $window_name => $window) {
-					if($i ++ > 0) {
+				foreach($this->getWindowList() as $window_name => $window){
+					if($i ++ > 0){
 						$string .= ",";
 					}
-					if($window instanceof SQLInterface) {
+					if($window instanceof SQLInterface){
 						$window = $window->toSQL();
 					}
 					$string .= "{$window_name} as ({$window})";
 				}
 			}
 			// [ORDER BY {col_name | expr | position} [ASC | DESC], ... [WITH ROLLUP]]
-			if($this->hasOrderBy()) {
+			if($this->hasOrderBy()){
 				$string .= " order by " . $this->getOrderByString();
-				if($this->getOrderWithRollupFlag()) {
+				if($this->getOrderWithRollupFlag()){
 					$string .= " with rollup";
 				}
 			}
 			// [LIMIT {
 			// [offset,] row_count | row_count OFFSET offset
 			// }]
-			if($this->hasLimit()) {
+			if($this->hasLimit()){
 				$string .= " limit " . $this->getLimit();
-				if($this->hasOffset()) {
+				if($this->hasOffset()){
 					$string .= " offset " . $this->getOffset();
 				}
 			}
 			// union clauses go here I guess?
-			if($this->hasUnionClauses()) {
+			if($this->hasUnionClauses()){
 				$union = [];
-				foreach($this->getUnionClauses() as $u) {
-					if($u instanceof SQLInterface) {
+				foreach($this->getUnionClauses() as $u){
+					if($u instanceof SQLInterface){
 						$u = $u->toSQL();
 					}
 					array_push($union, $u);
@@ -820,13 +946,13 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 				$string .= ") " . implode(' ', $union);
 			}
 			// [FOR {UPDATE | SHARE} [OF tbl_name [, tbl_name] ...] [NOWAIT | SKIP LOCKED] | LOCK IN SHARE MODE]
-			if($this->hasLockMode()) {
+			if($this->hasLockMode()){
 				$lock = $this->getLockMode();
-				if($lock === LOCK_IN_SHARE_MODE) {
+				if($lock === LOCK_IN_SHARE_MODE){
 					$string .= " lock in share mode";
 				}else{
 					$string .= " for ";
-					switch ($lock) {
+					switch($lock){
 						case LOCK_FOR_UPDATE:
 							$string .= "update";
 							break;
@@ -836,10 +962,22 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 						default:
 							Debug::error("{$f} invalid lock mode \"{$lock}\"");
 					}
-					if($this->hasTableNames()) {
-						$string .= " of " . implode_back_quotes(',', $this->getTableNames()); // XXX needs to be escaped
+					if($this->hasTableNames()){
+						$string .= " of " ;
+						$count = 0;
+						foreach($this->getTableNames() as $tn){
+							if($count++ > 0){
+								$string .= ",";
+							}
+							if($tn instanceof SQLInterface){
+								$tn = $tn->toSQL();
+							}elseif(is_string($tn)){
+								//XXX TODO: if it has the format X.Y, split by . and backquote, unless Y is *. Need  regex for full table names.
+							}
+							$string .= $tn;
+						}
 					}
-					if($this->hasLockOption()) {
+					if($this->hasLockOption()){
 						$string .= " " . $this->getLockOption();
 					}
 				}
@@ -849,24 +987,24 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 			// | INTO DUMPFILE 'file_name'
 			// | INTO var_name [, var_name] ...
 			// }]
-			if($this->hasOutfilename()) {
+			if($this->hasOutfilename()){
 				$string .= " into outfile " . single_quote($this->getOutfilename());
-				if($this->hasCharacterSet()) {
+				if($this->hasCharacterSet()){
 					$string .= " character set " . $this->getCharacterSet();
 				}
-				if($this->hasExportOptions()) {
+				if($this->hasExportOptions()){
 					$string .= " " . $this->getExportOptions(); // The syntax for the export_options part of the statement consists of the same FIELDS and LINES clauses that are used with the LOAD DATA statement
 				}
-			}elseif($this->hasDumpfilename()) {
+			}elseif($this->hasDumpfilename()){
 				$string .= " into dumpfile " . single_quote($this->getDumpfilename());
-			}elseif($this->hasExportVariableNames()) {
+			}elseif($this->hasExportVariableNames()){
 				$string .= " into " . implode(',', $this->getExportVariableNames());
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning \"{$string}\"");
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -874,8 +1012,8 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 	public function prepareBindExecuteGetStatement(mysqli $mysqli, string $typedef, ...$params): ?mysqli_stmt{
 		$f = __METHOD__;
 		try{
-			$print = $this->getDebugFlag();
-			if(isset($params) && ! empty($params)) {
+			$print = false && $this->getDebugFlag();
+			if(isset($params) && !empty($params)){
 				$new_params = array(
 					...$params
 				);
@@ -883,141 +1021,46 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 				$new_params = [];
 			}
 			$new_typedef = $typedef;
-			if(!$this->getFlag("typeSpecified") && $this->hasExpressions()) {
+			if(!$this->getTypeSpecifiedFlag() && $this->hasExpressions()){
 				$prefix = "";
 				$temp = [];
-				foreach($this->getExpressions() as $expr) {
-					if($expr instanceof ColumnAlias) {
+				foreach($this->getExpressions() as $expr){
+					if($expr instanceof ColumnAlias){
 						$cn = $expr->getExpression();
-						if($cn instanceof SelectStatement && $cn->hasTypeSpecifier()) {
+						if($cn instanceof SelectStatement && $cn->hasTypeSpecifier()){
 							$count = $cn->getParameterCount();
-							if($print) {
+							if($print){
 								Debug::print("{$f} prepending {$count} parameters from a subquery expression");
 							}
 							$prefix .= $cn->getTypeSpecifier();
 							array_push($temp, ...$cn->getParameters());
-						}elseif($print) {
+						}elseif($print){
 							Debug::print("{$f} column expression is not a select statement, or it does not have a typespecifier");
 						}
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} column expressions is not an instanceof ColumnAlias");
 					}
 				}
-				if($typedef !== "") {
+				if($typedef !== ""){
 					$new_typedef = "{$prefix}{$typedef}";
 					$new_params = array_merge($temp, $params);
 				}else{
-					if($print) {
+					if($print){
 						Debug::print("{$f} initial type definition string is empty");
 					}
 					$new_typedef = $prefix;
 					$new_params = $temp;
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} this statement does not have any expressions");
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} type definition string is \"{$new_typedef}\"; about to print parameters");
 				Debug::printArray($new_params);
 			}
 			return parent::prepareBindExecuteGetStatement($mysqli, $new_typedef, ...$new_params);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
-	}
-
-	public function dispose(): void{
-		unset($this->properties);
-		unset($this->propertyTypes);
-		unset($this->characterSet);
-		unset($this->distinction);
-		unset($this->dumpfilename);
-		unset($this->exportOptions);
-		unset($this->groupByClause);
-		unset($this->havingCondition);
-		unset($this->lockOption);
-		unset($this->outfilename);
-		parent::dispose();
-	}
-
-	public function replicate(): SelectStatement{
-		$replica = new static();
-		if($this->hasCharacterSet()) {
-			$replica->setCharacterSet($this->getCharacterSet());
-		}
-		if($this->hasDistinction()) {
-			$replica->setDistinction($this->getDistinction());
-		}
-		if($this->hasDumpfilename()) {
-			$replica->setDumpfilename($this->getDumpfilename());
-		}
-		if($this->hasColumnTerminator()) {
-			$replica->setColumnTerminator($this->getColumnTerminator());
-		}
-		if($this->hasEnclosureCharacter()) {
-			$replica->setEnclosureCharacter($this->getEnclosureCharacter());
-			if($this->getOptionallyEnclosedFlag()) {
-				$replica->setOptionallyEnclosedFlag(true);
-			}
-		}
-		if($this->hasColumnTerminator()) {
-			$replica->setColumnTerminator($this->getColumnTerminator());
-		}
-		if($this->hasEscapeCharacter()) {
-			$replica->setEscapeCharacter($this->getEscapeCharacter());
-		}
-		if($this->hasGroupBy()) {
-			$replica->setGroupByClause($this->getGroupBy());
-		}
-		if($this->hasHavingCondition()) {
-			$replica->setHavingCondition($this->getHavingCondition());
-		}
-		if($this->hasLockOption()) {
-			$replica->setLockOption($this->getLockOption());
-		}
-		if($this->hasOutfilename()) {
-			$replica->setOutfilename($this->getOutfilename());
-		}
-		if($this->hasExpressions()) {
-			$replica->setExpressions($this->getExpressions());
-		}
-		if($this->hasExportVariableNames()) {
-			$replica->setExportVariableNames($this->getExportVariableNames());
-		}
-		if($this->hasJoinExpressions()) {
-			$replica->setJoinExpressions($this->getJoinExpressions());
-		}
-		if($this->hasTableNames()) {
-			$replica->setTableNames($this->getTableNames());
-		}
-		if($this->hasPartitionNames()) {
-			$replica->setPartitionNames($this->getPartitionNames());
-		}
-		if($this->hasUnionClauses()) {
-			$replica->setUnionClauses($this->getUnionClauses());
-		}
-		if($this->hasWindowList()) {
-			$replica->setWindowList($this->getWindowList());
-		}
-		if($this->hasTypeSpecifier()) {
-			$replica->setTypeSpecifier($this->getTypeSpecifier());
-		}
-		if($this->hasParameters()) {
-			$replica->setParameters($this->getParameters());
-		}
-
-		if($this->hasLimit()) {
-			$replica->setLimit($this->getLimit());
-			if($this->hasOffset()) {
-				$replica->setOffset($this->getOffset());
-			}
-		}
-		if($this->hasTableName()) {
-			$replica->setTableName($this->getTableName());
-		}
-		if($this->hasWhereCondition()) {
-			$replica->setWhereCondition($this->getWhereCondition());
-		}
-		return $replica;
 	}
 }

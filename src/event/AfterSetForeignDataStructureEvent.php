@@ -1,11 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\event;
 
-class AfterSetForeignDataStructureEvent extends SetForeignDataStructureEvent
-{
+use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 
-	public function __construct($columnName, $struct, $properties = null)
-	{
+class AfterSetForeignDataStructureEvent extends AbstractForeignDataStructureEvent{
+
+	public function __construct(?string $columnName=null, ?DataStructure $struct=null, ?array $properties = null){
 		parent::__construct(EVENT_AFTER_SET_FOREIGN, $columnName, $struct, $properties);
 	}
 }

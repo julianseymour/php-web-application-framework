@@ -20,7 +20,7 @@ class EmbeddedImageData extends ImageData{
 
 	public function __construct($src = null){
 		parent::__construct();
-		if($src !== null) {
+		if($src !== null){
 			$this->setSourceAttribute($src);
 		}
 	}
@@ -29,7 +29,7 @@ class EmbeddedImageData extends ImageData{
 		$f = __METHOD__;
 		$finfo = new finfo(FILEINFO_MIME_TYPE);
 		$mime_type = $finfo->file("/var/www/html{$src}");
-		switch ($mime_type) {
+		switch($mime_type){
 			case MIME_TYPE_JPEG:
 			case MIME_TYPE_PNG:
 			case MIME_TYPE_GIF:
@@ -52,7 +52,7 @@ class EmbeddedImageData extends ImageData{
 
 	public function getSourceAttribute(){
 		$f = __METHOD__;
-		if(!$this->hasSourceAttribute()) {
+		if(!$this->hasSourceAttribute()){
 			Debug::error("{$f} src attribute is undefined");
 		}
 		return $this->src;
@@ -64,7 +64,7 @@ class EmbeddedImageData extends ImageData{
 
 	public function getWebFileDirectory():string{
 		$f = __METHOD__;
-		if(!$this->hasWebFileDirectory()) {
+		if(!$this->hasWebFileDirectory()){
 			Debug::error("{$f} web file directory is undefined");
 		}
 		return $this->webFileDirectory;

@@ -1,21 +1,18 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
-class TimeInput extends ChronometricInput
-{
+class TimeInput extends ChronometricInput{
 
-	public function getTypeAttribute(): string
-	{
+	public function getTypeAttribute(): string{
 		return "time";
 	}
 
-	public static function getTypeAttributeStatic(): string
-	{
+	public static function getTypeAttributeStatic(): string{
 		return INPUT_TYPE_TIME;
 	}
 
-	public function getAllowEmptyInnerHTML()
-	{
+	public function getAllowEmptyInnerHTML():bool{
 		return true;
 	}
 }

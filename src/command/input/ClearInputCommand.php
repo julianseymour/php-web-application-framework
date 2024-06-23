@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\input;
 
 use JulianSeymour\PHPWebApplicationFramework\command\ServerExecutableCommandInterface;
@@ -6,27 +7,23 @@ use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterf
 use JulianSeymour\PHPWebApplicationFramework\command\element\ElementCommand;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-class ClearInputCommand extends ElementCommand implements ServerExecutableCommandInterface
-{
+class ClearInputCommand extends ElementCommand implements ServerExecutableCommandInterface{
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "clearInput";
 	}
 
-	public function resolve()
-	{
+	public function resolve(){
 		$element = $this->getElement();
-		while ($element instanceof ValueReturningCommandInterface) {
+		while($element instanceof ValueReturningCommandInterface){
 			$element = $element->evaluate();
 		}
 		$element->setValueAttribute(null);
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		$idcs = $this->getIdCommandString();
-		if($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface){
 			$idcs = $idcs->toJavaScript();
 		}
 		return "{$idcs}.value = null;";

@@ -2,9 +2,11 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
-use JulianSeymour\PHPWebApplicationFramework\common\HumanReadableNameTrait;
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\HumanReadableNameTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
@@ -16,15 +18,9 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
  */
 abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 
+	use AbstractColumnDefinitionTrait;
 	use ArrayPropertyTrait;
 	use HumanReadableNameTrait;
-	
-	/**
-	 * specifies default value or expression to generate default value
-	 *
-	 * @var mixed
-	 */
-	protected $defaultValue;
 
 	/**
 	 * Specify which group of embedded datums this is a part of
@@ -64,33 +60,44 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 		return $this->getFlag(COLUMN_FILTER_EVENT_SOURCE);
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->defaultValue);
-		unset($this->embeddedName);
-		unset($this->encryptionScheme);
-		unset($this->persistenceMode);
+	public function dispose(bool $deallocate=false): void{
+		if($this->hasProperties()){
+			$this->releaseProperties($deallocate);
+		}
+		parent::dispose($deallocate);
+		$this->release($this->defaultValue, $deallocate);
+		$this->release($this->embeddedName, $deallocate);
+		$this->release($this->encryptionScheme, $deallocate);
+		$this->release($this->humanReadableName, $deallocate);
+		$this->release($this->persistenceMode, $deallocate);
+		if($this->hasPropertyTypes()){
+			$this->release($this->propertyTypes, $deallocate);
+		}
 	}
 
 	public function embed(string $group_name){
 		$f = __METHOD__;
-		if(!is_string($group_name)) {
+		if($this->hasEmbeddedName()){
+			$this->release($this->embeddedName);
+		}
+		if(!is_string($group_name)){
 			Debug::error("{$f} group name must be a string");
-		}elseif(empty($group_name)) {
+		}elseif(empty($group_name)){
 			Debug::error("{$f} group name cannot be empty");
 		}
 		$this->setPersistenceMode(PERSISTENCE_MODE_EMBEDDED);
+		$this->claim($group_name);
 		$this->embeddedName = $group_name;
 		return $this;
 	}
 
-	public function hasEmbeddedName(){
-		return isset($this->embeddedName) && is_string($this->embeddedName) && ! empty($this->embeddedName);
+	public function hasEmbeddedName():bool{
+		return isset($this->embeddedName);
 	}
 
 	public function getEmbeddedName(){
 		$f = __METHOD__;
-		if(!$this->hasEmbeddedName()) {
+		if(!$this->hasEmbeddedName()){
 			$cn = $this->getName();
 			Debug::error("{$f} embed group name is undefined for column \"{$cn}\"");
 		}
@@ -103,79 +110,57 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 	 * @return int
 	 */
 	public function getPersistenceMode(){
-		if(!$this->hasPersistenceMode()) {
-			return CONST_UNDEFINED;
+		if(!$this->hasPersistenceMode()){
+			return PERSISTENCE_MODE_UNDEFINED;
 		}
 		return $this->persistenceMode;
 	}
 
-	public function setPersistenceMode($pm){
-		return $this->persistenceMode = $pm;
+	public function setPersistenceMode(?int $pm):?int{
+		if($this->hasPersistenceMode()){
+			$this->release($this->persistenceMode);
+		}
+		return $this->persistenceMode = $this->claim($pm);
 	}
 
-	public function hasPersistenceMode(){
+	public function hasPersistenceMode():bool{
 		return isset($this->persistenceMode);
 	}
 
 	public function setEncryptionScheme($scheme){
 		$f = __METHOD__;
-		if(!is_string($scheme)) {
+		if($this->hasEncryptionScheme()){
+			$this->release($this->encryptionScheme);
+		}
+		if(!is_string($scheme)){
 			Debug::error("{$f} scheme class name is not a string");
-		}elseif(! class_exists($scheme)) {
+		}elseif(!class_exists($scheme)){
 			Debug::error("{$f} invalid encryption scheme \"{$scheme}\"");
 		}
-		return $this->encryptionScheme = $scheme;
+		return $this->encryptionScheme = $this->claim($scheme);
 	}
 
 	public function hasEncryptionScheme():bool{
-		return isset($this->encryptionScheme) && is_string($this->encryptionScheme) && class_exists($this->encryptionScheme);
+		return isset($this->encryptionScheme);
 	}
 
 	public function getEncryptionScheme(){
 		$f = __METHOD__;
-		if(!$this->hasEncryptionScheme()) {
+		if(!$this->hasEncryptionScheme()){
 			Debug::error("{$f} encryption scheme is undefined");
 		}
 		return $this->encryptionScheme;
 	}
-
-	public function setDefaultValue($v){
-		if($v === null) {
-			$this->setNullable(true);
-		}
-		return $this->defaultValue = $v;
-	}
-
-	public function getDefaultValue(){
-		if($this->hasDefaultValue()) {
-			return $this->defaultValue;
-		}
-		return null;
-	}
-
-	public function hasDefaultValue():bool{
-		return $this->defaultValue !== null;
-	}
-
-	public function withDefaultValue($value){
-		$this->setDefaultValue($value);
-		return $this;
-	}
-
-	public function getDefaultValueString(){
-		return $this->getDefaultValue();
-	}
-
-	public function setNullable(bool $value = true):bool{
-		return $this->setFlag(COLUMN_FILTER_NULLABLE, $value);
-	}
-
-	public function isNullable():bool{
-		return $this->getFlag(COLUMN_FILTER_NULLABLE);
-	}
-
+	
 	public function volatilize(){
 		$this->setPersistenceMode(PERSISTENCE_MODE_VOLATILE);
 		return $this;
+	}
+	
+	public static function getCopyableFlags():?array{
+		return [
+			COLUMN_FILTER_EVENT_SOURCE,
+			COLUMN_FILTER_NULLABLE
+		];
 	}
 }

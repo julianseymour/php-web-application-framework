@@ -1,7 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\control;
 
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\IteratorTrait;
@@ -9,126 +12,125 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use Exception;
 
-class ForEachLoopCommand extends LoopCommand
-{
+class ForEachLoopCommand extends LoopCommand{
 
 	use IteratorTrait;
 
 	protected $iteratedObject;
 
-	public function __construct($iterator, $iteratee, ...$blocks)
-	{
+	public function __construct($iterator=null, $iteratee=null, ...$blocks){
 		parent::__construct(...$blocks);
-		$this->setIterator($iterator);
-		$this->setIteratedObject($iteratee);
+		if($iterator !== null){
+			$this->setIterator($iterator);
+		}
+		if($iteratee !== null){
+			$this->setIteratedObject($iteratee);
+		}
 	}
 
-	public function setIteratedObject($o)
-	{
-		return $this->iteratedObject = $o;
+	public function setIteratedObject($o){
+		if($this->hasIteratedObject()){
+			$this->release($this->iteratedObject);
+		}
+		return $this->iteratedObject = $this->claim($o);
 	}
 
-	public function hasIteratedObject()
-	{
+	public function hasIteratedObject():bool{
 		return isset($this->iteratedObject);
 	}
 
-	public function getIteratedObject()
-	{
+	public function getIteratedObject(){
 		$f = __METHOD__;
-		if(!$this->hasIteratedObject()) {
+		if(!$this->hasIteratedObject()){
 			Debug::error("{$f} iterated object is undefined");
 		}
 		return $this->iteratedObject;
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "for_in";
 	}
 
-	public function resolve()
-	{
+	public function resolve(){
 		$f = __METHOD__;
 		try{
 			$print = false;
 			$iteratee = $this->getIteratedObject();
-			while ($iteratee instanceof ValueReturningCommandInterface) {
-				if($print) {
+			while($iteratee instanceof ValueReturningCommandInterface){
+				if($print){
 					$class = $iteratee->getClass();
 					Debug::print("{$f} iterated object is a value-returning media command of class \"{$class}\"");
 				}
 				$iteratee = $iteratee->evaluate();
 			}
-			if(!is_array($iteratee)) {
-				if(is_object($iteratee)) {
+			if(!is_array($iteratee)){
+				if(is_object($iteratee)){
 					$gottype = $iteratee->getClass();
 				}else{
 					$gottype = gettype($iteratee);
 				}
 				Debug::error("{$f} the object sent as the second parameter for this class's cunstructor must resolve to an array; received parameter resolved to type \"{$gottype}\"");
 			}
-			if($print) {
+			if($print){
 				$count = count($iteratee);
 				Debug::print("{$f} iterating over {$count} objects");
 			}
-			if($print) {
+			if($print){
 				$count = $this->getCodeBlockCount();
 				Debug::print("{$f} {$count} code blocks");
 			}
 			$iterator = $this->getIterator();
-			if($print) {
+			if($print){
 				$ic = count($iteratee);
 				Debug::print("{$f} iterating over {$ic} iterators");
 				$debug_ids = [];
-				foreach($iteratee as $i) {
+				foreach($iteratee as $i){
 					$did = $i->getDebugId();
-					if(array_key_exists($did, $debug_ids)) {
+					if(array_key_exists($did, $debug_ids)){
 						Debug::error("{$f} object with debug ID \"{$did}\" has more than one instance");
 					}
 					$debug_ids[$did] = $i;
 				}
 				Debug::print("{$f} no collisions detected");
 			}
-			foreach($iteratee as $i) {
+			foreach($iteratee as $i){
 				$iterator->setValue($i);
-				$this->resolveCodeBlocks();
+				$iterator->resolve();
+				$this->resolveCodeBlocks($this->getCodeBlocks());
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning normally I guess");
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		$f = __METHOD__;
 		try{
 			$it = $this->getIterator();
-			if($it instanceof JavaScriptInterface) {
+			if($it instanceof JavaScriptInterface){
 				$it = $it->toJavaScript();
 			}
 			$arr = $this->getIteratedObject();
-			if($arr instanceof JavaScriptInterface) {
+			if($arr instanceof JavaScriptInterface){
 				$arr = $arr->toJavaScript();
 			}
 			$s = "for({$it} in {$arr}){\n";
-			foreach($this->getCodeBlocks() as $b) {
+			foreach($this->getCodeBlocks() as $b){
 				$s .= "\t" . $b->toJavaScript() . ";\n";
 			}
 			$s .= "}\n";
 			return $s;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->iterator);
-		unset($this->iteratedObject);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->iterator, $deallocate);
+		$this->release($this->iteratedObject, $deallocate);
 	}
 }

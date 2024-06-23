@@ -7,7 +7,7 @@ use JulianSeymour\PHPWebApplicationFramework\data\IntersectionTableResolver;
 
 class UserClassResolver extends IntersectionTableResolver{
 
-	public static function getIntersections(){
+	public static function getIntersections():array{
 		return [
 			DATATYPE_USER => [
 				ACCOUNT_TYPE_ADMIN => config()->getAdministratorClass(),
@@ -16,5 +16,9 @@ class UserClassResolver extends IntersectionTableResolver{
 				ACCOUNT_TYPE_SHADOW => config()->getShadowUserClass()
 			]
 		];
+	}
+	
+	public static function getSubtypability():string{
+		return SUBTYPABILITY_ALL;
 	}
 }

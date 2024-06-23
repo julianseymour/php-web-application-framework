@@ -1,63 +1,55 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\crypt;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
-use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
 use Exception;
 
-trait SignatureKeypairColumnsTrait
-{
+trait SignatureKeypairColumnsTrait{
 
 	use SignatureKeypairedTrait;
-	use MultipleColumnDefiningTrait;
-
-	public function getSignaturePublicKey()
-	{
-		$f = __METHOD__; //"SignatureKeypairColumnsTrait(".static::getShortClass().")->getSignaturePublicKey()";
+	
+	public function getSignaturePublicKey(){
+		$f = __METHOD__;
 		try{
 			$spk = $this->getColumnValue('signaturePublicKey');
-			if(! isset($spk)) {
+			if(!isset($spk)){
 				Debug::error("{$f} signature public key is undefined");
 			}
 			$len2 = strlen($spk);
-			if($len2 !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) {
+			if($len2 !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES){
 				Debug::error("{$f} signature public key is incorrect length ({$len2}, should be " . SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES . ")");
 			}
 			return $spk;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function setSignaturePrivateKey($spk)
-	{
-		$f = __METHOD__; //"SignatureKeypairColumnsTrait(".static::getShortClass().")->setSignaturePrivateKey()";
+	public function setSignaturePrivateKey($spk){
+		$f = __METHOD__;
 		$len = strlen($spk);
-		if($len !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES) {
+		if($len !== SODIUM_CRYPTO_SIGN_SECRETKEYBYTES){
 			Debug::error("{$f} signature private key is {$len} bytes, should be " . SODIUM_CRYPTO_SIGN_SECRETKEYBYTES);
 			return null;
 		}
 		return $this->setColumnValue("signaturePrivateKey", $spk);
 	}
 
-	public function getSignaturePrivateKey()
-	{
+	public function getSignaturePrivateKey(){
 		return $this->getColumnValue("signaturePrivateKey");
 	}
 
-	public function hasSignaturePrivateKey(): bool
-	{
+	public function hasSignaturePrivateKey(): bool{
 		return $this->hasColumnValue("signaturePrivateKey");
 	}
 
-	public function getSignatureKeypair()
-	{
+	public function getSignatureKeypair(){
 		return sodium_crypto_sign_seed_keypair($this->getSignaturePrivateKey());
 	}
 
-	public function setSignaturePublicKey($value)
-	{
+	public function setSignaturePublicKey($value){
 		return $this->setColumnValue("signaturePublicKey", $value);
 	}
 }

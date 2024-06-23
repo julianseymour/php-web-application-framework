@@ -20,7 +20,7 @@ class AdminValidator extends Validator
 	{
 		$f = __METHOD__; //AdminValidator::getShortClass()."(".static::getShortClass().")->evaluate()";
 		$user = user();
-		if($user instanceof Administrator) {
+		if($user instanceof Administrator){
 			return SUCCESS;
 		}
 		return $this->getSpecialFailureStatus();

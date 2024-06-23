@@ -1,7 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\element;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
 use function JulianSeymour\PHPWebApplicationFramework\escape_quotes;
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use JulianSeymour\PHPWebApplicationFramework\command\ServerExecutableCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
@@ -15,33 +19,32 @@ class ReidentifyElementCommand extends ElementCommand implements ServerExecutabl
 
 	public function __construct($element = null, $newId = null){
 		parent::__construct($element);
-		if($newId !== null) {
+		if($newId !== null){
 			$this->setNewId($newId);
 		}
 	}
-
+	
 	public static function getCommandId(): string{
 		return "reidentify";
 	}
 
-	public function hasNewId(){
-		return ! empty($this->newId);
+	public function hasNewId():bool{
+		return !empty($this->newId);
 	}
 
 	public function getNewId(){
 		$f = __METHOD__;
-		if(!$this->hasNewId()) {
+		if(!$this->hasNewId()){
 			Debug::error("{$f} new ID is undefined");
 		}
 		return $this->newId;
 	}
 
 	public function setNewId($newId){
-		if($newId === null) {
-			unset($this->newId);
-			return null;
+		if($this->hasNewId()){
+			$this->release($this->newId);
 		}
-		return $this->newId = $newId;
+		return $this->newId = $this->claim($newId);
 	}
 
 	public function echoInnerJson(bool $destroy = false): void{
@@ -49,31 +52,39 @@ class ReidentifyElementCommand extends ElementCommand implements ServerExecutabl
 		parent::echoInnerJson($destroy);
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->newId);
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasNewId()){
+			$this->setNewId(replicate($that->getNewId()));
+		}
+		return $ret;
+	}
+	
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->newId, $deallocate);
 	}
 
-	public function toJavaScript(): string{
+	public function toJavaScript():string{
 		$f = __METHOD__;
 		$print = false;
 		$id = $this->getIdCommandString();
-		if($id instanceof JavaScriptInterface) {
+		if($id instanceof JavaScriptInterface){
 			$id = $id->toJavaScript();
 		}
 		$new_id = $this->getNewId();
-		if($new_id instanceof JavaScriptInterface) {
+		if($new_id instanceof JavaScriptInterface){
 			$new_id = $new_id->toJavaScript();
-		}elseif(is_string($new_id) || $new_id instanceof StringifiableInterface) {
-			if($this->hasQuoteStyle()) {
+		}elseif(is_string($new_id) || $new_id instanceof StringifiableInterface){
+			if($this->hasQuoteStyle()){
 				$qs = $this->getQuoteStyle();
 			}else{
 				$qs = QUOTE_STYLE_SINGLE;
 			}
 			$new_id = $qs . escape_quotes($new_id, $this->getQuoteStyle()) . $qs;
 		}
-		if($print) {
-			if($new_id instanceof ValueReturningCommandInterface) {
+		if($print){
+			if($new_id instanceof ValueReturningCommandInterface){
 				$cc = $new_id->getClass();
 				Debug::print("{$f} new ID command class is \"{$cc}\"; stringified it't \"{$new_id}\"");
 			}else{
@@ -84,14 +95,13 @@ class ReidentifyElementCommand extends ElementCommand implements ServerExecutabl
 		return $string;
 	}
 
-	public function resolve()
-	{
+	public function resolve(){
 		$element = $this->getElement();
-		while ($element instanceof ValueReturningCommandInterface) {
+		while($element instanceof ValueReturningCommandInterface){
 			$element = $element->evaluate();
 		}
 		$new_id = $this->getNewId();
-		while ($new_id instanceof ValueReturningCommandInterface) {
+		while($new_id instanceof ValueReturningCommandInterface){
 			$new_id = $new_id->evaluate();
 		}
 		$element->setIdAttribute($new_id);

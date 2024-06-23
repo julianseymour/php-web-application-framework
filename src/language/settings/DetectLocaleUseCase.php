@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\language\settings;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
@@ -21,6 +22,7 @@ class DetectLocaleUseCase extends UseCase{
 		$print = false;
 		$lsd = new LanguageSettingsData();
 		$locale = $lsd->getLocaleString();
+		deallocate($lsd);
 		if(!is_dir("/var/www/locale/{$locale}")){
 			$locale = Internationalization::getFallbackLocale($locale);
 		}

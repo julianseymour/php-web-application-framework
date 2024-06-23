@@ -36,10 +36,10 @@ class ProfileAdministrationLoadoutGenerator extends LoadoutGenerator{
 		$f = __METHOD__;
 		$print = false;
 		$type = $object->getDataType();
-		switch ($type) {
+		switch($type){
 			case DATATYPE_USER:
-				if($object->getAccountType() !== $use_case->getCorrespondentClass()::getAccountTypeStatic()) {
-					if($print) {
+				if($object->getAccountType() !== $use_case->getCorrespondentClass()::getSubtypeStatic()){
+					if($print){
 						Debug::print("{$f} non-root user object is not the correct profile type");
 					}
 					return null;
@@ -47,28 +47,28 @@ class ProfileAdministrationLoadoutGenerator extends LoadoutGenerator{
 				$doc = $use_case->getDataOperandClass();
 				$dummy = new $doc();
 				$select = $dummy->select();
-				/*if($print) {
+				/*if($print){
 					$qstring = $select->toSQL();
 					Debug::print("{$f} generated query \"{$qstring}\"");
 				}*/
-				if($dummy->hasColumn("userKey")) {
+				if($dummy->hasColumn("userKey")){
 					$params = [
 						getInputParameter("correspondentKey", use_case())
 					];
 					$pm = $dummy->getColumn("userKey")->getPersistenceMode();
-					switch ($pm) {
+					switch($pm){
 						case PERSISTENCE_MODE_DATABASE:
 							$where = new WhereCondition("userKey", OPERATOR_EQUALS);
 							break;
 						case PERSISTENCE_MODE_INTERSECTION:
-							$where = $doc::whereIntersectionalHostKey(mods()->getUserClass($object->getUserAccountType()), "userKey");
+							$where = $doc::whereIntersectionalHostKey(mods()->getUserClass($object->getAccountType()), "userKey");
 							array_push($params, "userKey");
 							break;
 						default:
 							Debug::error("{$f} unsupported persistence mode \"{$pm}\"");
 					}
 					$select = $select->where($where);
-					if($params) {
+					if($params){
 						$select->withParameters($params);
 						if($print){
 							Debug::print("{$f} returning the \"{$select}\" with the following params: ".json_encode($params));

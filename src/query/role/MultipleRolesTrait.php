@@ -1,40 +1,34 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\role;
 
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 
-trait MultipleRolesTrait
-{
+trait MultipleRolesTrait{
 
 	use ArrayPropertyTrait;
 
-	public function setRoles($values)
-	{
+	public function setRoles($values){
 		return $this->setArrayProperty("roles", $values);
 	}
 
-	public function pushRoles(...$values)
-	{
+	public function pushRoles(...$values):int{
 		return $this->pushArrayProperty("roles", ...$values);
 	}
 
-	public function mergeRoles($values)
-	{
+	public function mergeRoles($values){
 		return $this->mergeArrayProperty("roles", $values);
 	}
 
-	public function hasRoles()
-	{
+	public function hasRoles():bool{
 		return $this->hasArrayProperty("roles");
 	}
 
-	public function getRoles()
-	{
+	public function getRoles(){
 		return $this->getProperty("roles");
 	}
 
-	public function getRoleCount()
-	{
+	public function getRoleCount():int{
 		return $this->getProperty("roles");
 	}
 }

@@ -4,6 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\account\avatar;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\image\ImageData;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateContextInterface;
 use Exception;
@@ -19,7 +20,7 @@ class ProfileImageData extends ImageData implements TemplateContextInterface{
 		$f = __METHOD__;
 		try{
 			$config = parent::getArrayMembershipConfiguration($config_id);
-			switch ($config_id) {
+			switch($config_id){
 				case "default":
 				default:
 					$config["thumbnailHeight"] = true;
@@ -27,7 +28,7 @@ class ProfileImageData extends ImageData implements TemplateContextInterface{
 					$config['webThumbnailPath'] = true;
 					return $config;
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -40,13 +41,20 @@ class ProfileImageData extends ImageData implements TemplateContextInterface{
 		return;
 	}
 
-	protected function beforeInsertHook(mysqli $mysqli): int{
+	public function beforeInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
+		$print = false;
 		$ret = parent::beforeInsertHook($mysqli);
-		if(!$this->hasUserKey()) {
+		if(!$this->hasUserKey()){
 			Debug::error("{$f} user key is undefined");
+		}elseif($print){
+			Debug::print("{$f} user key is \"" . $this->getUserKey() . "\"");
 		}
-		Debug::print("{$f} user key is \"" . $this->getUserKey() . "\"");
 		return $ret;
+	}
+	
+	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null):void{
+		parent::reconfigureColumns($columns, $ds);
+		$columns['userKey']->setConverseRelationshipKeyName("profileImageKey");
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\column\ShowColumnsStatement;
@@ -12,6 +13,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\grant\GrantStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\grant\RevokeStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\index\CreateIndexStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\index\DropIndexStatement;
+use JulianSeymour\PHPWebApplicationFramework\query\index\IndexDefinition;
 use JulianSeymour\PHPWebApplicationFramework\query\insert\InsertStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\insert\ReplaceStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\load\LoadDataStatement;
@@ -39,9 +41,9 @@ use JulianSeymour\PHPWebApplicationFramework\query\view\AlterViewStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\view\CreateViewStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\view\DropViewStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
-use JulianSeymour\PHPWebApplicationFramework\core\Basic;
+use mysqli;
 
-abstract class QueryBuilder extends Basic{
+abstract class QueryBuilder{
 
 	public static function select(...$vars): SelectStatement{
 		return new SelectStatement(...$vars);
@@ -80,15 +82,15 @@ abstract class QueryBuilder extends Basic{
 		return DropRoutineStatement::dropProcedureIfExists($name);
 	}
 
-	public static function createDatabase($databaseName = null): CreateDatabaseStatement{
+	public static function createDatabase(?string $databaseName = null): CreateDatabaseStatement{
 		return new CreateDatabaseStatement($databaseName);
 	}
 
-	public static function alterDatabase($databaseName = null): AlterDatabaseStatement{
+	public static function alterDatabase(?string $databaseName = null): AlterDatabaseStatement{
 		return new AlterDatabaseStatement($databaseName);
 	}
 
-	public static function dropDatabase($databaseName = null): DropDatabaseStatement{
+	public static function dropDatabase(?string $databaseName = null): DropDatabaseStatement{
 		return new DropDatabaseStatement($databaseName);
 	}
 
@@ -104,7 +106,7 @@ abstract class QueryBuilder extends Basic{
 		return new RevokeStatement();
 	}
 
-	public static function createIndex($indexDefinition = null): CreateIndexStatement{
+	public static function createIndex(?IndexDefinition $indexDefinition = null): CreateIndexStatement{
 		return new CreateIndexStatement($indexDefinition);
 	}
 
@@ -148,11 +150,11 @@ abstract class QueryBuilder extends Basic{
 		return new DropTableStatement(...$tableNames);
 	}
 
-	public static function createTablespace($name = null): CreateTablespaceStatement{
+	public static function createTablespace(?string $name = null): CreateTablespaceStatement{
 		return new CreateTablespaceStatement($name);
 	}
 
-	public static function alterTablespace($name = null): AlterTablespaceStatement{
+	public static function alterTablespace(?string $name = null): AlterTablespaceStatement{
 		return new AlterTablespaceStatement($name);
 	}
 
@@ -180,7 +182,7 @@ abstract class QueryBuilder extends Basic{
 		return new CreateViewStatement($db, $name, $selectStatement);
 	}
 
-	public static function alterView($db = null, $name = null, $selectStatement = null): AlterViewStatement
+	public static function alterView(?string $db = null, ?string $name = null, ?SelectStatement $selectStatement = null): AlterViewStatement
 	{
 		return new AlterViewStatement($db, $name, $selectStatement);
 	}
@@ -197,7 +199,7 @@ abstract class QueryBuilder extends Basic{
 		return new LoadDataStatement($infilename, ...$dbtable);
 	}
 
-	public static function loadXML($infilename, ...$dbtable): LoadXMLStatement{
+	public static function loadXML(string $infilename, ...$dbtable): LoadXMLStatement{
 		return new LoadXMLStatement($infilename, ...$dbtable);
 	}
 
@@ -205,32 +207,38 @@ abstract class QueryBuilder extends Basic{
 		return new FlushStatement();
 	}
 
-	public static function tableExists($mysqli, $databaseName, $tableName): bool{
+	public static function tableExists(mysqli $mysqli, string $databaseName, string $tableName): bool{
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
+		if($print){
 			Debug::printStackTraceNoExit("{$f} entered");
 		}
-		if($mysqli->connect_errno) {
-			Debug::error("{$f} Failed to connect to MySQL: ({$mysqli->connect_errno}) {$mysqli->connect_error}");
-		}elseif(!$mysqli->ping()) {
+		if($mysqli->connect_errno){
+			Debug::error("{$f} Failed to connect to MySQL: ({$mysqli->connect_errno}){$mysqli->connect_error}");
+		}elseif(!$mysqli->ping()){
 			Debug::error("{$f} mysqli connection failed ping test: \"" . $mysqli->error . "\"");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} about to ask whether table {$databaseName}.{$tableName} exists");
 		}
+		$where1 = new WhereCondition("TABLE_SCHEMA", OPERATOR_EQUALS);
+		$where2 = new WhereCondition("TABLE_NAME", OPERATOR_EQUALS);
 		$select = new SelectStatement("TABLE_SCHEMA", "TABLE_NAME");
-		$select->from("information_schema", "tables")->where(new AndCommand(new WhereCondition("TABLE_SCHEMA", OPERATOR_EQUALS), new WhereCondition("TABLE_NAME", OPERATOR_EQUALS)));
-
-		return $select->prepareBindExecuteGetResultCount($mysqli, 'ss', $databaseName, $tableName) === 1;
+		$select->from("information_schema", "tables")->where(
+			new AndCommand(
+				$where1, 
+				$where2
+			)
+		);
+		$ret = $select->prepareBindExecuteGetResultCount($mysqli, 'ss', $databaseName, $tableName) === 1;
+		deallocate($select);
+		return $ret;
 	}
 
 	public static function showColumns(): ShowColumnsStatement{
 		return new ShowColumnsStatement();
 	}
 
-	public static function columnExists($mysqli, $db, $tableName, $columnName){
-		return QueryBuilder::showColumns()->from($db, $tableName)
-			->where(new WhereCondition("Field", OPERATOR_EQUALS))
-			->prepareBindExecuteGetResultCount($mysqli, 's', $columnName) === 1;
+	public static function columnExists(mysqli $mysqli, string $db, string $tableName, string $columnName):bool{
+		return QueryBuilder::showColumns()->from($db, $tableName)->where(new WhereCondition("Field", OPERATOR_EQUALS))->prepareBindExecuteGetResultCount($mysqli, 's', $columnName) === 1;
 	}
 }

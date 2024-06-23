@@ -45,7 +45,7 @@ class ConfirmIpAddressListForm extends ConfirmationCodeForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_VALIDATE:
 				$authorize = $this->generateGenericButton($name);
 				$authorize->setInnerHTML(_("Authorize"));

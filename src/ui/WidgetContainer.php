@@ -18,10 +18,10 @@ class WidgetContainer extends DivElement{
 
 	public function setWidgetClass(?string $widgetClass): ?string{
 		$f = __METHOD__;
-		if($widgetClass == null) {
+		if($widgetClass == null){
 			unset($this->widgetClass);
 			return null;
-		}elseif(!is_string($widgetClass) || ! class_exists($widgetClass) || ! is_a($widgetClass, WidgetInterface::class, true)) {
+		}elseif(!is_string($widgetClass) || !class_exists($widgetClass) || ! is_a($widgetClass, WidgetInterface::class, true)){
 			Debug::error("{$f} class \"{$widgetClass}\" is not a WidgetInterface");
 		}
 		$name = $widgetClass::getWidgetName();
@@ -37,7 +37,7 @@ class WidgetContainer extends DivElement{
 
 	public function getWidgetClass(): string{
 		$f = __METHOD__;
-		if(!$this->hasWidgetClass()) {
+		if(!$this->hasWidgetClass()){
 			Debug::error("{$f} widget class is undefined");
 		}
 		return $this->widgetClass;
@@ -50,9 +50,9 @@ class WidgetContainer extends DivElement{
 		$wc = $this->getWidgetClass();
 		$name = $wc::getWidgetName();
 		$icon_class = $wc::getIconClass($context);
-		if($icon_class !== null) {
+		if($icon_class !== null){
 			$icon = new $icon_class($mode, $context);
-			if(!$icon->hasIdAttribute()) {
+			if(!$icon->hasIdAttribute()){
 				$icon->setIdAttribute("{$name}_widget_icon");
 			}
 			$icon->addClassAttribute("widget_icon");
@@ -63,10 +63,10 @@ class WidgetContainer extends DivElement{
 			$this->appendChild($icon);
 		}
 		$widget = new $wc($mode, $context);
-		if(!$widget->hasIdAttribute()) {
+		if(!$widget->hasIdAttribute()){
 			$widget->setIdAttribute("{$name}_widget");
 		}
 		$this->appendChild($widget);
-		return $this->getChildNodes();
+		return $this->hasChildNodes() ? $this->getChildNodes() : [];
 	}
 }

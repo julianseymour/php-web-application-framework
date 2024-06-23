@@ -3,6 +3,8 @@
 namespace JulianSeymour\PHPWebApplicationFramework\cache;
 
 use function JulianSeymour\PHPWebApplicationFramework\cache;
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\common\FlagBearingTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
@@ -29,16 +31,15 @@ trait CacheableTrait{
 	public function setCacheKey(?string $key):?string{
 		$f = __METHOD__;
 		$print = false;
-		if($key === null) {
-			unset($this->cacheKey);
-			return null;
-		}elseif(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){ //valid regex is [a-zA-Z0-9_\\.! ]
+		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){ //valid regex is [a-zA-Z0-9_\\.! ]
 			Debug::error("{$f} invalid cache key \"{$key}\"");
-		}
-		if($print) {
+		}elseif($print){
 			Debug::print("{$f} cache key \"{$key}\" is valid");
 		}
-		return $this->cacheKey = $key;
+		if($this->hasCacheKey()){
+			$this->release($this->cacheKey);
+		}
+		return $this->cacheKey = $this->claim($key);
 	}
 
 	public function withCacheKey(?string $key):CacheableInterface{
@@ -67,11 +68,10 @@ trait CacheableTrait{
 	}
 
 	public function setTimeToLive(?int $duration): ?int{
-		if($duration === null || is_int($duration) && $duration <= 0) {
-			unset($this->timeToLive);
-			return null;
+		if($this->hasTimeToLive()){
+			$this->release($this->timeToLive);
 		}
-		return $this->timeToLive = $duration;
+		return $this->timeToLive = $this->claim($duration);
 	}
 
 	public function hasTimeToLive(): bool{

@@ -182,7 +182,7 @@
 	
 	self.addEventListener('activate', function(event){
 		window.alert("Service worker activated");
-		event.waitUntil(self.clients.claim()); // Become available to all pages
+		event.waitUntil(self.clients.$this->claim()); // Become available to all pages
 	});
 	
 	/*self.addEventListener('periodicsync', function(event){

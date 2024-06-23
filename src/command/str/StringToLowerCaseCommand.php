@@ -1,26 +1,24 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\str;
 
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-class StringToLowerCaseCommand extends StringTransformationCommand
-{
+class StringToLowerCaseCommand extends StringTransformationCommand{
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "toLowerCase";
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		$f = __METHOD__; //StringToLowerCaseCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
+	public function evaluate(?array $params = null){
+		$f = __METHOD__;
 		$print = false;
 		$subject = $this->getSubject();
-		while ($subject instanceof Command) {
+		while($subject instanceof Command){
 			$subject = $subject->evaluate();
 		}
-		if($print) {
+		if($print){
 			Debug::print("{$f} about to strtolower \"{$subject}\"");
 		}
 		return strtolower($subject);

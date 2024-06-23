@@ -9,7 +9,7 @@ class DisplayNameInnerForm extends AjaxForm{
 
 	public function generateButtons(string $directive): ?array{
 		$f = __METHOD__; //DisplayNameInnerForm::getShortClass()."(".static::getShortClass().")->generateButtons()";
-		switch ($directive) {
+		switch($directive){
 			case DIRECTIVE_UPDATE:
 				$button = $this->generateGenericButton($directive);
 				$button->setInnerHTML(_("Update display name"));

@@ -18,7 +18,7 @@ class DummyElement extends DivElement
 			return [
 				$innerHTML
 			];
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -1,22 +1,20 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\element;
 
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
 use JulianSeymour\PHPWebApplicationFramework\json\Json;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-class ScrollIntoViewCommand extends ElementCommand
-{
+class ScrollIntoViewCommand extends ElementCommand{
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "scrollIntoView";
 	}
 
-	public function __construct($element = null, $alignToTop = false)
-	{
+	public function __construct($element = null, $alignToTop = false){
 		parent::__construct($element);
-		if($alignToTop) {
+		if($alignToTop){
 			$this->setAlignToTop($alignToTop);
 		}
 	}
@@ -28,8 +26,7 @@ class ScrollIntoViewCommand extends ElementCommand
 	 * @param Element $scroll_me
 	 * @return SetStylePropertiesCommand
 	 */
-	public static function getInstantScrollCommand($scrolled, $scroll_me, bool $alignToTop = false)
-	{
+	public static function getInstantScrollCommand($scrolled, $scroll_me, bool $alignToTop = false){
 		$auto = new SetStylePropertiesCommand($scrolled, [
 			"scroll-behavior" => "auto"
 		]);
@@ -40,37 +37,38 @@ class ScrollIntoViewCommand extends ElementCommand
 		return static::linkCommands($auto, $scroll, $smooth);
 	}
 
-	public function echoInnerJson(bool $destroy = false): void
-	{
-		if($this->getAlignToTop()) {
+	public function echoInnerJson(bool $destroy = false): void{
+		if($this->getAlignToTop()){
 			Json::echoKeyValuePair('alignToTop', true, $destroy);
 		}
 		parent::echoInnerJson($destroy);
 	}
 
-	public function getAlignToTop()
-	{
+	public function getAlignToTop():bool{
 		return $this->getFlag('alignToTop');
 	}
 
-	public function setAlignToTop($value)
-	{
+	public function setAlignToTop(bool $value=true):bool{
 		return $this->setFlag("alignToTop", $value);
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		$idcs = $this->getIdCommandString();
-		if($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface){
 			$idcs = $idcs->toJavaScript();
 		}
 		$align = $this->getAlignToTop() ? "true" : "false";
 		return "{$idcs}.scrollIntoView({$align})";
 	}
 
-	public static function declareFlags(): array
-	{
+	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
+			"alignToTop"
+		]);
+	}
+	
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
 			"alignToTop"
 		]);
 	}

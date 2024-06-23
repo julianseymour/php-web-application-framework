@@ -50,7 +50,7 @@ class LimitItemsPerPageForm extends AjaxForm{
 			$limit->setMaximumAttribute($toc);
 			$limit->setLabelString(_("Items"));
 			$limit->setNameAttribute("limit");
-			if($lim !== null) {
+			if($lim !== null){
 				$limit->setValueAttribute($lim);
 			}
 			$limit_field->appendChild($limit);
@@ -58,7 +58,7 @@ class LimitItemsPerPageForm extends AjaxForm{
 			$items_span->setInnerHTML(" " . _("Items"));
 			$limit_field->appendChild($items_span);
 			$this->appendChild($limit_field);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -86,7 +86,7 @@ class LimitItemsPerPageForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_SUBMIT:
 				$button = $this->generateGenericButton($name);
 				$innerHTML = _("Refresh");

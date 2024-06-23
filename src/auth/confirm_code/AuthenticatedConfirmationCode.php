@@ -37,9 +37,9 @@ abstract class AuthenticatedConfirmationCode extends ConfirmationCode{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($this->hasUserData()) {
+			if($this->hasUserData()){
 				$tco = $this->getUserData();
-				if($tco instanceof AnonymousUser) {
+				if($tco instanceof AnonymousUser){
 					Debug::error("{$f} user data must not be anonymous");
 				}
 				return $tco;
@@ -48,10 +48,10 @@ abstract class AuthenticatedConfirmationCode extends ConfirmationCode{
 			}
 			$user = user();
 			$status = $user->getObjectStatus();
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} client object returned error status \"{$err}\"");
-			}elseif($user instanceof AnonymousUser) {
+			}elseif($user instanceof AnonymousUser){
 				Debug::warning("{$f} client object is anonymous");
 				$this->setObjectStatus(ERROR_MUST_LOGIN);
 			}elseif($print){
@@ -59,7 +59,7 @@ abstract class AuthenticatedConfirmationCode extends ConfirmationCode{
 			}
 			$this->setUserData($user);
 			return $this->setUserData($user);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

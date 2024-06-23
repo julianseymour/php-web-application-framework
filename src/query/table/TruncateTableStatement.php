@@ -20,7 +20,7 @@ class TruncateTableStatement extends QueryStatement
 	{
 		// TRUNCATE [TABLE] tbl_name
 		$string = "truncate "; // .$this->getTableName();
-		if($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()){
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
 		$string .= back_quote($this->getTableName());

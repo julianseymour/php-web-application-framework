@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\mfa\settings;
 
 use function JulianSeymour\PHPWebApplicationFramework\base64url_encode;
@@ -15,17 +16,10 @@ use Exception;
 class MfaQrCodeElement extends DivElement{
 
 	use StyleSheetPathTrait;
-	
-	protected $revealQrCodeCheckboxInput;
 
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		parent::__construct($mode, $context);
 		$this->addClassAttribute("mfa_qr_c");
-	}
-
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->revealQrCodeCheckboxInput);
 	}
 
 	public function generateChildNodes(): ?array{
@@ -44,7 +38,6 @@ class MfaQrCodeElement extends DivElement{
 			$label_span = new SpanElement();
 			$show = new LabelElement();
 			$show->addClassAttribute("label_show_qr");
-			// $checkbox = $this->getRevealQrCodeCheckboxInput();
 			$show->setForAttribute("mfa_qr_check");
 			$show->setInnerHTML(_("Show"));
 			$label_span->appendChild($show);
@@ -57,27 +50,17 @@ class MfaQrCodeElement extends DivElement{
 			$this->appendChild($qr_label_c);
 			array_push($children, $qr_label_c);
 			return $children;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function getRevealQrCodeCheckboxInput()
-	{
-		if(isset($this->revealQrCodeCheckboxInput)) {
-			return $this->revealQrCodeCheckboxInput;
-		}
+	protected function getSelfGeneratedPredecessors(): ?array{
 		$input = new CheckboxInput();
 		$input->setIdAttribute("mfa_qr_check");
 		$input->addClassAttribute("hidden");
-		return $this->revealQrCodeCheckboxInput = $input;
-	}
-
-	protected function generatePredecessors(): ?array
-	{
-		$f = __METHOD__; //MfaQrCodeElement::getShortClass()."(".static::getShortClass().")->generatePredecessors()";
 		return [
-			$this->getRevealQrCodeCheckboxInput()
+			$input
 		];
 	}
 }

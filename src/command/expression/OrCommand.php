@@ -9,7 +9,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\where\WhereConditionalInterfa
 class OrCommand extends VariadicExpressionCommand implements WhereConditionalInterface{
 
 	public function getOperator(){
-		if(!$this->hasOperator()) {
+		if(!$this->hasOperator()){
 			return OPERATOR_OR_BOOLEAN;
 		}
 		return parent::getOperator();
@@ -20,19 +20,19 @@ class OrCommand extends VariadicExpressionCommand implements WhereConditionalInt
 		$print = false;
 		$args = $this->getParameters();
 		$num = 1;
-		foreach($args as $arg) {
-			while ($arg instanceof ValueReturningCommandInterface) {
+		foreach($args as $arg){
+			while($arg instanceof ValueReturningCommandInterface){
 				$arg = $arg->evaluate();
 			}
-			if($arg) {
-				if($print) {
+			if($arg){
+				if($print){
 					Debug::print("{$f} argument {$num} evaluated to true");
 				}
 				return true;
 			}
 			$num ++;
 		}
-		if($print) {
+		if($print){
 			Debug::print("{$f} returning false");
 		}
 		return false;

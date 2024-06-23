@@ -1,47 +1,34 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\element;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\command\ServerExecutableCommandInterface;
-use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
+use JulianSeymour\PHPWebApplicationFramework\element\ParentNodeTrait;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-abstract class InsertChildCommand extends InsertElementCommand implements JavaScriptInterface, ServerExecutableCommandInterface
-{
+abstract class InsertChildCommand extends InsertElementCommand implements JavaScriptInterface, ServerExecutableCommandInterface{
 
-	protected $parentNode;
+	use ParentNodeTrait;
 
-	public function __construct($insert_here, ...$inserted_elements)
-	{
-		$f = __METHOD__; //InsertChildCommand::getShortClass()."(".static::getShortClass().")->__construct()";
-		parent::__construct($insert_here, ...$inserted_elements);
-		if($insert_here instanceof Element) {
+	public function insertHere($insert_here){
+		if($insert_here instanceof Element){
 			$this->setParentNode($insert_here);
 		}
+		return parent::insertHere($insert_here);
 	}
 
-	public function setParentNode($p)
-	{
-		return $this->parentNode = $p;
-	}
-
-	public function hasParentNode()
-	{
-		return isset($this->parentNode);
-	}
-
-	public function getParentNode()
-	{
-		$f = __METHOD__; //InsertChildCommand::getShortClass()."(".static::getShortClass().")->getParentNode()";
-		if(!$this->hasParentNode()) {
-			Debug::error("{$f} parent node is undefined");
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasParentNode()){
+			$this->setParentNode($that->getParentNode());
 		}
-		return $this->parentNode;
+		return $ret;
 	}
-
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->parentNode);
+	
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		unset($this->parentNode); //, false, $this->getDebugString());
 	}
 }

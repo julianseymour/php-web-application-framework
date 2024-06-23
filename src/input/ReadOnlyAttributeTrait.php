@@ -19,7 +19,7 @@ trait ReadOnlyAttributeTrait
 	public function getReadOnlyAttribute()
 	{
 		$f = __METHOD__; //"ReadOnlyAttributeTrait(".static::getShortClass().")->getReadOnlyAttribute()";
-		if(!$this->hasReadOnlyAttribute()) {
+		if(!$this->hasReadOnlyAttribute()){
 			Debug::error("{$f} read only attribute is undefined");
 		}
 		return $this->getAttribute("readonly");

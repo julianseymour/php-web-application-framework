@@ -18,12 +18,12 @@ class FocalImageThumbnailFileInput extends ImageThumbnailFileInput
 			$print = false;
 			$span = parent::getThumbnailElement($context);
 			// $context = $this->getContext();
-			if($context->getOrientation() !== ORIENTATION_SQUARE) {
+			if($context->getOrientation() !== ORIENTATION_SQUARE){
 				$reticule = new SpanElement();
 				$reticule_id = "profile_image_reticule";
 				$reticule->setIdAttribute($reticule_id);
 				$reticule->addClassAttribute("reticule");
-				if($context->isTall()) {
+				if($context->isTall()){
 					$dimension1 = $context->getThumbnailWidth();
 					$dimension2 = $context->getThumbnailHeight();
 					$position1 = "left";
@@ -53,7 +53,7 @@ class FocalImageThumbnailFileInput extends ImageThumbnailFileInput
 			$div = new DivElement();
 			$div->appendChild($span);
 			return $div;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

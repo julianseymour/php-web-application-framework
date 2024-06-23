@@ -22,7 +22,7 @@ class CreateGroupForm extends AjaxForm{
 
 	public function generateButtons(string $directive): ?array{
 		$f = __METHOD__;
-		if($directive !== DIRECTIVE_INSERT) {
+		if($directive !== DIRECTIVE_INSERT){
 			Debug::error("{$f} invalid directive \"{$directive}\"");
 		}
 		$button = $this->generateGenericButton($directive);

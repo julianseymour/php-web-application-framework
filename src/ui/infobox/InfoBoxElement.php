@@ -60,8 +60,8 @@ class InfoBoxElement extends DivElement implements JavaScriptCounterpartInterfac
 			// $script = new ScriptElement();
 			// $script->setInnerHTML("InfoBoxElement.initializeInfoBox();");
 			// $this->appendChild($script);
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\nonexistent_uris;
 
 use JulianSeymour\PHPWebApplicationFramework\security\AccessControlPanelElement;

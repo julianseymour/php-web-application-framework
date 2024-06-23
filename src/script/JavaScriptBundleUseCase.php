@@ -2,13 +2,14 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\script;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 class JavaScriptBundleUseCase extends LocalizedJavaScriptFileUseCase{
 
 	public function echoJavaScriptFileContents():void{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		$files = [
 			"constants.js",
 			"locale.js",
@@ -33,6 +34,7 @@ class JavaScriptBundleUseCase extends LocalizedJavaScriptFileUseCase{
 				Debug::print("{$f} filename \"{$fn}\" gives us a use case of class ".$uc->getShortClass());
 			}
 			$uc->echoResponse();
+			deallocate($uc);
 		}
 	}
 	

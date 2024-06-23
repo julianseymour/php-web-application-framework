@@ -12,11 +12,11 @@ class StringEnumeratedDatum extends TextDatum implements EnumeratedDatumInterfac
 		$f = __METHOD__;
 		$print = false;
 		$status = $this->validateEnumeration($value);
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} validate enumeration returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} returning parent function");
 		}
 		return parent::validate($value);

@@ -3,6 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\validate;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\ParametricTrait;
@@ -21,14 +22,13 @@ class UniqueValidator extends Validator implements TypeSpecificInterface{
 	use DataStructureClassTrait;
 	use MultipleColumnNamesTrait;
 	use ParametricTrait;
-	// use TableNameTrait;
 	use TypeSpecificTrait;
 
 	public function __construct($data_class, $typedef, ...$columnNames){
 		parent::__construct();
 		$this->setDataStructureClass($data_class);
 		$this->setTypeSpecifier($typedef);
-		if(isset($columnNames)) {
+		if(isset($columnNames)){
 			$this->setColumnNames($columnNames);
 		}
 	}
@@ -45,70 +45,69 @@ class UniqueValidator extends Validator implements TypeSpecificInterface{
 			$print = false;
 			$typedef = $this->getTypeSpecifier();
 			$columnNames = $this->getColumnNames();
-			$query = $this->getDataStructureClass()::selectStatic(null, ...$columnNames);
+			$select = $this->getDataStructureClass()::selectStatic(null, ...$columnNames);
 			$count = count($columnNames);
-			switch ($count) {
+			switch($count){
 				case 0:
-					if($print) {
+					if($print){
 						Debug::print("{$f} 0 select variables");
 					}
 					$where = null;
 					break;
 				case 1:
-					if($print) {
+					if($print){
 						Debug::print("{$f} 1 select variable");
 					}
 					$where = new WhereCondition($columnNames[0], OPERATOR_EQUALS);
 					break;
 				default:
-					if($print) {
+					if($print){
 						Debug::print("{$f} {$count} select variables");
 					}
 					$where = new AndCommand();
-					foreach($columnNames as $columnName) {
+					foreach($columnNames as $columnName){
 						$where->pushParameters(new WhereCondition($columnName, OPERATOR_EQUALS));
 					}
 					break;
 			}
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
-			if($where == null) {
-				if($print) {
+			if($where == null){
+				if($print){
 					Debug::print("{$f} where condition is null");
 				}
-				$count = $query->executeGetResultCount($mysqli);
+				$count = $select->executeGetResultCount($mysqli);
 			}else{
-				if($print) {
+				if($print){
 					Debug::print("{$f} where condition is not null");
 				}
-				$query->where($where);
+				$select->where($where);
 				$values = $this->getParameters();
-				$count = $query->prepareBindExecuteGetResultCount($mysqli, $typedef, ...$values);
+				$count = $select->prepareBindExecuteGetResultCount($mysqli, $typedef, ...$values);
 			}
-			if($count === 0) {
-				if($print) {
+			deallocate($select);
+			if($count === 0){
+				if($print){
 					Debug::print("{$f} success, 0 results");
 				}
 				return SUCCESS;
-			}elseif($print) {
+			}elseif($print){
 				Debug::warning("{$f} count is {$count}");
 			}
 			return $this->getSpecialFailureStatus();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		// unset($this->properties);
-		// unset($this->propertyTypes);
-		unset($this->tableName);
-		unset($this->typeSpecifier);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->dataStructureClass, $deallocate);
+		$this->release($this->typeSpecifier, $deallocate);
 	}
 
 	public function extractParameters(&$in):array{
 		$out = [];
-		foreach($this->getColumnNames() as $columnName) {
+		foreach($this->getColumnNames() as $columnName){
 			$out[$columnName] = $in[$columnName];
 		}
 		return $out;

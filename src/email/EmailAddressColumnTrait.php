@@ -2,11 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\email;
 
-use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
-
 trait EmailAddressColumnTrait{
-
-	use MultipleColumnDefiningTrait;
 
 	public function hasEmailAddress():bool{
 		return $this->hasColumnValue("emailAddress");

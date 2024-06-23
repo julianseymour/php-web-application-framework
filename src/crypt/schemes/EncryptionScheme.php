@@ -22,7 +22,7 @@ abstract class EncryptionScheme extends DatumBundle{
 
 	public function __construct(?Datum $datum = null){
 		parent::__construct();
-		if(isset($datum)) {
+		if(isset($datum)){
 			$this->setColumn($datum);
 		}
 	}
@@ -33,7 +33,7 @@ abstract class EncryptionScheme extends DatumBundle{
 
 	public function getColumn():Datum{
 		$f = __METHOD__;
-		if(!$this->hasColumn()) {
+		if(!$this->hasColumn()){
 			Debug::error("{$f} datum is undefined");
 		}
 		return $this->datum;
@@ -41,7 +41,7 @@ abstract class EncryptionScheme extends DatumBundle{
 
 	public function setColumn(Datum $datum):Datum{
 		$f = __METHOD__;
-		if(! isset($datum) || ! is_object($datum) || ! $datum instanceof Datum) {
+		if(!isset($datum) || ! is_object($datum) || ! $datum instanceof Datum){
 			Debug::error("{$f} invalid datum");
 		}
 		return $this->datum = $datum;

@@ -16,7 +16,7 @@ class CreateIndexStatement extends QueryStatement
 	public function __construct($indexDefinition = null)
 	{
 		parent::__construct();
-		if(isset($indexDefinition)) {
+		if(isset($indexDefinition)){
 			$this->setIndexDefinition($indexDefinition);
 		}
 	}
@@ -26,13 +26,13 @@ class CreateIndexStatement extends QueryStatement
 		$index = $this->getIndexDefinition();
 		// CREATE [UNIQUE | FULLTEXT | SPATIAL] INDEX index_name [index_type]
 		$string = "create ";
-		if($this->getUniqueFlag()) {
+		if($this->getUniqueFlag()){
 			$string .= "unique ";
 		}
 		$string .= $index->getIndexDefinitionString();
 		// ON tbl_name (key_part,...)
 		$string .= " on ";
-		if($this->hasDatabaseName()) {
+		if($this->hasDatabaseName()){
 			$string .= back_quote($this->getDatabaseName()) . ".";
 		}
 		$string .= back_quote($this->getTableName());

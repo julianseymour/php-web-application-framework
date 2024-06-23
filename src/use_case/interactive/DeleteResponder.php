@@ -21,7 +21,7 @@ class DeleteResponder extends CacheResponder
 		$deleted_element->setDeletePredecessorsFlag(true);
 		$deleted_element->setDeleteSuccessorsFlag(true);
 		$fade = new FadeElementCommand($deleted_element);
-		if($this->getCacheFlag()) {
+		if($this->getCacheFlag()){
 			$fade->pushSubcommand(new CachePageContentCommand());
 		}
 		$response->pushCommand($fade);

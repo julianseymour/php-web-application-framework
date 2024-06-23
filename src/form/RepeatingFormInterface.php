@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\form;
 
 /**
@@ -7,8 +8,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\form;
  * @author j
  *        
  */
-interface RepeatingFormInterface
-{
+interface RepeatingFormInterface{
 
 	function getLastChildFlag(): bool;
 

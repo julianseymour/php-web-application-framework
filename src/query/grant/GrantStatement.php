@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\grant;
 
 use function JulianSeymour\PHPWebApplicationFramework\comma_separate_sql;
@@ -27,6 +28,13 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 		]);
 	}
 
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"admin",
+			"grant"
+		]);
+	}
+	
 	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
 		return [
 			"roles" => 's',
@@ -35,56 +43,65 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 		];
 	}
 
-	public function setGrantOptionFlag($value = true){
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		if($this->hasAsUsername()){
+			$this->release($this->asUsername, $deallocate);
+		}
+		if($this->hasRoleStatement()){
+			$this->release($this->roleStatement, $deallocate);
+		}
+	}
+	
+	public function setGrantOptionFlag(bool $value = true):bool{
 		return $this->setFlag("grant");
 	}
 
-	public function getGrantOptionFlag(){
+	public function getGrantOptionFlag():bool{
 		return $this->getFlag("grant");
 	}
 
-	public function withGrantOption(){
-		$this->setGrantOptionFlag(true);
+	public function withGrantOption(bool $value=true):GrantStatement{
+		$this->setGrantOptionFlag($value);
 		return $this;
 	}
 
 	public function setAsUsername($name){
 		$f = __METHOD__;
-		if($name == null) {
-			unset($this->asUsername);
-			return null;
-		}elseif(! hasMinimumMySQLVersion("8.0.16")) {
+		if(!hasMinimumMySQLVersion("8.0.16")){
 			Debug::error("{$f} insufficient MySQL version");
-		}elseif(!is_string($name)) {
+		}elseif(!is_string($name)){
 			Debug::error("{$f} username must be a string");
-		}elseif($this->hasTableName() && starts_ends_with("*", $this->getTableName())) {
+		}elseif($this->hasTableName() && starts_ends_with("*", $this->getTableName())){
 			Debug::error("{$f} the AS clause is only supported for global privileges");
+		}elseif($this->hasAsUsername()){
+			$this->release($this->asUsername);
 		}
-		return $this->asUsername = $name;
+		return $this->asUsername = $this->claim($name);
 	}
 
-	public function hasAsUsername(){
+	public function hasAsUsername():bool{
 		return isset($this->asUsername);
 	}
 
 	public function getAsUsername(){
 		$f = __METHOD__;
-		if(!$this->hasAsUsername()) {
+		if(!$this->hasAsUsername()){
 			Debug::error("{$f} as username is undefined");
 		}
 		return $this->asUsername;
 	}
 
-	public function setAdminOptionFlag($value = true){
+	public function setAdminOptionFlag(bool $value = true):bool{
 		return $this->setFlag("admin", $value);
 	}
 
-	public function getAdminOptionFlag(){
+	public function getAdminOptionFlag():bool{
 		return $this->getFlag("admin");
 	}
 
-	public function withAdminOption(){
-		$this->setAdminOptionFlag(true);
+	public function withAdminOption(bool $value=true){
+		$this->setAdminOptionFlag($value);
 		return $this;
 	}
 
@@ -95,25 +112,25 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 		return $this;
 	}
 
-	public function getQueryStatementString(){
+	public function getQueryStatementString():string{
 		$f = __METHOD__;
 		// GRANT
 		$string = "grant ";
-		if($this->hasPrivileges()) {
+		if($this->hasPrivileges()){
 			// priv_type [(column_list)] [, priv_type [(column_list)]] ...
 			$string .= comma_separate_sql($this->getPrivileges());
 			// ON [object_type]
 			$string .= " on ";
-			if($this->hasObjectType()) {
+			if($this->hasObjectType()){
 				$string .= $this->getObjectType() . " ";
 			}
 			// priv_level
-			if($this->hasDatabaseName()) {
+			if($this->hasDatabaseName()){
 				$db = $this->getDatabaseName();
 			}else{
 				$db = null;
 			}
-			if($this->hasTableName()) {
+			if($this->hasTableName()){
 				$table = $this->getTableName();
 			}else{
 				$table = null;
@@ -123,54 +140,54 @@ class GrantStatement extends PrivilegeStatement implements StaticPropertyTypeInt
 			// TO user_or_role [, user_or_role] ...
 			$string .= " to ";
 			$count = 0;
-			foreach($this->getUsers() as $user) {
-				if($count > 0) {
+			foreach($this->getUsers() as $user){
+				if($count > 0){
 					$string .= ",";
 				}
 				$string .= $user->getUsernameHostString();
 				$count ++;
 			} // .implode(',', $this->getUsers());
 			  // [WITH GRANT OPTION]
-			if($this->getGrantOptionFlag()) {
+			if($this->getGrantOptionFlag()){
 				$string .= " with grant option";
 			}
-			if($this->hasAsUsername() && hasMinimumMySQLVersion("8.0.16")) {
+			if($this->hasAsUsername() && hasMinimumMySQLVersion("8.0.16")){
 				// [AS user
 				$string .= " as " . $this->getAsUsername();
-				if($this->hasSetRoleStatement()) {
+				if($this->hasSetRoleStatement()){
 					// [WITH ROLE {DEFAULT | NONE | ALL | [ALL EXCEPT] role [, role ] ... }]
-					if($this->hasRoleStatement()) {
+					if($this->hasRoleStatement()){
 						$string .= " with " . $this->getRoleStatement()->getRoleStatementString();
 					}
 				}
 			}
-		}elseif($this->hasProxyUser()) {
+		}elseif($this->hasProxyUser()){
 			// GRANT PROXY ON user_or_role TO user_or_role [, user_or_role] ...
 			$string .= "proxy on " . $this->getProxyUser() . " to ";
 			$count = 0;
-			foreach($this->getUsers() as $user) {
-				if($count > 0) {
+			foreach($this->getUsers() as $user){
+				if($count > 0){
 					$string .= ",";
 				}
 				$string .= $user->getUsernameHostString();
 				$count ++;
 			} // .implode(',', $this->getUsers());
 			  // [WITH GRANT OPTION]
-			if($this->getGrantOptionFlag()) {
+			if($this->getGrantOptionFlag()){
 				$string .= " with grant option";
 			}
-		}elseif($this->hasRoles()) {
+		}elseif($this->hasRoles()){
 			// GRANT role [, role] ... TO user_or_role [, user_or_role] ...
 			$string .= comma_separate_sql($this->getRoles()) . " to ";
 			$count = 0;
-			foreach($this->getUsers() as $user) {
-				if($count > 0) {
+			foreach($this->getUsers() as $user){
+				if($count > 0){
 					$string .= ",";
 				}
 				$string .= $user->getUsernameHostString();
 				$count ++;
 			} // .implode(',', $this->getUsers());
-			if($this->hasAdminOptionFlag()) {
+			if($this->hasAdminOptionFlag()){
 				// [WITH ADMIN OPTION]
 				$string .= " with admin option";
 			}

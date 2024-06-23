@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\settings;
 
 use function JulianSeymour\PHPWebApplicationFramework\directive;
@@ -32,29 +33,24 @@ use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\InteractiveUse
 use JulianSeymour\PHPWebApplicationFramework\use_case\interactive\UpdateResponder;
 use mysqli;
 
-class AccountSettingsUseCase extends InteractiveUseCase
-{
+class AccountSettingsUseCase extends InteractiveUseCase{
 
-	public function isPageUpdatedAfterLogin(): bool
-	{
+	public function isPageUpdatedAfterLogin(): bool{
 		return true;
 	}
 
-	public static function allowFileUpload(): bool
-	{
+	public static function allowFileUpload(): bool{
 		return true;
 	}
 
-	public function getConditionalDataOperandClasses(): ?array
-	{
+	public function getConditionalDataOperandClasses(): ?array{
 		return [
 			DATATYPE_USER => user()->getClass(),
 			DATATYPE_SESSION_RECOVERY => SessionRecoveryData::class
 		];
 	}
 
-	public function getConditionalProcessedFormClasses(): ?array
-	{
+	public function getConditionalProcessedFormClasses(): ?array{
 		return [
 			ProfileImageThumbnailForm::class,
 			DisplayNameOuterForm::class,
@@ -66,17 +62,14 @@ class AccountSettingsUseCase extends InteractiveUseCase
 			EmailNotificationSettingsForm::class,
 			PushNotificationSettingsForm::class,
 			// ThemeSettingsForm::class,
-			// OnlineStatusForm::class,
-			// MessagePreviewSettingsForm::class,
 			TimezoneSettingsForm::class,
 			SessionHijackPreventionSettingsForm::class
 		];
 	}
 
-	public function getProcessedDataType(): ?string
-	{
-		if(hasInputParameter('dispatch')) {
-			switch (getInputParameter('dispatch')) {
+	public function getProcessedDataType(): ?string{
+		if(hasInputParameter('dispatch')){
+			switch(getInputParameter('dispatch')){
 				case SessionRecoverySettingsForm::getFormDispatchIdStatic():
 					return DATATYPE_SESSION_RECOVERY;
 				default:
@@ -86,29 +79,28 @@ class AccountSettingsUseCase extends InteractiveUseCase
 		return DATATYPE_USER;
 	}
 
-	public function acquireDataOperandObject(mysqli $mysqli): ?DataStructure
-	{
+	public function acquireDataOperandObject(mysqli $mysqli): ?DataStructure{
 		$f = __METHOD__;
 		$print = false;
 		$user = user();
-		if(static::getProcessedDataType() === DATATYPE_SESSION_RECOVERY) {
+		if(static::getProcessedDataType() === DATATYPE_SESSION_RECOVERY){
 			$session = new SessionRecoveryData();
 			$session->setUserData($user);
 			$cookie = new SessionRecoveryCookie();
-			if($cookie->hasRecoveryKey()) {
+			if($cookie->hasRecoveryKey()){
 				$recovery_key = $cookie->getRecoveryKey();
 				$session->setIdentifierValue($recovery_key);
-				if($session->unpack($mysqli, $recovery_key) !== null) {
+				if($session->unpack($mysqli, $recovery_key) !== null){
 					$session->setObjectStatus(SUCCESS);
 					$cookie->setSessionRecoveryData($session);
 				}else{
 					$session->ejectIdentifierValue();
 				}
 			}
-			$this->setOriginalOperand($session->replicate());
+			$this->setOriginalOperand($session);
 			return $this->setDataOperandObject($session);
-		}elseif($print) {
-			if(! user()->hasProfileImageData()) {
+		}elseif($print){
+			if(! user()->hasProfileImageData()){
 				Debug::print("{$f} user lacks profile image data");
 			}
 		}
@@ -116,23 +108,19 @@ class AccountSettingsUseCase extends InteractiveUseCase
 		return $this->setDataOperandObject($user);
 	}
 
-	public function getValidateMediaBehavior()
-	{
+	public function getValidateMediaBehavior(){
 		return MEDIA_COMMAND_REPLACE;
 	}
 
-	public function getConfirmationCodeClass(): string
-	{
+	public function getConfirmationCodeClass(): string{
 		return ChangeEmailAddressConfirmationCode::class;
 	}
 
-	public function getDataOperandClass(): ?string
-	{
+	public function getDataOperandClass(): ?string{
 		return $this->getConditionalDataOperandClass($this->getProcessedDataType(), $this);
 	}
 
-	public function getConditionalElementClasses(): ?array
-	{
+	public function getConditionalElementClasses(): ?array{
 		return [
 			DATATYPE_USER => $this->getProcessedFormClass(),
 			DATATYPE_SESSION_RECOVERY => $this->getProcessedFormClass()
@@ -162,16 +150,16 @@ class AccountSettingsUseCase extends InteractiveUseCase
 	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
 		$print = false;
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			return parent::getResponder($status);
 		}
 		$directive = directive();
-		switch ($directive) {
+		switch($directive){
 			case DIRECTIVE_DELETE:
 			case DIRECTIVE_DELETE_FOREIGN:
 			case DIRECTIVE_INSERT:
 			case DIRECTIVE_VALIDATE:
-				if($print) {
+				if($print){
 					Debug::print("{$f} directive is \"{$directive}\". Returning an update responder");
 				}
 				return new UpdateResponder(false);
@@ -181,14 +169,14 @@ class AccountSettingsUseCase extends InteractiveUseCase
 				if($print){
 					Debug::print("{$f} update");
 				}
-				switch (getInputParameter('dispatch', $this)) {
+				switch(getInputParameter('dispatch', $this)){
 					case ChangePasswordForm::getFormDispatchIdStatic():
 						if($print){
 							Debug::print("{$f} changed password");
 						}
 						return new ChangePasswordResponder();
 					case MfaSettingsForm::getFormDispatchIdStatic():
-						if($print) {
+						if($print){
 							Debug::print("{$f} this is an update of the MFA settings form. Returning an UpdateResponder.");
 						}
 						return new UpdateResponder(false);

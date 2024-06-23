@@ -19,13 +19,13 @@ abstract class AbstractMfaResponder extends Responder
 		$f = __METHOD__;
 		$print = false;
 		parent::modifyResponse($response, $use_case);
-		if($print) {
+		if($print){
 			Debug::print("{$f} user has MFA enabled and must now enter an OTP");
 		}
 		$session = new PreMultifactorAuthenticationData();
-		if(!$session->hasSignature()) {
+		if(!$session->hasSignature()){
 			Debug::error("{$f} session signature");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} about to generate login MFA form");
 		}
 		$otp = new InvalidatedOtp();
@@ -33,7 +33,7 @@ abstract class AbstractMfaResponder extends Responder
 		$attempt = $use_case->getLoginAttempt();
 		$user = $attempt->getUserData();
 		$otp->setUserData($user);
-		if(ULTRA_LAZY) {
+		if(ULTRA_LAZY){
 			$mode = ALLOCATION_MODE_ULTRA_LAZY;
 		}else{
 			$mode = ALLOCATION_MODE_LAZY;

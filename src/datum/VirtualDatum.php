@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\common\ReturnTypeTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -95,16 +97,15 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 	}
 
 	public function setAccessor(?Closure $accessor): ?Closure{
-		if($accessor === null) {
-			unset($this->accessor);
-			return null;
+		if($this->hasAccessor()){
+			$this->release($this->accessor);
 		}
-		return $this->accessor = $accessor;
+		return $this->accessor = $this->claim($accessor);
 	}
 
 	public function getAccessor(): Closure{
 		$f = __METHOD__;
-		if(!$this->hasAccessor()) {
+		if(!$this->hasAccessor()){
 			Debug::error("{$f} accessor is undefined");
 		}
 		return $this->accessor;
@@ -115,16 +116,15 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 	}
 
 	public function setExistencePredicate(?Closure $existencePredicate): ?Closure{
-		if($existencePredicate === null) {
-			unset($this->existencePredicate);
-			return null;
+		if($this->hasExistencePredicate()){
+			$this->release($this->existencePredicate);
 		}
-		return $this->existencePredicate = $existencePredicate;
+		return $this->existencePredicate = $this->claim($existencePredicate);
 	}
 
 	public function getExistencePredicate(): ?Closure{
 		$f = __METHOD__;
-		if(!$this->hasExistencePredicate()) {
+		if(!$this->hasExistencePredicate()){
 			Debug::error("{$f} existencePredicate is undefined");
 		}
 		return $this->existencePredicate;
@@ -135,23 +135,22 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 	}
 
 	public function setMutator(?Closure $mutator): ?Closure{
-		if($mutator === null) {
-			unset($this->mutator);
-			return null;
+		if($this->hasMutator()){
+			$this->release($this->mutator);
 		}
-		return $this->mutator = $mutator;
+		return $this->mutator = $this->claim($mutator);
 	}
 
 	public function getMutator(): ?Closure{
 		$f = __METHOD__;
-		if(!$this->hasExistencePredicate()) {
+		if(!$this->hasExistencePredicate()){
 			Debug::error("{$f} mutator is undefined");
 		}
 		return $this->mutator;
 	}
 
 	public function getValue(){
-		if($this->hasAccessor()) {
+		if($this->hasAccessor()){
 			$accessor = $this->getAccessor();
 			return $accessor($this);
 		}
@@ -159,7 +158,7 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 	}
 
 	public function hasValue(): bool{
-		if($this->hasExistencePredicate()) {
+		if($this->hasExistencePredicate()){
 			$existencePredicate = $this->getExistencePredicate();
 			return $existencePredicate($this);
 		}
@@ -177,11 +176,11 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 		ErrorMessage::unimplemented($f);
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->accessor);
-		unset($this->existencePredicate);
-		unset($this->mutator);
-		unset($this->returnType);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->accessor, $deallocate);
+		$this->release($this->existencePredicate, $deallocate);
+		$this->release($this->mutator, $deallocate);
+		$this->release($this->returnType, $deallocate);
 	}
 }

@@ -1,12 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\event;
 
-class AfterEjectValueEvent extends Event
-{
+class AfterEjectValueEvent extends Event{
 
-	public function __construct($value, $properties = null)
-	{
-		if(!is_array($properties)) {
+	public function __construct($value, $properties = null){
+		if(!is_array($properties)){
 			$properties = [
 				'value' => $value
 			];

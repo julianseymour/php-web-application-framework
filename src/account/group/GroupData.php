@@ -21,6 +21,7 @@ use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
 use mysqli;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ConcreteSubtypeColumnInterface;
 
 /**
  * defines a user-created group
@@ -28,7 +29,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
  * @author j
  *        
  */
-class GroupData extends DataStructure implements StaticTableNameInterface{
+class GroupData extends DataStructure implements ConcreteSubtypeColumnInterface, StaticTableNameInterface{
 
 	use KeypairedTrait;
 	use KeypairColumnsTrait;
@@ -87,14 +88,14 @@ class GroupData extends DataStructure implements StaticTableNameInterface{
 		$f = __METHOD__;
 		$roles = parent::getUserRoles($mysqli, $user);
 		$r2 = $user->getGroupRoles($mysqli, $this);
-		if(!empty(array_intersect($r2, array_keys(mods()->getUserClasses())))) {
+		if(!empty(array_intersect($r2, array_keys(mods()->getUserClasses())))){
 			Debug::warning("{$f} getGroupRoles returned account types");
 			return [
 				USER_ROLE_ERROR => USER_ROLE_ERROR
 			];
 		}
 		$roles = array_merge($roles, $r2);
-		if($this->hasParentKey()) {
+		if($this->hasParentKey()){
 			$parent = $this->acquireParentObject($mysqli);
 			$r2 = $parent->getUserRoles($mysqli, $user);
 			$roles = array_merge($roles, $r2);
@@ -124,7 +125,7 @@ class GroupData extends DataStructure implements StaticTableNameInterface{
 
 	public function beforeInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
-		if(!$this->hasPrivateKey()) {
+		if(!$this->hasPrivateKey()){
 			Debug::error("{$f} private key is undefined");
 		}
 		return parent::beforeInsertHook($mysqli);

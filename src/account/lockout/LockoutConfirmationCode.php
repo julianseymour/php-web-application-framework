@@ -30,15 +30,15 @@ class LockoutConfirmationCode extends AnonymousConfirmationCode
 		$f = __METHOD__;
 		try{
 			return RESULT_BFP_USERNAME_LOCKOUT_START;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
-				if(! app()->hasUserData()) {
+				if(! app()->hasUserData()){
 					return SUCCESS;
 				}
 				return new AnonymousAccountTypePermission($name);
@@ -47,7 +47,7 @@ class LockoutConfirmationCode extends AnonymousConfirmationCode
 		}
 	}
 
-	public function isSecurityNotificationWarranted(){
+	public function isSecurityNotificationWarranted():bool{
 		return false;
 	}
 

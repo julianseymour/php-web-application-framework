@@ -50,10 +50,10 @@ class LanguageSettingsForm extends AjaxForm{
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__; 
 		$mode = $this->getAllocationMode();
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_LANGUAGE:
 				$buttons = [];
-				foreach(config()->getSupportedLanguages() as $lang) {
+				foreach(config()->getSupportedLanguages() as $lang){
 					$button = new ButtonInput($mode);
 					$button->setNameAttribute("directive[{$name}]");
 					$button->setValueAttribute($lang);

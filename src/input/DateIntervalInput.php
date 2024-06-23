@@ -19,13 +19,13 @@ class DateIntervalInput extends CompoundInput
 
 	public function hasOriginalName()
 	{
-		return isset($this->originalName) && is_string($this->originalName) && ! empty($this->originalName);
+		return isset($this->originalName) && is_string($this->originalName) && !empty($this->originalName);
 	}
 
 	public function getOriginalName()
 	{
 		$f = __METHOD__; //DateIntervalInput::getShortClass()."(".static::getShortClass().")->getOriginalName()";
-		if(!$this->hasOriginalName()) {
+		if(!$this->hasOriginalName()){
 			Debug::error("{$f} original name is undefined");
 		}
 		return $this->originalName;
@@ -64,7 +64,7 @@ class DateIntervalInput extends CompoundInput
 	public function getIntervalStartInput()
 	{
 		$f = __METHOD__; //DateIntervalInput::getShortClass()."(".static::getShortClass().")->getIntervalStartInput()";
-		if(!$this->hasIntervalStartInput()) {
+		if(!$this->hasIntervalStartInput()){
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
 			$start = new DateInput($mode, $context->getComponent("start"));
@@ -86,7 +86,7 @@ class DateIntervalInput extends CompoundInput
 	public function getIntervalEndInput()
 	{
 		$f = __METHOD__; //DateIntervalInput::getShortClass()."(".static::getShortClass().")->getIntervalEndInput()";
-		if(!$this->hasIntervalEndInput()) {
+		if(!$this->hasIntervalEndInput()){
 			$mode = $this->getAllocationMode();
 			$context = $this->getContext();
 			$end = new DateInput($mode, $context->getComponent("end"));

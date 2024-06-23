@@ -2,7 +2,10 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
 use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionalTrait;
@@ -23,18 +26,32 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 
 	protected $searchModifier;
 
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasExpression()){
+			$this->setExpression(replicate($that->getExpression()));
+		}
+		if($that->hasColumnNames()){
+			$this->setColumnNames(replicate($that->getColumnNames()));
+		}
+		if($that->hasParameterCount()){
+			$this->setParameterCount(replicate($that->getParameterCount()));
+		}
+		if($that->hasSearchModifier()){
+			$this->setSearchModifier(replicate($that->getSearchModifier()));
+		}
+		return $ret;
+	}
+	
 	public function setSearchModifier($sm){
 		$f = __METHOD__;
-		if($sm == null) {
-			unset($this->searchModifier);
-			return null;
-		}elseif(!is_string($sm)) {
+		if(!is_string($sm)){
 			Debug::error("{$f} search modifier must be a string");
-		}elseif(empty($sm)) {
+		}elseif(empty($sm)){
 			Debug::error("{$f} empty string");
 		}
 		$sm = strtolower($sm);
-		switch ($sm) {
+		switch($sm){
 			case SEARCH_MODIFIER_BOOLEAN_MODE:
 			case SEARCH_MODIFIER_NATURAL_LANGUAGE_MODE:
 			case SEARCH_MODIFIER_NATURAL_LANGUAGE_QUERY_EXPANSION:
@@ -43,16 +60,19 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 			default:
 				Debug::error("{$f} invalid search modifier \"{$sm}\"");
 		}
-		return $this->searchModifier = $sm;
+		if($this->hasSearchModifier()){
+			$this->release($this->searchModifier);
+		}
+		return $this->searchModifier = $this->claim($sm);
 	}
 
 	public function hasSearchModifier():bool{
-		return isset($this->searchModifier) && is_string($this->searchModifier) && ! empty($this->searchModifier);
+		return isset($this->searchModifier) && is_string($this->searchModifier) && !empty($this->searchModifier);
 	}
 
 	public function getSearchModifier(){
 		$f = __METHOD__;
-		if(!$this->hasSearchModifier()) {
+		if(!$this->hasSearchModifier()){
 			Debug::error("{$f} search modifier is undefined");
 		}
 		return $this->searchModifier;
@@ -66,26 +86,26 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 	public function getExpression(){
 		$f = __METHOD__;
 		$print = false;
-		if(!$this->hasExpression()) {
-			if(!$this->hasParameterCount()) {
+		if(!$this->hasExpression()){
+			if(!$this->hasParameterCount()){
 				Debug::error("{$f} parameter count is undefined");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} expression is undefined; auto generating one from parameter count");
 			}
 			$count = $this->getParameterCount();
-			if($print) {
+			if($print){
 				Debug::print("{$f} parameter count {$count}");
 			}
 			$string = '?';
-			if($count == 1) {
+			if($count == 1){
 				return $string;
 			}
 			$string = str_pad($string, (2 * $count) - 1, ",?");
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning \"{$string}\"");
 			}
 			return $string;
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} expression was already defined");
 		}
 		return $this->expression;
@@ -98,7 +118,7 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 			$string = "match (" . implode_back_quotes(',', $this->getColumnNames()) . ") ";
 			// AGAINST (expr [search_modifier])
 			$expression = $this->getExpression();
-			if($expression instanceof SQLInterface) {
+			if($expression instanceof SQLInterface){
 				$expression = $expression->toSQL();
 			}
 			$string .= "against ({$expression}";
@@ -108,20 +128,20 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 			// | IN BOOLEAN MODE
 			// | WITH QUERY EXPANSION
 			// }
-			if($this->hasSearchModifier()) {
+			if($this->hasSearchModifier()){
 				$string .= $this->getSearchModifier();
 			}
 			$string .= ")";
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->parameterCount);
-		unset($this->searchModifier);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->parameterCount, $deallocate);
+		$this->release($this->searchModifier, $deallocate);
 	}
 
 	public static function getCommandId(): string{
@@ -143,7 +163,7 @@ class MatchFunction extends ExpressionCommand implements StringifiableInterface,
 		return $this->getFlatWhereConditionArray();
 	}
 
-	public function inferParameterCount(){
+	public function inferParameterCount():int{
 		return $this->getParameterCount();
 	}
 

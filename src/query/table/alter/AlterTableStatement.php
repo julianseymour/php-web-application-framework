@@ -1,8 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\table\alter;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
@@ -51,360 +55,301 @@ use JulianSeymour\PHPWebApplicationFramework\query\table\alter\tablespace\Discar
 use JulianSeymour\PHPWebApplicationFramework\query\table\alter\tablespace\ImportTablespaceOption;
 use Exception;
 
-class AlterTableStatement extends QueryStatement
-{
+class AlterTableStatement extends QueryStatement implements StaticPropertyTypeInterface{
 
 	use ConstrainableTrait;
 	use FullTableNameTrait;
-
-	public function __construct(...$dbtable)
-	{
+	use StaticPropertyTypeTrait;
+	
+	public function __construct(...$dbtable){
 		parent::__construct();
-		$this->requirePropertyType("alterOptions", AlterOption::class);
-		$this->requirePropertyType("constraints", Constraint::class);
-		$this->requirePropertyType("partitionOptions", AlterOption::class);
 		$this->unpackTableName($dbtable);
 	}
-
-	public function setAlterOptions($options)
-	{
+	
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
+		return [
+			"alterOptions" => AlterOption::class,
+			"constraints" => Constraint::class,
+			"partitionOptions", AlterOption::class
+		];
+	}
+	
+	public function setAlterOptions($options):?array{
 		return $this->setArrayProperty("alterOptions", $options);
 	}
 
-	public function pushAlterOptions(...$options)
-	{
+	public function pushAlterOptions(...$options):int{
 		return $this->pushArrayProperty("alterOptions", ...$options);
 	}
 
-	public function hasAlterOptions()
-	{
+	public function hasAlterOptions():bool{
 		return $this->hasArrayProperty("alterOptions");
 	}
 
-	public function getAlterOptions()
-	{
+	public function getAlterOptions(){
 		return $this->getProperty("alterOptions");
 	}
 
-	public function mergeAlterOptions($options)
-	{
+	public function mergeAlterOptions($options):array{
 		return $this->mergeArrayProperty("alterOptions", $options);
 	}
 
-	public function addColumn(Datum $columnDefinition, $position = null, $afterColumnName = null): AlterTableStatement
-	{
+	public function addColumn(Datum $columnDefinition, $position = null, $afterColumnName = null): AlterTableStatement{
 		return $this->withAlterOption(new AddColumnOption($columnDefinition, $position, $afterColumnName));
 	}
 
-	public function addColumns(...$columnDefinitions): AlterTableStatement
-	{
-		$f = __METHOD__; //AlterTableStatement::getShortClass()."(".static::getShortClass().")->addColumns()";
-		if(! isset($columnDefinitions)) {
+	public function addColumns(...$columnDefinitions):AlterTableStatement{
+		$f = __METHOD__;
+		if(!isset($columnDefinitions)){
 			Debug::error("{$f} received null parameter");
 		}
 		return $this->withAlterOption(AddColumnOption::addColumns(...$columnDefinitions));
 	}
 
-	public function changeColumn($oldColumnName, $newColumnDefinition): AlterTableStatement
-	{
+	public function changeColumn($oldColumnName, $newColumnDefinition):AlterTableStatement{
 		return $this->withAlterOption(new ChangeColumnOption($oldColumnName, $newColumnDefinition));
 	}
 
-	public function dropColumn($columnName): AlterTableStatement
-	{
+	public function dropColumn($columnName):AlterTableStatement{
 		return $this->withAlterOption(new DropColumnOption($columnName));
 	}
 
-	public function dropColumns(...$columnNames): AlterTableStatement
-	{
-		$f = __METHOD__; //AlterTableStatement::getShortClass()."(".static::getShortClass().")->dropColumns()";
-		if(! isset($columnNames)) {
+	public function dropColumns(...$columnNames):AlterTableStatement{
+		$f = __METHOD__;
+		if(!isset($columnNames)){
 			Debug::error("{$f} received null parameter");
 		}
-		foreach($columnNames as $columnName) {
+		foreach($columnNames as $columnName){
 			$this->pushAlterOption(new DropColumnOption($columnName));
 		}
 		return $this;
 	}
 
-	public function withAlterOption($option)
-	{
+	public function withAlterOption($option):AlterTableStatement{
 		$this->pushAlterOption($option);
 		return $this;
 	}
 
-	public function addIndex($indexDefinition)
-	{
+	public function addIndex($indexDefinition):AlterTableStatement{
 		return $this->withAlterOption(new AddIndexOption($indexDefinition));
 	}
 
-	public function alterIndex($indexName, $visibility)
-	{
+	public function alterIndex($indexName, $visibility):AlterTableStatement{
 		return $this->withAlterOption(new AlterIndexOption($indexName, $visibility));
 	}
 
-	public function dropIndex($indexName)
-	{
+	public function dropIndex($indexName):AlterTableStatement{
 		return $this->withAlterOption(new DropIndexOption($indexName));
 	}
 
-	public function renameIndex($oldName, $newName)
-	{
+	public function renameIndex($oldName, $newName):AlterTableStatement{
 		return $this->withAlterOption(new RenameIndexOption($oldName, $newName));
 	}
 
-	public function dropColumnDefault($columnName)
-	{
+	public function dropColumnDefault($columnName):AlterTableStatement{
 		return $this->withAlterOption(new DropColumnDefaultOption($columnName));
 	}
 
-	public function modifyColumn($columnDefinition)
-	{
+	public function modifyColumn($columnDefinition):AlterTableStatement{
 		return $this->withAlterOption(new ModifyColumnOption($columnDefinition));
 	}
 
-	public function renameColumn($oldName, $newName)
-	{
+	public function renameColumn($oldName, $newName):AlterTableStatement{
 		return $this->withAlterOption(new RenameColumnOption($oldName, $newName));
 	}
 
-	public function setColumnDefault($columnName, $default)
-	{
+	public function setColumnDefault($columnName, $default):AlterTableStatement{
 		return $this->withAlterOption(new SetColumnDefault($columnName, $default));
 	}
 
-	public function setColumnVisibility($columnName, $visibility)
-	{
+	public function setColumnVisibility($columnName, $visibility):AlterTableStatement{
 		return $this->withAlterOption(new SetColumnVisibilityOption($columnName, $visibility));
 	}
 
-	public function characterSet($charset, $collationName = null)
-	{
+	public function characterSet($charset, $collationName = null):AlterTableStatement{
 		return $this->withAlterOption(new CharacterSetOption($charset, $collationName));
 	}
 
-	public function convertToCharacterSet($charset, $collationName = null)
-	{
+	public function convertToCharacterSet($charset, $collationName = null):AlterTableStatement{
 		return $this->withAlterOption(new ConvertToCharacterSetOption($charset, $collationName));
 	}
 
-	public function addConstraint($constraint)
-	{
+	public function addConstraint($constraint):AlterTableStatement{
 		return $this->withAlterOption(new AddConstraintOption($constraint));
 	}
 
-	public function alterConstraint($symbol, $enforcement)
-	{
+	public function alterConstraint($symbol, $enforcement):AlterTableStatement{
 		return $this->withAlterOption(new AlterConstraintOption($symbol, $enforcement));
 	}
 
-	public function dropConstraint($symbol)
-	{
+	public function dropConstraint($symbol):AlterTableStatement{
 		return $this->withAlterOption(new DropConstraintOption($symbol));
 	}
 
-	public function dropForeignKey($symbol)
-	{
+	public function dropForeignKey($symbol):AlterTableStatement{
 		return $this->withAlterOption(new DropForeignKeyOption($symbol));
 	}
 
-	public function rename($newTableName)
-	{
+	public function rename($newTableName):AlterTableStatement{
 		return $this->withAlterOption(new RenameTableOption($newTableName));
 	}
 
-	public function dropPrimaryKey()
-	{
+	public function dropPrimaryKey():AlterTableStatement{
 		return $this->withAlterOption(new DropPrimaryKeyOption());
 	}
 
-	public function disableKeys()
-	{
+	public function disableKeys():AlterTableStatement{
 		return $this->withAlterOption(new DisableKeysOption());
 	}
 
-	public function enableKeys()
-	{
+	public function enableKeys():AlterTableStatement{
 		return $this->withAlterOption(new EnableKeysOption());
 	}
 
-	public function discardTablespace()
-	{
+	public function discardTablespace():AlterTableStatement{
 		return $this->withAlterOption(new DiscardTablespaceOption());
 	}
 
-	public function importTablespace()
-	{
+	public function importTablespace():AlterTableStatement{
 		return $this->withAlterOption(new ImportTablespaceOption());
 	}
 
-	public function algorithm($algorithm = ALGORITHM_DEFAULT)
-	{
+	public function algorithm($algorithm = ALGORITHM_DEFAULT){
 		return $this->withAlterOption(new AlgorithmOption($algorithm));
 	}
 
-	public function force()
-	{
+	public function force():AlterTableStatement{
 		return $this->withAlterOption(new ForceOption());
 	}
 
-	public function lock($lock = LOCK_OPTION_DEFAULT)
-	{
+	public function lock($lock = LOCK_OPTION_DEFAULT):AlterTableStatement{
 		return $this->withAlterOption(new LockOption($lock));
 	}
 
-	public function reorderBy(...$columnNames)
-	{
+	public function reorderBy(...$columnNames):AlterTableStatement{
 		return $this->withAlterOption(new OrderByOption(...$columnNames));
 	}
 
-	public function withValidation()
-	{
+	public function withValidation():AlterTableStatement{
 		return $this->withAlterOption(new SetValidationOption(true));
 	}
 
-	public function withoutValidation()
-	{
+	public function withoutValidation():AlterTableStatement{
 		return $this->withAlterOption(new SetValidationOption(false));
 	}
 
-	public static function getStatementTypeString(): string
-	{
+	public static function getStatementTypeString(): string{
 		return "alter table";
 	}
 
-	protected function getStatementCommandString(): string
-	{
-		$f = __METHOD__; //AlterTableStatement::getShortClass()."(".static::getShortClass().")->getStatementCommandString()";
-		ErrorMessage::unimplemented($f);
+	protected function getStatementCommandString(): string{
+		ErrorMessage::unimplemented(__METHOD__);
 	}
 
-	public function setPartitionOptions($options)
-	{
+	public function setPartitionOptions($options):?array{
 		return $this->setArrayProperty("partitionOptions", $options);
 	}
 
-	public function pushPartitionOptions(...$options)
-	{
+	public function pushPartitionOptions(...$options):int{
 		return $this->pushArrayProperty("partitionOptions", ...$options);
 	}
 
-	public function hasPartitionOptions()
-	{
+	public function hasPartitionOptions():bool{
 		return $this->hasArrayProperty("partitionOptions");
 	}
 
-	public function getPartitionOptions()
-	{
+	public function getPartitionOptions(){
 		return $this->getProperty("partitionOptions");
 	}
 
-	public function mergePartitionOptions($options)
-	{
+	public function mergePartitionOptions($options):array{
 		return $this->mergeArrayProperty("partitionOptions", $options);
 	}
 
-	public function withPartitionOption($option)
-	{
+	public function withPartitionOption($option):AlterTableStatement{
 		$this->pushPartitionOption($option);
 		return $this;
 	}
 
-	public function addPartition(PartitionDefinition $partitionDefinition)
-	{
+	public function addPartition(PartitionDefinition $partitionDefinition):AlterTableStatement{
 		return $this->withPartitionOption(new AddPartitionOption($partitionDefinition));
 	}
 
-	public function analyzePartition($partitionNames = null)
-	{
+	public function analyzePartition($partitionNames = null):AlterTableStatement{
 		return $this->withPartitionOption(new AnalyzePartitionOption($partitionNames));
 	}
 
-	public function checkPartition($partitionNames = null)
-	{
+	public function checkPartition($partitionNames = null):AlterTableStatement{
 		return $this->withPartitionOption(new CheckPartitionOption($partitionNames));
 	}
 
-	public function coalescePartition($number)
-	{
+	public function coalescePartition($number):AlterTableStatement{
 		return $this->withPartitionOption(new CoalescePartitionOption($number));
 	}
 
-	public function discardPartitionTablespace($partitionNames = null)
-	{
+	public function discardPartitionTablespace($partitionNames = null):AlterTableStatement{
 		return $this->withPartitionOption(new DiscardPartitionTablespacePartition($partitionNames));
 	}
 
-	public function dropPartition($partitionNames)
-	{
+	public function dropPartition($partitionNames):AlterTableStatement{
 		return $this->withPartitionOption(new DropPartitionOption($partitionNames));
 	}
 
-	public function exchangePartition($partitionName, $tableName, $validate = null)
-	{
-		return $this->withPartitionOption(new ExchangePartitionOption($partitionName, $tableName, $validate));
+	public function exchangePartition($partitionName, $dbName, $tableName, $validate = null):AlterTableStatement{
+		return $this->withPartitionOption(new ExchangePartitionOption($partitionName, $dbName, $tableName, $validate));
 	}
 
-	public function importPartitionTablespace($partitionNames = null)
-	{
+	public function importPartitionTablespace($partitionNames = null):AlterTableStatement{
 		return $this->withPartitionOption(new ImportPartitionTablespaceOption($partitionNames));
 	}
 
-	public function optimizePartition($partitionNames = null)
-	{
+	public function optimizePartition($partitionNames = null):AlterTableStatement{
 		return $this->withPartitionOption(new OptimizePartitionOption($partitionNames));
 	}
 
-	public function rebuildPartition($partitionNames = null)
-	{
+	public function rebuildPartition($partitionNames = null):AlterTableStatement{
 		return $this->withPartitionOption(new RebuildPartitionOption($partitionNames));
 	}
 
-	public function removePartitioning()
-	{
+	public function removePartitioning():AlterTableStatement{
 		return $this->withPartitionOption(new RemovePartitioningOption());
 	}
 
-	public function reorganizePartition($partitionNames, $partitionDefinitions)
-	{
+	public function reorganizePartition($partitionNames, $partitionDefinitions):AlterTableStatement{
 		return $this->withPartitionOption(new ReorganizePartitionOption($partitionNames, $partitionDefinitions));
 	}
 
-	public function repairPartitionOption($partitionNames = null)
-	{
+	public function repairPartitionOption($partitionNames = null):AlterTableStatement{
 		return $this->withPartitionOption(new RepairPartitionOption($partitionNames));
 	}
 
-	public function truncatePartition($partitionNames = null)
-	{
+	public function truncatePartition($partitionNames = null):AlterTableStatement{
 		return $this->withPartitionOption(new TruncatePartitionOption($partitionNames));
 	}
 
-	public function getQueryStatementString()
-	{
-		$f = __METHOD__; //AlterTableStatement::getShortClass()."(".static::getShortClass().")->__toString()";
+	public function getQueryStatementString():string{
+		$f = __METHOD__;
 		try{
-			if(!$this->hasAlterOptions()) {
+			if(!$this->hasAlterOptions()){
 				Debug::error("{$f} no options defined");
 			}
 			$string = "alter table ";
-			if($this->hasDatabaseName()) {
+			if($this->hasDatabaseName()){
 				$string .= back_quote($this->getDatabaseName()) . ".";
 			}
 			$string .= back_quote($this->getTableName()) . " " . implode(',', $this->getAlterOptions());
-			if($this->hasPartitionOptions()) {
+			if($this->hasPartitionOptions()){
 				$string .= implode(',', $this->getPartitionOptions());
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->properties);
-		unset($this->propertyTypes);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->databaseName, $deallocate);
+		$this->release($this->tableName, $deallocate);
 	}
 }

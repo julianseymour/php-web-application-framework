@@ -2,6 +2,9 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+
 trait AllocationModeTrait{
 	
 	/**
@@ -27,20 +30,18 @@ trait AllocationModeTrait{
 	public function setAllocationMode(?int $mode): ?int{
 		$f = __METHOD__;
 		$print = false;
-		if($mode === null) {
-			if($print) {
-				Debug::print("{$f} unsetting allocation mode");
-			}
-			unset($this->allocationMode);
-			return null;
-		}elseif(!is_int($mode)) {
+		if(!is_int($mode)){
 			$gottype = is_object($mode) ? $mode->getClass() : gettype($mode);
 			Debug::error("{$f} allocation mode must be an integer, {$gottype} received");
-		}elseif($print) {
+		}elseif($print){
 			$decl = $this->getDeclarationLine();
 			Debug::printStackTraceNoExit("{$f} setting allocation mode to \"{$mode}\". Declared {$decl}");
 		}
-		return $this->allocationMode = $mode;
+		if($this->hasAllocationMode()){
+			$this->release($this->allocationMode);
+		}
+		
+		return $this->allocationMode = $this->claim($mode);
 	}
 	
 	public function hasAllocationMode(): bool{
@@ -50,7 +51,7 @@ trait AllocationModeTrait{
 	}
 	
 	public function getAllocationMode(): int{
-		if(!$this->hasAllocationMode()) {
+		if(!$this->hasAllocationMode()){
 			return ALLOCATION_MODE_UNDEFINED;
 		}
 		return $this->allocationMode;

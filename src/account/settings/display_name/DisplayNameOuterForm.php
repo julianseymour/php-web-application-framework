@@ -30,7 +30,7 @@ class DisplayNameOuterForm extends ExpandingMenuNestedForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPDATE:
 				$button = $this->generateGenericButton($name);
 				$button->setInnerHTML(_("Update display name"));

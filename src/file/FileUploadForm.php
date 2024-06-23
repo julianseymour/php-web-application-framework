@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -28,7 +29,7 @@ abstract class FileUploadForm extends AjaxForm{
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
 		$button = $this->generateGenericButton($name);
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPLOAD:
 				break;
 			case DIRECTIVE_DELETE:
@@ -46,9 +47,9 @@ abstract class FileUploadForm extends AjaxForm{
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
 		$vn = $input->getColumnName();
-		switch ($vn) {
+		switch($vn){
 			case "originalFilename":
-				if($this->getUploadMultipleFlag()) {
+				if($this->getUploadMultipleFlag()){
 					$input->setMultipleAttribute(null);
 				}
 			default:
@@ -62,6 +63,12 @@ abstract class FileUploadForm extends AjaxForm{
 		]);
 	}
 
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"uploadMultiple"
+		]);
+	}
+	
 	public function setUploadMultipleFlag(bool $value = true): bool{
 		return $this->setFlag("uploadMultiple", $value);
 	}

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\admin;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -15,11 +16,6 @@ use mysqli;
 
 class Administrator extends AuthenticatedUser{
 
-	public function __construct(?int $mode = ALLOCATION_MODE_EAGER){
-		parent::__construct($mode);
-		$this->setAccountType($this->getAccountTypeStatic());
-	}
-
 	public static function getFullAuthenticationDataClass(): string{
 		return AdminAuthenticationData::class;
 	}
@@ -31,13 +27,13 @@ class Administrator extends AuthenticatedUser{
 	public function getVirtualColumnValue($index){
 		$f = __METHOD__;
 		try{
-			switch ($index) {
+			switch($index){
 				case "messageBody":
 					return _("New conversation");
 				default:
 					return parent::getVirtualColumnValue($index);
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -46,15 +42,15 @@ class Administrator extends AuthenticatedUser{
 		$f = __METHOD__;
 		try{
 			$config = parent::getArrayMembershipConfiguration($config_id);
-			if(is_string($config_id)) {
-				switch ($config_id) {
+			if(is_string($config_id)){
+				switch($config_id){
 					case CONST_DEFAULT:
 					default:
 						$config['messageBody'] = true;
 				}
 			}
 			return $config;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -71,7 +67,7 @@ class Administrator extends AuthenticatedUser{
 	}
 
 	public function getAccountType(): string{
-		return static::getAccountTypeStatic();
+		return static::getSubtypeStatic();
 	}
 
 	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
@@ -83,7 +79,7 @@ class Administrator extends AuthenticatedUser{
 		return "administrators";
 	}
 
-	protected function beforeDeleteHook(mysqli $mysqli): int{
+	public function beforeDeleteHook(mysqli $mysqli): int{
 		return $this->setObjectStatus(ERROR_INTERNAL);
 	}
 
@@ -107,16 +103,16 @@ class Administrator extends AuthenticatedUser{
 		return _("Administrators");
 	}
 
-	public static function getAccountTypeStatic():string{
+	public static function getSubtypeStatic():string{
 		return ACCOUNT_TYPE_ADMIN;
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPDATE:
 				return new AdminOnlyAccountTypePermission($name);
 			case DIRECTIVE_INSERT:
-				return FAILURE; // XXX
+				return FAILURE;
 			default:
 		}
 		return parent::getPermissionStatic($name, $data);

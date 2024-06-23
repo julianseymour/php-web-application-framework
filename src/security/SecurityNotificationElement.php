@@ -1,8 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security;
 
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use JulianSeymour\PHPWebApplicationFramework\command\data\GetForeignDataStructureCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\str\CreateTextNodeCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\Scope;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\AnchorElement;
@@ -36,7 +39,13 @@ class SecurityNotificationElement extends NotificationElement{
 		$div1->setInnerHTML($this->getNotificationPreview());
 		$notification_preview->appendChild($div1);
 		$div2 = new DivElement($mode);
-		$div2->appendChild(CommandBuilder::createTextNode(CommandBuilder::concatenate(_("IP address"), " ", $scope->getDeclaredVariableCommand("insertIpAddress"))));
+		$txtnode = new ConcatenateCommand(
+			_("IP address"),
+			" ",
+			$scope->getDeclaredVariableCommand("insertIpAddress")
+		);
+		$create = new CreateTextNodeCommand($txtnode);
+		$div2->appendChild($create);
 		$notification_preview->appendChild($div2);
 		$notification_content->appendChild($notification_preview);
 		return $notification_content;
@@ -51,12 +60,27 @@ class SecurityNotificationElement extends NotificationElement{
 	}
 
 	protected function getScopeResolutionCommands($context, Scope $scope): ?array{
+		$gfdsc = new GetForeignDataStructureCommand();
+		$gfdsc->setDataStructure($context);
+		$gfdsc->setColumnName("subjectKey");
 		return [
 			...$scope->letNames("reasonLoggedString", "insertIpAddress"),
-			CommandBuilder::if($context->hasForeignDataStructureCommand("subjectKey"))->then($scope->let("subject", new GetForeignDataStructureCommand($context, "subjectKey")), ...$scope->redeclareColumnValues($scope->getDeclaredVariableCommand("subject"), "reasonLoggedString", "insertIpAddress"))->else(...$scope->redeclareMultiple([
-				"reasonLoggedString" => _("Unknown reason"),
-				"insertIpAddress" => _("Unknown IP address")
-			]))
+			CommandBuilder::if($context->hasForeignDataStructureCommand("subjectKey"))->then(
+				$scope->let(
+					"subject", 
+					$gfdsc
+				), 
+				...$scope->redeclareColumnValues(
+					$scope->getDeclaredVariableCommand("subject"), 
+					"reasonLoggedString", 
+					"insertIpAddress"
+				)
+			)->else(
+				...$scope->redeclareMultiple([
+					"reasonLoggedString" => _("Unknown reason"),
+					"insertIpAddress" => _("Unknown IP address")
+				])
+			)
 		];
 	}
 }

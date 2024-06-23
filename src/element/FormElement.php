@@ -48,18 +48,18 @@ class FormElement extends Element
 	public function hasMethodAttribute(){
 		$f = __METHOD__;
 		$debug_id = $this->getDebugId();
-		if(!$this->hasAttribute("method")) {
+		if(!$this->hasAttribute("method")){
 			// Debug::print("{$f} method attribute is undefined for form with debug ID \"{$debug_id}\"");
 			return false;
 		}
 		$method = $this->getAttribute("method");
 		// Debug::print("{$f} method attribute is \"{$method}\"");
-		return ! empty($method);
+		return !empty($method);
 	}
 
 	public function getMethodAttribute(){
 		$f = __METHOD__;
-		if(!$this->hasMethodAttribute()) {
+		if(!$this->hasMethodAttribute()){
 			// Debug::print("{$f} method attribute is undefined -- returning default");
 			return HTTP_REQUEST_METHOD_GET;
 		}
@@ -70,7 +70,7 @@ class FormElement extends Element
 
 	public function setMethodAttribute($method){
 		$f = __METHOD__;
-		switch ($method) {
+		switch($method){
 			case "post":
 			case "POST":
 			case "get":

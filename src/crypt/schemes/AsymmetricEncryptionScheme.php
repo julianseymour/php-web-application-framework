@@ -45,14 +45,14 @@ class AsymmetricEncryptionScheme extends EncryptionScheme{
 	public function extractDecryptionKey(Datum $datum):?string{
 		$f = __METHOD__;
 		$print = false;
-		if($datum->hasDecryptionKeyName()) {
+		if($datum->hasDecryptionKeyName()){
 			$dcn = $datum->getDecryptionKeyName();
-			if($print) {
+			if($print){
 				Debug::print("{$f} decryption key is \"{$dcn}\"");
 			}
 			$ds = $datum->getDataStructure();
 			return $ds->getColumnValue($dcn);
-		}elseif($print) {
+		}elseif($print){
 			$cn = $datum->getName();
 			Debug::print("{$f} datum \"{$cn}\" does not name a decryption key; returning current user keypair");
 		}
@@ -72,26 +72,26 @@ class AsymmetricEncryptionScheme extends EncryptionScheme{
 		try{
 			$print = false;
 			$ds = $datum->getDataStructure();
-			if($ds instanceof UserData) {
-				if($print) {
+			if($ds instanceof UserData){
+				if($print){
 					Debug::print("{$f} data structure is a user");
 				}
-				if($ds instanceof PlayableUser) {
+				if($ds instanceof PlayableUser){
 					$user = $ds; // user();'
 				}else{
 					$user = user();
 				}
 			}else{
-				if($print) {
+				if($print){
 					Debug::print("{$f} data structure is not a user");
 				}
 				$user = $ds->getUserData();
 			}
-			if($user instanceof UserData && ! $user instanceof PlayableUser) {
+			if($user instanceof UserData && ! $user instanceof PlayableUser){
 				Debug::error("{$f} user data is not playable");
 			}
 			return $user->getPublicKey();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

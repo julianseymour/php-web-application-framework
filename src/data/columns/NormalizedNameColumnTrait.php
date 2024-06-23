@@ -12,7 +12,7 @@ trait NormalizedNameColumnTrait
 	public function getNormalizedName(): string
 	{
 		$f = __METHOD__; //"NormalizedNameColumnTrait(".static::getShortClass().")->getNormalizedName()";
-		if(!$this->hasName()) {
+		if(!$this->hasName()){
 			$num = $this->getSerialNumber();
 			Debug::error("{$f} name is undefined; number is \"{$num}\"");
 		}

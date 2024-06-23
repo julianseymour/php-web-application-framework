@@ -26,7 +26,7 @@ abstract class ConfirmationCodeForm extends AjaxForm{
 			$inputs = parent::getAdHocInputs();
 			$inputs[$x1i->getNameAttribute()] = $x1i;
 			return $inputs;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

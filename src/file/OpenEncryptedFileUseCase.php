@@ -29,7 +29,7 @@ class OpenEncryptedFileUseCase extends OpenFileUseCase{
 			$file->setUserData($client);
 			$file->setTableName($file->getTableNameStatic());
 			$status = $file->loadFromKey($mysqli, $file_key);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} loading file with key \"{$file_key}\" returned error status \"{$err}\"");
 				$this->setObjectStatus($status);
@@ -37,7 +37,7 @@ class OpenEncryptedFileUseCase extends OpenFileUseCase{
 			}
 			Debug::print("{$f} returning normally");
 			return $file;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

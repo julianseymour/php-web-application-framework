@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification\recent;
 
 use function JulianSeymour\PHPWebApplicationFramework\getCurrentUserKey;
@@ -13,15 +14,13 @@ use JulianSeymour\PHPWebApplicationFramework\notification\RetrospectiveNotificat
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 
-class RecentNotificationsLoadoutGenerator extends LoadoutGenerator
-{
+class RecentNotificationsLoadoutGenerator extends LoadoutGenerator{
 
-	public function getRootNodeTreeSelectStatements(?PlayableUser $user = null, ?UseCase $use_case = null): ?array
-	{
-		$f = __METHOD__; //RecentNotificationsUseCase::getShortClass()."(".static::getShortClass().")->getRootNodeTreeSelectStatements()";
+	public function getRootNodeTreeSelectStatements(?PlayableUser $user = null, ?UseCase $use_case = null): ?array{
+		$f = __METHOD__;
 		$print = false;
 		$statements = [];
-		if(! hasInputParameter('pushSubscriptionKey')) {
+		if(!hasInputParameter('pushSubscriptionKey')){
 			$statements[NotificationData::getPhylumName()] = [
 				RetrospectiveNotificationData::class => RetrospectiveNotificationData::getRecentNotificationSelectStatement()->withParameters([
 					getCurrentUserKey(),
@@ -29,13 +28,12 @@ class RecentNotificationsLoadoutGenerator extends LoadoutGenerator
 					$user->getNotificationDeliveryTimestamp()
 				])
 			];
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} pushSubscriptionKey is a defined parameter, skipping recent notification check");
 		}
-		if(defined("NOTIFICATION_TYPE_MESSAGE")) {
+		if(defined("NOTIFICATION_TYPE_MESSAGE")){
 			$statements['online'] = [
-				RetrospectiveNotificationData::class => RetrospectiveNotificationData::selectStatic()->where(new AndCommand(RetrospectiveNotificationData::whereIntersectionalHostKey(user()->getClass(), "userKey"), new WhereCondition("subtype", OPERATOR_EQUALS)))
-					->withParameters([
+				RetrospectiveNotificationData::class => RetrospectiveNotificationData::selectStatic()->where(new AndCommand(RetrospectiveNotificationData::whereIntersectionalHostKey(user()->getClass(), "userKey"), new WhereCondition("subtype", OPERATOR_EQUALS)))->withParameters([
 					getCurrentUserKey(),
 					"userKey",
 					NOTIFICATION_TYPE_MESSAGE

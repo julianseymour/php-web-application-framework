@@ -40,7 +40,7 @@ trait JoinExpressionsTrait{
 
 	public function getJoinExpressionString(): string{
 		$f = __METHOD__;
-		if(!$this->hasJoinExpressions()) {
+		if(!$this->hasJoinExpressions()){
 			Debug::error("{$f} join expressions are undefined");
 		}
 		return implode(",", $this->getJoinExpressions());
@@ -50,71 +50,61 @@ trait JoinExpressionsTrait{
 		return $this->getArrayPropertyCount("joinExpressions");
 	}
 
-	public function join($join_expression)
-	{
+	public function join($join_expression){
 		$joined = JoinedTable::join($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;
 	}
 
-	public function crossJoin($join_expression)
-	{
+	public function crossJoin($join_expression){
 		$joined = JoinedTable::crossJoin($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;
 	}
 
-	public function innerJoin($join_expression)
-	{
+	public function innerJoin($join_expression){
 		$joined = JoinedTable::innerJoin($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;
 	}
 
-	public function straightJoin($join_expression)
-	{
+	public function straightJoin($join_expression){
 		$joined = JoinedTable::straightJoin($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;
 	}
 
-	public function leftJoin($join_expression)
-	{
+	public function leftJoin($join_expression){
 		$joined = JoinedTable::leftJoin($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;
 	}
 
-	public function rightJoin($join_expression)
-	{
+	public function rightJoin($join_expression){
 		$joined = JoinedTable::rightJoin($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;
 	}
 
-	public function naturalJoin($join_expression)
-	{
+	public function naturalJoin($join_expression){
 		$joined = JoinedTable::naturalJoin($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;
 	}
 
-	public function naturalInnerJoin($join_expression)
-	{
+	public function naturalInnerJoin($join_expression){
 		$joined = JoinedTable::naturalInnerJoin($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;
 	}
 
-	public function naturalLeftJoin($join_expression)
-	{
+	public function naturalLeftJoin($join_expression){
 		$joined = JoinedTable::naturalLeftJoin($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;
 	}
 
-	public function naturalRightJoin($join_expression)
-	{
+	public function naturalRightJoin($join_expression){
 		$joined = JoinedTable::naturalRightJoin($join_expression);
 		$this->pushJoinExpressions($joined);
 		return $joined;

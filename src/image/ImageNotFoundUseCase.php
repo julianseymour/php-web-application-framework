@@ -24,7 +24,7 @@ class ImageNotFoundUseCase extends UseCase{
 		$filename = $segments[count($segments) - 1];
 		$splat = explode(".", $filename);
 		$extension = strtolower($splat[count($splat) - 1]);
-		switch ($extension) {
+		switch($extension){
 			case "gif":
 				return "image/gif";
 			case "jpg":
@@ -64,7 +64,7 @@ class ImageNotFoundUseCase extends UseCase{
 		}
 		$type = $this->getContentTypeString();
 		$filename = "/var/www/html/images/";
-		switch ($type) {
+		switch($type){
 			case "image/gif":
 				$filename .= 'rca.gif';
 				break;
@@ -79,7 +79,6 @@ class ImageNotFoundUseCase extends UseCase{
 		}
 		// Debug::print("{$f} about to call readfile({$filename})");
 		readfile($filename);
-		// exit();
 	}
 
 	protected function getExecutePermissionClass(){

@@ -2,11 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\crypt;
 
-use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
 
 trait PublicKeyColumnTrait{
-
-	use MultipleColumnDefiningTrait;
 
 	public function setPublicKey(STRING $value):STRING{
 		return $this->setColumnValue("publicKey", $value);

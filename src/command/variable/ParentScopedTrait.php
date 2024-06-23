@@ -1,31 +1,29 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\variable;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait ParentScopedTrait
-{
+trait ParentScopedTrait{
 
 	protected $parentScope;
 
-	public function hasParentScope(): bool
-	{
+	public function hasParentScope(): bool{
 		return isset($this->parentScope);
 	}
 
-	public function setParentScope(?Scope $parent): ?Scope
-	{
-		if($parent == null) {
-			unset($this->parentScope);
-			return null;
+	public function setParentScope(?Scope $parent): ?Scope{
+		if($this->hasParentScope()){
+			$this->release($this->parentScope);
 		}
-		return $this->parentScope = $parent;
+		return $this->parentScope = $this->claim($parent);
 	}
 
-	public function getParentScope(): Scope
-	{
-		$f = __METHOD__; //"ParentScopedTrait(".static::getShortClass().")->getParentScope()";
-		if(!$this->hasParentScope()) {
+	public function getParentScope(): Scope{
+		$f = __METHOD__;
+		if(!$this->hasParentScope()){
 			Debug::error("{$f} parent scope is undefined");
 		}
 		return $this->parentScope;

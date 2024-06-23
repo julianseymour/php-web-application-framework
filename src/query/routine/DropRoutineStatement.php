@@ -15,10 +15,10 @@ class DropRoutineStatement extends QueryStatement{
 
 	public function __construct(?string $type = null, ?string $name = null){
 		parent::__construct();
-		if($type !== null) {
+		if($type !== null){
 			$this->setRoutineType($type);
 		}
-		if($name !== null) {
+		if($name !== null){
 			$this->setName($name);
 		}
 	}
@@ -42,7 +42,7 @@ class DropRoutineStatement extends QueryStatement{
 	public function getQueryStatementString(){
 		// DROP {PROCEDURE | FUNCTION} [IF EXISTS] sp_name
 		$string = "drop " . $this->getRoutineType() . " ";
-		if($this->getIfExistsFlag()) {
+		if($this->getIfExistsFlag()){
 			$string .= "if exists ";
 		}
 		$string .= $this->getName();

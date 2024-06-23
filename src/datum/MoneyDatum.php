@@ -9,7 +9,7 @@ class MoneyDatum extends DoubleDatum
 
 	public function getValue()
 	{
-		if(!$this->hasValue()) {
+		if(!$this->hasValue()){
 			return 0.0;
 		}
 		return parent::getValue();
@@ -17,11 +17,11 @@ class MoneyDatum extends DoubleDatum
 
 	public function getHumanReadableValue($symbol = null)
 	{
-		if($symbol === null) {
+		if($symbol === null){
 			return parent::getHumanReadableValue();
 		}
 		$value = $this->getValue();
-		if($value < 0) {
+		if($value < 0){
 			$value *= - 1;
 			return new ConcatenateCommand("-{$symbol}", new FloatPrecisionCommand($value, 2));
 		}

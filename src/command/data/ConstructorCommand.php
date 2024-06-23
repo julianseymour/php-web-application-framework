@@ -1,7 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\ParametricTrait;
@@ -9,8 +12,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-class ConstructorCommand extends Command implements JavaScriptInterface, ValueReturningCommandInterface
-{
+class ConstructorCommand extends Command implements JavaScriptInterface, ValueReturningCommandInterface{
 
 	use ParametricTrait;
 
@@ -18,101 +20,96 @@ class ConstructorCommand extends Command implements JavaScriptInterface, ValueRe
 
 	protected $constructedObject;
 
-	public function __construct($objectClass, ...$params)
-	{
-		$f = __METHOD__; //ConstructorCommand::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($objectClass=null, ...$params){
+		$f = __METHOD__;
 		parent::__construct();
-		if($objectClass == null) {
-			Debug::error("{$f} object class is null");
+		if($objectClass !== null){
+			$this->setObjectClass($objectClass);
 		}
-		$this->setObjectClass($objectClass);
-		if(isset($params) && count($params) > 0) {
-			$arr = [];
-			foreach($params as $param) {
-				array_push($arr, $param);
-			}
-			$this->setParameters($arr);
+		if(isset($params) && count($params) > 0){
+			$this->setParameters($params);
 		}
-		// Debug::printStackTraceNoExit("{$f} my debug ID is \"{$this->debugId}\"");
 	}
 
-	public function setObjectClass($objectClass)
-	{
-		$f = __METHOD__; //ConstructorCommand::getShortClass()."(".static::getShortClass().")->setObjectClass()";
-		return $this->objectClass = $objectClass;
+	public function setObjectClass($objectClass){
+		$f = __METHOD__;
+		if($this->hasObjectClass()){
+			$this->release($this->objectClass);
+		}
+		return $this->objectClass = $this->claim($objectClass);
 	}
 
-	public function hasObjectClass()
-	{
-		return isset($this->objectClass); // && class_exists($this->objectClass);
+	public function hasObjectClass():bool{
+		return isset($this->objectClass);
 	}
 
-	public function getObjectClass()
-	{
-		$f = __METHOD__; //ConstructorCommand::getShortClass()."(".static::getShortClass().")->getObjectClass()";
-		if(!$this->hasObjectClass()) {
+	public function getObjectClass(){
+		$f = __METHOD__;
+		if(!$this->hasObjectClass()){
 			Debug::error("{$f} object class is undefined");
 		}
 		return $this->objectClass;
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "construct";
 	}
 
-	public function hasConstructedObject()
-	{
+	public function hasConstructedObject():bool{
 		$oc = $this->getObjectClass();
 		return isset($this->constructedObject) && $this->constructedObject instanceof $oc;
 	}
 
-	public function getConstructedObject()
-	{
-		$f = __METHOD__; //ConstructorCommand::getShortClass()."(".static::getShortClass().")->getConstructedObject()";
-		if(!$this->hasConstructedObject()) {
+	public function getConstructedObject(){
+		$f = __METHOD__;
+		if(!$this->hasConstructedObject()){
 			Debug::error("{$f} constructed object is undefined");
 		}
 		return $this->constructedObject;
 	}
 
-	public function setConstructedObject($rv)
-	{
-		return $this->constructedObject = $rv;
+	public function setConstructedObject($rv){
+		if($this->hasConstructedObject()){
+			$this->release($this->constructedObject);
+		}
+		return $this->constructedObject = $this->claim($rv);
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		if(!empty($params)) {
+	public function evaluate(?array $params = null){
+		if(!empty($params)){
 			$this->setParameters($params);
 		}
 		return $this->resolve();
 	}
 
-	public function resolve()
-	{
-		$f = __METHOD__; //ConstructorCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
+	public function resolve(){
+		$f = __METHOD__;
 		$print = false;
-		if($this->hasConstructedObject()) {
-			if($print) {
+		if($this->hasConstructedObject()){
+			if($print){
 				Debug::print("{$f} constructed object is already defined");
 			}
 			return $this->getConstructedObject();
 		}
 		$objectClass = $this->getObjectClass();
-		if($objectClass instanceof ValueReturningCommandInterface) {
-			while ($objectClass instanceof ValueReturningCommandInterface) {
+		if($objectClass instanceof ValueReturningCommandInterface){
+			while($objectClass instanceof ValueReturningCommandInterface){
 				$objectClass = $objectClass->evaluate();
 			}
 		}
-		if(!is_string($objectClass)) {
+		if(!is_string($objectClass)){
 			Debug::error("{$f} object class is not a string");
-		}elseif(! class_exists($objectClass)) {
+		}elseif(!class_exists($objectClass)){
 			Debug::error("{$f} class \"{$objectClass}\" does not exist");
 		}
 		$params = $this->hasParameters() ? $this->getParameters() : [];
-		$ret = new $objectClass(...$params);
-		if($print) {
+		if(is_a($objectClass, DataStructure::class, true)){
+			$ret = new $objectClass(ALLOCATION_MODE_LAZY);
+			$ret->allocateColumns();
+		}else{
+			$ret = new $objectClass(...$params);
+		}
+		if($print){
 			$ret_did = $ret->getDebugId();
 			$my_did = $this->getDebugId();
 			Debug::print("{$f} constructed object of class {$objectClass} with debug ID \"{$ret_did}\"; my debug ID is \"{$my_did}\"");
@@ -120,12 +117,11 @@ class ConstructorCommand extends Command implements JavaScriptInterface, ValueRe
 		return $this->setConstructedObject($ret);
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript():string{
 		$objectClass = get_short_class($this->getObjectClass());
-		if($this->hasParameters()) {
+		if($this->hasParameters()){
 			$params = $this->getParameterString(true);
-		}elseif(is_a($objectClass, DataStructure::class, true)) {
+		}elseif(is_a($objectClass, DataStructure::class, true)){
 			$params = "null, context.getResponseText()";
 		}else{
 			$params = "";
@@ -133,10 +129,9 @@ class ConstructorCommand extends Command implements JavaScriptInterface, ValueRe
 		return "new {$objectClass}({$params})";
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->constructedObject);
-		unset($this->objectClass);
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->constructedObject, $deallocate);
+		$this->release($this->objectClass, $deallocate);
 	}
 }

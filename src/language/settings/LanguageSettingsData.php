@@ -4,9 +4,11 @@ namespace JulianSeymour\PHPWebApplicationFramework\language\settings;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
+use function JulianSeymour\PHPWebApplicationFramework\default_lang_ip;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
-use function JulianSeymour\PHPWebApplicationFramework\default_lang_ip;
+use function JulianSeymour\PHPWebApplicationFramework\region_code;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
@@ -37,7 +39,7 @@ class LanguageSettingsData extends DataStructure{
 		try{
 			$print = false;
 			$cmd = directive();
-			if($cmd === DIRECTIVE_LANGUAGE) {
+			if($cmd === DIRECTIVE_LANGUAGE){
 				$post = getInputParameters();
 				$lang = $post["directive"][DIRECTIVE_LANGUAGE];
 			}else{
@@ -50,12 +52,12 @@ class LanguageSettingsData extends DataStructure{
 			}else{
 				$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			}
-			if($mysqli == null) {
+			if($mysqli == null){
 				return $that->setObjectStatus(ERROR_MYSQL_CONNECT);
 			}
 			$user->setLanguagePreference($lang);
 			$status = $user->update($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} updating language preference returned error status \"{$err}\"");
 				return $that->setObjectStatus($status);
@@ -63,6 +65,7 @@ class LanguageSettingsData extends DataStructure{
 			// Debug::print("{$f} successfully updated language preference");
 			$session = new LanguageSettingsData();
 			$session->setLanguageCode($lang);
+			deallocate($session);
 			$locale = $user->getLocaleString();
 			$set = setlocale(LC_MESSAGES, $locale, "{$locale}.utf8", "{$locale}.UTF8", $lang);
 			if(false === $set){
@@ -71,7 +74,7 @@ class LanguageSettingsData extends DataStructure{
 				Debug::print("{$f} successfully set locale to \"{$locale}\"");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -89,16 +92,16 @@ class LanguageSettingsData extends DataStructure{
 	public function setLanguageCode(string $code):string{
 		$f = __METHOD__;
 		try{
-			if(! isset($code)) {
+			if(!isset($code)){
 				Debug::error("{$f} language code is undefined");
-			}elseif(is_int($code)) {
+			}elseif(is_int($code)){
 				Debug::error("{$f} language code is an integer");
 			}
 			// Debug::print("{$f} setting language code to \"{$code}\"");
 			$ret = $this->setColumnValue("sessionLanguageCode", $code);
 			$ret = $this->setColumnValue("cookieLanguageCode", $code);
 			return $ret;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -164,7 +167,7 @@ class LanguageSettingsData extends DataStructure{
 		}elseif($this->hasColumnValue("cookieRegionCode")){
 			return $this->getColumnValue("cookieRegionCode");
 		}
-		return geoip_country_code_by_name($_SERVER['REMOTE_ADDR']);
+		return region_code($_SERVER['REMOTE_ADDR']);
 	}
 	
 	public function getLocaleString():string{

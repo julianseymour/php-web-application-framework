@@ -3,6 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\account\register;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
 use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -10,19 +11,20 @@ use JulianSeymour\PHPWebApplicationFramework\account\settings\timezone\GetUserTi
 use JulianSeymour\PHPWebApplicationFramework\app\Request;
 use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordGeneratingFormInterface;
 use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordGeneratingFormTrait;
-use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
+use JulianSeymour\PHPWebApplicationFramework\command\element\GetElementByIdCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\input\SetInputValueCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\input\SoftDisableInputCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\str\SubstituteCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\ScriptElement;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\AnchorElement;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
-use JulianSeymour\PHPWebApplicationFramework\email\EmailAddressDatum;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
 use JulianSeymour\PHPWebApplicationFramework\input\CheckboxInput;
 use JulianSeymour\PHPWebApplicationFramework\input\EmailInput;
 use JulianSeymour\PHPWebApplicationFramework\input\HiddenInput;
-use JulianSeymour\PHPWebApplicationFramework\input\InputInterface;
+use JulianSeymour\PHPWebApplicationFramework\input\InputlikeInterface;
 use JulianSeymour\PHPWebApplicationFramework\input\PasswordInput;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
 use JulianSeymour\PHPWebApplicationFramework\security\captcha\hCaptcha;
@@ -58,7 +60,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 		return $this->setValidator(new RegistrationValidator($use_case));
 	}
 
-	protected function attachInputValidators(InputInterface $input): InputInterface{
+	protected function attachInputValidators(InputlikeInterface $input): InputlikeInterface{
 		$f = __METHOD__;
 		$print = false;
 		if(!$input->hasColumnName()){
@@ -68,7 +70,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 		if($print){
 			Debug::print("{$f} variable name is \"{$vn}\"");
 		}
-		switch ($vn) {
+		switch($vn){
 			case "emailAddress":
 				$input->pushValidator(new RegistrationEmailAddressValidator());
 				break;
@@ -85,14 +87,14 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(!$input->hasColumnName()) {
+			if(!$input->hasColumnName()){
 				if($print){
 					Debug::print("{$f} username does not have a column name");
 				}
 				return parent::reconfigureInput($input);
 			}
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "emailAddress":
 					$id = "reg_email";
 					$input->setIdAttribute($id);
@@ -112,7 +114,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 				case "name":
 					return SUCCESS;
 				case "password":
-					if($print) {
+					if($print){
 						Debug::printStackTraceNoExit("{$f} reconfiguring password input");
 					}
 					$id = "reg_password";
@@ -142,7 +144,7 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 				default:
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -154,19 +156,29 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 	}
 
 	public function dispatchCommands(): int{
-		$command = CommandBuilder::getElementById("register_timezone")->setValue(new GetUserTimezoneCommand());
+		$register_timezone = new GetElementByIdCommand("register_timezone");
+		$get_timezone = new GetUserTimezoneCommand();
+		$command = new SetInputValueCommand(
+			$register_timezone,
+			$get_timezone
+		);
 		$this->reportSubcommand($command);
 		return parent::dispatchCommands();
 	}
 
-	public function generateFormFooter(): void{
-		$command = CommandBuilder::getElementById("register_timezone")->setValue(new GetUserTimezoneCommand());
-		if(! (Request::isXHREvent() || Request::isFetchEvent())) {
+	public function generateFormFooter():void{
+		parent::generateFormFooter();
+		if(!Request::isAjaxRequest()){
+			$register_timezone = new GetElementByIdCommand("register_timezone");
+			$get_timezone = new GetUserTimezoneCommand();
+			$command = new SetInputValueCommand(
+				$register_timezone,
+				$get_timezone
+			);
 			$script = new ScriptElement();
 			$script->appendChild($command);
 			$this->appendChild($script);
 		}
-		parent::generateFormFooter();
 	}
 
 	public function getAdHocInputs(): ?array{
@@ -187,7 +199,9 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 			$a1 = new AnchorElement($mode);
 			$a1->setHrefAttribute('/terms');
 			$a1->setInnerHTML(_("Terms of service"));
-			$agree_terms_label->setinnerHTML(substitute(_("I agree to the %1%"), $a1));
+			$sub = new SubstituteCommand(_("I agree to the %1%"), $a1);
+			$agree_terms_label->setinnerHTML($sub);
+			deallocate($sub);
 			$ai->pushSuccessor($agree_terms_label);
 			$agree_terms_wrapper = new DivElement($mode);
 			$agree_terms_wrapper->addClassAttribute("text-align_center", "thumbsize");
@@ -197,19 +211,19 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 				"margin-bottom" => "0.5rem"
 			]);
 			$ai->setWrapperElement($agree_terms_wrapper);
-			$onclick = "agreeTermsClickHandler(event, this);";
-			$ai->setOnClickAttribute($onclick);
+			/*$onclick = "agreeTermsClickHandler(event, this);";
+			$ai->setOnClickAttribute($onclick);*/
 			foreach([
 				$ai,
 				$context_input
-			] as $input) {
+			] as $input){
 				$inputs[$input->getNameAttribute()] = $input;
 			}
 			$hcaptcha = new hCaptcha($mode, $this->getContext());
 			$hcaptcha->setIdAttribute('register_hcaptcha');
 			$inputs['hCaptcha'] = $hcaptcha;
 			return $inputs;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -243,14 +257,14 @@ class RegistrationForm extends AjaxForm implements PasswordGeneratingFormInterfa
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
 				$button = $this->generateGenericButton($name);
 				// $button->setIdAttribute($this->getButtonIdAttribute());
 				$innerHTML = _("Register");
 				$button->setInnerHTML($innerHTML);
 				// $button->setOnClickAttribute($this->get());
-				if(Request::isXHREvent()) {
+				if(Request::isXHREvent()){
 					$subcommand = new SoftDisableInputCommand($button);
 					$this->reportSubcommand($subcommand);
 				}

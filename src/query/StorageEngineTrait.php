@@ -1,41 +1,37 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
-use JulianSeymour\PHPWebApplicationFramework\query\table\AbstractTableOptions;
 
-trait StorageEngineTrait
-{
+trait StorageEngineTrait{
 
 	protected $storageEngineName;
 
-	public function engine($name)
-	{
+	public function engine($name){
 		$this->setStorageEngine($name);
 		return $this;
 	}
 
-	public function setStorageEngine($name)
-	{
-		$f = __METHOD__; //"StorageEngineTrait(".static::getShortClass().")->setStorageEngine()";
-		if($name == null) {
-			unset($this->storageEngineName);
-			return null;
-		}elseif(!is_string($name)) {
+	public function setStorageEngine($name){
+		$f = __METHOD__;
+		if(!is_string($name)){
 			Debug::error("{$f} storage engine name must be a string");
+		}elseif($this->hasStorageEngine()){
+			$this->release($this->storageEngineName);
 		}
-		return $this->storageEngineName = $name;
+		return $this->storageEngineName = $this->claim($name);
 	}
 
-	public function hasStorageEngine()
-	{
+	public function hasStorageEngine():bool{
 		return isset($this->storageEngineName);
 	}
 
-	public function getStorageEngine()
-	{
-		$f = __METHOD__; //"StorageEngineTrait(".static::getShortClass().")->getStorageEngine()";
-		if(!$this->hasStorageEngine()) {
+	public function getStorageEngine(){
+		$f = __METHOD__;
+		if(!$this->hasStorageEngine()){
 			Debug::error("{$f} storage engine name is undefined");
 		}
 		return $this->storageEngineName;

@@ -14,7 +14,7 @@ class SetOnInputCommand extends SetElementEventHandlerCommand
 	public function resolve()
 	{
 		$element = $this->getElement();
-		while ($element instanceof ValueReturningCommandInterface) {
+		while($element instanceof ValueReturningCommandInterface){
 			$element = $element->evaluate();
 		}
 		$call_function = $this->getCallFunctionCommand();

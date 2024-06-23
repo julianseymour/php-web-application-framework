@@ -49,13 +49,13 @@ class CondemnIpAddressUseCase extends UseCase{
 		$f = __METHOD__;
 		try{
 			$ip = new CondemnedIpAddress();
-			if(!$ip->hasColumn("ipAddress")) {
+			if(!$ip->hasColumn("ipAddress")){
 				Debug::error("{$f} IP address datum is undefined");
 			}
 			$ip->setIpAddress($_SERVER['REMOTE_ADDR']);
-			if(app()->hasUserData()) {
+			if(app()->hasUserData()){
 				$user = user();
-				if($user instanceof PlayableUser && $user->getLoadedFlag()) {
+				if($user instanceof PlayableUser && $user->getLoadedFlag()){
 					$ip->setUserData($user);
 				}
 			}
@@ -63,7 +63,7 @@ class CondemnIpAddressUseCase extends UseCase{
 			$ip->setUri($this->getUri());
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			$status = $ip->insert($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} inserting condemned IP address returned error status \"{$err}\"");
 			}else{
@@ -76,7 +76,7 @@ class CondemnIpAddressUseCase extends UseCase{
 			// unset($mysqli);
 			// drop_request();
 			return $this->setObjectStatus($status);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

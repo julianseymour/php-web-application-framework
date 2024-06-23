@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\script;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -18,44 +19,54 @@ class JavaScriptTemplateFunctionsUseCase extends LocalizedJavaScriptFileUseCase{
 		try{
 			$print = false;
 			$mode = ALLOCATION_MODE_TEMPLATE;
-			foreach(mods()->getTemplateElementClasses() as $tec) {
-				if(! class_exists($tec)) {
+			foreach(mods()->getTemplateElementClasses() as $tec){
+				if(!class_exists($tec)){
 					Debug::error("{$f} element class \"{$tec}\" does not exist");
-				}elseif($print) {
-					Debug::print("{$f} about to get template context class for element \"{$tec}\"");
 				}
 				$context_class = $tec::getTemplateContextClass();
-				if(! class_exists($context_class)) {
+				if(!class_exists($context_class)){
 					Debug::error("{$f} class \"{$context_class}\" does not exist");
+				}elseif($print){
+					Debug::print("{$f} template context class ".get_short_class($context_class));
 				}
 				$context = new $context_class();
-				if($context instanceof TemplateContextInterface) {
+				if($print){
+					Debug::print("{$f} instantiated ".$context->getDebugString());
+				}
+				$context->disableDeallocation();
+				if($context instanceof TemplateContextInterface){
 					$context->template();
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} class \"{$context_class}\" is not a TemplateContextInterface");
 				}
 				$element = new $tec($mode);
+				$element->disableDeallocation();
 				$element->bindContext($context);
-				if($print) {
-					Debug::print("{$f} about to call {$tec}->generateTemplateFunction()->toJavaScript()");
-				}
 				$function = $element->generateTemplateFunction();
+				$function->disableDeallocation();
 				echo $function->toJavaScript();
+				$function->enableDeallocation();
+				deallocate($function);
+				$element->enableDeallocation();
+				deallocate($element);
+				$context->enableDeallocation();
+				deallocate($context);
 			}
 			//bind element functions constant
 			$const = DeclareVariableCommand::const("bindElementFunctions");
 			$const->setEscapeType(ESCAPE_TYPE_OBJECT);
 			$arr = [];
-			foreach(mods()->getTemplateElementClasses() as $class) {
-				if($print) {
+			foreach(mods()->getTemplateElementClasses() as $class){
+				if($print){
 					Debug::print("{$f} template element class \"{$class}\"");
 				}
 				$short = get_short_class($class);
 				$arr[$short] = new GetDeclaredVariableCommand("bind{$short}");
 			}
 			$const->setValue($arr);
-			echo $const->toJavaScript()."\n";;
-		}catch(Exception $x) {
+			echo $const->toJavaScript()."\n";
+			deallocate($const);
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

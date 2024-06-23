@@ -20,10 +20,10 @@ class GhostInput extends HiddenInput implements GhostElementInterface{
 	}
 
 	public function bindContext($context){
-		if($context instanceof Datum && $context->hasName()) {
+		if($context instanceof Datum && $context->hasName()){
 			$this->setColumnName($this->setNameAttribute($context->getName()));
 		}
-		return $this->context = $context;
+		return $this->setContext($context);
 	}
 
 	public function processArray(array $arr): int{

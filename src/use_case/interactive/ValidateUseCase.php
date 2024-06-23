@@ -13,11 +13,11 @@ class ValidateUseCase extends SubsequentUseCase{
 		$print = false;
 		$validator = $this->getPredecessor()->getValidator();
 		$status = $validator->getObjectStatus();
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} validator has error status \"{$err}\"");
 			return $this->setObjectStatus($status);
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} validation successful");
 		}
 		return $this->setObjectStatus($status);

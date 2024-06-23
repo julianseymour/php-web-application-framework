@@ -1,39 +1,35 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait DatabaseVersionTrait
-{
+trait DatabaseVersionTrait{
 
 	protected $requiredMySQLVersion;
 
-	public function setRequiredMySQLVersion($v)
-	{
-		$f = __METHOD__; //"DatabaseVersionTrait(".static::getShortClass().")->setRequiredMySQLVersion()";
-		if($v == null) {
-			unset($this->requiredMySQLVersion);
-			return null;
+	public function setRequiredMySQLVersion($v){
+		if($this->hasRequiredMySQLVersion()){
+			$this->release($this->requiredMySQLVersion);
 		}
-		return $this->requiredMySQLVersion = $v;
+		return $this->requiredMySQLVersion = $this->claim($v);
 	}
 
-	public function hasRequiredMySQLVersion()
-	{
+	public function hasRequiredMySQLVersion():bool{
 		return isset($this->requiredMySQLVersion);
 	}
 
-	public function getRequiredMySQLVersion()
-	{
-		$f = __METHOD__; //"DatabaseVersionTrait(".static::getShortClass().")->getRequiredMySQLVersion()";
-		if(!$this->hasRequiredMySQLVersion()) {
+	public function getRequiredMySQLVersion(){
+		$f = __METHOD__;
+		if(!$this->hasRequiredMySQLVersion()){
 			Debug::error("{$f} required MySQL version is undefined");
 		}
 		return $this->requiredMySQLVersion;
 	}
 
-	public function withRequiredSQLVersion($v)
-	{
+	public function withRequiredSQLVersion($v){
 		$this->setRequiredMySQLVersion($v);
 		return $this;
 	}

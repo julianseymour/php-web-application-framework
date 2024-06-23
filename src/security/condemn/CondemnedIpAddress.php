@@ -47,7 +47,7 @@ class CondemnedIpAddress extends StoredIpAddress{
 		$fields = [
 			"insertIpAddress"
 		];
-		foreach($fields as $i) {
+		foreach($fields as $i){
 			$columns[$i]->volatilize();
 		}
 		$columns['userKey']->setNullable(true);
@@ -72,14 +72,14 @@ class CondemnedIpAddress extends StoredIpAddress{
 
 	public function getUri(){
 		$f = __METHOD__;
-		if(!$this->hasURI()) {
+		if(!$this->hasURI()){
 			Debug::error("{$f} action is undefined");
 		}
 		return $this->getColumnValue("action");
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
 				return SUCCESS;
 			default:

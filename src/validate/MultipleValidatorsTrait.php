@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\validate;
 
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
@@ -16,7 +17,7 @@ trait MultipleValidatorsTrait{
 	}
 
 	public function pushValidator(...$validators){
-		foreach($validators as $validator) {
+		foreach($validators as $validator){
 			$validator->setInput($this);
 		}
 		return $this->pushArrayProperty("validators", ...$validators);

@@ -3,23 +3,26 @@ namespace JulianSeymour\PHPWebApplicationFramework\app\generator;
 
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use JulianSeymour\PHPWebApplicationFramework\command\control\BreakCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\control\ForEachLoopCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\control\SwitchCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\data\ConstructorCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\debug\LogCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\DeclareVariableCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\variable\arr\ArrayAccessCommand;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFunction;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFunctionGenerator;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand;
 
 class AllocateDataStructuresJsFunctionGenerator extends JavaScriptFunctionGenerator{
 
 	public function generate($context): ?JavaScriptFunction{
 		$f = __METHOD__;try{
 			$classes = $context->getClientDataStructureClasses();
-			if(empty($classes)) {
+			if(empty($classes)){
 				return null;
 			}
 			$function = new JavaScriptFunction("allocateDataStructures", "data", "response");
@@ -30,19 +33,22 @@ class AllocateDataStructuresJsFunctionGenerator extends JavaScriptFunctionGenera
 			$response = new GetDeclaredVariableCommand("response");
 			$datatype = new GetDeclaredVariableCommand("raw_data.dataType");
 			$get_subtype = new GetDeclaredVariableCommand("raw_data.subtype");
-			foreach($classes as $type => $value) {
-				if(is_array($value)) {
-					$switch = CommandBuilder::switch($get_subtype)->default([
-						CommandBuilder::log(new ConcatenateCommand("Default DataStructure for datatype ", $datatype, ", sub type ", $get_subtype)),
-						DeclareVariableCommand::redeclare("struct", CommandBuilder::construct("DataStructure", $raw_data, $response)),
+			foreach($classes as $type => $value){
+				if(is_array($value)){
+					$switch = new SwitchCommand($get_subtype);
+					$concat1 = new ConcatenateCommand();
+					$concat1->setStrings(["Default DataStructure for datatype ", $datatype, ", sub type ", $get_subtype]);
+					$switch->default([
+						new LogCommand($concat1),
+						DeclareVariableCommand::redeclare("struct", new ConstructorCommand("DataStructure", $raw_data, $response)),
 						$break
 					]);
-					foreach($value as $subtype => $class) {
+					foreach($value as $subtype => $class){
 						$switch->case(
 							$subtype, 
 							DeclareVariableCommand::redeclare(
 								"struct", 
-								CommandBuilder::construct($class, $raw_data, $response)
+								new ConstructorCommand($class, $raw_data, $response)
 							), 
 							$break
 						);
@@ -51,34 +57,40 @@ class AllocateDataStructuresJsFunctionGenerator extends JavaScriptFunctionGenera
 						$switch,
 						$break
 					];
-				}elseif(is_string($type)) {
+				}elseif(is_string($type)){
 					$cases[$type] = [
-						CommandBuilder::log("Calling constructor \"".get_short_class($value)."\""),
+						new LogCommand("Calling constructor \"".get_short_class($value)."\""),
 						DeclareVariableCommand::redeclare(
 							"struct", 
-							CommandBuilder::construct($value, $raw_data, $response)
+							new ConstructorCommand($value, $raw_data, $response)
 						),
 						$break
 					];
 				}
 			}
-			$function->pushSubcommand(
+			$switch2 = new SwitchCommand($datatype);
+			$concat2 = new ConcatenateCommand();
+			$concat2->setStrings(["Default DataStructure for datatype ", $datatype, ", sub type ", $get_subtype]);
+			$log2 = new LogCommand();
+			$log2->setMessage($concat2);
+			$switch2->cases($cases)->default([
+				$log2,
+				DeclareVariableCommand::redeclare("struct", new ConstructorCommand("DataStructure", $raw_data, $response)),
+				$break
+			]);
+			$function->pushCodeBlock(
 				DeclareVariableCommand::let("print", false), 
 				new ForEachLoopCommand(
 					DeclareVariableCommand::let("key"), 
 					"data", 
 					DeclareVariableCommand::let(
 						"raw_data", 
-						CommandBuilder::arrayAccess(new GetDeclaredVariableCommand("data"), "key")
+						new ArrayAccessCommand(new GetDeclaredVariableCommand("data"), "key")
 					),
-					CommandBuilder::log($raw_data),
+					new LogCommand($raw_data),
 					DeclareVariableCommand::let("struct"), 
-					CommandBuilder::switch($datatype)->cases($cases)->default([
-						CommandBuilder::log(new ConcatenateCommand("Default DataStructure for datatype ", $datatype, ", sub type ", $get_subtype)),
-						DeclareVariableCommand::redeclare("struct", CommandBuilder::construct("DataStructure", $raw_data, $response)),
-						$break
-					]), 
-					CommandBuilder::call(
+					$switch2, 
+					new CallFunctionCommand(
 						"response.setDataStructure", 
 						new GetDeclaredVariableCommand("key"), 
 						new GetDeclaredVariableCommand("struct")
@@ -87,7 +99,7 @@ class AllocateDataStructuresJsFunctionGenerator extends JavaScriptFunctionGenera
 				)
 			);
 			return $function;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

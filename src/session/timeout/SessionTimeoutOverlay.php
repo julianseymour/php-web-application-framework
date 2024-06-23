@@ -18,7 +18,7 @@ class SessionTimeoutOverlay extends DivElement
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
 	{
 		$f = __METHOD__;
-		if($context instanceof UseCase) {
+		if($context instanceof UseCase){
 			Debug::error("{$f} context is a use case");
 		}
 		parent::__construct($mode, $context);
@@ -46,7 +46,7 @@ class SessionTimeoutOverlay extends DivElement
 			]);
 			$logo = new ThemeSensitiveImageElement($mode);
 			$logo->setHrefAttribute(request()->getRequestURI());
-			$logo->setAlternateTextAttribute(WEBSITE_DOMAIN);
+			$logo->setAlternateTextAttribute(DOMAIN_LOWERCASE);
 			$logo->setDarkThemeImageURI(WEBSITE_LOGO_URI_VERTICAL_DARK);
 			$logo->setLightThemeImageURI(WEBSITE_LOGO_URI_VERTICAL_LIGHT);
 			$logo_c->appendChild($logo);
@@ -56,8 +56,8 @@ class SessionTimeoutOverlay extends DivElement
 			$session_timeout_2->appendChild($logo_c, $expired);
 			$session_timeout_2->setHrefAttribute(request()->getRequestURI());
 			$this->appendChild($session_timeout_2);
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

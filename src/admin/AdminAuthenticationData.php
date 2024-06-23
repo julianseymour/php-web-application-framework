@@ -34,9 +34,9 @@ class AdminAuthenticationData extends FullAuthenticationData{
 		$f = __METHOD__;
 		$print = false;
 		$ret = parent::handSessionToUser($user, $mode);
-		if(! user() instanceof Administrator) {
+		if(! user() instanceof Administrator){
 			Debug::error("{$f} current user should be administrator by now");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} OK");
 		}
 		return $ret;

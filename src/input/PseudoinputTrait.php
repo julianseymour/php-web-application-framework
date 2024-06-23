@@ -16,18 +16,18 @@ trait PseudoinputTrait{
 		return $this->form = $form;
 	}
 
-	public function hasForm(): bool{
+	public function hasForm():bool{
 		return isset($this->form) && $this->form instanceof FormElement;
 	}
 
 	public function getForm(){
-		if(!$this->hasForm()) {
+		if(!$this->hasForm()){
 			return null;
 		}
 		return $this->form;
 	}
 
-	public function configure(AjaxForm $form): int{
+	public function configure(?AjaxForm $form=null): int{
 		return SUCCESS;
 	}
 

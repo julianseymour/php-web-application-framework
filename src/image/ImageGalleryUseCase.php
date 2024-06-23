@@ -24,27 +24,27 @@ abstract class ImageGalleryUseCase extends InteractiveUseCase{
 	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
 		$print = false;
-		if($status !== SUCCESS) {
-			if($print) {
+		if($status !== SUCCESS){
+			if($print){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::print("{$f} object status \"{$err}\"");
 			}
 			return parent::getResponder($status);
 		}
 		$directive = directive();
-		if($print) {
+		if($print){
 			Debug::print("{$f} directive is \"{$directive}\"");
 		}
-		switch ($directive) {
+		switch($directive){
 			case DIRECTIVE_INSERT:
 			case DIRECTIVE_UPLOAD:
-				if($print) {
+				if($print){
 					Debug::print("{$f} returning an insert after responder");
 				}
 				return new InsertAfterResponder();
 			default:
 		}
-		if($print) {
+		if($print){
 			Debug::print("{$f} returning parent function");
 		}
 		return parent::getResponder($status);

@@ -21,14 +21,14 @@ class ResendActivationEmailUseCase extends UseCase{
 		try{
 			$status = parent::execute();
 			$user = user();
-			if($user == null) {
+			if($user == null){
 				Debug::error("{$f} user data returned null");
 				return $this->setObjectStatus(ERROR_NULL_USER_OBJECT);
 			}
 			$mysqli = db()->getConnection(PublicWriteCredentials::class);
 			$status = PreActivationConfirmationCode::submitStatic($mysqli, $user);
 			return $status;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

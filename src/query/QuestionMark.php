@@ -1,23 +1,23 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
-class QuestionMark extends ExpressionCommand implements SQLInterface
-{
+ErrorMessage::deprecated(__FILE__);
 
-	public function toSQL(): string
-	{
+class QuestionMark extends ExpressionCommand implements SQLInterface{
+
+	public function toSQL(): string{
 		return "?";
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "?";
 	}
 
-	public function evaluate(?array $params = null)
-	{
+	public function evaluate(?array $params = null){
 		return "?";
 	}
 }

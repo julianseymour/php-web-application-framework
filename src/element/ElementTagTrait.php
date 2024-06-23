@@ -1,31 +1,30 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait ElementTagTrait
-{
+trait ElementTagTrait{
 
 	protected $tag;
 
-	public function setElementTag(?string $tag): ?string
-	{
-		if($tag === null) {
-			unset($this->tag);
-			return null;
+	public function setElementTag(?string $tag): ?string{
+		if($this->hasElementTag()){
+			$this->release($this->tag);
 		}
-		return $this->tag = $tag;
+		return $this->tag = $this->claim($tag);
 	}
 
 	public function hasElementTag(): bool{
 		return isset($this->tag);
 	}
 
-	public function getElementTag(): string
-	{
-		$f = __METHOD__; //"ElementTagTrait(".static::getShortClass().")->getElementTag()";
-		if(!$this->hasElementTag()) {
-			Debug::error("{$f} element tag is undefined");
+	public function getElementTag(): string{
+		$f = __METHOD__;
+		if(!$this->hasElementTag()){
+			Debug::error("{$f} element tag is undefined for this ".$this->getDebugString());
 		}
 		return $this->tag;
 	}

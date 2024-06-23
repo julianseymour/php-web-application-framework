@@ -14,12 +14,12 @@ class SodiumCryptoBoxPublicKeyDatum extends Base64Datum
 		$f = __METHOD__; //SodiumCryptoBoxPublicKeyDatum::getShortClass()."(".static::getShortClass().")::validateStatic()";
 		try{
 			$len = strlen($value);
-			if($len !== SODIUM_CRYPTO_BOX_PUBLICKEYBYTES) {
+			if($len !== SODIUM_CRYPTO_BOX_PUBLICKEYBYTES){
 				Debug::warning("{$f} key is incorrect length");
 				return ERROR_SODIUM_PUBLICKEYSIZE;
 			}
 			return parent::validateStatic($value);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -24,7 +24,7 @@ class UpdateResponder extends CacheResponder
 			$type = $data->getDataType();
 			$ciec = $use_case->getConditionalElementClass($type);
 			$old_element = new $ciec(ALLOCATION_MODE_LAZY);
-			if($use_case->hasOriginalOperand()) {
+			if($use_case->hasOriginalOperand()){
 				$backup = $use_case->getOriginalOperand();
 				$old_element->bindContext($backup);
 			}else{
@@ -32,14 +32,14 @@ class UpdateResponder extends CacheResponder
 			}
 			$updated_element = $use_case->getElementForUpdate($backup);
 			$old_id = $old_element->getIdAttribute();
-			if(! isset($old_id)) {
+			if(!isset($old_id)){
 				Debug::error("{$f} old ID is undefined");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} old element ID is \"{$old_id}\"");
 			}
 			$update = $updated_element->update();
 			return $update;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -50,11 +50,11 @@ class UpdateResponder extends CacheResponder
 		try{
 			parent::modifyResponse($response, $use_case);
 			$update = static::generateCommand($use_case);
-			if($this->getCacheFlag()) {
+			if($this->getCacheFlag()){
 				$update->pushSubcommand(new CachePageContentCommand());
 			}
 			$response->pushCommand(static::generateCommand($use_case));
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

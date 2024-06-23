@@ -1,16 +1,14 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element;
 
-class HTMLElement extends IntangibleElement
-{
+class HTMLElement extends IntangibleElement{
 
-	public static function getElementTagStatic(): string
-	{
+	public static function getElementTagStatic(): string{
 		return "html";
 	}
 
-	protected function generatePredecessors(): ?array
-	{
+	protected function getSelfGeneratedPredecessors(): ?array{
 		return [
 			"<!DOCTYPE html>"
 		];

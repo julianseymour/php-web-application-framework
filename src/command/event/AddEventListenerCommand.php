@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\event;
 
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
@@ -9,89 +10,81 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-class AddEventListenerCommand extends EventListenerCommand implements ServerExecutableCommandInterface
-{
+class AddEventListenerCommand extends EventListenerCommand implements ServerExecutableCommandInterface{
 
-	public static function declareFlags(): array
-	{
+	public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
 			'once',
 			'passive'
 		]);
 	}
-
-	public function setOnceFlag(bool $value = true): bool
-	{
+	
+	//XXX TODO whatever the plans were for these flags, neither of them is ever checked
+	public function setOnceFlag(bool $value = true): bool{
 		return $this->setFlag("once", $value);
 	}
 
-	public function getOnceFlag(): bool
-	{
+	public function getOnceFlag(): bool{
 		return $this->getFlag("once");
 	}
 
-	public function setPassiveFlag(bool $value = true): bool
-	{
+	public function setPassiveFlag(bool $value = true): bool{
 		return $this->setFlag("passive", $value);
 	}
 
-	public function getPassiveFlag(): bool
-	{
+	public function getPassiveFlag(): bool{
 		return $this->getFlag("passive");
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "addEventListener";
 	}
 
-	public function toJavaScript(): string
-	{
-		$f = __METHOD__; //AddEventListenerCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
+	public function toJavaScript(): string{
+		$f = __METHOD__;
 		$et = $this->getEventTarget();
-		if($et instanceof JavaScriptInterface) {
+		if($et instanceof JavaScriptInterface){
 			$et = $et->toJavaScript();
-		}elseif($et instanceof Element) {
-			if(!$et->hasIdAttribute()) {
+		}elseif($et instanceof Element){
+			if(!$et->hasIdAttribute()){
 				Debug::error("{$f} element lacks an ID attribute");
 			}
 			$et = new GetElementByIdCommand($et->getIdAttribute());
 			$et = $et->toJavaScript();
 		}
 		$type = $this->getType();
-		if(is_string($type)) {
+		if(is_string($type)){
 			$type = single_quote($type);
-		}elseif($type instanceof JavaScriptInterface) {
+		}elseif($type instanceof JavaScriptInterface){
 			$type = $type->toJavaScript();
 		}
-		$listener = $this->getEventListener();
-		if($listener instanceof JavaScriptInterface) {
+		$listener = $this->getListener();
+		if($listener instanceof JavaScriptInterface){
 			$listener = $listener->toJavaScript();
 		}
 		return "{$et}.addEventListener({$type}, {$listener})";
 	}
 
-	public function resolve()
-	{
+	public function resolve(){
 		$target = $this->getEventTarget();
-		if($target instanceof ValueReturningCommandInterface) {
-			while ($target instanceof ValueReturningCommandInterface) {
+		if($target instanceof ValueReturningCommandInterface){
+			while($target instanceof ValueReturningCommandInterface){
 				$target = $target->evaluate();
 			}
 		}
 		$type = $this->getType();
-		if($type instanceof ValueReturningCommandInterface) {
-			while ($type instanceof ValueReturningCommandInterface) {
+		if($type instanceof ValueReturningCommandInterface){
+			while($type instanceof ValueReturningCommandInterface){
 				$type = $type->evaluate();
 			}
 		}
-		$listener = $this->getEventListener();
-		if($listener instanceof ValueReturningCommandInterface) {
-			while ($listener instanceof ValueReturningCommandInterface) {
+		$listener = $this->getListener();
+		if($listener instanceof ValueReturningCommandInterface){
+			while($listener instanceof ValueReturningCommandInterface){
 				$listener = $listener->evaluate();
 			}
 		}
-		$target->addEventListener($type, $listener);
+		$target->addEventListener($type, $listener); //XXX TODO: the listener ID should be an optional parameter
 	}
 }
 	

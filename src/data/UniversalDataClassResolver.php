@@ -7,11 +7,11 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 class UniversalDataClassResolver extends IntersectionTableResolver{
 
-	public static function getIntersections(){
+	public static function getIntersections():array{
 		$f = __METHOD__;
 		$print = false;
 		$ret = mods()->getTypeSortedDataStructureClasses();
-		if($print) {
+		if($print){
 			Debug::print("{$f} returning the following:");
 			Debug::printArray($ret);
 		}

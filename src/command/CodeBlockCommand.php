@@ -14,7 +14,7 @@ class CodeBlockCommand extends Command implements JavaScriptInterface
 	public function __construct(...$blocks)
 	{
 		parent::__construct();
-		if(isset($blocks) && count($blocks) > 0) {
+		if(isset($blocks) && count($blocks) > 0){
 			$this->setSubcommands($blocks);
 		}
 	}
@@ -22,8 +22,8 @@ class CodeBlockCommand extends Command implements JavaScriptInterface
 	public function toJavaScript(): string
 	{
 		$string = "{\n";
-		foreach($this->getSubcommands() as $c) {
-			if($c instanceof JavaScriptInterface) {
+		foreach($this->getSubcommands() as $c){
+			if($c instanceof JavaScriptInterface){
 				$c = $c->toJavaScript();
 			}
 			$string .= "\t{$c}\n";

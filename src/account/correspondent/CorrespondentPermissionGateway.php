@@ -9,7 +9,7 @@ class CorrespondentPermissionGateway implements StaticPermissionGatewayInterface
 
 	public static function getPermissionStatic($name, $object){
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
 			case DIRECTIVE_UPDATE:
 			case DIRECTIVE_PREINSERT_FOREIGN:

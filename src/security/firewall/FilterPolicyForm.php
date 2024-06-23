@@ -33,7 +33,7 @@ class FilterPolicyForm extends AjaxForm{
 		$f = __METHOD__;
 		try{
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "filterPolicy":
 					$input->setIdAttribute("whitelist_mode");
 					break;
@@ -43,7 +43,7 @@ class FilterPolicyForm extends AjaxForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -73,13 +73,13 @@ class FilterPolicyForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPDATE:
 				$button = $this->generateGenericButton($name);
 				$innerHTML = _("Update firewall settings");
 				$button->setInnerHTML($innerHTML);
 				$context = $this->getContext();
-				if($context->getFilterPolicy() === POLICY_BLOCK) {
+				if($context->getFilterPolicy() === POLICY_BLOCK){
 					$value = POLICY_ALLOW;
 					$policyname = _("Allow");
 				}else{

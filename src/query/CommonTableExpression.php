@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
 use function JulianSeymour\PHPWebApplicationFramework\db;
@@ -13,66 +14,74 @@ use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnNamesTra
 use Exception;
 use mysqli;
 
-class CommonTableExpression extends QueryStatement implements StaticPropertyTypeInterface
-{
+class CommonTableExpression extends QueryStatement implements StaticPropertyTypeInterface{
 
 	use MultipleColumnNamesTrait;
 	use NamedTrait;
 	use StaticPropertyTypeTrait;
 
 	protected $subquery;
-
-	public function __construct($name, $subquery)
-	{
+	
+public function __construct($name=null, $subquery=null){
 		parent::__construct();
 		// $this->requirePropertyType("columnNames", "s");
-		$this->setName($name);
-		$this->setSubquery($subquery);
+		if($name !== null){
+			$this->setName($name);
+		}
+		if($subquery !== null){
+			$this->setSubquery($subquery);
+		}
 	}
 
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
 		return [
 			"columnNames" => 's'
 		];
 	}
 
-	public function setSubquery($subquery)
-	{
-		$f = __METHOD__; //CommonTableExpression::getShortClass()."(".static::getShortClass().")->setSubquery()";
-		if($subquery == null) {
-			unset($this->subquery);
-			return null;
+	public function dispose(bool $deallocate=false):void{
+		if($this->hasProperties()){
+			$this->releaseProperties($deallocate);
 		}
-		return $this->subquery = $subquery;
+		parent::dispose($deallocate);
+		if($this->hasName()){
+			$this->release($this->name, $deallocate);
+		}
+		if($this->hasPropertyTypes()){
+			$this->release($this->propertyTypes, $deallocate);
+		}
+	}
+	
+	public function setSubquery($subquery){
+		if($this->hasSubquery()){
+			$this->release($this->subquery);
+		}
+		return $this->subquery = $this->claim($subquery);
 	}
 
-	public function hasSubquery()
-	{
+	public function hasSubquery():bool{
 		return isset($this->subquery);
 	}
 
-	public function getSubquery()
-	{
-		$f = __METHOD__; //CommonTableExpression::getShortClass()."(".static::getShortClass().")->getSubquery()";
-		if(!$this->hasSubquery()) {
+	public function getSubquery(){
+		$f = __METHOD__;
+		if(!$this->hasSubquery()){
 			Debug::error("{$f} subquery is undefined");
 		}
 		return $this->subquery;
 	}
 
-	public function getQueryStatementString()
-	{
-		$f = __METHOD__; //CommonTableExpression::getShortClass()."(".static::getShortClass().")->getQueryStatementString()";
+	public function getQueryStatementString():string{
+		$f = __METHOD__;
 		try{
 			// cte_name [(col_name [, col_name] ...)] AS (subquery)
 			$string = $this->getName();
-			if($this->hasColumnNames()) {
+			if($this->hasColumnNames()){
 				$string .= " (" . implode_back_quotes(',', $this->getColumnNames()) . ")";
 			}
 			$string .= " as (" . $this->getSubquery() . ")";
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -83,9 +92,8 @@ class CommonTableExpression extends QueryStatement implements StaticPropertyType
 	 * @param mysqli $mysqli
 	 * @return bool
 	 */
-	public static function isSupported($mysqli = null): bool
-	{
-		if($mysqli == null) {
+	public static function isSupported($mysqli = null): bool{
+		if($mysqli == null){
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
 		}
 		Debug::error($mysqli->server_info);

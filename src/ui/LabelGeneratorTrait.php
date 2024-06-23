@@ -1,43 +1,37 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 
-trait LabelGeneratorTrait
-{
+trait LabelGeneratorTrait{
 
 	use ArrayPropertyTrait;
 
-	public function hasLabelStyleProperties(): bool
-	{
+	public function hasLabelStyleProperties(): bool{
 		return $this->hasArrayProperty("labelStyle");
 	}
 
-	public function getLabelStyleProperties(): array
-	{
+	public function getLabelStyleProperties(): array{
 		return $this->getProperty("labelStyle");
 	}
 
-	public function setLabelStyleProperty($key, $value)
-	{
+	public function setLabelStyleProperty($key, $value){
 		return $this->setArrayPropertyValue("labelStyle", $key, $value);
 	}
 
-	public function setLabelClassAttribute(...$attr)
-	{
-		if(count($attr) == 1 && is_array($attr[0])) {
+	public function setLabelClassAttribute(...$attr){
+		if(count($attr) == 1 && is_array($attr[0])){
 			$attr = $attr[0];
 		}
 		return $this->setArrayProperty("labelClassAttribute", $attr);
 	}
 
-	public function hasLabelClassAttribute()
-	{
+	public function hasLabelClassAttribute():bool{
 		return $this->hasArrayProperty("labelClassAttribute");
 	}
 
-	public function getLabelClassAttribute()
-	{
+	public function getLabelClassAttribute(){
 		return $this->getProperty("labelClassAttribute");
 	}
 }

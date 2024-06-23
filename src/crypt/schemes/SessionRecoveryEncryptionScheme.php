@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\crypt\schemes;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use JulianSeymour\PHPWebApplicationFramework\crypt\EncryptionComponentDatum;
 use JulianSeymour\PHPWebApplicationFramework\crypt\NonceDatum;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
@@ -28,6 +29,7 @@ class SessionRecoveryEncryptionScheme extends SymmetricEncryptionScheme{
 		$hash = $ds->getArgonHash();
 		$hash64 = base64_encode($hash);
 		$key = $xor->decrypt($secret, $hash);
+		deallocate($xor);
 		$key64 = base64_encode($key);
 		$arr = [
 			"secret64" => $secret64,

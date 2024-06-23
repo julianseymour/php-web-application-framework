@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
 use function JulianSeymour\PHPWebApplicationFramework\getDateStringFromTimestamp;
@@ -26,14 +27,14 @@ class DateInput extends ChronometricInput implements StaticValueNegotiationInter
 		return INPUT_TYPE_DATE;
 	}
 
-	public function getAllowEmptyInnerHTML(){
+	public function getAllowEmptyInnerHTML():bool{
 		return true;
 	}
 
-	public function configure(AjaxForm $form): int{
+	public function configure(?AjaxForm $form=null): int{
 		$ret = parent::configure($form);
 		$datum = $this->getContext();
-		if(!$this->hasPredecessors() && $datum->hasHumanReadableName()) {
+		if(!$this->hasPredecessors() && $datum->hasHumanReadableName()){
 			$span = new SpanElement($this->getAllocationMode());
 			$span->setInnerHTML($datum->getHumanReadableName());
 			$this->pushPredecessor($span);
@@ -41,13 +42,13 @@ class DateInput extends ChronometricInput implements StaticValueNegotiationInter
 		return $ret;
 	}
 
-	public static function negotiateValueStatic(InputInterface $input, Datum $column){
+	public static function negotiateValueStatic(InputlikeInterface $input, Datum $column){
 		$f = __METHOD__;
 		try{
 			$print = false;
 			$v = $input->getValueAttribute();
-			if($column instanceof TimestampDatum) {
-				if($print) {
+			if($column instanceof TimestampDatum){
+				if($print){
 					Debug::print("{$f} column is a TimestampDatum");
 				}
 				$datetimezone = new DateTimeZone(user()->getTimezone());
@@ -58,11 +59,11 @@ class DateInput extends ChronometricInput implements StaticValueNegotiationInter
 				$cn = $column->getName();
 				Debug::error("{$f} column {$cn} should always be a timestamp, but it is a {$dc}");
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning \"{$v}\"");
 			}
 			return $v;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -74,25 +75,25 @@ class DateInput extends ChronometricInput implements StaticValueNegotiationInter
 	public function setValueAttribute($value){
 		$f = __METHOD__;
 		$print = false;
-		if(is_string($value)) {
-			if($print) {
+		if(is_string($value)){
+			if($print){
 				Debug::print("{$f} value is a string -- assuming it's a valid datetime string");
 			}
 			return parent::setValueAttribute($value);
-		}elseif(is_int($value)) {
+		}elseif(is_int($value)){
 			$name = $this->getNameAttribute();
-			if($print) {
+			if($print){
 				Debug::print("{$f} value of input \"{$name}\" is the integer \"{$value}\" -- about to parse");
 			}
 			$timezone = user()->getTimezone();
 			return parent::setValueAttribute(static::getHumanReadableValue($value, $timezone));
-		}elseif($value instanceof DateTimeStringCommand) {
-			if($print) {
+		}elseif($value instanceof DateTimeStringCommand){
+			if($print){
 				Debug::print("{$f} value is a DateTimeStringCommand");
 			}
 			return parent::setValueAttribute($value);
-		}elseif($value instanceof ValueReturningCommandInterface) {
-			if($print) {
+		}elseif($value instanceof ValueReturningCommandInterface){
+			if($print){
 				Debug::print("{$f} value is a value-returning command interface, but not a DateTimeStringCommand");
 			}
 			return parent::setValueAttribute(new DateTimeStringCommand($value));

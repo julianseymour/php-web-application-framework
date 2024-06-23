@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework;
 
 define("CONST_ALL", "all");
@@ -13,10 +14,6 @@ define("CONST_ON", "on");
 define("CONST_TEMPLATE", "template");
 define("CONST_UNDEFINED", "undefined");
 define("CONST_UNKNOWN", "unknown");
-
-define("VERSION_UNKNOWN", 0);
-
-define("PROGRESSIVE_HYPERLINK_KEY", "pwa");
 
 define("HTTP_REQUEST_METHOD_CONNECT", "CONNECT");
 define("HTTP_REQUEST_METHOD_DELETE", "DELETE");
@@ -138,6 +135,7 @@ define("EXTENSION_GIF", "gif");
 define("EXTENSION_JPEG", "jpeg");
 
 define("MIME_TYPE_7ZIP", "application/x-7z-compressed");
+define("MIME_TYPE_CSV", "text/csv");
 define("MIME_TYPE_BZIP2", "application/x-bzip2");
 define("MIME_TYPE_GIF", 'image/gif');
 define("MIME_TYPE_GZIP", "application/gzip");
@@ -521,13 +519,9 @@ define("SEVERITY_MILD", "mild");
 define("SEVERITY_MODERATE", "moderate");
 define("SEVERITY_SEVERE", "severe");
 
-define("IMAGE_TYPE_GENERIC", "generic");
+define("IMAGE_TYPE_PUBLIC", "public");
 define("IMAGE_TYPE_ENCRYPTED_ATTACHMENT", "encrypted");
-define("IMAGE_TYPE_SLIDE", "slide");
 define("IMAGE_TYPE_PROFILE", "profile");
-define("IMAGE_TYPE_KYC", "kyc");
-define("IMAGE_TYPE_PRODUCT", "product");
-define("IMAGE_TYPE_FEATURE", "feature");
 define("IMAGE_TYPE_EMBDEDDED", "embed");
 define("IMAGE_TYPE_UNDFINED", CONST_UNDEFINED);
 
@@ -606,6 +600,7 @@ define("EVENT_BEFORE_CONSTRUCTOR", "before_construct");
 define("EVENT_AFTER_CONSTRUCTOR", "after_construct");
 define("EVENT_BEFORE_CREATE_TABLE", "before_create"); // fired in DataStructure->createTable
 define("EVENT_AFTER_CREATE_TABLE", "after_create");
+define("EVENT_DEALLOCATE", "dealloc");
 define("EVENT_BEFORE_DELETE", "before_delete"); // fired in DataStructure->generateKey
 define("EVENT_AFTER_DELETE", "after_delete");
 define("EVENT_BEFORE_DELETE_FOREIGN", "before_delete_foreign");
@@ -622,6 +617,8 @@ define("EVENT_BEFORE_RENDER", "before_render"); // fired in Command, Element & X
 define("EVENT_AFTER_RENDER", "after_render");
 define("EVENT_BEFORE_GENERATE_KEY", "before_generate_key"); // fired in DataStructure->generateKey
 define("EVENT_AFTER_GENERATE_KEY", "after_generate_key");
+define("EVENT_BEFORE_INITIALIZE", "before_initialize");
+define("EVENT_AFTER_INITIALIZE", "after_initialize");
 define("EVENT_BEFORE_INSERT", "before_insert"); // fired in DataStructure->insert
 define("EVENT_AFTER_INSERT", "after_insert");
 define("EVENT_BEFORE_INSERT_FOREIGN", "before_insert_foreign"); // fired in DataStructure->insertForeignDataStructures
@@ -631,6 +628,24 @@ define("EVENT_AFTER_LOAD", "after_load");
 define("EVENT_LOAD_FAILED", "load_failed"); // fired in DataStructure->loadFailure
 define("EVENT_BEFORE_EDIT", "before_edit"); // fired in DataStructure->beforeEditHook
 define("EVENT_AFTER_EDIT", "after_edit"); // fired in DataStructure->afterEditHook
+
+define("EVENT_RELEASE_DOCUMENT_FRAGMENT", "release_document_fragment");
+define("EVENT_RELEASE_PROPERTY_KEY", "release_property_key");
+define("EVENT_BEFORE_RELEASE_ALL_FOREIGN", "before_release_all_foreign");
+define("EVENT_AFTER_RELEASE_ALL_FOREIGN", "after_release_all_foreign");
+define("EVENT_RELEASE_CHILD", "release_child");
+define("EVENT_RELEASE_CYCLE", "release_cycle");
+define("EVENT_RELEASE_FOREIGN", "release_foreign");
+define("EVENT_RELEASE_FORM", "release_form");
+define("EVENT_RELEASE_INPUT", "release_input");
+define("EVENT_RELEASE_INTERSECTION", "release_intersection");
+define("EVENT_RELEASE_LABEL", "release_label");
+define("EVENT_RELEASE_PARENT", "release_parent");
+define("EVENT_RELEASE_USE_CASE_PREDECESSOR", "release_predecessor");
+define("EVENT_RELEASE_RESPONSE", "release_response");
+define("EVENT_RELEASE_SCOPE", "release_scope");
+define("EVENT_RELEASE_SUBCOMMAND_COLLECTOR", "release_subcommand_collector");
+
 define("EVENT_BEFORE_REPLICATE", "before_replicate"); // fired in Datum->replicate and DataStructure->replicate
 define("EVENT_AFTER_REPLICATE", "after_replicate");
 define("EVENT_BEFORE_RESPOND", "before_respond"); // fired in StandardWorkflow->respond
@@ -639,6 +654,7 @@ define("EVENT_BEFORE_SAVE", "before_save"); // fired in DataStructure->beforeSav
 define("EVENT_AFTER_SAVE", "after_save"); // fired in DataStructure->afterSaveHook
 define("EVENT_BEFORE_SET_FOREIGN", "before_set_foreign"); // fired in DataStructure->setForeignDataStructure
 define("EVENT_AFTER_SET_FOREIGN", "after_set_foreign");
+define("EVENT_SET_PROPERTY", "set_property");
 define("EVENT_BEFORE_SET_VALUE", "before_set_value"); // fired in Datum->setValue
 define("EVENT_AFTER_SET_VALUE", "after_set_value");
 define("EVENT_BEFORE_SUBINDEX", "before_subindex"); // fired in InputElement->subindexNameAttribute
@@ -658,6 +674,10 @@ define("RELATIONSHIP_TYPE_ONE_TO_ONE", 1);
 define("RELATIONSHIP_TYPE_ONE_TO_MANY", 2);
 define("RELATIONSHIP_TYPE_MANY_TO_ONE", 3);
 define("RELATIONSHIP_TYPE_MANY_TO_MANY", 4);
+
+define("RANK_CHILD", -1);
+define("RANK_NEUTRAL", 0);
+define("RANK_PARENT", 1);
 
 define("FILE_GENERATION_MODE_ERROR", 0);
 define("FILE_GENERATION_MODE_LOCAL", 1);
@@ -706,6 +726,7 @@ define("DIRECTIVE_ERROR", "error");
 define("DIRECTIVE_EXECUTE", "execute");
 define("DIRECTIVE_FILE", "file");
 define("DIRECTIVE_FORGOT_CREDENTIALS", 'reset');
+define("DIRECTIVE_GENERATE", "generate");
 define("DIRECTIVE_GRANT_OPTION", "grant option");
 define("DIRECTIVE_IGNORE", 'ignore');
 define("DIRECTIVE_IMPORT_CSV", 'importCSV');
@@ -982,3 +1003,8 @@ define("ONLINE_STATUS_AWAY", "away"); // user is online but away from keyboard
 define("ONLINE_STATUS_BUSY", "busy"); // user is busy
 define("ONLINE_STATUS_CUSTOM", "custom"); // custom status message
 define("ONLINE_STATUS_DISABLED", "disabled"); //user cannot use the messenger
+
+define("SUBTYPABILITY_UNDEFINED", CONST_UNDEFINED);
+define("SUBTYPABILITY_NONE", CONST_NONE);
+define("SUBTYPABILITY_PARTIAL", 'partial');
+define("SUBTYPABILITY_ALL", CONST_ALL);

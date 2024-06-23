@@ -45,14 +45,14 @@ trait StatusTrait{
 	public function hasObjectStatus(): bool{
 		$f = __METHOD__;
 		$print = false;
-		if($print && isset($this->status) && is_int($this->status)) {
+		if($print && isset($this->status) && is_int($this->status)){
 			Debug::print("{$f} yes, this object has a status code");
 		}
 		return isset($this->status) && is_int($this->status);
 	}
 
 	public function ejectObjectStatus(): ?int{
-		if($this->hasObjectStatus()) {
+		if($this->hasObjectStatus()){
 			$status = $this->getObjectStatus();
 			unset($this->status);
 		}else{

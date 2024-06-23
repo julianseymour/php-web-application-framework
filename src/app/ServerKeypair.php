@@ -48,7 +48,7 @@ class ServerKeypair extends SodiumKeypair implements StaticTableNameInterface{
 			$signaturePublicKey = sodium_crypto_sign_publickey($signature_kp);
 			$this->setSignaturePublicKey($signaturePublicKey);
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -57,12 +57,12 @@ class ServerKeypair extends SodiumKeypair implements StaticTableNameInterface{
 		$f = __METHOD__;
 		$print = false;
 		$ret = parent::beforeGenerateInitialValuesHook();
-		if($this->getCurrentServer()) {
-			if($print) {
+		if($this->getCurrentServer()){
+			if($print){
 				Debug::print("{$f} this is the current server");
 			}
 			$this->generateKeypairs();
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} this is not the current server");
 		}
 		return $ret;
@@ -80,7 +80,7 @@ class ServerKeypair extends SodiumKeypair implements StaticTableNameInterface{
 		return $this->setColumnValue('serverDomain', $value);
 	}
 
-	public function loadForeignDataStructures($mysqli, $lazy = false, $recursion_depth = 0): int{
+	public function loadForeignDataStructures($mysqli, $lazy = false, $recursion_depth = 0, bool $subordinate=false): int{
 		return SUCCESS;
 	}
 
@@ -126,7 +126,7 @@ class ServerKeypair extends SodiumKeypair implements StaticTableNameInterface{
 			$name = new NameDatum("name");
 			// $name->setUniqueFlag(true);
 			array_push($columns, $ip, $publicKey, $signaturePublicKey, $privateKey, $signaturePrivateKey, $server_type, $is_current, $server_domain, $name);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

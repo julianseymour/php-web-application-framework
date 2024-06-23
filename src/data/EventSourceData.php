@@ -28,21 +28,28 @@ class EventSourceData extends UserOwned implements StaticDatabaseNameInterface{
 
 	public function __construct(?Datum $column = null, ?int $mode = ALLOCATION_MODE_EAGER){
 		$f = __METHOD__;
-		if($column !== null) {
-			$this->stateColumn = $column;
+		if($column !== null){
+			$this->setStateColumn($column);
 		}else{
 			Debug::error("{$f} state column is undefined");
 		}
 		parent::__construct($mode);
 	}
 
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		if($this->hasStateColumn()){
+			$this->release($this->stateColumn, $deallocate);
+		}
+	}
+	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
 		$f = __METHOD__;
 		$print = false;
 		parent::declareColumns($columns, $ds);
 		$sc = $ds->getStateColumn();
 		$params = $sc->getConstructorParams();
-		if(count($params) > 1) {
+		if(count($params) > 1){
 			$params = array_slice($params, 1, count($params) - 1);
 		}else{
 			$params = [];
@@ -60,13 +67,13 @@ class EventSourceData extends UserOwned implements StaticDatabaseNameInterface{
 		$target_key->setRelationshipType(RELATIONSHIP_TYPE_MANY_TO_ONE);
 		$target = $sc->getDataStructure();
 		$target_class = $target->getClass();
-		if($target->hasColumnValue("subtype") || $target instanceof StaticSubtypeInterface) {
+		if($target->hasColumnValue("subtype") || $target instanceof StaticSubtypeInterface){
 			$subtype = $target->getSubtype();
-			if($print) {
+			if($print){
 				Debug::print("{$f} target {$target_class} subtype is {$subtype}");
 			}
 		}else{
-			if($print) {
+			if($print){
 				Debug::print("{$f} target {$target_class} does not have a subtype");
 			}
 			$subtype = null;
@@ -76,26 +83,28 @@ class EventSourceData extends UserOwned implements StaticDatabaseNameInterface{
 		$comment = new TextDatum("comment");
 		$comment->setNullable(true);
 		$signature = new SodiumCryptoSignatureDatum("signature");
-		$signature->setSignColumnNames(array_merge(array_keys($columns), [
-			"currentState",
-			"previousState",
-			"token",
-			"targetKey",
-			"targeyDataType",
-			"targetSubtype"
-		]));
+		$signature->setSignColumnNames(
+			array_merge(
+				array_keys($columns), [
+					"currentState",
+					"previousState",
+					"token",
+					"targetKey",
+					"targeyDataType",
+					"targetSubtype"
+				]
+			)
+		);
 		array_push($columns, $current_state, $previous_state, $token, $target_key, $comment, $signature);
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		if($name === DIRECTIVE_INSERT) {
-			return SUCCESS;
-		} // XXX TODO delete this
-		elseif($name === DIRECTIVE_CREATE_TABLE) {
-			return SUCCESS;
+		switch($name){
+			case DIRECTIVE_INSERT:
+				return SUCCESS;
+			default:
+				return FAILURE;
 		}
-
-		return FAILURE;
 	}
 
 	public function hasStateColumn():bool{
@@ -104,7 +113,7 @@ class EventSourceData extends UserOwned implements StaticDatabaseNameInterface{
 
 	public function getStateColumn(){
 		$f = __METHOD__;
-		if(!$this->hasStateColumn()) {
+		if(!$this->hasStateColumn()){
 			Debug::error("{$f} state column is undefined");
 		}
 		return $this->stateColumn;
@@ -171,13 +180,19 @@ class EventSourceData extends UserOwned implements StaticDatabaseNameInterface{
 		return $this->hasForeignDataStructure("targetKey");
 	}
 
-	public function getTargetData(): ?DataStructure
-	{
+	public function getTargetData(): ?DataStructure{
 		return $this->getForeignDataStructure("targetKey");
 	}
 
-	public function ejectTargetData(): ?DataStructure
-	{
+	public function ejectTargetData(): ?DataStructure{
 		return $this->ejectForeignDataStructure("targetKey");
+	}
+	
+	public function setStateColumn(Datum $column){
+		$f = __METHOD__;
+		if($this->hasStateColumn()){
+			$this->release($this->stateColumn);
+		}
+		return $this->stateColumn = $this->claim($column);
 	}
 }

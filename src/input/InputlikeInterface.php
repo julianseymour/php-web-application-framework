@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\input;
 use JulianSeymour\PHPWebApplicationFramework\element\FormElement;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
 
-interface InputInterface
+interface InputlikeInterface
 {
 
 	public function getForm();
@@ -23,7 +23,7 @@ interface InputInterface
 
 	public function subindexNameAttribute($name);
 
-	public function configure(AjaxForm $form): int;
+	public function configure(?AjaxForm $form=null): int;
 
 	public function processArray(array $arr): int;
 }

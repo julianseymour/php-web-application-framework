@@ -11,17 +11,17 @@ class ResetPasswordAttempt extends CodeConfirmationAttempt{
 	public function getReasonLoggedString():string{
 		$f = __METHOD__;
 		try{
-			if($this->wasLoginSuccessful()) {
+			if($this->wasLoginSuccessful()){
 				return _("Password reset");
 			}
 			return _("Failed reset password attempt");
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
 				return new AnonymousAccountTypePermission($name);
 			default:
@@ -39,7 +39,7 @@ class ResetPasswordAttempt extends CodeConfirmationAttempt{
 			$name = $this->getUserData()->getNormalizedName();
 			$this->setUserName($name);
 			return parent::afterGenerateInitialValuesHook();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -60,7 +60,7 @@ class ResetPasswordAttempt extends CodeConfirmationAttempt{
 		return ResetPasswordConfirmationCode::class;
 	}
 
-	public function isSecurityNotificationWarranted(){
+	public function isSecurityNotificationWarranted():bool{
 		return true;
 	}
 

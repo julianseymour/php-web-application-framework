@@ -21,7 +21,7 @@ class ParseIntegerCommand extends CallFunctionCommand implements ValueReturningC
 	{
 		$parameters = $this->getParameters();
 		$param = $parameters[0];
-		while ($param instanceof ValueReturningCommandInterface) {
+		while($param instanceof ValueReturningCommandInterface){
 			$param = $param->evaluate();
 		}
 		return intval($param);

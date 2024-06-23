@@ -8,12 +8,16 @@ use JulianSeymour\PHPWebApplicationFramework\event\BeforeRespondEvent;
 trait ResponseHooksTrait{
 	
 	public function beforeRespondHook(): int{
-		$this->dispatchEvent(new BeforeRespondEvent());
+		if($this->hasAnyEventListener(EVENT_BEFORE_RESPOND)){
+			$this->dispatchEvent(new BeforeRespondEvent());
+		}
 		return SUCCESS;
 	}
 	
 	public function afterRespondHook(): int{
-		$this->dispatchEvent(new AfterRespondEvent());
+		if($this->hasAnyEventListener(EVENT_AFTER_RESPOND)){
+			$this->dispatchEvent(new AfterRespondEvent());
+		}
 		return SUCCESS;
 	}
 }

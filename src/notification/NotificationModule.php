@@ -2,10 +2,9 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
-use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\app\EmptyModule;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
-use JulianSeymour\PHPWebApplicationFramework\notification\ui\NotificationsWidget;
+use JulianSeymour\PHPWebApplicationFramework\command\control\BreakCommand;
 
 class NotificationModule extends EmptyModule{
 
@@ -76,11 +75,11 @@ class NotificationModule extends EmptyModule{
 	}
 
 	public function getMessageEventHandlerCases(): ?array{
-		$break = CommandBuilder::break();
+		$break = new BreakCommand();
 		// $info = new JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand("response.info");
 		return [
 			"beep" => [
-				CommandBuilder::call("beep"),
+				new \JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand("beep"),
 				$break
 			]
 		];

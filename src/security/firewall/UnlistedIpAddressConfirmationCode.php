@@ -16,7 +16,7 @@ class UnlistedIpAddressConfirmationCode extends AnonymousConfirmationCode{
 	 */
 	public function getIpAddressObject(){
 		$f = __METHOD__;
-		if(!$this->hasIpAddressObject()) {
+		if(!$this->hasIpAddressObject()){
 			Debug::error("{$f} IP address object is undefined");
 		}
 		return $this->getForeignDataStructure("ipAddressKey");
@@ -45,9 +45,9 @@ class UnlistedIpAddressConfirmationCode extends AnonymousConfirmationCode{
 
 	public function getIpAddressKey(){
 		$f = __METHOD__;
-		if($this->hasIpAddressKey()) {
+		if($this->hasIpAddressKey()){
 			return $this->getColumnValue('ipAddressKey');
-		}elseif(!$this->hasIpAddressObject()) {
+		}elseif(!$this->hasIpAddressObject()){
 			Debug::error("{$f} listed IP address object is undefined");
 		}
 		$listed_ip = $this->getIpAddressObject();
@@ -60,7 +60,7 @@ class UnlistedIpAddressConfirmationCode extends AnonymousConfirmationCode{
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
 				return SUCCESS;
 			default:

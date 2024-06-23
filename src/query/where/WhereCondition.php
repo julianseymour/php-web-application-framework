@@ -2,11 +2,14 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\query\where;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\ParameterCountingTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\TypeSpecificInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\TypeSpecificTrait;
@@ -15,7 +18,6 @@ use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatementInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatementTrait;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
 class WhereCondition extends ExpressionCommand implements SelectStatementInterface, StringifiableInterface, TypeSpecificInterface, WhereConditionalInterface{
 
@@ -24,18 +26,39 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 	use SelectStatementTrait;
 	use TypeSpecificTrait;
 
-	public function __construct($varname, string $operator = OPERATOR_EQUALS, ?string $typeSpecifier = null, ?SelectStatement $selectStatement = null){
+	public function __construct($varname=null, string $operator = OPERATOR_EQUALS, ?string $typeSpecifier = null, ?SelectStatement $selectStatement = null){
 		parent::__construct();
-		$this->setColumnName($varname);
-		$this->setOperator($operator);
-		if($typeSpecifier !== null) {
+		if($varname !== null){
+			$this->setColumnName($varname);
+		}
+		if($operator !== null){
+			$this->setOperator($operator);
+		}
+		if($typeSpecifier !== null){
 			$this->setTypeSpecifier($typeSpecifier);
 		}
-		if($selectStatement !== null) {
+		if($selectStatement !== null){
 			$this->setSelectStatement($selectStatement);
 		}
 	}
 
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasColumnName()){
+			$this->setColumnName(replicate($that->getColumnName()));
+		}
+		if($that->hasParameterCount()){
+			$this->setParameterCount(replicate($that->getParameterCount()));
+		}
+		if($that->hasTypeSpecifier()){
+			$this->setTypeSPecifier(replicate($that->getTypeSpecifier()));
+		}
+		if($that->hasSelectStatement()){
+			$this->setSelectStatement(replicate($that->getSelectStatement()));
+		}
+		return $ret;
+	}
+	
 	public function hasUnbindableOperator(){
 		return false !== array_search($this->getOperator(), [
 			OPERATOR_IS_NULL,
@@ -45,9 +68,9 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 
 	public function getTypeSpecifier(){
 		$f = __METHOD__;
-		if(!$this->hasTypeSpecifier()) {
+		if(!$this->hasTypeSpecifier()){
 			$cn = $this->getColumnName();
-			if($cn instanceof TypeSpecificInterface) {
+			if($cn instanceof TypeSpecificInterface){
 				return $cn->getTypeSpecifier();
 			}
 			$decl = $this->getDeclarationLine();
@@ -57,18 +80,18 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 	}
 
 	public static function in($varname, ?int $parameterCount = null){
-		if($parameterCount === 1) {
+		if($parameterCount === 1){
 			return new WhereCondition($varname, OPERATOR_EQUALS);
 		}
 		$where = new WhereCondition($varname, OPERATOR_IN);
-		if($parameterCount !== null) {
+		if($parameterCount !== null){
 			$where->setParameterCount($parameterCount);
 		}
 		return $where;
 	}
 
 	public function getFlatWhereConditionArray(): ?array{
-		if($this->hasSelectStatement()) {
+		if($this->hasSelectStatement()){
 			return $this->getSelectStatement()->getFlatWhereConditionArray();
 		}
 		return [
@@ -76,8 +99,8 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		];
 	}
 
-	public function getSuperflatWhereConditionArray(): ?array{
-		if($this->hasSelectStatement()) {
+	public function getSuperflatWhereConditionArray():?array{
+		if($this->hasSelectStatement()){
 			return $this->getSelectStatement()->getSuperflatWhereConditionArray();
 		}
 		return [
@@ -85,17 +108,21 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		];
 	}
 
-	public function inferParameterCount(): int{
-		if($this->hasParameterCount()) {
+	public function inferParameterCount():int{
+		$f = __METHOD__;
+		if($this->hasParameterCount()){
 			return $this->getParameterCount();
 		}
 		$operator = $this->getOperator();
-		switch ($operator) {
+		switch($operator){
 			case OPERATOR_IS_NULL:
 			case OPERATOR_IS_NOT_NULL:
 				return 0;
 			case OPERATOR_IN:
 			case OPERATOR_NOT_IN:
+				if(!$this->hasSelectStatement()){
+					Debug::error("{$f} WhereCondition must have a SelectStatement to infer parameter count");
+				}
 				return $this->getSelectStatement()->inferParameterCount();
 			default:
 				return 1;
@@ -103,44 +130,43 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 	}
 
 	public function getParameterCount(): int{
-		if($this->hasParameterCount()) {
+		if($this->hasParameterCount()){
 			return $this->parameterCount;
 		}
 		return $this->inferParameterCount();
 	}
 
-	public function getRequiredParameterCount(): int{
+	public function getRequiredParameterCount():int{
 		return $this->inferParameterCount();
 	}
 
-	public function toSQL(): string{
+	public function toSQL():string{
 		$f = __METHOD__;
 		try{
 			$print = false;
 			$select = null;
-			if($this->hasSelectStatement()) {
+			if($this->hasSelectStatement()){
 				$select = $this->getSelectStatement();
-				if($select instanceof SQLInterface) {
+				if($select instanceof SQLInterface){
 					$select = "(".$select->toSQL().")";
 				}
 			}
-
 			$operator = $this->getOperator();
-			switch ($operator) {
+			switch($operator){
 				case OPERATOR_IN:
 				case OPERATOR_NOT_IN:
 					$qmark = "(";
-					if($select !== null) {
-						if($print) {
+					if($select !== null){
+						if($print){
 							Debug::print("{$f} select statement is not null");
 						}
 						$qmark .= $select;
 					}else{
-						if($print) {
+						if($print){
 							Debug::print("{$f} select statement is null");
 						}
-						for ($i = 0; $i < $this->getParameterCount(); $i ++) {
-							if($i > 0) {
+						for ($i = 0; $i < $this->getParameterCount(); $i ++){
+							if($i > 0){
 								$qmark .= ",";
 							}
 							$qmark .= "?";
@@ -154,7 +180,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 					break;
 				case OPERATOR_STARTS_WITH:
 					$operator = "like";
-					if($select !== null) {
+					if($select !== null){
 						$qmark = $select;
 					}else{
 						$qmark = "?";
@@ -163,7 +189,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 					break;
 				case OPERATOR_CONTAINS:
 					$operator = "like";
-					if($select !== null) {
+					if($select !== null){
 						$qmark = $select;
 					}else{
 						$qmark = "?";
@@ -172,7 +198,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 					break;
 				case OPERATOR_ENDS_WITH:
 					$operator = "like";
-					if($select !== null) {
+					if($select !== null){
 						$qmark = $select;
 					}else{
 						$qmark = "?";
@@ -180,7 +206,7 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 					$qmark = "CONCAT({$qmark},'%')";
 					break;
 				default:
-					if($select !== null) {
+					if($select !== null){
 						$qmark = $select;
 					}else{
 						$qmark = "?";
@@ -188,15 +214,15 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 					break;
 			}
 			$var = $this->getColumnName();
-			if($var instanceof SQLInterface) {
+			if($var instanceof SQLInterface){
 				$var = $var->toSQL();
 			}
 			$string = "{$var} {$operator} {$qmark}";
-			if($this->hasEscapeType() && $this->getEscapeType() === ESCAPE_TYPE_PARENTHESIS) {
+			if($this->hasEscapeType() && $this->getEscapeType() === ESCAPE_TYPE_PARENTHESIS){
 				$string = "({$string})";
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -210,15 +236,23 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 		return "where";
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->parameterCount);
-		unset($this->selectStatement);
-		unset($this->typeSpecifier);
+	public function dispose(bool $deallocate=false): void{
+		$f = __METHOD__;
+		$print = false;
+		if($print){
+			Debug::print("{$f} entered");
+		}
+		parent::dispose($deallocate);
+		$this->release($this->columnName, $deallocate);
+		$this->release($this->parameterCount, $deallocate);
+		if($this->hasSelectStatement()){
+			$this->release($this->selectStatement, $deallocate);
+		}
+		$this->release($this->typeSpecifier, $deallocate);
 	}
 
 	public function getConditionalColumnNames(): array{
-		if($this->inferParameterCount() === 0) {
+		if($this->inferParameterCount() === 0){
 			return [];
 		}
 		return [

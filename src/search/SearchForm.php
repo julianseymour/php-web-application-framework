@@ -3,6 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
@@ -29,7 +30,7 @@ class SearchForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_SEARCH:
 				$button = $this->generateGenericButton($name);
 				$button->addClassAttribute("hidden");
@@ -64,7 +65,7 @@ class SearchForm extends AjaxForm{
 		return true;
 	}
 
-	protected function getSearchOptionsElement(): ExpanderElement{
+	protected function getSearchOptionsElement():ExpanderElement{
 		$f = __METHOD__;
 		$mode = $this->getAllocationMode();
 		$subcontainer = new ExpanderElement($mode);
@@ -84,9 +85,9 @@ class SearchForm extends AjaxForm{
 		$context = $input->getContext();
 		$ds = $context->getDataStructure();
 		$vn = $context->getName();
-		switch ($vn) {
+		switch($vn){
 			case "orderBy":
-				if($ds->getSearchClassCount() > 1) {
+				if($ds->getSearchClassCount() > 1){
 					Debug::error("{$f} this class is not setup to allow reordering of search results for multiple searchable classes");
 				}
 				$classes = $ds->getSearchClasses();
@@ -98,15 +99,21 @@ class SearchForm extends AjaxForm{
 				$searchable_class = $fields->getSearchClass();
 				$dumdum = new $searchable_class();
 				$orderby = $ds->hasOrderBy() ? $ds->getOrderBy() : null;
-				foreach($dumdum->getFilteredColumns(COLUMN_FILTER_SORTABLE) as $ovn => $column) {
+				foreach($dumdum->getFilteredColumns(COLUMN_FILTER_SORTABLE) as $ovn => $column){
 					$options[$ovn] = new Choice($ovn, $column->getHumanReadableName(), $orderby !== null && $orderby === $ovn);
 				}
-				unset($dumdum);
+				deallocate($dumdum);
 				return $options;
 			case "orderDirection":
 				return [
 					DIRECTION_ASCENDING => new Choice(DIRECTION_ASCENDING, _("Ascending")),
 					DIRECTION_DESCENDING => new Choice(DIRECTION_DESCENDING, _("Descending"))
+				];
+			case "searchMode":
+				return [
+					SEARCH_MODE_ANY => new Choice(SEARCH_MODE_ANY, _("Any terms"), true),
+					SEARCH_MODE_ALL => new Choice(SEARCH_MODE_ALL, _("All terms")),
+					SEARCH_MODE_EXACT => new Choice(SEARCH_MODE_EXACT, _("Exact phrase"))
 				];
 			default:
 				return parent::generateChoices($input);
@@ -118,11 +125,11 @@ class SearchForm extends AjaxForm{
 		$contents = [];
 		$subcontainer = $this->getSearchOptionsElement();
 		$context = $this->getContext();
-		if($context->hasSearchableTimestamps()) {
+		if($context->hasSearchableTimestamps()){
 			$searchable = $context->getSearchableTimestamps();
 			$indices = array_keys($searchable);
 			$mode = $this->getAllocationMode();
-			foreach($indices as $index) {
+			foreach($indices as $index){
 				$input = new DateIntervalInput($mode, $searchable[$index]);
 				$prefix = new SpanElement($mode);
 				$prefix->setInnerHTML($searchable[$index]->getHumanReadableName());
@@ -135,16 +142,16 @@ class SearchForm extends AjaxForm{
 			}
 		}
 		$ret = [];
-		foreach($inputs as $name => $input) {
-			if(is_array($input)) {
+		foreach($inputs as $name => $input){
+			if(is_array($input)){
 				array_push($contents, ...$this->getInternalFormElementsHelper($input));
-			}elseif($input instanceof AjaxForm) {
+			}elseif($input instanceof AjaxForm){
 				array_push($contents, ...$this->getInternalFormElementsHelper([
 					$input
 				]));
 			}elseif(false === array_search($name, [
 				"searchQuery"
-			])) {
+			])){
 				array_push($contents, $input);
 			}else{
 				array_push($ret, $input);
@@ -158,7 +165,7 @@ class SearchForm extends AjaxForm{
 	public function getFormDataIndices(): ?array{
 		$f = __METHOD__;
 		try{
-			if(!$this->hasContext()) {
+			if(!$this->hasContext()){
 				Debug::error("{$f} context is undefined");
 			}
 			$context = $this->getContext();
@@ -169,7 +176,7 @@ class SearchForm extends AjaxForm{
 				//"searchMode" => FancyMultipleRadioButtons::class
 			];
 			$columns = $context->getColumns();
-			foreach($columns as $c) {
+			foreach($columns as $c){
 				$vn = $c->getName();
 				if($c->getFlag("paginator")){
 					// Debug::print("{$f} index \"{$vn}\" points to a datum contributed by Paginator");
@@ -182,16 +189,16 @@ class SearchForm extends AjaxForm{
 				}elseif(array_key_exists($vn, $indices)){
 					// Debug::print("{$f} index \"{$vn}\" is already part of the array");
 					continue;
-				}elseif($c instanceof BooleanDatum) {
+				}elseif($c instanceof BooleanDatum){
 					$indices[$vn] = FancyCheckbox::class;
-				}elseif($c instanceof ForeignKeyDatum) {
+				}elseif($c instanceof ForeignKeyDatum){
 					$indices[$vn] = SearchFieldsForm::class;
 				}else{
 					Debug::error("{$f} index \"{$vn}\" is neither of the above");
 				}
 			}
 			return $indices;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -203,41 +210,49 @@ class SearchForm extends AjaxForm{
 			$context = $this->getContext();
 			if($input->hasContext() && $input->getContext() instanceof SearchFieldDatum){
 				$input->setCheckedAttribute("checked");
-				$div = new DivElement($mode);
-				if($context->getSearchClassCount() === 1) {
-					$div->addClassAttribute("hidden");
-				}
-				$input->setWrapperElement($div);
-				if(app()->getFlag("debug")){
-					$div->setAttribute("context_declared", $input->getContext()->getDeclarationLine());
+				if(!$input->hasWrapperElement()){
+					$div = new DivElement($mode);
+					if($context->getSearchClassCount() === 1){
+						$div->addClassAttribute("hidden");
+					}
+					$input->setWrapperElement($div);
+					if(app()->getFlag("debug")){
+						$div->setAttribute("context_declared", $input->getContext()->getDeclarationLine());
+					}
 				}
 			}
+			$ret = parent::reconfigureInput($input);
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "autoSearch":
-					$input->setIdAttribute(new ConcatenateCommand("autosearch-", $this->getIdAttribute()));
+					if(!$input->hasIdAttribute()){
+						$input->setIdAttribute(new ConcatenateCommand("autosearch-", $this->getIdAttribute()));
+					}
 					$input->check();
 					break;
 				case "limitPerPage":
-					$wrapper = new DivElement($mode);
-					$input->setWrapperElement($wrapper);
+					if(!$input->hasWrapperElement()){
+						$wrapper = new DivElement($mode);
+						$input->setWrapperElement($wrapper);
+					}
 					break;
-				case "orderDirection":
+				/*case "orderDirection":
 					$input->setChoices([
 						DIRECTION_ASCENDING => new Choice(DIRECTION_ASCENDING, _("Ascending"), true),
 						DIRECTION_DESCENDING => new Choice(DIRECTION_DESCENDING, _("Descending"))
 					]);
-					return SUCCESS;
+					break;
 				case "searchMode":
 					$input->setChoices([
 						SEARCH_MODE_ANY => new Choice(SEARCH_MODE_ANY, _("Any terms"), true),
 						SEARCH_MODE_ALL => new Choice(SEARCH_MODE_ALL, _("All terms")),
 						SEARCH_MODE_EXACT => new Choice(SEARCH_MODE_EXACT, _("Exact phrase"))
 					]);
-					break;
+					break;*/
 				case "searchQuery":
-					$input->setLabelString(_("Enter search query"));
-					$ret = parent::reconfigureInput($input);
+					if(!$input->hasLabelString()){
+						$input->setLabelString(_("Enter search query"));
+					}
 					$input->setRequiredAttribute("required");
 					$input->setStyleProperties([
 						"height" => "50px",
@@ -250,16 +265,16 @@ class SearchForm extends AjaxForm{
 					$search_label->addClassAttribute("button-like");
 					$btn_id = new ConcatenateCommand("search-", $this->getIdAttribute());
 					$search_label->setForAttribute($btn_id);
-					$search_label->setStyleProperties([
-						"padding" => "0.5rem"
-					]);
+					if(!$this->getTemplateFlag() && $mode !== ALLOCATION_MODE_FORM_TEMPLATE){
+						deallocate($btn_id);
+					}
 					$input->pushSuccessor($search_label);
 					$input->setStyleProperty("width", "calc(100% - 128px)");
-					return $ret;
+					break;
 				default:
 			}
-			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+			return $ret;
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -290,7 +305,7 @@ class SearchForm extends AjaxForm{
 	 * @param UseCase $use_case
 	 * @return SearchForm
 	 */
-	public static function createSearchFormStatic(int $mode = ALLOCATION_MODE_UNDEFINED): SearchForm{
+	public static function createSearchFormStatic(int $mode = ALLOCATION_MODE_UNDEFINED):SearchForm{
 		$f = __METHOD__;
 		$paginator = new SearchPaginator();
 		$paginator->setSearchClasses(static::getSearchClasses());

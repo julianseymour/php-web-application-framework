@@ -24,7 +24,7 @@ abstract class MimeType
 	public static function getFileDataClass($mime_type)
 	{
 		$f = __METHOD__; //MIMEType::getShortClass()."(".static::getShortClass().")::getFileDataClass()";
-		switch ($mime_type) {
+		switch($mime_type){
 			// case MIME_TYPE_7ZIP:
 			// return 7ZipFileData::class;
 			case MIME_TYPE_BZIP2:

@@ -49,4 +49,23 @@ class GroupConcatenateFunction extends Basic implements SQLInterface{
 		$string .= ")";
 		return $string;
 	}
+	
+	public function dispose(bool $deallocate=false):void{
+		if($this->hasProperties()){
+			$this->releaseProperties($deallocate);
+		}
+		parent::dispose($deallocate);
+		if($this->hasDelimiter()){
+			$this->release($this->delimiter, $deallocate);
+		}
+		if($this->hasDistinction()){
+			$this->release($this->distinction, $deallocate);
+		}
+		if($this->hasOrderBy()){
+			$this->release($this->orderByExpression, $deallocate);
+		}
+		if($this->hasPropertyTypes()){
+			$this->release($this->propertyTypes, $deallocate);
+		}
+	}
 }

@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\HTMLElement;
@@ -15,21 +16,8 @@ class RiggedHTMLElement extends HTMLElement{
 		$session = new LanguageSettingsData();
 		$this->setLanguageAttribute($session->getLanguageCode());
 		$this->setDirectionalityAttribute($session->getLanguageDirection());
+		deallocate($session);
 		$this->setIdAttribute("html");
-	}
-
-	public static function declareFlags():?array{
-		return array_merge(parent::declareFlags(), [
-			'hcaptcha'
-		]);
-	}
-	
-	public function gethCaptchaRenderedFlag():bool{
-		return $this->getFlag('hcaptcha');
-	}
-	
-	public function sethCaptchaRenderedFlag(bool $value=true):bool{
-		return $this->setFlag('hcaptcha', $value);
 	}
 	
 	protected static function allowUseCaseAsContext(): bool{
@@ -46,13 +34,12 @@ class RiggedHTMLElement extends HTMLElement{
 			$body->bindContext($context);
 			$head = new RiggedHeadElement($this->getAllocationMode());
 			$head->bindContext($context);
-			$this->appendChild($head);
-			$this->appendChild($body);
-			if($print) {
+			$this->appendChild($head, $body);
+			if($print){
 				Debug::print("{$f} generated child nodes");
 			}
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

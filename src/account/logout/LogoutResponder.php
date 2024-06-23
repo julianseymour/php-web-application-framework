@@ -10,6 +10,7 @@ use JulianSeymour\PHPWebApplicationFramework\app\Responder;
 use JulianSeymour\PHPWebApplicationFramework\app\XMLHttpResponse;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use JulianSeymour\PHPWebApplicationFramework\command\element\UpdateElementCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
@@ -25,7 +26,7 @@ class LogoutResponder extends Responder{
 		$f = __METHOD__;
 		$print = false;
 		$mode = ALLOCATION_MODE_LAZY;
-		if(APPLICATION_INTEGRATION_MODE === APP_INTEGRATION_MODE_UNIVERSAL) {
+		if(APPLICATION_INTEGRATION_MODE === APP_INTEGRATION_MODE_UNIVERSAL){
 			$cp = DivElement::wrap(new FlipPanels($mode, user()));
 			$cp->setIdAttribute("login_replace");
 			$cp->addClassAttribute("login_replace", "login_form_container");
@@ -33,10 +34,10 @@ class LogoutResponder extends Responder{
 			$response->pushCommand($update);
 		}
 		$widgets = mods()->getWidgetClasses($use_case);
-		if(!empty($widgets)) {
+		if(!empty($widgets)){
 			$count = 0;
 			$user = user();
-			foreach($widgets as $widget_class) {
+			foreach($widgets as $widget_class){
 				$container = new WidgetContainer($mode);
 				$container->setIterator($count++);
 				$container->setWidgetClass($widget_class);
@@ -49,9 +50,9 @@ class LogoutResponder extends Responder{
 				$wid = $widget_class::getWidgetLabelId();
 				$update->pushSubcommand(
 					CommandBuilder::if(
-						CommandBuilder::call("elementExists", single_quote($wid))
+						new CallFunctionCommand("elementExists", single_quote($wid))
 					)->then(
-						CommandBuilder::call("enable", single_quote($wid))
+						new CallFunctionCommand("enable", single_quote($wid))
 					)->else(
 						CommandBuilder::log("Widget label \"{$wid}\" does not exist, skipping enable")
 					)
@@ -68,7 +69,7 @@ class LogoutResponder extends Responder{
 			parent::modifyResponse($response, $use_case);
 			static::pushWidgetCommands($response, $use_case);
 			$status = $use_case->permit(user(), "execute");
-			if($status === SUCCESS) {
+			if($status === SUCCESS){
 				$use_case->getPageContentGenerator()->setObjectStatus(RESULT_LOGGED_OUT);
 				$contents = $use_case->getPageContent();
 			}else{
@@ -77,13 +78,13 @@ class LogoutResponder extends Responder{
 				];
 			}
 			$page = PageContentElement::wrap(...$contents);
-			if(!$page->hasChildNodes()) {
+			if(!$page->hasChildNodes()){
 				$ucc = $use_case->getClass();
 				Debug::error("{$f} use case failed to generate child nodes for page content. Use case class is \"{$ucc}\"");
 			}
 			$pg_update = $page->updateInnerHTML();
 			$response->pushCommand($pg_update);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

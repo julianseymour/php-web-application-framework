@@ -71,45 +71,7 @@ class ShortPollForm extends AjaxForm{
 	static poll(){
 		let f = "poll()";
 		try{
-			/*console.log(f+': entered');
-			console.log(f+": about to get message update check timestamp");
-			let msg_ts = SendMessageForm.getMessageUpdateTimestamp();
-			if(msg_ts == null){
-				console.log(f+": message update timestamp is null, skipping message check");
-			}else{
-				console.log(f+": message update check timestamp is ".concat(msg_ts));
-			}
-			console.log(f+": about to get notification update check timestamp");
-			let notify_ts = ShortPollForm.getNotificationDeliveryTimestampValue();
-			console.log(f+": notification delivery timestamp is ".concat(notify_ts));	
-			console.log(f+": about to create new xhr");
-			let onerror = function(){
-				let f = "onerror";
-				console.error(f+": XHR error during message update check");
-				console.trace();
-				return;
-			}
-			let action = document.getElementById('notify_form').getAttribute('action');
-			//xhr.open("POST", action, true);
-			//xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-			let user_key = document.getElementById("user_key").value;
-			let params = "directive=read_multiple&userKey="+user_key+"&notify_ts="+notify_ts;
-			if(msg_ts != null){
-				params += "&msg_ts=".concat(msg_ts);
-				params += "&correspondentKey=".concat(SendMessageForm.getCorrespondentKey());
-				params += "&correspondentAccountType=".concat(SendMessageForm.getCorrespondentAccountType());
-			}
-			fetch_xhr("POST", action, params, function(response){
-				if(response.hasCommands()){
-					console.log(f+": there are media commands to process after update check");
-					response.processCommands();
-				}else{
-					console.log(f+": no media commands to process after update check");
-				}
-			}, onerror, getContentTypeString());
-			//console.log(f+": about to send XHR with params \"".concat(params+"\""));
-			console.log(f+": sent xhr for message update");*/
-			let form = document.getElementById("notify_form"); //.dispatchEvent(new Event("submit"));
+			let form = document.getElementById("notify_form");
 			AjaxForm.submitForm(form, controller, error_cb);
 		}catch(x){
 			console.error(f+" exception: \""+x.toString()+"\"");
@@ -119,8 +81,6 @@ class ShortPollForm extends AjaxForm{
 	static clearMessageUpdater(){
 		let f = "clearMessageUpdater()";
 		try{
-			//console.log(f+": about to remove message update event handler");
-			//document.getElementById("notify_form").removeEventListener("check_update", MessengerElement.checkMessageUpdate);
 			console.log(f+": about to clear message update checker");
 			window.clearTimeout(window.messageUpdater);
 			console.trace();

@@ -39,7 +39,7 @@ class LogoutForm extends AjaxForm{
 			$uri_input->setValueAttribute($uri);
 			$inputs[$uri_input->getNameAttribute()] = $uri_input;
 			return $inputs;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -70,7 +70,7 @@ class LogoutForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_LOGOUT:
 				$button = new ButtonInput();
 				$button->setNameAttribute("directive");

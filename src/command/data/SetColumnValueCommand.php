@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\command\data;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use JulianSeymour\PHPWebApplicationFramework\command\ServerExecutableCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
@@ -13,14 +15,24 @@ class SetColumnValueCommand extends ColumnValueCommand implements ServerExecutab
 
 	use ValuedTrait;
 
-	public function __construct($context, $vn, $value){
+	public function __construct($context=null, $vn=null, $value=null){
 		parent::__construct($context, $vn);
-		$this->setValue($value);
+		if($value !== null){
+			$this->setValue($value);
+		}
 	}
 
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasValue()){
+			$this->setValue(replicate($that->getValue()));
+		}
+		return $ret;
+	}
+	
 	public function resolve(){
 		$value = $this->getValue();
-		while ($value instanceof ValueReturningCommandInterface) {
+		while($value instanceof ValueReturningCommandInterface){
 			$value = $value->evaluate();
 		}
 		$ds = $this->getDataStructure();
@@ -44,22 +56,22 @@ class SetColumnValueCommand extends ColumnValueCommand implements ServerExecutab
 
 	public function toJavaScript(): string{
 		$e = $this->getIdCommandString();
-		if($e instanceof JavaScriptInterface) {
+		if($e instanceof JavaScriptInterface){
 			$e = $e->toJavaScript();
 		}
 		$vn = $this->getColumnName();
-		if($vn instanceof JavaScriptInterface) {
+		if($vn instanceof JavaScriptInterface){
 			$vn = $vn->toJavaScript();
-		}elseif(is_string($vn) || $vn instanceof StringifiableInterface) {
+		}elseif(is_string($vn) || $vn instanceof StringifiableInterface){
 			$vn = single_quote($vn);
 		}
 		$value = $this->getValue();
-		if($value === null) {
+		if($value === null){
 			$value = 'null';
-		}elseif($value instanceof JavaScriptInterface) {
+		}elseif($value instanceof JavaScriptInterface){
 			$value = $value->toJavaScript();
-		}elseif(is_string($value) || $value instanceof StringifiableInterface) {
-			if($value === "") {
+		}elseif(is_string($value) || $value instanceof StringifiableInterface){
+			if($value === ""){
 				$value = '""';
 			}else{
 				$value = single_quote($value);
@@ -68,4 +80,10 @@ class SetColumnValueCommand extends ColumnValueCommand implements ServerExecutab
 		$command = static::getCommandId();
 		return "{$e}.{$command}({$vn}, {$value})";
 	}
+	
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->value, $deallocate);
+	}
 }
+

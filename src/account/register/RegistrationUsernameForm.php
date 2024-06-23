@@ -2,12 +2,13 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\account\register;
 
+use function JulianSeymour\PHPWebApplicationFramework\debug;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
-use JulianSeymour\PHPWebApplicationFramework\input\InputInterface;
+use JulianSeymour\PHPWebApplicationFramework\input\InputlikeInterface;
 use JulianSeymour\PHPWebApplicationFramework\input\TextInput;
 use Exception;
 
@@ -17,7 +18,7 @@ class RegistrationUsernameForm extends AjaxForm{
 		$f = __METHOD__;
 		try{
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "name":
 					$input->setLabelString(_("Username"));
 					$ret = parent::reconfigureInput($input);
@@ -37,22 +38,22 @@ class RegistrationUsernameForm extends AjaxForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	protected function attachInputValidators(InputInterface $input): InputInterface{
+	protected function attachInputValidators(InputlikeInterface $input): InputlikeInterface{
 		$f = __METHOD__;
 		$print = false;
 		if(!$input->hasColumnName()){
 			return $input;
 		}
 		$vn = $input->getColumnName();
-		if($print) {
+		if($print){
 			Debug::print("{$f} variable name is \"{$vn}\"");
 		}
-		switch ($vn) {
+		switch($vn){
 			case "name":
 				if($input->hasValidators()){
 					Debug::error("{$f} registration username input already has a validator");

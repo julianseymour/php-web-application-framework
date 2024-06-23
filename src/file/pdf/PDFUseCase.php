@@ -28,7 +28,7 @@ abstract class PDFUseCase extends OpenFileUseCase{
 	public function sendHeaders(Request $request): bool{
 		$f = __METHOD__;
 		try{
-			$print = $this->getDebugFlag();
+			$print = false && $this->getDebugFlag();
 			$this->setRequiredMimeType(MIME_TYPE_PDF);
 			if(!$request->hasInputParameter("uniqueKey", $this)){
 				if($print){
@@ -39,7 +39,7 @@ abstract class PDFUseCase extends OpenFileUseCase{
 				Debug::print("{$f} returning parent function");
 			}
 			return parent::sendHeaders($request);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -53,7 +53,7 @@ abstract class PDFUseCase extends OpenFileUseCase{
 		$pdf = new PDFData();
 		$context = $user->getFirstRelationship("context");
 		$ec = $this->getPDFElementClass($context);
-		if(! class_exists($ec)) {
+		if(!class_exists($ec)){
 			Debug::error("{$f} class \"{$ec}\" does not exist");
 		}
 		$element = new $ec(ALLOCATION_MODE_DOMPDF_COMPATIBLE, $context);

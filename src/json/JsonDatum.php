@@ -16,7 +16,7 @@ class JsonDatum extends TextDatum
 
 	public static function getDatabaseEncodedValueStatic($value)
 	{
-		if(empty($value)) {
+		if(empty($value)){
 			return $value;
 		}
 		return json_encode($value);
@@ -25,11 +25,11 @@ class JsonDatum extends TextDatum
 	public function parseValueFromQueryResult($value)
 	{
 		$f = __METHOD__; //JsonDatum::getShortClass()."(".static::getShortClass().")->parseValueFromQueryResult()";
-		if(empty($value)) {
+		if(empty($value)){
 			return $value;
 		}
 		$decoded = json_decode($value, true);
-		if(!is_array($decoded)) {
+		if(!is_array($decoded)){
 			Debug::warning("{$f} JSON decoded value is not an array");
 			Debug::print($decoded);
 			Debug::printStackTrace();

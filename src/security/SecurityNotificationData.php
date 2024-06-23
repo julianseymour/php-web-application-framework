@@ -16,10 +16,10 @@ use Exception;
 class SecurityNotificationData extends TypedNotificationData{
 
 	public static function getPermissionStatic(string $name, $data){
-		if($data->hasPermission($name)) {
+		if($data->hasPermission($name)){
 			return $data->getPermission($name);
 		}
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
 				return SUCCESS;
 			default:
@@ -40,7 +40,7 @@ class SecurityNotificationData extends TypedNotificationData{
 		try{
 			$this->setNotificationType(NOTIFICATION_TYPE_SECURITY);
 			return parent::afterGenerateInitialValuesHook();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -81,12 +81,12 @@ class SecurityNotificationData extends TypedNotificationData{
 		return NOTIFICATION_MODE_SEND_NEW;
 	}
 
-	public static function getIntersections(){
+	public static function getIntersections():array{
 		return AccessAttemptClassResolver::getIntersections();
 	}
 
 	public function hasVirtualColumnValue(string $column_name): bool{
-		switch ($column_name) {
+		switch($column_name){
 			case "linkUri":
 			case "preview":
 				return true;

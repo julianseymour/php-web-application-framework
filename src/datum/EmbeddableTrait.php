@@ -1,6 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
-trait EmbeddableTrait
-{
-}
+trait EmbeddableTrait{}

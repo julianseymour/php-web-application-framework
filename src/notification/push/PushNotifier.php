@@ -35,39 +35,39 @@ class PushNotifier extends Basic{
 	public function transmitQueue(): int{
 		$f = __METHOD__;
 		try{
-			$print = $this->getDebugFlag();
-			if($print) {
+			$print = false && $this->getDebugFlag();
+			if($print){
 				Debug::print("{$f} entered");
 			}
-			if(empty($this->queue)) {
+			if(empty($this->queue)){
 				Debug::error("{$f} push notification queue is empty");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} about to transmit push notification queue");
 			}
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
-			if(! isset($mysqli)) {
+			if(!isset($mysqli)){
 				Debug::error("{$f} mysqli object returned null");
 				return $this->setObjectStatus(ERROR_MYSQL_CONNECT);
 			}
 			$queue = $this->getQueue();
 			$i = 0;
-			foreach($queue as $note) {
-				if($note === null) {
+			foreach($queue as $note){
+				if($note === null){
 					Debug::error("{$f} push notification is null");
 				}
 				$recipient = $note->getUserData();
 				$status = $recipient->transmitPushNotification($mysqli, $note);
-				if($status !== SUCCESS) {
+				if($status !== SUCCESS){
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} transmitPushNotification returned error status \"{$err}\"");
 				}
 				$i++;
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} transmitted {$i} push notifications");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -79,13 +79,13 @@ class PushNotifier extends Basic{
 	public function enqueue(...$notes): int{
 		$f = __METHOD__;
 		try{
-			$print = $this->getDebugFlag();
-			foreach($notes as $note) {
-				if(!$note instanceof NotificationData) {
+			$print = false && $this->getDebugFlag();
+			foreach($notes as $note){
+				if(!$note instanceof NotificationData){
 					Debug::error("{$f} pushed something that is not a notification data");
 				}
 			}
-			if(!is_array($this->queue)) {
+			if(!is_array($this->queue)){
 				$this->queue = [];
 			}
 			$pusht = array_push($this->queue, ...$notes);
@@ -93,7 +93,7 @@ class PushNotifier extends Basic{
 				Debug::print("{$f} pushed {$pusht} notifications");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

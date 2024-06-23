@@ -28,14 +28,14 @@ abstract class UserSigned extends UserFingerprint{
 	protected function afterGenerateInitialValuesHook(): int{
 		$f = __METHOD__;
 		try{
-			if(!$this->hasSignature()) {
+			if(!$this->hasSignature()){
 				$this->generateSignature();
 			}
-			if(!$this->hasSignature()) {
+			if(!$this->hasSignature()){
 				Debug::error("{$f} signature is still undefined");
 			}
 			return parent::afterGenerateInitialValuesHook();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -46,7 +46,7 @@ abstract class UserSigned extends UserFingerprint{
 
 	public function setSignatoryData($signatory){
 		$f = __METHOD__;
-		if(! isset($signatory)) {
+		if(!isset($signatory)){
 			Debug::error("{$f} received null parameter");
 		}
 		// $this->setSignatoryKey($signatory->getIdentifierValue());
@@ -94,14 +94,14 @@ abstract class UserSigned extends UserFingerprint{
 		try{
 			$print = false;
 			$len = strlen(($signature));
-			if($len !== SODIUM_CRYPTO_SIGN_BYTES) {
+			if($len !== SODIUM_CRYPTO_SIGN_BYTES){
 				Debug::error("{$f} signature \"{$signature}\" is {$len} bytes, when it must be " . SODIUM_CRYPTO_SIGN_BYTES);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} signature is the correct length");
 			}
 			$this->setColumnValue("signature", $signature);
 			return $this->getSignature();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -110,18 +110,18 @@ abstract class UserSigned extends UserFingerprint{
 		$f = __METHOD__;
 		$print = false;
 		$signable = $this->getSignableMessage();
-		if(empty($signable)) {
+		if(empty($signable)){
 			Debug::error("{$f} signable message is null or empty string");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} about to sign the following pile:");
 			Debug::print("{$f} signable");
 		}
 		$signature = $this->signMessage($signable);
 		$len = strlen($signature);
 		$shudbi = SODIUM_CRYPTO_SIGN_BYTES;
-		if($len !== $shudbi) {
+		if($len !== $shudbi){
 			Debug::error("{$f} signature \"{$signature}\" is {$len} bytes, when it must be {$shudbi}");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} signature is the correct length; about to assign newly generated signature");
 		}
 		return $this->setSignature($signature);
@@ -135,13 +135,13 @@ abstract class UserSigned extends UserFingerprint{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($this->hasSignature()) {
+			if($this->hasSignature()){
 				return $this->getColumnValue("signature");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} signature is undefined; about to sign endpoint");
 			}
 			return $this->generateSignature();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -150,7 +150,7 @@ abstract class UserSigned extends UserFingerprint{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(!$this->hasSignatoryData()) {
+			if(!$this->hasSignatoryData()){
 				$signatory = $this->setSignatoryData(user());
 			}else{
 				$signatory = $this->getSignatoryData();
@@ -158,13 +158,13 @@ abstract class UserSigned extends UserFingerprint{
 			$signed = $signatory->signMessage($message);
 			$len = strlen($signed);
 			$shudbi = SODIUM_CRYPTO_SIGN_BYTES;
-			if($len !== $shudbi) {
+			if($len !== $shudbi){
 				Debug::error("{$f} signature \"{$signed}\" is {$len} bytes, when it must be {$shudbi}");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} signature is the correct length; returning normally");
 			}
 			return $signed;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -175,7 +175,7 @@ abstract class UserSigned extends UserFingerprint{
 		$signature = new SodiumCryptoSignatureDatum();
 		$signatory = new UserMetadataBundle("signatory", $ds);
 		$signatory->setNullable(false);
-		if(true || ! $ds->isSignatureRequired()) {
+		if(true || ! $ds->isSignatureRequired()){
 			$signatory->setNullable(true);
 			$signature->setNullable(true);
 		}

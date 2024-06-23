@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\form;
 
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
@@ -18,53 +19,22 @@ use JulianSeymour\PHPWebApplicationFramework\command\variable\DeclareVariableCom
 use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\GetTypeOfCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\ParseIntegerCommand;
-use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFunction;
 use JulianSeymour\PHPWebApplicationFramework\template\AbstractTemplateFunctionGenerator;
 use Exception;
 
 class FormRepeaterFunctionGenerator extends AbstractTemplateFunctionGenerator{
 
-	protected $formClass;
+	use FormClassTrait;
 
-	public function __construct(?string $formClass){
+	public function __construct(?string $formClass=null){
 		parent::__construct();
-		if(!empty($formClass)) {
+		if(!empty($formClass)){
 			$this->setFormClass($formClass);
 		}
 	}
 
-	public function setFormClass(?string $formClass){
-		$f = __METHOD__;
-		if($formClass === null) {
-			unset($this->formClass);
-			return null;
-		}elseif(!is_string($formClass)) {
-			$gottype = is_object($formClass) ? $formClass->getClass() : gettype($formClass);
-			Debug::error("{$f} form class is a {$gottype}");
-		}elseif(empty($formClass)) {
-			Debug::error("{$f} form class is an empty string");
-		}elseif(! class_exists($formClass)) {
-			Debug::error("{$f} class \"{$formClass}\" does not exist");
-		}elseif(!is_a($formClass, AjaxForm::class, true)) {
-			Debug::error("{$f} form class \"{$formClass}\" is not an AjaxForm");
-		}
-		return $this->formClass = $formClass;
-	}
-
-	public function hasFormClass(): bool{
-		return isset($this->formClass) && is_string($this->formClass) && ! empty($this->formClass) && class_exists($this->formClass) && is_a($this->formClass, AjaxForm::class, true);
-	}
-
-	public function getFormClass(): string{
-		$f = __METHOD__;
-		if(!$this->hasFormClass()) {
-			Debug::error("{$f} form class is undefined");
-		}
-		return $this->formClass;
-	}
-
-	public function generate($context): ?JavaScriptFunction{
+	public function generate($element): ?JavaScriptFunction{
 		$f = __METHOD__;
 		try{
 			$form_class = get_short_class($this->getFormClass());
@@ -72,7 +42,7 @@ class FormRepeaterFunctionGenerator extends AbstractTemplateFunctionGenerator{
 			$function->setRoutineType(ROUTINE_TYPE_FUNCTION);
 			$declare_iterator = DeclareVariableCommand::let("iterator", new ParseIntegerCommand(new GetAttributeCommand("button", "iterator")));
 			$get_iterator = new GetDeclaredVariableCommand("iterator");
-			$function->pushSubcommand(
+			$function->pushCodeBlock(
 				CommandBuilder::let("context", new NullCommand()), 
 				$declare_iterator, 
 				new LogCommand(
@@ -93,19 +63,24 @@ class FormRepeaterFunctionGenerator extends AbstractTemplateFunctionGenerator{
 				)
 			);
 			$counter = 0;
-			$commands = static::getTemplateFunctionCommands($context, null, $counter);
-			$function->pushSubcommand(...$commands);
-			$function->pushSubcommand(
+			$commands = static::getTemplateFunctionCommands($element, null, $counter);
+			$function->pushCodeBlock(...$commands);
+			$function->pushCodeBlock(
 				new SetAttributeCommand(
 					"button", [
 						"iterator" => new BinaryExpressionCommand($get_iterator, OPERATOR_PLUS, 1)
 					]
 				), 
-				new InsertBeforeCommand(new GetDeclaredVariableCommand("button"), $context)
+				new InsertBeforeCommand(new GetDeclaredVariableCommand("button"), $element)
 			);
 			return $function;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			return x($f, $x);
 		}
+	}
+	
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->formClass, $deallocate);
 	}
 }

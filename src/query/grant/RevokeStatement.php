@@ -36,15 +36,15 @@ class RevokeStatement extends PrivilegeStatement{
 		$f = __METHOD__;
 		// REVOKE
 		$string = "revoke ";
-		if($this->hasPrivileges()) {
+		if($this->hasPrivileges()){
 			// priv_type [(column_list)] [, priv_type [(column_list)]] ... ON
 			$string .= implode(',', $this->getPrivileges()) . " on ";
 			// [object_type]
-			if($this->hasObjectType()) {
+			if($this->hasObjectType()){
 				$string .= $this->getObjectType() . " ";
 			}
 			// priv_level
-			if($this->hasDatabaseName()) {
+			if($this->hasDatabaseName()){
 				$db = $this->getDatabaseName();
 				if($db instanceof SQLInterface){
 					$db = $db->toSQL();
@@ -67,13 +67,13 @@ class RevokeStatement extends PrivilegeStatement{
 				$table = "*";
 			}
 			$string .=  "{$db}.{$table}";
-		}elseif($this->getAllPrivilegesFlag()) {
+		}elseif($this->getAllPrivilegesFlag()){
 			// REVOKE ALL [PRIVILEGES], GRANT OPTION
 			$string .= "all, grant option";
-		}elseif($this->hasProxyUser()) {
+		}elseif($this->hasProxyUser()){
 			// REVOKE PROXY ON user_or_role
 			$string .= "proxy on " . $this->getProxyUser();
-		}elseif($this->hasRoles()) {
+		}elseif($this->hasRoles()){
 			// REVOKE role [, role ] ...
 			$string .= implode(',', $this->getRoles());
 		}else{

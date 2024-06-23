@@ -21,7 +21,7 @@ class RefreshSessionForm extends AjaxForm
 		$this->setStyleProperty("transition", "opacity 0.5s");
 		$this->setIdAttribute($this->getIdAttributeStatic());
 		$this->addClassAttribute("universal_form");
-		if(!$this->hasIdAttribute()) {
+		if(!$this->hasIdAttribute()){
 			Debug::error("{$f} ID attribute is undefined");
 		}
 	}
@@ -36,7 +36,7 @@ class RefreshSessionForm extends AjaxForm
 		$names = [
 			DIRECTIVE_VALIDATE
 		];
-		if(! user() instanceof AnonymousUser) {
+		if(! user() instanceof AnonymousUser){
 			array_push($names, DIRECTIVE_LOGOUT);
 		}
 		return $names;
@@ -78,7 +78,7 @@ class RefreshSessionForm extends AjaxForm
 		$button->setValueAttribute($name);
 		$button->setOnClickAttribute($button->getDefaultOnClickAttribute());
 		$button->setTypeAttribute("submit");
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_VALIDATE:
 				$innerHTML = _("I'm still here");
 				break;
@@ -102,7 +102,7 @@ class RefreshSessionForm extends AjaxForm
 			return $this->validator;
 		}
 		$uri = request()->getRequestURIWithoutParams();
-		if($print) {
+		if($print){
 			Debug::print("{$f} creating validator for URI \"{$uri}\"");
 		}
 		return $this->setValidator(new AntiXsrfTokenValidator($uri));

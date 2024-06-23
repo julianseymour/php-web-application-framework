@@ -3,11 +3,8 @@
 namespace JulianSeymour\PHPWebApplicationFramework\data\columns;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
-use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
 
 trait SubtypeColumnTrait{
-	
-	use MultipleColumnDefiningTrait;
 	
 	public function getSubtype():string{
 		$f = __METHOD__;

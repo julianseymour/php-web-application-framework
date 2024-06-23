@@ -23,32 +23,35 @@ class RegistrationEmailAddressValidator extends UniqueValidator implements AjaxV
 
 	public function getSuccessCommand(){
 		$element = new GetElementByIdCommand(getInputParameter("id"));
-		$notice = new GetElementByIdCommand("register_notice");
-		$command = (new SetAttributeCommand($element, [
+		$set_attribute = new SetAttributeCommand($element, [
 			"validity" => "valid"
-		]));
-		if(getInputParameter('form') === RegistrationForm::getFormDispatchIdStatic()) {
-			$command->pushSubcommand(new SetInnerHTMLCommand($notice, ""));
+		]);
+		if(getInputParameter('form') === RegistrationForm::getFormDispatchIdStatic()){
+			$notice = new GetElementByIdCommand("register_notice");
+			$set_inner = new SetInnerHTMLCommand($notice, "");
+			$set_attribute->pushSubcommand($set_inner);
 		}
-		return $command;
+		return $set_attribute;
 	}
 
 	public function getFailureCommand(){
 		$element = new GetElementByIdCommand(getInputParameter("id"));
-		$notice = new GetElementByIdCommand("register_notice");
-		$command = (new SetAttributeCommand($element, [
+		$set_attribute = new SetAttributeCommand($element, [
 			"validity" => "invalid"
-		]));
-		if(getInputParameter('form') === RegistrationForm::getFormDispatchIdStatic()) {
-			$command->pushSubcommand(new SetInnerHTMLCommand($notice, ErrorMessage::getResultMessage($this->getObjectStatus())));
+		]);
+		if(getInputParameter('form') === RegistrationForm::getFormDispatchIdStatic()){
+			$notice = new GetElementByIdCommand("register_notice");
+			$err = ErrorMessage::getResultMessage($this->getObjectStatus());
+			$set_inner = new SetInnerHTMLCommand($notice, $err);
+			$set_attribute->pushSubcommand($set_inner);
 		}
-		return $command;
+		return $set_attribute;
 	}
 
 	protected function prevalidate(&$arr){
 		$f = __METHOD__;
 		
-		if(! array_key_exists('emailAddress', $arr)) {
+		if(!array_key_exists('emailAddress', $arr)){
 			Debug::warning("{$f} email address was not posted");
 			Debug::printArray($arr);
 			Debug::print("{$f} about to print input parameters");

@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\script;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
@@ -13,16 +14,17 @@ class WidgetLabelIdsJavaScriptConstantUseCase extends LocalizedJavaScriptFileUse
 		$f = __METHOD__;
 		try{
 			$labels = [];
-			foreach(mods()->getWidgetClasses() as $class) {
+			foreach(mods()->getWidgetClasses() as $class){
 				$wid = $class::getWidgetLabelId();
-				if($wid == null) {
+				if($wid == null){
 					continue;
 				}
 				array_push($labels, $wid);
 			}
 			$cmd = CommandBuilder::const("widgetLabelIds", $labels);
 			echo $cmd->toJavaScript().";\n";
-		}catch(Exception $x) {
+			deallocate($cmd);
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\script;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\php2string;
 use JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
@@ -21,7 +22,7 @@ class LocalizedServiceWorkerUseCase extends JavaScriptFileUseCase{
 	
 	public function echoJavaScriptFileContents():void{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		if($print){
 			Debug::print("{$f} entered");
 		}
@@ -52,8 +53,12 @@ class LocalizedServiceWorkerUseCase extends JavaScriptFileUseCase{
 			)
 		]);
 		echo $cache_content->toJavaScript().";\n";
+		
 		echo php2string(FRAMEWORK_INSTALL_DIRECTORY."/script/sw.js")."\n";
 		echo "}catch(x){console.error(x.toString()); console.trace(); }\n";
+		deallocate($import);
+		deallocate($cache_name);
+		deallocate($cache_content);
 	}
 	
 	public static function getFilename(): string{

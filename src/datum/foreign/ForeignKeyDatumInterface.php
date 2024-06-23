@@ -1,8 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum\foreign;
 
-interface ForeignKeyDatumInterface
-{
+interface ForeignKeyDatumInterface{
 
 	function getForeignDataTypeName(): string;
 

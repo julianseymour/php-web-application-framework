@@ -78,4 +78,6 @@ abstract class Module extends Basic{
 	public abstract function getModuleSpecificColumns(DataStructure $ds):?array;
 	
 	public abstract function getInstallDirectories():?array;
+	
+	public abstract function getContentSecurityPolicyDirectives():?array;
 }

@@ -14,7 +14,7 @@ class DateTimeLocalInput extends DateInput implements StaticValueNegotiationInte
 		return INPUT_TYPE_DATETIME_LOCAL;
 	}
 
-	public function getAllowEmptyInnerHTML(){
+	public function getAllowEmptyInnerHTML():bool{
 		return true;
 	}
 

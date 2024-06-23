@@ -3,6 +3,7 @@ class RecentNotificationsUseCase extends UseCase{
 	static handleResponse(response){
 		let f = "handleResponse()";
 		try{
+			let print = false;
 			switch(response.status){
 				case SUCCESS:
 					for(key in response.getDataStructures()){
@@ -10,6 +11,9 @@ class RecentNotificationsUseCase extends UseCase{
 						let type = data.getDataType();
 						switch(type){
 							case DATATYPE_NOTIFICATION:
+								if(print){
+									window.alert(f.concat(": updating notification element"));
+								}
 								data.updateElement();
 							default:
 								continue;

@@ -88,12 +88,14 @@ class TemplateKeyListDatum extends KeyListDatum{
 						new TableFactor($intersection->getDatabaseName(), $table2, $alias2)
 					)->where(
 						new AndCommand(
-							BinaryExpressionCommand::equals(
+							new BinaryExpressionCommand(
 								new GetDeclaredVariableCommand("{$alias2}.relationship"),
+								OPERATOR_EQUALSEQUALS,
 								$intersection->getRelationship()
 							),
-							BinaryExpressionCommand::equals(
+							new BinaryExpressionCommand(
 								new GetDeclaredVariableCommand("{$alias2}.foreignKey"),
+								OPERATOR_EQUALSEQUALS,
 								new GetDeclaredVariableCommand("t0.".$ds->getIdentifierName())
 							)
 						)

@@ -59,10 +59,14 @@ class JavaScriptFileRouter extends Router{
 	
 	public function getUseCase(Request $request): UseCase{
 		$f = __METHOD__;
+		$print = false && $this->getDebugFlag();
 		if(!$this->hasInputParameter("filename")){
 			Debug::error("{$f} filaname is unavailable. Request URI is {$_SERVER['REQUEST_URI']}");
 		}
 		$filename = $this->getInputParameter("filename");
+		if($print){
+			Debug::print("{$f} filename is \"{$filename}\"");
+		}
 		return static::getUseCaseFromFilename($filename);
 	}
 }

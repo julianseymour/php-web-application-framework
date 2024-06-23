@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 /**
@@ -15,24 +17,26 @@ trait ElementBindableTrait{
 
 	protected $elementClass;
 
-	public function hasElementClass(){
-		return isset($this->elementClass) && class_exists($this->elementClass);
+	public function hasElementClass():bool{
+		return isset($this->elementClass);
 	}
 
 	public function setElementClass($class){
 		$f = __METHOD__;
-		if(!is_string($class)) {
+		if(!is_string($class)){
 			Debug::error("{$f} class is not a string");
-		}elseif(! class_exists($class)) {
+		}elseif(!class_exists($class)){
 			Debug::error("{$f} class \"{$class}\" does not exist");
+		}elseif($this->hasElementClass()){
+			$this->release($this->elementClass);
 		}
-		return $this->elementClass = $class;
+		return $this->elementClass = $this->claim($class);
 	}
 
 	public function getElementClass(){
 		$f = __METHOD__;
-		if(! isset($this->elementClass)) {
-			if($this instanceof StaticElementClassInterface) {
+		if(!isset($this->elementClass)){
+			if($this instanceof StaticElementClassInterface){
 				return $this->getElementClassStatic($this);
 			}
 			$decl = $this->getDeclarationLine();

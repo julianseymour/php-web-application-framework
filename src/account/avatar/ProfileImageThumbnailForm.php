@@ -1,9 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\avatar;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
-use JulianSeymour\PHPWebApplicationFramework\core\Document;
+use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
 use JulianSeymour\PHPWebApplicationFramework\image\FocalImageThumbnailForm;
 use JulianSeymour\PHPWebApplicationFramework\input\HiddenInput;
@@ -38,7 +39,7 @@ class ProfileImageThumbnailForm extends AjaxForm{
 	public function bindContext($context){
 		$f = __METHOD__;
 		$print = false;
-		if($context->getDataType() !== DATATYPE_USER) {
+		if($context->getDataType() !== DATATYPE_USER){
 			Debug::error("{$f} this is not the client object");
 			$context = $context->getUserData();
 		}
@@ -74,44 +75,38 @@ class ProfileImageThumbnailForm extends AjaxForm{
 			$hidden->setNameAttribute("profile_image");
 			$inputs[$hidden->getNameAttribute()] = $hidden;
 			return $inputs;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function getDirectives(): ?array
-	{
+	public function getDirectives(): ?array{
 		$names = [
 			DIRECTIVE_UPDATE
 		];
-		if($this->getContext()->hasProfileImageKey()) {
+		if($this->getContext()->hasProfileImageKey()){
 			array_push($names, DIRECTIVE_DELETE_FOREIGN);
 		}
 		return $names;
 	}
 
-	public function getFormDataIndices(): ?array
-	{
+	public function getFormDataIndices(): ?array{
 		return [
 			'profileImageKey' => FocalImageThumbnailForm::class
 		];
 	}
 
-	public static function getFormDispatchIdStatic(): ?string
-	{
+	public static function getFormDispatchIdStatic(): ?string{
 		return "profile_image";
 	}
 
-	public static function getActionAttributeStatic(): ?string
-	{
+	public static function getActionAttributeStatic(): ?string{
 		return '/settings';
 	}
 
-	public function generateButtons(string $name): ?array
-	{
+	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		$button = $this->generateGenericButton($name);
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPDATE:
 				$button = $this->generateGenericButton($name);
 				$innerHTML = _("Update profile image");
@@ -126,19 +121,17 @@ class ProfileImageThumbnailForm extends AjaxForm{
 				return null;
 		}
 		$button->setInnerHTML($innerHTML);
-		$button->setWrapperElement(Document::createElement("div")->withStyleProperties([
+		$div = new DivElement();
+		$div->setStyleProperties([
 			"margin-top" => "1rem"
-		]));
-		/*$button->setStyleProperties([
-			"display" => "block"
-		]);*/
+		]);
+		$button->setWrapperElement($div);
 		return [
 			$button
 		];
 	}
 
-	public static function getMethodAttributeStatic(): ?string
-	{
+	public static function getMethodAttributeStatic(): ?string{
 		return HTTP_REQUEST_METHOD_POST;
 	}
 }

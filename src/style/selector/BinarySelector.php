@@ -1,54 +1,39 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\style\selector;
 
-abstract class BinarySelector extends Selector
-{
+use JulianSeymour\PHPWebApplicationFramework\command\expression\BinaryExpressionTrait;
 
-	protected $leftHandSide, $rightHandSide;
+abstract class BinarySelector extends Selector{
 
-	public abstract static function echoOperator();
+	use BinaryExpressionTrait;
 
-	public function echo(bool $destroy = false): void
-	{
-		$this->getLeftHandSide()->echo();
+	public abstract static function echoOperator():void;
+
+	public function echo(bool $destroy = false): void{
+		$this->getLeftHandSide()->echo($destroy);
 		echo " ";
 		$this->echoOperator();
-		$this->getRightHandSide()->echo();
+		$this->getRightHandSide()->echo($destroy);
 	}
 
-	public function setLeftHandSide($left)
-	{
-		return $this->leftHandSide = $left;
-	}
-
-	public function setRightHandSide($right)
-	{
-		return $this->rightHandSide = $right;
-	}
-
-	public function getLeftHandSide()
-	{
-		return $this->leftHandSide;
-	}
-
-	public function getRightHandSide()
-	{
-		return $this->rightHandSide;
-	}
-
-	public function __construct($lhs = null, $rhs = null)
-	{
+	public function __construct($lhs = null, $rhs = null){
 		parent::__construct();
-		if(isset($lhs)) {
+		if(isset($lhs)){
 			$this->setLeftHandSide($lhs);
-			if(isset($rhs)) {
+			if(isset($rhs)){
 				$this->setRightHandSide($rhs);
 			}
 		}
 	}
 
-	public function child($chile): Selector
-	{
+	public function child($chile):Selector{
 		return new ChildSelector($this, $chile);
+	}
+	
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->leftHandSide, $deallocate);
+		$this->release($this->rightHandSide, $deallocate);
 	}
 }

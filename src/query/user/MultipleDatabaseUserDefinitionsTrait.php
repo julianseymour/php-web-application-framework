@@ -13,7 +13,7 @@ trait MultipleDatabaseUserDefinitionsTrait{
 		return $this->setArrayProperty("users", $values);
 	}
 
-	public function hasUsers(){
+	public function hasUsers():bool{
 		return $this->hasArrayProperty("users");
 	}
 

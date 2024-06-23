@@ -26,7 +26,7 @@ trait TemplateKeyColumnTrait
 	public function getTemplateKey(): string
 	{
 		$f = __METHOD__;
-		if(!$this->hasTemplateKey()) {
+		if(!$this->hasTemplateKey()){
 			Debug::error("{$f} template key is undefined");
 		}
 		return $this->getColumnValue("templateKey");
@@ -45,7 +45,7 @@ trait TemplateKeyColumnTrait
 	public function getTemplateData(): DataStructure
 	{
 		$f = __METHOD__;
-		if(!$this->hasTemplateData()) {
+		if(!$this->hasTemplateData()){
 			Debug::error("{$f} template data is undefined");
 		}
 		return $this->getForeignDataStructure("templateKey");

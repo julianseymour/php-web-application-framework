@@ -4,9 +4,11 @@ namespace JulianSeymour\PHPWebApplicationFramework\auth\password;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\account\login\FullAuthenticationData;
 use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\BlobDatum;
@@ -14,9 +16,8 @@ use JulianSeymour\PHPWebApplicationFramework\db\credentials\AdminWriteCredential
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\event\AfterUpdateEvent;
-use Exception;
-use JulianSeymour\PHPWebApplicationFramework\account\login\FullAuthenticationData;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
+use Exception;
 
 class PasswordDatum extends BlobDatum{
 
@@ -44,8 +45,8 @@ class PasswordDatum extends BlobDatum{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($this->hasRegenerationClosure()) {
-				if($print) {
+			if($this->hasRegenerationClosure()){
+				if($print){
 					Debug::print("{$f} this column has a closure for generating its default value");
 				}
 				return parent::regenerate();
@@ -55,14 +56,14 @@ class PasswordDatum extends BlobDatum{
 			$storage_keypair = $user->getKeypair();
 			$crypto_sign_seed = $user->getSignatureSeed(); // PrivateKey();
 			$length = strlen($crypto_sign_seed);
-			if($length !== SODIUM_CRYPTO_SIGN_SEEDBYTES) {
+			if($length !== SODIUM_CRYPTO_SIGN_SEEDBYTES){
 				$shoodbi = SODIUM_CRYPTO_SIGN_SEEDBYTES;
 				Debug::error("{$f} incorrect seed length ({$length}, should be {$shoodbi}");
 			}elseif($print){
 				Debug::print("{$f} signature seed ".base64_encode($crypto_sign_seed)." has correct length");
 			}
 			$form = $use_case->getProcessedFormObject();
-			if(!$form instanceof PasswordGeneratingFormInterface) {
+			if(!$form instanceof PasswordGeneratingFormInterface){
 				Debug::error("{$f} form is not an instanceof PasswordGeneratingFormInterface");
 			}
 			$data = PasswordData::generate(
@@ -79,21 +80,22 @@ class PasswordDatum extends BlobDatum{
 			);
 			$user->setReceptivity(DATA_MODE_RECEPTIVE);
 			$status = $user->processPasswordData($data);
-			if($status !== SUCCESS) {
+			deallocate($data);
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} processPasswordData returned error status \"{$err}\"");
 				return $user->setObjectStatus($status);
 			}
 			$user->addEventListener(
 				EVENT_AFTER_UPDATE, 
-				function (AfterUpdateEvent $event, $target) use ($user, $use_case, $f, $print) {
-					if($print) {
+				function (AfterUpdateEvent $event, $target) use ($user, $use_case, $f, $print){
+					if($print){
 						Debug::print("{$f} inside this hideous event handler");
 					}
 					$target->removeEventListener($event);
-					if(db()->hasPendingTransactionId()) {
+					if(db()->hasPendingTransactionId()){
 						$txid = db()->getPendingTransactionId();
-						if(user() instanceof Administrator) {
+						if(user() instanceof Administrator){
 							$cc = AdminWriteCredentials::class;
 						}else{
 							$cc = PublicWriteCredentials::class;
@@ -115,7 +117,7 @@ class PasswordDatum extends BlobDatum{
 				}, sha1(random_bytes(32))
 			);
 			return $status;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

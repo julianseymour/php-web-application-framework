@@ -1,22 +1,24 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait EscapeTypeTrait
-{
+trait EscapeTypeTrait{
 
-	public function hasEscapeType(): bool
-	{
+	protected $escapeType;
+	
+	public function hasEscapeType(): bool{
 		return isset($this->escapeType);
 	}
 
-	public function getEscapeType(): ?string
-	{
-		$f = __METHOD__; //"EscapeTypeTrait(".static::getShortClass().")->getEscapeType()";
+	public function getEscapeType(): ?string{
+		$f = __METHOD__;
 		$print = false;
-		if(!$this->hasEscapeType()) {
-			if($print) {
+		if(!$this->hasEscapeType()){
+			if($print){
 				Debug::warning("{$f} escape type is undefined");
 			}
 			return null;
@@ -24,17 +26,14 @@ trait EscapeTypeTrait
 		return $this->escapeType;
 	}
 
-	public function setEscapeType(?string $type): ?string
-	{
-		if($type === null) {
-			unset($this->escapeType);
-			return null;
+	public function setEscapeType(?string $type): ?string{
+		if($this->hasEscapeType()){
+			$this->release($this->escapeType);
 		}
-		return $this->escapeType = $type;
+		return $this->escapeType = $this->claim($type);
 	}
 
-	public function escape(?string $type)
-	{
+	public function escape(?string $type){
 		$this->setEscapeType($type);
 		return $this;
 	}

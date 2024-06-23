@@ -30,9 +30,9 @@ class RetrospectiveNotificationData extends NotificationData implements StaticEl
 
 	public function getArrayMembershipConfiguration($config_id): ?array{
 		$config = parent::getArrayMembershipConfiguration($config_id);
-		switch ($config_id) {
+		switch($config_id){
 			case "default":
-				if($this->hasSubjectData()) {
+				if($this->hasSubjectData()){
 					$config['subjectKey'] = $this->getSubjectData()->getArrayMembershipConfiguration($config_id);
 				}else{
 					$config['subjectKey'] = true;
@@ -54,21 +54,21 @@ class RetrospectiveNotificationData extends NotificationData implements StaticEl
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to update notification state");
 			}
 			$this->setNotificationState(NOTIFICATION_STATE_DISMISSED);
 			$status = $this->update($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} notification status update returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning normally");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -80,10 +80,12 @@ class RetrospectiveNotificationData extends NotificationData implements StaticEl
 	public function getTypedNotificationClass():string{
 		$f = __METHOD__;
 		$type = $this->getNotificationType();
-		if(!is_string($type)) {
+		if(!is_string($type)){
 			$key = $this->hasIdentifierValue() ? $this->getIdentifierValue() : "[undefined]";
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} notification type \"{$type}\" is not a string. Key is \"{$key}\", declared {$decl}");
+		}elseif($type === NOTIFICATION_TYPE_TEMPLATE){
+			Debug::error("{$f} invalid notification type");
 		}
 		return mods()->getTypedNotificationClass($type);
 	}

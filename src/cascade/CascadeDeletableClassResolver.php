@@ -8,7 +8,7 @@ use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 
 class CascadeDeletableClassResolver extends IntersectionTableResolver{
 	
-	public static function getIntersections(){
+	public static function getIntersections():array{
 		$ret = [];
 		foreach(mods()->getDataStructureClasses() as $dsc){
 			if(is_a($dsc, CascadeDeletableInterface::class, true)){
@@ -24,5 +24,9 @@ class CascadeDeletableClassResolver extends IntersectionTableResolver{
 			}
 		}
 		return $ret;
+	}
+	
+	public static function getSubtypability():string{
+		return SUBTYPABILITY_PARTIAL;
 	}
 }

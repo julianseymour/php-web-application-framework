@@ -31,7 +31,7 @@ class CssBundleUseCase extends BundleUseCase{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($this->hasBundledFilenames()) {
+			if($this->hasBundledFilenames()){
 				return $this->bundledFilenames;
 			}
 			$filenames = mods()->getCascadingStyleSheetFilepaths();
@@ -39,7 +39,7 @@ class CssBundleUseCase extends BundleUseCase{
 				Debug::printArray($filenames);
 			}
 			return $this->setBundledFilenames($filenames);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

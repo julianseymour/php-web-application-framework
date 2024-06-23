@@ -6,6 +6,7 @@ use JulianSeymour\PHPWebApplicationFramework\command\control\NodeBearingIfComman
 use JulianSeymour\PHPWebApplicationFramework\command\element\AppendChildCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\element\BindElementCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\variable\Scope;
 use JulianSeymour\PHPWebApplicationFramework\element\LabelElement;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
 use JulianSeymour\PHPWebApplicationFramework\input\RadioButtonInput;
@@ -46,7 +47,7 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 
 	public function getHiddenCheckboxInput(){
 		$f = __METHOD__;
-		if($this->hasHiddenCheckboxInput()) {
+		if($this->hasHiddenCheckboxInput()){
 			return $this->hiddenCheckboxInput;
 		}
 		$mode = $this->getAllocationMode();
@@ -55,7 +56,7 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 		$input->addClassAttribute("hidden");
 		$input->addClassAttribute("expand_toggle");
 		$context = $this->getContext();
-		$suffix = $context->getIdAttributeSuffixCommand();
+		$suffix = new NotificationIdSuffixCommand($context);
 		$widget = $this->getWidgetName();
 		// $widget->setDisallowNullFlag(true);
 		$input->setIdAttribute(new ConcatenateCommand("radio-", $widget, "_options-", $suffix));
@@ -63,7 +64,7 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 		return $this->hiddenCheckboxInput = $input;
 	}
 
-	protected function generatePredecessors(): ?array{
+	protected function getSelfGeneratedPredecessors(): ?array{
 		return [
 			$this->getHiddenCheckboxInput()
 		];
@@ -78,13 +79,19 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 	public function bindContext($context){
 		$f = __METHOD__;
 		$return = parent::bindContext($context);
-		$this->setIdAttribute(new ConcatenateCommand($this->getWidgetName(), "_options-", $context->getIdAttributeSuffixCommand()));
+		$this->setIdAttribute(
+			new ConcatenateCommand(
+				$this->getWidgetName(), 
+				"_options-", 
+				new NotificationIdSuffixCommand($context)
+			)
+		);
 		// generate successor nodes right now, because they'll get prematurely deleted later
 		$this->getLabelContainer();
 		return $return;
 	}
 
-	protected function generateSuccessors(): ?array{
+	protected function getSelfGeneratedSuccessors(): ?array{
 		return [
 			$this->getLabelContainer()
 		];
@@ -95,11 +102,11 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 	}
 
 	public function hasLabelContainer(){
-		return ! empty($this->labelContainer);
+		return !empty($this->labelContainer);
 	}
 
 	public function getLabelContainer(){
-		if(!$this->hasLabelContainer()) {
+		if(!$this->hasLabelContainer()){
 			$mode = $this->getAllocationMode();
 			$lc = new SpanElement($mode);
 			$lc->addClassAttribute("single_notification_options_label_container");
@@ -122,7 +129,9 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 			$widget = $this->getWidgetName();
 			$close_label->setForAttribute(new ConcatenateCommand($widget, "_options-none"));
 			$lc->appendChild($close_label);
-			$lc->setIdAttribute(new ConcatenateCommand("snolc-", $context->getIdAttributeSuffixCommand()));
+			$lc->setIdAttribute(
+				new ConcatenateCommand("snolc-", new NotificationIdSuffixCommand($context))
+			);
 			$lc->setNoUpdateFlag(true);
 			return $this->setLabelContainer($lc);
 		}
@@ -146,11 +155,18 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 			$mode = $this->getAllocationMode();
 			$this->setIdOverride("note_optns");
 			$this->resolveTemplateCommand(NodeBearingIfCommand::hasColumnValue($context, "pinnedTimestamp")->then(new AppendChildCommand($this->getIdOverride(), new BindElementCommand(new RepinNotificationForm($mode), $context)), new AppendChildCommand($this->getIdOverride(), new BindElementCommand(new $unpin_form_class($mode), $context)))->else(new AppendChildCommand($this->getIdOverride(), new BindElementCommand(new $pin_form_class($mode), $context))));
-			$dismissal_form = new DismissNotificationForm($mode);
-			$dismissal_form->setIdOverride("dismissal_form");
+			$dismissal_form = new BindElementCommand(DismissNotificationForm::class, $context); //new DismissNotificationForm($mode);
+			//$dismissal_form->setIdOverride("dismissal_form");
 			$is_dismissable = $context->hasColumnValueCommand("dismissable");
 			$is_dismissable->setParseType("bool");
-			$this->resolveTemplateCommand(NodeBearingIfCommand::if($is_dismissable)->then(new AppendChildCommand($this->getIdOverride(), new BindElementCommand($dismissal_form, $context))));
+			$this->resolveTemplateCommand(
+				NodeBearingIfCommand::if($is_dismissable)->then(
+					new AppendChildCommand(
+						$this->getIdOverride(), 
+						$dismissal_form
+					)
+				)
+			);
 			$label5 = new LabelElement($mode);
 			$label5->addClassAttribute("button-like");
 			$label5->setInnerHTML(new ConcatenateCommand("❌", _("Close")));
@@ -158,12 +174,12 @@ class NotificationOptionsElement extends SpanElement implements TemplateElementI
 			$widget = $this->getWidgetName();
 			$label5->setForAttribute(new ConcatenateCommand($widget, "_options-none"));
 			$this->appendChild($label5);
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
-
+	
 	public static function getTemplateContextClass(): string{
 		return RetrospectiveNotificationData::class;
 	}

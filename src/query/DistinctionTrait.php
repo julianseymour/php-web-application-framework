@@ -10,16 +10,16 @@ trait DistinctionTrait{
 
 	public function setDistinction(?string $distinction):?string{
 		$f = __METHOD__;
-		if($distinction == null) {
+		if($distinction == null){
 			unset($this->distinction);
 			return null;
-		}elseif(!is_string($distinction)) {
+		}elseif(!is_string($distinction)){
 			Debug::error("{$f} distinction must be a string");
 		}
 		$distinction = strtolower($distinction);
-		switch ($distinction) {
+		switch($distinction){
 			case DISTINCTION_DISTINCTROW:
-			// XXX valid for select statement but not union clause
+			// XXX TODO valid for select statement but not union clause
 			case DISTINCTION_ALL:
 			case DISTINCTION_DISTINCT:
 				break;
@@ -30,12 +30,12 @@ trait DistinctionTrait{
 	}
 
 	public function hasDistinction():bool{
-		return isset($this->distinction) && is_string($this->distinction) && ! empty($this->distinction);
+		return isset($this->distinction) && is_string($this->distinction) && !empty($this->distinction);
 	}
 
 	public function getDistinction():string{
 		$f = __METHOD__;
-		if(!$this->hasDistinction()) {
+		if(!$this->hasDistinction()){
 			Debug::error("{$f} distinction is undefined");
 		}
 		return $this->distinction;

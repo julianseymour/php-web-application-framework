@@ -1,12 +1,16 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\template;
 
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
+use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use JulianSeymour\PHPWebApplicationFramework\command\NodeBearingCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\ServerExecutableCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
+use JulianSeymour\PHPWebApplicationFramework\command\data\GetColumnValueCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\data\HasColumnValueCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\element\AddClassCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\element\AppendChildCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\element\CreateElementCommand;
@@ -14,10 +18,14 @@ use JulianSeymour\PHPWebApplicationFramework\command\element\ReidentifyElementCo
 use JulianSeymour\PHPWebApplicationFramework\command\element\SetAttributeCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\element\SetInnerHTMLCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\element\SetStylePropertiesCommand;
-use JulianSeymour\PHPWebApplicationFramework\command\input\SetInputValueCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\input\SetInputNameCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\input\SetInputValueCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\str\CreateTextNodeCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\variable\DeclareVariableCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
+use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\CompoundElement;
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
@@ -29,15 +37,9 @@ use JulianSeymour\PHPWebApplicationFramework\script\DocumentFragment;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFunction;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFunctionGenerator;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\command\data\GetColumnValueCommand;
-use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
-use JulianSeymour\PHPWebApplicationFramework\command\data\HasColumnValueCommand;
-use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
-use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 
-abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGenerator
-{
-
+abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGenerator{
+	
 	/**
 	 * returns the commands needed to set this node's attributes inside a template function
 	 *
@@ -49,74 +51,80 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 			$print = false;
 			$commands = [];
 			// local variables
-			if($element->hasLocalDeclarations()) {
-				foreach($element->getLocalDeclarations() as $ld) {
+			if($element->hasLocalDeclarations()){
+				foreach($element->getLocalDeclarations() as $ld){
 					array_push($commands, $ld);
 				}
 			}
 			// id
-			if($element->hasIdAttribute()) {
+			if($element->hasIdAttribute()){
 				$id = $element->getIdAttribute();
-				$reid = new ReidentifyElementCommand($element, $id);
-				if(is_string($id) && preg_match(REGEX_TEMPLATE_LITERAL, $id)) {
-					if($print) {
+				$reid = new ReidentifyElementCommand();
+				$reid->setId($element->getIdOverride());
+				$reid->setNewId($id);
+				if(is_string($id) && preg_match(REGEX_TEMPLATE_LITERAL, $id)){
+					if($print){
 						Debug::print("{$f} ID \"{$id}\" is a template literal");
 					}
 					$reid->setQuoteStyle(QUOTE_STYLE_BACKTICK);
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} ID is not a template literal");
 				}
 				array_push($commands, $reid);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} element lacks an ID attribute");
 			}
 			// class
-			if($element->hasClassAttribute()) {
+			if($element->hasClassAttribute()){
 				$template_class = false;
-				if($element->hasClassList()) {
-					foreach($element->getClassList() as $class) {
-						if($class instanceof Command) {
+				if($element->hasClassList()){
+					foreach($element->getClassList() as $class){
+						if($class instanceof Command){
 							// Debug::print("{$f} at least one item on the class list is a media command");
 							$template_class = true;
 							break;
 						}
 					}
 				}
-				if($template_class) {
-					// Debug::print("{$f} about to push AddClassCommands");
-					foreach($element->getClassList() as $class) {
-						$add_class = new AddClassCommand($element, $class);
-						array_push($commands, $add_class);
-					}
+				if($template_class){
+					$add_class = new AddClassCommand();
+					$add_class->setId($element->getIdOverride());
+					$add_class->setClassNames($element->getClassList());
+					array_push($commands, $add_class);
 				}else{
 					// Debug::print("{$f} none of the classes are media commands; setting all class names as one attribute");
-					$reclass = new SetAttributeCommand($element, [
+					$reclass = new SetAttributeCommand();
+					$reclass->setId($element->getIdOverride());
+					$reclass->setAttributes([
 						"class" => implode(" ", $element->getClassList())
 					]);
 					array_push($commands, $reclass);
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} element lacks a class attribute");
 			}
 			// event listeners
 			$keyvalues = $element->getValidOnEventCommands();
-			foreach($keyvalues as $attr_str => $cmd_class) {
-				if($print) {
+			foreach($keyvalues as $attr_str => $cmd_class){
+				if($print){
 					Debug::print("{$f} event handler \"{$attr_str}\"");
 				}
-				if($element->hasAttribute($attr_str)) {
+				if($element->hasAttribute($attr_str)){
 					if($print){
 						Debug::print("{$f} element has a {$attr_str} event");
 					}
 					$cmd_class = $keyvalues[$attr_str];
 					$onclick = $element->getAttribute($attr_str);
-					if(is_string($onclick)) {
+					if(is_string($onclick)){
 						if($print){
 							Debug::print("{$f} onclick attribute is the function \"{$onclick}\"");
 						}
-						array_push($commands, new SetAttributeCommand($element, [
+						$command = new SetAttributeCommand();
+						$command->setId($element->getIdOverride());
+						$command->setAttributes([
 							$attr_str => $onclick
-						]));
+						]);
+						array_push($commands, $command);
 					}elseif($onclick instanceof CallFunctionCommand || $onclick instanceof JavaScriptFunction){
 						if($print){
 							Debug::print("{$f} onclick attribute is a CallFunctionCommand or JAvaScriptFunction");
@@ -124,7 +132,9 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 						if($onclick instanceof JavaScriptFunction){
 							$onclick->setRoutineType(ROUTINE_TYPE_FUNCTION);
 						}
-						$set_onclick = new $cmd_class($element, $onclick);
+						$set_onclick = new $cmd_class();
+						$set_onclick->setId($element->getIdOverride());
+						$set_onclick->setCallFunctionCommand($onclick);
 						if($onclick instanceof CallFunctionCommand && $onclick->hasEscapeType() && $onclick->getEscapeType() === ESCAPE_TYPE_FUNCTION){
 							$set_onclick->setEscapeType($onclick->getEscapeType());
 						}
@@ -132,7 +142,7 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 					}else{
 						$gottype = is_object($onclick) ? get_short_class($onclick) : gettype($onclick);
 						$decl = is_object($onclick) ? $onclick->getDeclarationLine() : "N/A";
-						Debug::error("{$f} neither of the above, event handler is a(n) {$gottype}, instantiated {$decl}");
+						Debug::error("{$f} neither of the above, event handler is a(n){$gottype}, instantiated {$decl}");
 					}
 				}elseif($print){
 					Debug::print("{$f} element does not have an {$attr_str} event");
@@ -149,48 +159,65 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 			]);
 			$attributes_to_set = [];
 			// attributes
-			if($element->hasAttributes()) {
-				foreach(array_keys($element->getAttributes()) as $attr_key) {
-					if(false !== array_search($attr_key, $skipme)) {
+			if($element->hasAttributes()){
+				foreach(array_keys($element->getAttributes()) as $attr_key){
+					if(false !== array_search($attr_key, $skipme)){
 						continue;
 					}
 					$attributes_to_set[$attr_key] = $element->getAttribute($attr_key);
 				}
 			}
-			if(!empty($attributes_to_set)) {
-				$command = new SetAttributeCommand($element, $attributes_to_set);
+			if(!empty($attributes_to_set)){
+				$command = new SetAttributeCommand();
+				$command->setId($element->getIdOverride());
+				$command->setAttributes($attributes_to_set);
 				array_push($commands, $command);
 			}
 			// style properties
-			if($element->hasInlineStyleAttribute()) {
-				array_push($commands, new SetStylePropertiesCommand($element, $element->getStyleProperties())); // properties));
+			if($element->hasInlineStyleAttribute()){
+				$sspc = new SetStylePropertiesCommand();
+				$sspc->setId($element->getIdOverride());
+				$sspc->setStyleProperties($element->getStyleProperties());
+				if(!$sspc->hasStyleProperties()){
+					Debug::error("{$f} immediately after instantiation, set style properties command lacks style properties");
+				}elseif($print){
+					Debug::print("{$f} set style properties command instantiated successfully");
+				}
+				array_push($commands, $sspc); // properties));
 			}
 			// responsive style properties
-			if($element->hasResponsiveStyleProperties()) {
+			if($element->hasResponsiveStyleProperties()){
 				$properties = [];
-				foreach(array_keys($element->getResponsiveStyleProperties()) as $key) {
+				foreach(array_keys($element->getResponsiveStyleProperties()) as $key){
 					$properties[$key] = $element->getResponsiveStyleProperty($key);
 				}
-				array_push($commands, new SetStylePropertiesCommand($element, $properties));
+				$command = new SetStylePropertiesCommand();
+				$command->setId($element->getIdOverride());
+				$command->setStyleProperties($properties);
+				array_push($commands, $command);
 			}
 			// special attributes that are better set with the javascript object property
-			if($element instanceof InputElement) {
+			if($element instanceof InputElement){
 				// name attribute
-				if($element->hasNameAttribute()) {
+				if($element->hasNameAttribute()){
 					$name = $element->getNameAttribute();
-					$rename = $element->setNameAttributeCommand($name);
-					if(is_string($name) && preg_match(REGEX_TEMPLATE_LITERAL, $name)) {
+					$rename = new SetInputNameCommand(); //$element->setNameAttributeCommand($name);
+					$rename->setId($element->getIdOverride());
+					$rename->setName($name);
+					if(is_string($name) && preg_match(REGEX_TEMPLATE_LITERAL, $name)){
 						$rename->setQuoteStyle(QUOTE_STYLE_BACKTICK);
 					}
 					array_push($commands, $rename);
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} element lacks a name attribute");
 				}
 				// value
-				if($element instanceof ValueAttributeInterface) {
-					if($element->hasValueAttribute()) {
+				if($element instanceof ValueAttributeInterface){
+					if($element->hasValueAttribute()){
 						$value = $element->getValueAttribute();
-						$revalue = new SetInputValueCommand($element, $value);
+						$revalue = new SetInputValueCommand();
+						$revalue->setId($element->getIdOverride());
+						$revalue->setValue($value);
 						if($value instanceof GetColumnValueCommand){
 							$get = new GetDeclaredVariableCommand("context");
 							$command = CommandBuilder::if(
@@ -206,21 +233,21 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 							$command = $revalue;
 						}
 						array_push($commands, $command);
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} element lacks a value attribute");
 					}
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} element cannot possibly have a value attribute");
 				}
-			}elseif($element instanceof ForAttributeInterface) {
-				if($element->hasForAttribute()) {
+			}elseif($element instanceof ForAttributeInterface){
+				if($element->hasForAttribute()){
 					$refor = $element->setForAttributeCommand($element->getForAttribute());
 					array_push($commands, $refor);
 				}
 			}
 			// array_push($commands, CommandBuilder::log("{$f} returning normally"));
 			return $commands;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -237,49 +264,50 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 	 */
 	protected static function getChildTemplateFunctionCommands(Element $element, $child, &$counter){
 		$f = __METHOD__;
-		$print = $element->getDebugFlag();
-		$print = false;
+		$print = $element->getDebugFlag() || $child->getDebugFlag();
 		$child_class = $child->getClass();
-		if($child instanceof CompoundElement) {
-			if($print) {
+		if($child instanceof CompoundElement){
+			if($print){
 				Debug::print("{$f} child is a compound element of class \"{$child_class}\"");
 			}
 			$commands = [];
-			foreach($child->getComponents() as $component) {
+			foreach($child->getComponents() as $component){
 				$commands = array_merge($commands, static::getChildTemplateFunctionCommands($element, $component, $counter));
 			}
 			return $commands;
-		}elseif($child instanceof Element) {
-			if($print) {
+		}elseif($child instanceof Element){
+			if($print){
 				Debug::print("{$f} child is an element of class \"{$child_class}\"");
 			}
 			$vname = $element->getIdOverride();
 			$child_commands = static::getTemplateFunctionCommands($child, $vname, $counter);
 			$counter ++;
 			return $child_commands;
-		}elseif($child instanceof NodeBearingCommandInterface) {
-			if($print) {
+		}elseif($child instanceof NodeBearingCommandInterface){
+			if($print){
 				Debug::print("{$f} child is a node-bearing command of class \"{$child_class}\"");
 			}
 			$child->incrementVariableName($counter);
 			return [
 				$child
 			];
-		}elseif($child instanceof ServerExecutableCommandInterface) {
-			if($print) {
+		}elseif($child instanceof ServerExecutableCommandInterface){
+			if($print){
 				Debug::print("{$f} child is a server-executable command of class \"{$child_class}\"");
 			}
 			return [
 				$child
 			];
-		}elseif($child instanceof ValueReturningCommandInterface) {
-			if($print) {
+		}elseif($child instanceof ValueReturningCommandInterface){
+			if($print){
 				Debug::print("{$f} child is a value-returning media command of class \"{$child_class}\"");
 			}
-			// array_push($commands,
+			$append = new AppendChildCommand();
+			$append->insertHere($element->getIdOverride());
+			$append->setElements([$child]);
 			return [
-				new AppendChildCommand($element, $child)
-			]; // );
+				$append
+			];
 		}
 		Debug::warning("{$f} child is an object of class \"{$child_class}\"");
 		$element->debugPrintRootElement();
@@ -289,23 +317,26 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 		$f = __METHOD__;
 		try{
 			// $counter++;
-			if(!$fragment->hasIdOverride()) {
+			if(!$fragment->hasIdOverride()){
 				$fragment->setIdOverride("fragment{$counter}");
 			}
 			$commands = [
 				DeclareVariableCommand::let($fragment, $fragment)
 			];
 			$reserved = [];
-			foreach($fragment->getChildNodes() as $child) {
+			foreach($fragment->getChildNodes() as $child){
 				$ido = $child->getIdOverride();
-				if(array_key_exists($ido, $reserved)) {
+				if(array_key_exists($ido, $reserved)){
 					Debug::error("{$f} ID override \"{$ido}\" has already been used");
 				}
 				$reserved[$ido] = $child;
-				array_push($commands, $fragment->appendChildCommand($child));
+				$append = new AppendChildCommand();
+				$append->setParentNode($fragment);
+				$append->setElements([$child]);
+				array_push($commands, $append);
 			}
 			return $commands;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -323,51 +354,51 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 	protected static function getTemplateFunctionCommands(Element $element, $parent_name, &$counter){
 		$f = __METHOD__;
 		try{
-			$print = false;
-			if($print) {
-				$ec = $element->getClass();
-				$did = $element->getDebugId();
-				Debug::print("{$f} generating template function commands for element of class \"{$ec}\" with debug ID \"{$did}\"");
+			$print = $element->getDebugFlag();
+			if($print){
+				Debug::print("{$f} generating template function commands for element ".$element->getDebugString());
 			}
-			if($element instanceof DocumentFragment) {
+			if($element instanceof DocumentFragment){
 				Debug::error("{$f} DocumentFragment has a separate function for dealing with this");
-			}elseif($element instanceof GhostElementInterface) {
+			}elseif($element instanceof GhostElementInterface){
 				return null;
-			}
-			if(!$element->getContentsGeneratedFlag()) {
+			}elseif($element->hasWrapperElement()){
+				$wrapper = $element->getWrapperElement();
+				$element->releaseWrapperElement(false);
+				$wrapper->appendChild($element);
+				return static::getTemplateFunctionCommands($wrapper, $parent_name, $counter);
+			}elseif(!$element->getContentsGeneratedFlag()){
 				$element->generateContents(); // Debug::error("{$f} don't call on unfinalized objects");
 			}
 			$commands = [];
 			// set template flag if not already set
-			if(!$element->getTemplateFlag()) {
+			if(!$element->getTemplateFlag()){
 				$element->setTemplateFlag(true);
 			}
 			// deal with self-generated predecessors
 			$fragment = null;
-			if(
-			// ($element->hasPredecessors() || $element->hasSuccessors()) &&
-			$element->hasDocumentFragment()) {
+			if($element->hasDocumentFragment()){
 				$fragment = $element->getDocumentFragment();
 			}
-			if($element->hasPredecessors()) {
-				if($print) {
+			if($element->hasPredecessors()){
+				if($print){
 					Debug::print("{$f} yes, this element has predecessor nodes");
 				}
 				$predecessors = $element->getPredecessors();
-				foreach($predecessors as $p) {
-					if(is_object($p)) {
+				foreach($predecessors as $p){
+					if(is_object($p)){
 						$p_class = $p->getClass();
-						if($p instanceof Element) {
+						if($p instanceof Element){
 							$pc = static::getTemplateFunctionCommands($p, $parent_name, $counter);
 							$commands = array_merge($commands, $pc);
-						}elseif($p instanceof NodeBearingCommandInterface) {
-							if($print) {
+						}elseif($p instanceof NodeBearingCommandInterface){
+							if($print){
 								Debug::print("{$f} command is node-bearing of class \"{$p_class}\"");
 							}
 							$p->incrementVariableName($counter);
 							array_push($commands, $p);
-						}elseif($p instanceof ServerExecutableCommandInterface) {
-							if($print) {
+						}elseif($p instanceof ServerExecutableCommandInterface){
+							if($print){
 								Debug::print("{$f} command is a server-executable command of class \"{$p_class}\"");
 							}
 							array_push($commands, $p);
@@ -376,44 +407,50 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 						}
 					}
 					$counter ++;
-					if($fragment instanceof DocumentFragment) {
-						if($print) {
+					if($fragment instanceof DocumentFragment){
+						if($print){
 							$decl = $fragment->getDeclarationLine();
 							Debug::print("{$f} document fragment was instantiated {$decl}");
 						}
 						$fragment->appendChild($p);
 					}
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} no, this element does not have predecessor nodes");
 			}
 			// declare element
 			$vname = $element->incrementVariableName($counter);
-			if($print) {
+			if($print){
 				Debug::print("{$f} element variable name is \"{$vname}\"");
 			}
-			$declare = DeclareVariableCommand::let($element->getIdOverride(), // $element,
-			new CreateElementCommand($element->getElementTag()));
+			$declare = new DeclareVariableCommand();
+			$declare->setScopeType(SCOPE_TYPE_LET);
+			$declare->setVariableName($element->getIdOverride());
+			$declare->setValue(new CreateElementCommand($element->getElementTag()));
 			array_push($commands, $declare);
 			// attributes
 			$attribute_commands = static::getTemplateFunctionAttributeCommands($element);
-			if(!empty($attribute_commands)) {
+			if(!empty($attribute_commands)){
 				$commands = array_merge($commands, $attribute_commands);
 			}
 			// innerHTML/child nodes
-			if($element->hasInnerHTML()) {
-				$rehtml = new SetInnerHTMLCommand($element, $element->getInnerHTML());
+			if($element->hasInnerHTML()){
+				$rehtml = new SetInnerHTMLCommand();
+				$rehtml->setId($element->getIdOverride());
+				$rehtml->setInnerHTML($element->getInnerHTML());
 				array_push($commands, $rehtml);
-			}elseif($element->hasChildNodes()) {
+			}elseif($element->hasChildNodes()){
 				$children = $element->getChildNodes();
-				foreach($children as $child) {
-					if(is_object($child)) {
+				foreach($children as $child){
+					if(is_object($child)){
 						$child_commands = static::getChildTemplateFunctionCommands($element, $child, $counter);
-						if(!empty($child_commands)) {
+						if(!empty($child_commands)){
 							$commands = array_merge($commands, $child_commands);
 						}
-					}elseif(is_string($child)) {
-						$text_command = new AppendChildCommand($element, new CreateTextNodeCommand($child));
+					}elseif(is_string($child)){
+						$text_command = new AppendChildCommand();
+						$text_command->insertHere($element->getIdOverride());
+						$text_command->setElements([new CreateTextNodeCommand($child)]);
 						array_push($commands, $text_command);
 					}else{
 						$typeof = gettype($child);
@@ -424,13 +461,13 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 			// dispatched media commands that normally get reported to parent node/use case
 			$element->setCatchReportedSubcommandsFlag(true);
 			$element->dispatchCommands();
-			if($element->hasReportedSubcommands()) {
+			if($element->hasReportedSubcommands()){
 				$reported = $element->getReportedSubcommands();
-				if(!is_array($reported) || empty($reported)) {
+				if(!is_array($reported) || empty($reported)){
 					Debug::error("{$f} reported subcommands array is empty");
 				}
-				foreach($reported as $rc) {
-					if($print) {
+				foreach($reported as $rc){
+					if($print){
 						$rcc = $rc->getClass();
 						Debug::print("{$f} pushing a reported subcommand of class \"{$rcc}\"");
 					}
@@ -438,39 +475,46 @@ abstract class AbstractTemplateFunctionGenerator extends JavaScriptFunctionGener
 				}
 			}
 			// append this object to fragment if it exists
-			if($fragment instanceof DocumentFragment) {
+			if($fragment instanceof DocumentFragment){
 				$fragment->appendChild($element);
 			}
 			// append to parent node if it exists
-			if(isset($parent_name)) {
-				array_push($commands, new AppendChildCommand($parent_name, $element));
+			if(isset($parent_name)){
+				if($print){
+					$pn = is_object($parent_name) ? $parent_name->getDebugString() : $parent_name;
+					Debug::print("{$f} parent name is {$pn}");
+				}
+				$append = new AppendChildCommand();
+				$append->insertHere($parent_name);
+				$append->setElements([$element]);
+				array_push($commands, $append);
 			}
 			// deal with self-generated successors
-			if($element->hasSuccessors()) {
-				if($print) {
+			if($element->hasSuccessors()){
+				if($print){
 					Debug::print("{$f} yes, this element has successor nodes");
 				}
 				$successors = $element->getSuccessors();
-				foreach($successors as $successor) {
-					if($successor instanceof Element) {
+				foreach($successors as $successor){
+					if($successor instanceof Element){
 						$successor_commands = static::getTemplateFunctionCommands($successor, $parent_name, $counter);
 						$commands = array_merge($commands, $successor_commands);
-					}elseif($successor instanceof NodeBearingCommandInterface) {
+					}elseif($successor instanceof NodeBearingCommandInterface){
 						$successor->incrementVariableName($counter);
 						array_push($commands, $successor);
-					}elseif($successor instanceof ServerExecutableCommandInterface) {
+					}elseif($successor instanceof ServerExecutableCommandInterface){
 						array_push($commands, $successor);
 					}else{
 						Debug::error("{$f} successor is neither a media command nor element");
 					}
-					$counter ++;
-					if($fragment instanceof DocumentFragment) {
+					$counter++;
+					if($fragment instanceof DocumentFragment){
 						$fragment->appendChild($successor);
 					}
 				}
 			}
 			return $commands;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -18,7 +18,7 @@ abstract class RequestEvent extends UserFingerprint implements EmailNoteworthyIn
 	 *
 	 * @return boolean
 	 */
-	public abstract function isSecurityNotificationWarranted();
+	public abstract function isSecurityNotificationWarranted():bool;
 
 	public abstract static function getReasonLoggedStatic();
 
@@ -56,9 +56,9 @@ abstract class RequestEvent extends UserFingerprint implements EmailNoteworthyIn
 	public function getArrayMembershipConfiguration($config_id): ?array{
 		$f = __METHOD__;
 		$config = parent::getArrayMembershipConfiguration($config_id);
-		switch ($config_id) {
+		switch($config_id){
 			case "default":
-				if($this->hasColumn("insertIpAddress")) {
+				if($this->hasColumn("insertIpAddress")){
 					$config['insertIpAddress'] = true;
 				}
 			default:
@@ -73,6 +73,7 @@ abstract class RequestEvent extends UserFingerprint implements EmailNoteworthyIn
 
 	public static function reconfigureColumns(array &$columns, ?DataStructure $ds = null): void{
 		parent::reconfigureColumns($columns, $ds);
+		//$columns['userKey']->parentKeyFlag(); //XXX TODO
 		$columns["userTemporaryRole"]->volatilize();
 	}
 }

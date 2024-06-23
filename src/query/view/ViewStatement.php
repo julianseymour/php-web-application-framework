@@ -1,6 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\view;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\AlgorithmOptionTrait;
@@ -11,8 +14,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\database\DatabaseNameTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatementInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatementTrait;
 
-abstract class ViewStatement extends QueryStatement implements SelectStatementInterface
-{
+abstract class ViewStatement extends QueryStatement implements SelectStatementInterface{
 
 	use AlgorithmOptionTrait;
 	use DatabaseNameTrait;
@@ -23,32 +25,38 @@ abstract class ViewStatement extends QueryStatement implements SelectStatementIn
 
 	protected $checkOption;
 
-	public function __construct($db = null, $name = null, $selectStatement = null)
-	{
+	public function __construct($db = null, $name = null, $selectStatement = null){
 		parent::__construct();
 		$this->requirePropertyType('columnNames', 's');
-		if($db != null) {
+		if($db != null){
 			$this->setDatabaseName($db);
 		}
-		if($name !== null) {
+		if($name !== null){
 			$this->setName($name);
 		}
-		if($selectStatement !== null) {
+		if($selectStatement !== null){
 			$this->setSelectStatement($selectStatement);
 		}
 	}
 
-	public function setAlgorithm($alg)
-	{
-		$f = __METHOD__; //ViewStatement::getShortClass()."(".static::getShortClass().")->setAlgorithm()";
-		if($alg == null) {
-			unset($this->algorithmType);
-			return null;
-		}elseif(!is_string($alg)) {
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->algorithmType, $deallocate);
+		$this->release($this->checkOption, $deallocate);
+		$this->release($this->databaseName, $deallocate);
+		$this->release($this->name, $deallocate);
+		$this->release($this->selectStatement, $deallocate);
+		$this->release($this->sqlSecurityType, $deallocate);
+		$this->release($this->userDefiner, $deallocate);
+	}
+	
+	public function setAlgorithm($alg){
+		$f = __METHOD__;
+		if(!is_string($alg)){
 			Debug::error("{$f} algortihm must be a string");
 		}
 		$alg = strtolower($alg);
-		switch ($alg) {
+		switch($alg){
 			case ALGORITHM_UNDEFINED:
 			case ALGORITHM_MERGE:
 			case ALGORITHM_TEMPTABLE:
@@ -56,71 +64,56 @@ abstract class ViewStatement extends QueryStatement implements SelectStatementIn
 			default:
 				Debug::error("{$f} invalid algorithm \"{$alg}\"");
 		}
-		return $this->algorithmType = $alg;
+		if($this->hasAlgorithm()){
+			$this->release($this->algorithmType);
+		}
+		return $this->algorithmType = $this->claim($alg);
 	}
 
-	public function setCheckOption($o)
-	{
-		$f = __METHOD__; //ViewStatement::getShortClass()."(".static::getShortClass().")->setCheckOption()";
-		if($o == null) {
-			unset($this->checkOption);
-			return null;
-		}elseif(!is_string($o)) {
+	public function setCheckOption($o){
+		$f = __METHOD__;
+		if(!is_string($o)){
 			Debug::error("{$f} check option must be a string");
 		}
 		$o = strtolower($o);
-		switch ($o) {
+		switch($o){
 			case CHECK_OPTION_CHECK:
 			case CHECK_OPTION_CASCADED:
 			case CHECK_OPTION_LOCAL:
-				return $this->checkOption = $o;
+				break;
 			default:
 				Debug::error("{$f} invalid check option \"{$o}\"");
 		}
+		if($this->hasCheckOption()){
+			$this->release($this->checkOption);
+		}
+		return $this->checkOption = $this->claim($o);
 	}
 
-	public function hasCheckOption()
-	{
+	public function hasCheckOption():bool{
 		return isset($this->checkOption);
 	}
 
-	public function getCheckOption()
-	{
-		$f = __METHOD__; //ViewStatement::getShortClass()."(".static::getShortClass().")->getCheckOption()";
-		if(!$this->hasCheckOption()) {
+	public function getCheckOption(){
+		$f = __METHOD__;
+		if(!$this->hasCheckOption()){
 			Debug::error("{$f} check option is undefined");
 		}
 		return $this->checkOption;
 	}
 
-	public function withCheckOption($o)
-	{
+	public function withCheckOption($o):ViewStatement{
 		$this->setCheckOption($o);
 		return $this;
 	}
 
-	public function as($s)
-	{
+	public function as($s):ViewStatement{
 		$this->setSelectStatement($s);
 		return $this;
 	}
 
-	public function view($name)
-	{
+	public function view($name):ViewStatement{
 		$this->setName($name);
 		return $this;
-	}
-
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->algorithmType);
-		unset($this->properties);
-		unset($this->propertyTypes);
-		unset($this->checkOption);
-		unset($this->name);
-		unset($this->selectStatement);
-		unset($this->sqlSecurityType);
-		unset($this->userDefiner);
 	}
 }

@@ -13,6 +13,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\QueryBuilder;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 
 trait NoteworthyTrait{
 
@@ -30,17 +31,13 @@ trait NoteworthyTrait{
 
 	public abstract function getNotificationPreview();
 
-	public abstract function getSubtype():string;
-
-	public abstract function hasSubtype(): bool;
-
-	public abstract function isNotificationDataWarranted(): bool;
+	public abstract function isNotificationDataWarranted(PlayableUser $user): bool;
 
 	public function getDismissNotificationFlag():bool{
 		return $this->getFlag("dismissNotification");
 	}
 
-	public function disableNotifications(bool $value = true):bool{
+	public function disableNotifications(bool $value = true){
 		$this->setDisableNotificationsFlag($value);
 		return $this;
 	}
@@ -58,7 +55,7 @@ trait NoteworthyTrait{
 		$flag = $this->getFlag("sendCounterpartNotification");
 		$key = $this->getIdentifierValue();
 		$did = $this->getDebugId();
-		if($flag) {
+		if($flag){
 			// Debug::print("{$f} returning true for object with key \"{$key}\" and debug ID \"{$did}\"");
 		}else{
 			// Debug::print("{$f} returning false object with key \"{$key}\" and debug ID \"{$did}\"");
@@ -73,10 +70,10 @@ trait NoteworthyTrait{
 	public function setSendCounterpartNotificationFlag($value){
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
+		if($print){
 			$key = $this->getIdentifierValue();
 			$did = $this->getDebugId();
-			if($value) {
+			if($value){
 				Debug::print("{$f} setting flag to true for object with key \"{$key}\" and debug ID \"{$did}\"");
 			}else{
 				Debug::print("{$f} setting flag to false for object with key \"{$key}\" and debug ID \"{$did}\"");
@@ -102,38 +99,38 @@ trait NoteworthyTrait{
 
 			$st = QueryBuilder::select("hostKey")->from($intersection->getDatabaseName(), $intersection->getTableName())
 				->where(new AndCommand(new WhereCondition("foreignKey", OPERATOR_EQUALS, 's'), new WhereCondition("relationship", OPERATOR_EQUALS, 's')));
-			$query = RetrospectiveNotificationData::selectStatic()->where(new AndCommand(new WhereCondition("subtype", OPERATOR_EQUALS), new WhereCondition($idn, OPERATOR_IN, $this->getColumnTypeSpecifier($idn), $st)));
+			$query = RetrospectiveNotificationData::selectStatic()->where(new AndCommand(new WhereCondition("subtype", OPERATOR_EQUALS), new WhereCondition($idn, OPERATOR_IN, $this->getTypeSpecifier($idn), $st)));
 			$operand_notes = RetrospectiveNotificationData::loadMultiple($mysqli, $query, 'sss', $note_type, $this->getIdentifierValue(), "subjectKey");
-			if(empty($operand_notes)) {
-				if($print) {
+			if(empty($operand_notes)){
+				if($print){
 					Debug::print("{$f} nothing to dismiss");
 				}
 				return SUCCESS;
 			}
-			foreach($operand_notes as $operand_note) {
+			foreach($operand_notes as $operand_note){
 				// $status = $operand_note->load($mysqli, $where, $args);
 				$status = $operand_note->getObjectStatus();
-				if($status === ERROR_NOT_FOUND) {
+				if($status === ERROR_NOT_FOUND){
 					// Debug::print("{$f} object not found; this order does not have a notification");
-				}elseif($status !== SUCCESS) {
+				}elseif($status !== SUCCESS){
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} error loading order notification from database: \"{$err}\"");
 				}else{
 
-					if(!$operand_note->hasUserData()) {
+					if(!$operand_note->hasUserData()){
 						$operand_note->loadForeignDataStructure($mysqli, "userKey");
-						if(!$operand_note->hasForeignDataStructure("userKey")) {
+						if(!$operand_note->hasForeignDataStructure("userKey")){
 							Debug::warning("{$f} loading user data failed");
 							continue;
 						}
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} user data has already been loaded");
 					}
 
-					if(!$operand_note->hasUserData()) {
+					if(!$operand_note->hasUserData()){
 						$id = $operand_note->getIdentifierValue();
 						Debug::error("{$f} user data is undefined for notification with ID \"{$id}\"");
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} about to mark existing notification read");
 					}
 					$operand_note->setNotificationState(NOTIFICATION_STATE_DISMISSED);
@@ -141,7 +138,7 @@ trait NoteworthyTrait{
 					$operand_note->setPermission(DIRECTIVE_UPDATE, SUCCESS);
 					$status = $operand_note->update($mysqli);
 					$operand_note->setPermission(DIRECTIVE_UPDATE, $backup);
-					if($status !== SUCCESS) {
+					if($status !== SUCCESS){
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} error dismissing notification: \"{$err}\"");
 					}
@@ -149,7 +146,7 @@ trait NoteworthyTrait{
 				}
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

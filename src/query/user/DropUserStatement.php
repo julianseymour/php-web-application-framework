@@ -1,33 +1,31 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\user;
 
 use JulianSeymour\PHPWebApplicationFramework\query\IfExistsFlagBearingTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\QueryStatement;
 
-class DropUserStatement extends QueryStatement
-{
+class DropUserStatement extends QueryStatement{
 
 	use IfExistsFlagBearingTrait;
 	use MultipleDatabaseUserDefinitionsTrait;
 
-	public function __construct(...$users)
-	{
+	public function __construct(...$users){
 		parent::__construct();
-		if(isset($users)) {
+		if(isset($users)){
 			$this->setUsers($users);
 		}
 	}
 
-	public function getQueryStatementString()
-	{
+	public function getQueryStatementString():string{
 		// DROP USER [IF EXISTS] user [, user] ...
 		$string = "drop user ";
-		if($this->getIfExistsFlag()) {
+		if($this->getIfExistsFlag()){
 			$string .= "if exists ";
 		}
 		$count = 0;
-		foreach($this->getUsers() as $user) {
-			if($count > 0) {
+		foreach($this->getUsers() as $user){
+			if($count > 0){
 				$string .= ",";
 			}
 			$string .= $user->toSQL();

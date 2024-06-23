@@ -20,68 +20,68 @@ class SearchResponder extends Responder{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				Debug::print("{$f} entered");
 			}
 			$status = $use_case->getObjectStatus();
-			if($print) {
+			if($print){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::print("{$f} status \"{$err}\"");
 			}
 			$response->setProperties([
 				"status" => $status
 			]);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} error status \"{$err}\"");
 				$response->pushCommand(new InfoBoxCommand(ErrorMessage::getVisualError($status)));
 				return;
-			}elseif(! hasInputParameter("searchQuery")) {
-				if($print) {
+			}elseif(! hasInputParameter("searchQuery")){
+				if($print){
 					Debug::print("{$f} search was not conducted");
 				}
 				return;
-			}elseif(!$use_case->hasSearchResults()) {
-				if($print) {
+			}elseif(!$use_case->hasSearchResults()){
+				if($print){
 					Debug::print("{$f} zero search results");
 				}
 				$response->pushCommand(new InfoBoxCommand(ErrorMessage::getVisualError(ERROR_0_SEARCH_RESULTS)));
 				return;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} about to return search results");
 			}
 			parent::modifyResponse($response, $use_case);
 			$objects = $use_case->getSearchResults();
-			if($use_case->hasPredecessor()) {
-				if($print) {
+			if($use_case->hasPredecessor()){
+				if($print){
 					Debug::print("{$f} predecessor is defined");
 				}
 				$predecessor = $use_case->getPredecessor();
 			}else{
-				if($print) {
+				if($print){
 					Debug::print("{$f} predecessor is undefined");
 				}
 				$predecessor = $use_case;
 			}
 			$elements = [];
 			$template = false;
-			foreach($objects as $obj) {
+			foreach($objects as $obj){
 				$element_class = $predecessor->getSearchResultElementClass($obj);
-				if($element_class::isTemplateworthy()) {
+				if($element_class::isTemplateworthy()){
 					$template = true;
-					if($print) {
+					if($print){
 						Debug::print("{$f} element class \"{$element_class}\" is templateworthy");
 					}
 					$obj->setElementClass($element_class);
-					if(!$obj->hasElementClass()) {
+					if(!$obj->hasElementClass()){
 						Debug::error("{$f} element class is undefined immediately after it was set");
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} set element class to \"{$element_class}\"");
 					}
 				}else{
-					if($template) {
+					if($template){
 						Debug::error("{$f} cannot mix template and non-templateworthy element classes in results");
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} element class \"{$element_class}\" is not templateworthy");
 					}
 					$element = new $element_class(ALLOCATION_MODE_LAZY, $obj);
@@ -89,13 +89,13 @@ class SearchResponder extends Responder{
 				}
 				$obj->configureArrayMembership("search");
 			}
-			if($template) {
-				if($print) {
+			if($template){
+				if($print){
 					Debug::print("{$f} search results are templateworthy, pushing results as data");
 				}
 				$response->pushDataStructure(...$objects);
 			}else{
-				if($print) {
+				if($print){
 					Debug::print("{$f} search results are not templateworthy");
 				}
 				$insert_here = $predecessor->getInsertHereElement(null);
@@ -104,20 +104,21 @@ class SearchResponder extends Responder{
 				$delete_command->pushSubcommand($insert_command);
 				$response->pushCommand($delete_command);
 			}
-			if($use_case->hasPredecessor()) {
-				if($print) {
+			if($use_case->hasPredecessor()){
+				if($print){
 					Debug::print("{$f} about to tell the predecessor to modify response");
 				}
 				$status = $predecessor->getObjectStatus();
 				$responder = $predecessor->getResponder($status);
-				if($responder instanceof Responder) {
+				if($responder instanceof Responder){
 					$responder->modifyResponse($response);
 				}
-			}elseif($print) {
+				deallocate($responder);
+			}elseif($print){
 				Debug::print("{$f} no defined predecessor");
 			}
 			return;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

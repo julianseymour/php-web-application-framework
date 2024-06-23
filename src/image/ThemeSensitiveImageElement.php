@@ -28,7 +28,7 @@ class ThemeSensitiveImageElement extends CompoundImageElement
 	public function getDarkThemeImageURI()
 	{
 		$f = __METHOD__; //ThemeSensitiveImageElement::getShortClass()."(".static::getShortClass().")->getDarkThemeImageURI()";
-		if(!$this->hasDarkThemeImageURI()) {
+		if(!$this->hasDarkThemeImageURI()){
 			Debug::error("{$f} dark theme image URI is undefined");
 		}
 		return $this->darkThemeImageURI;
@@ -42,7 +42,7 @@ class ThemeSensitiveImageElement extends CompoundImageElement
 	public function getLightThemeImageURI()
 	{
 		$f = __METHOD__; //ThemeSensitiveImageElement::getShortClass()."(".static::getShortClass().")->getLightThemeImageURI()";
-		if(!$this->hasLightThemeImageURI()) {
+		if(!$this->hasLightThemeImageURI()){
 			Debug::error("{$f} dark theme image URI is undefined");
 		}
 		return $this->lightThemeImageURI;
@@ -74,15 +74,15 @@ class ThemeSensitiveImageElement extends CompoundImageElement
 		foreach([
 			$dark,
 			$light
-		] as $img) {
-			if($this->hasAlternateTextAttribute()) {
+		] as $img){
+			if($this->hasAlternateTextAttribute()){
 				$img->setAlternateTextAttribute($this->getAlternateTextAttribute());
 			}
-			if($this->hasHrefAttribute()) {
+			if($this->hasHrefAttribute()){
 				$img->setHrefAttribute($this->getHrefAttribute());
 			}
-			if($this->hasStyleProperties()) {
-				foreach($this->getStyleProperties() as $property => $value) {
+			if($this->hasStyleProperties()){
+				foreach($this->getStyleProperties() as $property => $value){
 					$img->setStyleProperty($property, $value);
 				}
 			}

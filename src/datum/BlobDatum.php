@@ -5,7 +5,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\datum;
 class BlobDatum extends StringDatum{
 
 	public function getHumanWritableValue(){
-		if($this->getNeverLeaveServer()) {
+		if($this->getNeverLeaveServer()){
 			return null;
 		}
 		return $this->getValue();

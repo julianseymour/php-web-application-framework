@@ -19,15 +19,15 @@ trait ParametricTrait{
 		return $this->getProperty("parameters");
 	}
 
-	public function setParameters($params){
+	public function setParameters(array $params){
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
-		if(empty($params)){
+		$print = false && $this->getDebugFlag();
+		if(!is_array($params) || empty($params)){
 			Debug::error("{$f} don't call this function without actually passing parameters");
-		}elseif(count($params) === 1 && is_array($params[0])) {
+		}elseif(count($params) === 1 && is_array($params[0])){
 			$params = $params[0];
 		}
-		if($print) {
+		if($print){
 			$count = count($params);
 			Debug::print("{$f} prior to setting array property, there are {$count} parameters");
 			Debug::printArray(($params));
@@ -41,8 +41,8 @@ trait ParametricTrait{
 
 	public function getParameterString(bool $js = false): ?string{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
-		if(!$this->hasParameters()) {
+		$print = false && $this->getDebugFlag();
+		if(!$this->hasParameters()){
 			if($print){
 				Debug::print("{$f} no parameters");
 			}
@@ -50,22 +50,22 @@ trait ParametricTrait{
 		}
 		$string = "";
 		$count = $this->getParameterCount();
-		if($print) {
+		if($print){
 			Debug::print("{$f} {$count} parameters");
 		}
-		foreach($this->getParameters() as $p) {
-			if(!empty($string)) {
+		foreach($this->getParameters() as $p){
+			if(!empty($string)){
 				$string .= ", ";
 			}
-			if($p instanceof Element) {
-				if($p->getTemplateFlag()) {
+			if($p instanceof Element){
+				if($p->getTemplateFlag()){
 					$p = $p->getIdOverride();
 				}else{
-					$p = "this"; // XXX
+					$p = "this"; // XXX TODO hack
 				}
-			}elseif($js && $p instanceof JavaScriptInterface) {
+			}elseif($js && $p instanceof JavaScriptInterface){
 				$p = $p->toJavaScript();
-			}elseif(is_string($p)) {
+			}elseif(is_string($p)){
 				$p = single_quote($p);
 			}
 			if($p === null){
@@ -107,10 +107,10 @@ trait ParametricTrait{
 
 	public function debugPrintParameters(){
 		$f = __METHOD__; //"ParametricTrait(".static::getShortClass().")->debugPrintParameters()";
-		if(!$this->hasParameters()) {
+		if(!$this->hasParameters()){
 			Debug::print("{$f} no parameters");
 		}else{
-			foreach($this->getParameters() as $name => $p) {
+			foreach($this->getParameters() as $name => $p){
 				$pc = is_object($p) ? $p->getClass() : gettype($p);
 				Debug::print("{$f} parameter {$name} is a {$pc}");
 			}

@@ -335,6 +335,10 @@ class NotificationData extends UserCorrespondence{
 	updateElement(){
 		let f = this.constructor.name.concat(".updateElement()");
 		try{
+			let print = false;
+			if(print){
+				window.alert(f.concat(": updating element for a regular notification"));
+			}
 			this.setColumnValue("widget", "notifications");
 			let type = this.getNotificationType();
 			//let suffix = this.getNotificationIdSuffixIndex();

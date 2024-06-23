@@ -12,6 +12,12 @@ abstract class FullTextStringDatum extends StringDatum{
 		]);
 	}
 
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"fulltext"
+		]);
+	}
+	
 	public function setFulltextFlag(bool $value = true): bool{
 		return $this->setFlag("fulltext", $value);
 	}
@@ -21,9 +27,9 @@ abstract class FullTextStringDatum extends StringDatum{
 	}
 
 	public function setFlag(string $flag_name, bool $value = true): bool{
-		$f = __METHOD__; //FullTextStringDatum::getShortClass()."(".static::getShortClass().")->setFlag()";
+		$f = __METHOD__;
 		$print = false;
-		if($flag_name === COLUMN_FILTER_SEARCHABLE) {
+		if($flag_name === COLUMN_FILTER_SEARCHABLE){
 			if($print){
 				Debug::print("{$f} setting serachable AND fulltext flags");
 			}

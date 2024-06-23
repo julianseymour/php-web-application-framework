@@ -17,15 +17,15 @@ class SessionRecoverySettingsForm extends AbstractSessionForm{
 		try{
 			$print = false;
 			$context = $this->getContext();
-			if(is_array($context->getRecoveryKit())) {
-				if($print) {
+			if(is_array($context->getRecoveryKit())){
+				if($print){
 					Debug::print("{$f} recovery kit decrypted as array");
 				}
 				$arr = [
 					DIRECTIVE_DELETE
 				];
 			}else{
-				if($print) {
+				if($print){
 					Debug::print("{$f} context is uninitialized, or recovery kit was not decrypted as an array");
 				}
 				$arr = [
@@ -33,18 +33,18 @@ class SessionRecoverySettingsForm extends AbstractSessionForm{
 				];
 			}
 			return $arr;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function getFormDataIndices(): ?array{
 		$f = __METHOD__;
-		if(!$this->hasContext()) {
+		if(!$this->hasContext()){
 			Debug::error("{$f} context is undefined");
 		}
 		$context = $this->getContext();
-		if(is_array($context->getRecoveryKit())) {
+		if(is_array($context->getRecoveryKit())){
 			return [];
 		}
 		return parent::getFormDataIndices();
@@ -80,7 +80,7 @@ class SessionRecoverySettingsForm extends AbstractSessionForm{
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
 		try{
-			switch ($name) {
+			switch($name){
 				case DIRECTIVE_DELETE:
 					$button = $this->generateGenericButton($name);
 					$innerHTML = _("Forget me");
@@ -104,12 +104,16 @@ class SessionRecoverySettingsForm extends AbstractSessionForm{
 			return [
 				$button
 			];
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	protected function getFormHeaderString(){
+		$context = $this->getContext();
+		if(is_array($context->getRecoveryKit())){
+			return _("Click 'Forget Me' to delete all resumable sessions.");
+		}
 		return _("By choosing 'Remember Me', your session will automatically refresh upon expiration. You will remain logged in until you logout, terminate your saved session or delete this site's cookies from your device.");
 	}
 }

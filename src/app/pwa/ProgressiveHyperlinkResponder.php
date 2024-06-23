@@ -23,26 +23,26 @@ class ProgressiveHyperlinkResponder extends Responder{
 		try{
 			$print = false;
 			$uri = request()->getRequestURI();
-			if($print) {
+			if($print){
 				Debug::print("{$f} pushing URI \"{$uri}\"");
 			}
-			if(!$response->getOverrideHyperlinkBehaviorFlag()) {
-				if($print) {
+			if(!$response->getOverrideHyperlinkBehaviorFlag()){
+				if($print){
 					Debug::print("{$f} not overriding hyperlink behavior");
 					// Debug::printStackTraceNoExit("{$f}");
 				}
-				if(ULTRA_LAZY) {
+				if(ULTRA_LAZY){
 					$mode = ALLOCATION_MODE_ULTRA_LAZY;
 				}else{
 					$mode = ALLOCATION_MODE_LAZY;
 				}
-				if($print) {
+				if($print){
 					Debug::print("{$f} this is a progressive hyperlink event");
 				}
 				// page content
 				$page_content = new PageContentElement($mode);
 				$status = $use_case->permit(user(), "execute");
-				if($status === SUCCESS) {
+				if($status === SUCCESS){
 					$contents = $use_case->getPageContent();
 				}else{
 					$contents = [
@@ -57,15 +57,15 @@ class ProgressiveHyperlinkResponder extends Responder{
 					
 				);
 				$response->pushCommand($update_pg_content);
-				$response->setFlag(PROGRESSIVE_HYPERLINK_KEY);
-			}elseif($print) {
+				$response->setFlag('pwa');
+			}elseif($print){
 				Debug::print("{$f} hyperlink behavior overridden");
 			}
-			if(APPLICATION_INTEGRATION_MODE === APP_INTEGRATION_MODE_UNIVERSAL) {
+			if(APPLICATION_INTEGRATION_MODE === APP_INTEGRATION_MODE_UNIVERSAL){
 				$response->pushCommand(new SetUniversalFormActionCommand($_SERVER['REQUEST_URI']));
 			}
 			parent::modifyResponse($response, $use_case);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

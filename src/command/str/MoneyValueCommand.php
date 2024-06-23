@@ -1,45 +1,44 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\str;
 
-use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
+use JulianSeymour\PHPWebApplicationFramework\common\SymbolicTrait;
 
-class MoneyValueCommand extends StringTransformationCommand
-{
+class MoneyValueCommand extends StringTransformationCommand{
 
-	protected $symbol;
+	use SymbolicTrait;
 
-	public function __construct($symbol, $subject)
-	{
+	public function __construct($symbol=null, $subject=null){
 		parent::__construct($subject);
-		$this->setSymbol($symbol);
-	}
-
-	public function setSymbol($symbol)
-	{
-		return $this->symbol = $symbol;
-	}
-
-	public function hasSymbol()
-	{
-		return isset($this->symbol);
-	}
-
-	public function getSymbol()
-	{
-		$f = __METHOD__; //MoneyValueCommand::getShortClass()."(".static::getShortClass().")->getSymbol()";
-		if(!$this->hasSymbol()) {
-			Debug::error("{$f} symbol is undefined");
+		if($symbol !== null){
+			$this->setSymbol($symbol);
 		}
-		return $this->symbol;
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "MoneyValue";
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		return (new ConcatenateCommand($this->getSymbol(), new FloatPrecisionCommand($this->getSubject(), 2)))->evaluate();
+	public function evaluate(?array $params = null){
+		$concat = new ConcatenateCommand(
+			$this->getSymbol(), 
+			new FloatPrecisionCommand($this->getSubject(), 2)
+		);
+		return $concat->evaluate();
+	}
+	
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasSymbol()){
+			$this->setSymbol(replicate($that->getSymbol()));
+		}
+		return $ret;
+	}
+	
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->symbol, $deallocate);
 	}
 }

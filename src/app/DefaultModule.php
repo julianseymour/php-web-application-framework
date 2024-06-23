@@ -7,6 +7,7 @@ use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\command\control\BreakCommand;
 
 class DefaultModule extends EmptyModule{
 
@@ -31,6 +32,7 @@ class DefaultModule extends EmptyModule{
 			"blank" => \JulianSeymour\PHPWebApplicationFramework\use_case\BlankUseCase::class,
 			"confirm_email" => \JulianSeymour\PHPWebApplicationFramework\email\change\ValidateChangeEmailCodeUseCase::class,
 			"contact" => \JulianSeymour\PHPWebApplicationFramework\contact\ContactUsUseCase::class,
+			"create_routines" => \JulianSeymour\PHPWebApplicationFramework\app\CreateStoredRoutinesUseCase::class,
 			"delete_cookies" => \JulianSeymour\PHPWebApplicationFramework\auth\cookie\DeleteCookiesUseCase::class,
 			"error" => \JulianSeymour\PHPWebApplicationFramework\use_case\StatusCodeUseCase::class,
 			"fetch_update" => \JulianSeymour\PHPWebApplicationFramework\notification\push\FetchNotificationUseCase::class,
@@ -75,7 +77,6 @@ class DefaultModule extends EmptyModule{
 			\JulianSeymour\PHPWebApplicationFramework\command\DocumentVisibilityStateCommand::class,
 			\JulianSeymour\PHPWebApplicationFramework\command\element\ElementExistsCommand::class,
 			\JulianSeymour\PHPWebApplicationFramework\command\debug\ErrorCommand::class,
-			\JulianSeymour\PHPWebApplicationFramework\command\element\FadeElementCommand::class,
 			\JulianSeymour\PHPWebApplicationFramework\command\input\FocusInputCommand::class,
 			\JulianSeymour\PHPWebApplicationFramework\command\element\GetAttributeCommand::class,
 			\JulianSeymour\PHPWebApplicationFramework\command\data\GetDataStructureCommand::class,
@@ -441,6 +442,7 @@ class DefaultModule extends EmptyModule{
 			DIRECTIVE_DOWNLOAD,
 			DIRECTIVE_EMAIL_CONFIRMATION_CODE,
 			DIRECTIVE_FORGOT_CREDENTIALS,
+			DIRECTIVE_GENERATE,
 			DIRECTIVE_IMPORT_CSV,
 			DIRECTIVE_INSERT,
 			DIRECTIVE_LANGUAGE,
@@ -464,7 +466,7 @@ class DefaultModule extends EmptyModule{
 	public function getClientConstants(): ?array{
 		$f = __METHOD__;
 		$ret = [
-			'WEBSITE_DOMAIN' => WEBSITE_DOMAIN,
+			'DOMAIN_LOWERCASE' => DOMAIN_LOWERCASE,
 			// public key for push API
 			'PUSH_API_SERVER_PUBLIC_KEY' => PUSH_API_SERVER_PUBLIC_KEY,
 			// session timeout duration
@@ -552,7 +554,7 @@ class DefaultModule extends EmptyModule{
 			"STRING_UPLOAD" => _("Upload"),
 			"STRING_VALIDATE" => _("Validate")
 		];
-		if(defined('HCAPTCHA_SITE_KEY')) {
+		if(defined('HCAPTCHA_SITE_KEY')){
 			$ret['HCAPTCHA_SITE_KEY'] = HCAPTCHA_SITE_KEY;
 		}
 		return $ret;
@@ -671,31 +673,34 @@ class DefaultModule extends EmptyModule{
 	}
 
 	public function getMessageEventHandlerCases(): ?array{
-		$break = CommandBuilder::break();
+		$break = new BreakCommand();
 		$info = new \JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand("response.info");
 		return [
 			"window.alert" => [],
 			"alert" => [
-				CommandBuilder::call("alert", $info),
+				new \JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand("alert", $info),
 				$break
 			],
 			/*"beep" => [
-				CommandBuilder::call("beep"),
+				new CallFunctionCommand("beep"),
 				$break
 			],*/
 			"handle_fetch" => [],
 			"fetch" => [
-				CommandBuilder::call("handleFetchEvent", new \JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand("response")),
+				new \JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand(
+					"handleFetchEvent", 
+					new \JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand("response")
+				),
 				$break
 			],
 			"InfoBoxElement.showInfoBox" => [],
 			"showInfoBox" => [],
 			"info" => [
-				CommandBuilder::call("info", $info),
+				new \JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand("info", $info),
 				$break
 			],
 			"reset_timeout" => [
-				CommandBuilder::call("resetSessionTimeoutAnimation", false),
+				new \JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand("resetSessionTimeoutAnimation", false),
 				$break
 			]
 		];
@@ -718,5 +723,70 @@ class DefaultModule extends EmptyModule{
 	
 	public function getEmbedName():string{
 		return "default";
+	}
+	
+	public function getContentSecurityPolicyDirectives():?array{
+		$wd = DOMAIN_LOWERCASE;
+		$ret = [
+			'default-src' => [
+				"'self'", 
+				"'unsafe-inline'", 
+				$wd,
+				"*.{$wd}"
+			],
+			'connect-src' => [
+				'data:',
+				"'self'",
+				"'unsafe-inline'",
+				$wd,
+				"*.{$wd}"
+			],
+			'frame-src' => [
+				$wd,
+				"*.{$wd}"
+			],
+			'img-src' => [
+				"'self'", 
+				$wd,
+				"*.{$wd}",
+				'blob:', 
+				'data:'
+			],
+			'script-src' => [
+				"'self'", 
+				"'unsafe-inline'",
+				$wd,
+				"*.{$wd}"
+			],
+			'style-src' => [
+				"'self'", 
+				"'unsafe-inline'",
+				$wd,
+				"*.{$wd}"
+			],
+			'worker-src' => [
+				"'self'", 
+				"'unsafe-inline'", 
+				$wd,
+				"*.{$wd}"
+			]
+		];
+		if(defined("HCAPTCHA_SITE_KEY") && defined("HCAPTCHA_SECRET")){
+			array_push($ret['script-src'], ...[
+				'https://newassets.hcaptcha.com',
+				'https://hcaptcha.com',
+				'https://*.hcaptcha.com',
+				
+			]);
+			array_push($ret['style-src'], ... [
+				'https://hcaptcha.com',
+				'https://*.hcaptcha.com'
+			]);
+			array_push($ret['frame-src'], ... [
+				'https://hcaptcha.com',
+				'https://*.hcaptcha.com'
+			]);
+		}
+		return $ret;
 	}
 }

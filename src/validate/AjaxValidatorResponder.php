@@ -16,14 +16,14 @@ class AjaxValidatorResponder extends Responder{
 		parent::modifyResponse($response, $use_case);
 		$validator = $use_case->getValidator();
 		$status = $use_case->getObjectStatus();
-		if($status !== SUCCESS) {
-			if($print) {
+		if($status !== SUCCESS){
+			if($print){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} validation returned error status \"{$err}\"");
 			}
 			$response->pushCommand($validator->getFailureCommand());
 		}else{
-			if($print) {
+			if($print){
 				Debug::print("{$f} validation successful");
 			}
 			$response->pushCommand($validator->getSuccessCommand());

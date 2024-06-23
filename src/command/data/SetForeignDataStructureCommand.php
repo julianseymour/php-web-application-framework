@@ -13,15 +13,23 @@ class SetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 
 	protected $foreignDataStructure;
 
-	public function __construct($context, $cn, $fds = null){
-		parent::__construct($context, $cn);
-		if(isset($fds)) {
+	public function __construct($context=null, $column_name=null, $fds = null){
+		parent::__construct($context, $column_name);
+		if(isset($fds)){
 			$this->setForeignDataStructure($fds);
 		}
 	}
 
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->foreignDataStructure, $deallocate);
+	}
+	
 	public function setForeignDataStructure($fds){
-		return $this->foreignDataStructure = $fds;
+		if($this->hasForeignDataStructure()){
+			$this->release($this->foreignDataStructure);
+		}
+		return $this->foreignDataStructure = $this->claim($fds);
 	}
 
 	public function hasForeignDataStructure():bool{
@@ -30,7 +38,7 @@ class SetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 
 	public function getForeignDataStructure(){
 		$f = __METHOD__;
-		if(!$this->hasForeignDataStructure()) {
+		if(!$this->hasForeignDataStructure()){
 			Debug::error("{$f} foreign data structure is undefined");
 		}
 		return $this->foreignDataStructure;
@@ -39,23 +47,23 @@ class SetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 	public function toJavaScript(): string{
 		$f = __METHOD__;
 		$idcs = $this->getIdCommandString();
-		if($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface){
 			$idcs = $idcs->toJavaScript();
 		}
-		$cn = $this->getColumnName();
-		if($cn instanceof JavaScriptInterface) {
-			$cn = $cn->toJavaScript();
-		}elseif(is_string($cn) || $cn instanceof StringifiableInterface) {
-			$cn = single_quote($cn);
+		$column_name = $this->getColumnName();
+		if($column_name instanceof JavaScriptInterface){
+			$column_name = $column_name->toJavaScript();
+		}elseif(is_string($column_name) || $column_name instanceof StringifiableInterface){
+			$column_name = single_quote($column_name);
 		}
 		$fds = $this->getForeignDataStructure();
-		if($fds instanceof JavaScriptInterface) {
+		if($fds instanceof JavaScriptInterface){
 			$fds = $fds->toJavaScript();
 		}else{
 			Debug::error("{$f} foreign data structure cannot be converted to javascript");
 		}
 		$cs = $this->getCommandId();
-		return "{$idcs}.{$cs}({$cn}, {$fds})";
+		return "{$idcs}.{$cs}({$column_name}, {$fds})";
 	}
 
 	public static function getCommandId(): string{
@@ -64,17 +72,17 @@ class SetForeignDataStructureCommand extends ForeignDataStructureCommand impleme
 
 	public function resolve(){
 		$context = $this->getDataStructure();
-		while ($context instanceof ValueReturningCommandInterface) {
+		while($context instanceof ValueReturningCommandInterface){
 			$context = $context->evaluate();
 		}
-		$cn = $this->getColumnName();
-		while ($cn instanceof ValueReturningCommandInterface) {
-			$cn = $cn->evaluate();
+		$column_name = $this->getColumnName();
+		while($column_name instanceof ValueReturningCommandInterface){
+			$column_name = $column_name->evaluate();
 		}
 		$fds = $this->getForeignDataStructure();
-		while ($fds instanceof ValueReturningCommandInterface) {
+		while($fds instanceof ValueReturningCommandInterface){
 			$fds = $fds->evaluate();
 		}
-		$context->setForeignDataStructure($cn, $fds);
+		$context->setForeignDataStructure($column_name, $fds);
 	}
 }

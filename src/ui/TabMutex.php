@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -13,16 +14,20 @@ use JulianSeymour\PHPWebApplicationFramework\input\choice\MultipleRadioButtons;
 use JulianSeymour\PHPWebApplicationFramework\style\CssRule;
 use JulianSeymour\PHPWebApplicationFramework\style\selector\ElementSelector;
 use Exception;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 
-class TabMutex extends MultipleRadioButtons
-{
+class TabMutex extends MultipleRadioButtons{
 
 	protected $labelContainerId;
 
-	protected $labelContainerClassAttribute;
-
 	protected $selectorLogic;
 
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->labelContainerId, $deallocate);
+		$this->release($this->selectorLogic, $deallocate);
+	}
+	
 	public function generateInput(Choice $opt): RadioButtonInput{
 		$input = parent::generateInput($opt);
 		$input->setAttribute("tab", $opt->getValue());
@@ -35,7 +40,7 @@ class TabMutex extends MultipleRadioButtons
 	}
 
 	public function setLabelContainerClassAttribute(...$attr){
-		if(count($attr) == 1 && is_array($attr[0])) {
+		if(count($attr) == 1 && is_array($attr[0])){
 			$attr = $attr[0];
 		}
 		return $this->setArrayProperty("labelContainerClassAttribute", $attr);
@@ -50,15 +55,14 @@ class TabMutex extends MultipleRadioButtons
 	}
 
 	public function setLabelContainerId($id){
-		if($id === null) {
-			unset($this->labelContainerId);
-			return null;
+		if($this->hasLabelContainerId()){
+			$this->release($this->labelContainerId);
 		}
-		return $this->labelContainerId = $id;
+		return $this->labelContainerId = $this->claim($id);
 	}
 
 	public function getLabelContainerId(){
-		if(!$this->hasLabelContainerId()) {
+		if(!$this->hasLabelContainerId()){
 			return $this->setLabelContainerId(sha1(random_bytes(32)));
 		}
 		return $this->labelContainerId;
@@ -68,7 +72,7 @@ class TabMutex extends MultipleRadioButtons
 		$c = new DivElement();
 		$c->setIdAttribute($this->getLabelContainerId());
 		$c->addClassAttribute("tab_labels");
-		if($this->hasLabelContainerClassAttribute()) {
+		if($this->hasLabelContainerClassAttribute()){
 			$c->addClassAttribute(...$this->getLabelContainerClassAttribute());
 		}
 		$c->appendChild(...array_values($this->getLabelElements()));
@@ -86,34 +90,37 @@ class TabMutex extends MultipleRadioButtons
 		try{
 			$arr = [];
 			$choices = $this->getChoices();
-			if(empty($choices)) {
+			if(empty($choices)){
 				Debug::error("{$f} mutex options are undefined");
 			}
-			if($this->getAllFlag()) {
+			if($this->getAllFlag()){
 				array_unshift($choices, $this->chooseAll());
 			}
-			foreach($choices as $opt) {
+			foreach($choices as $opt){
 				$arr[$opt->getValue()] = $this->generateLabelElement($opt);
 			}
 			return $arr;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function getSelectorLogic(){
-		if(!$this->hasSelectorLogic()) {
+		if(!$this->hasSelectorLogic()){
 			return SIGNAGE_BIT_POSITIVE;
 		}
 		return $this->selectorLogic;
 	}
 
 	public function hasSelectorLogic(): bool{
-		return isset($this->selectorLogic) && is_int($this->selectorLogic);
+		return isset($this->selectorLogic);
 	}
 
 	public function setSelectorLogic(?int $bit): int{
-		return $this->selectorLogic = $bit;
+		if($this->hasSelectorLogic()){
+			$this->release($this->selectorLogic);
+		}
+		return $this->selectorLogic = $this->claims($bit);
 	}
 
 	protected static function getPositiveInputSelector($keyword){
@@ -163,42 +170,61 @@ class TabMutex extends MultipleRadioButtons
 			"opacity" => 1
 		]);
 		$choices = $this->getChoices();
-		if($this->getAllFlag()) {
+		if($this->getAllFlag()){
 			array_unshift($choices, $this->chooseAll());
 		}
 		$charcount = 0;
-		foreach($choices as $choice) {
+		foreach($choices as $choice){
 			$keyword = $choice->getValue();
 			$label_string = $choice->getLabelString();
-			if(strlen($label_string) > $charcount) {
+			if(strlen($label_string) > $charcount){
 				$charcount = strlen($label_string);
 			}
 			$tab_contents_selector = new ElementSelector();
-			if(!$choice->getAllFlag()) {
+			if(!$choice->getAllFlag()){
 				$tab_contents_selector->attribute("tab", $keyword);
 			}else{
 				$tab_contents_selector->attribute("tab");
 			}
 			// display tabbed contents
-			$inline_block_rule->pushSelector($this->getPositiveInputSelector($keyword)
-				->sibling(ElementSelector::element("div")->descendant($tab_contents_selector)));
+			$inline_block_rule->pushSelector($this->getPositiveInputSelector($keyword)->sibling(ElementSelector::element("div")->descendant($tab_contents_selector)));
 			// dim unselected tabs
 			// XXX TODO this is using negative logic
-			$filter_rule->pushSelector($this->getNegativeInputSelector($keyword)
-				->sibling(ElementSelector::elementClass("tab_labels")->child($this->getPositiveLabelSelector($keyword))));
+			$filter_rule->pushSelector(
+				$this->getNegativeInputSelector($keyword)->sibling(
+					ElementSelector::elementClass("tab_labels")->child(
+						$this->getPositiveLabelSelector($keyword)
+					)
+				)
+			);
 			// color selected font
-			$color_rule->pushSelector($this->getPositiveInputSelector($keyword)
-				->sibling(ElementSelector::elementClass("tab_labels")->child($this->getPositiveLabelSelector($keyword))));
+			$color_rule->pushSelector(
+				$this->getPositiveInputSelector($keyword)->sibling(
+					ElementSelector::elementClass("tab_labels")->child(
+						$this->getPositiveLabelSelector($keyword)
+					)
+				)
+			);
 			// tab highlight selector
-			$max_width_rule->pushSelector($this->getPositiveInputSelector($keyword)
-				->sibling(ElementSelector::elementClass("tab_labels")->child($this->getPositiveLabelSelector($keyword)
-				->pseudoelement("after"))));
+			$max_width_rule->pushSelector(
+				$this->getPositiveInputSelector($keyword)->sibling(
+					ElementSelector::elementClass("tab_labels")->child(
+						$this->getPositiveLabelSelector($keyword)->pseudoelement("after")
+					)
+				)
+			);
 		}
 		$id = $this->getLabelContainerId();
 		$charcount = $charcount / 2 + 1.5;
+		$id_selector = ElementSelector::id($id);
+		$id_selector->pushCoselector(ElementSelector::elementClass("tab_labels"));
 		$width_rule = CssRule::rule()->withStyleProperties([
 			"width" => "{$charcount}em"
-		])->withSelectors(ElementSelector::id($id)->child(ElementSelector::element("label")->attribute("tab")));
+		])->withSelectors(
+			$id_selector->child(
+				ElementSelector::element("label")->attribute("tab")
+			)
+		);
 		$style->appendChild($inline_block_rule, $color_rule, $filter_rule, $max_width_rule, $width_rule);
 		return $style;
 	}
@@ -210,19 +236,19 @@ class TabMutex extends MultipleRadioButtons
 	public function getDynamicStyleElement(){
 		$f = __METHOD__;
 		try{
-			if(!$this->hasChoices()) {
+			if(!$this->hasChoices()){
 				Debug::error("{$f} mutex options are undefined");
 			}
 			$logic = $this->getSelectorLogic();
-			if($logic === SIGNAGE_BIT_POSITIVE) {
+			if($logic === SIGNAGE_BIT_POSITIVE){
 				$style = $this->getPositiveLogicStyleElement();
-			}elseif($logic === SIGNAGE_BIT_NEGATIVE) {
+			}elseif($logic === SIGNAGE_BIT_NEGATIVE){
 				$style = $this->getNegativeLogicStyleElement();
 			}else{
 				Debug::error("{$f} neither of the above");
 			}
 			return $style;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

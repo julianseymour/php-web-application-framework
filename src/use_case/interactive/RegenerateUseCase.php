@@ -13,7 +13,7 @@ class RegenerateUseCase extends AbstractUpdateUseCase
 	{
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
+		if($print){
 			Debug::print("({$f} about to regenerate indices");
 		}
 		$form = $this->getPredecessor()->getProcessedFormObject();

@@ -5,9 +5,12 @@ namespace JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\ends_with;
 use function JulianSeymour\PHPWebApplicationFramework\generateSpecialTemplateKey;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
+use function JulianSeymour\PHPWebApplicationFramework\region_code;
+use function JulianSeymour\PHPWebApplicationFramework\starts_with;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\UsernameData;
 use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
@@ -17,17 +20,15 @@ use JulianSeymour\PHPWebApplicationFramework\db\credentials\AdminReadCredentials
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\AdminWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\db\credentials\EncryptedDatabaseCredentials;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
+use JulianSeymour\PHPWebApplicationFramework\language\TranslatedStringData;
 use JulianSeymour\PHPWebApplicationFramework\query\QueryBuilder;
 use JulianSeymour\PHPWebApplicationFramework\query\grant\DatabasePrivilege;
-use JulianSeymour\PHPWebApplicationFramework\query\routine\CreateRoutineStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\routine\StoredRoutine;
+use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\user\DatabaseUserDefinition;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
 use mysqli;
-use JulianSeymour\PHPWebApplicationFramework\language\TranslatedStringData;
-use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
-use function JulianSeymour\PHPWebApplicationFramework\starts_with;
 
 class InstallFrameworkUseCase extends UseCase{
 
@@ -73,71 +74,15 @@ class InstallFrameworkUseCase extends UseCase{
 	}
 
 	public final function createStoredRoutines(mysqli $mysqli): int{
-		$f = __METHOD__;
-		try{
-			$print = false;
-			$routines = mods()->getStoredRoutines();
-			if(empty($routines)){
-				if($print){
-					Debug::print("there are no stored routines to create");
-				}
-				return 0;
-			}
-			$count = 0;
-			foreach($routines as $r){
-				$name = $r->getName();
-				$type = $r->getRoutineType();
-				if($print){
-					Debug::print("{$type} {$name}");
-				}
-				switch ($type){
-					case ROUTINE_TYPE_FUNCTION:
-						$drop = QueryBuilder::dropFunctionIfExists($name);
-						break;
-					case ROUTINE_TYPE_PROCEDURE:
-						$drop = QueryBuilder::dropProcedureIfExists($name);
-						break;
-					default:
-						Debug::error("invalid routine type \"{$type}\"");
-				}
-				if($print){
-					$qs = $drop->toSQL();
-					Debug::print("about to execute query \"{$qs}\"");
-				}
-				$status = $drop->executeGetStatus($mysqli);
-				if($status !== SUCCESS){
-					$err = ErrorMessage::getResultMessage($status);
-					Debug::warning("dropping routine \"{$name}\" returned error status \"{$err}\"");
-					$this->setObjectStatus($status);
-					return -1;
-				}elseif($print){
-					Debug::print("successfully executed drop statement for routine \"{$name}\"");
-				}
-				$create = new CreateRoutineStatement($r);
-				$create->setDeterministicFlag(true);
-				//$create->setDatabase("data");
-				if($print){
-					$qs = $create->toSQL();
-					Debug::print("about to execute query \"{$qs}\"");
-				}
-				$status = $create->executeGetStatus($mysqli);
-				if($status !== SUCCESS){
-					$err = ErrorMessage::getResultMessage($status);
-					Debug::warning("creating routine \"{$name}\" returned error status \"{$err}\"");
-					$this->setObjectStatus($status);
-					return -1;
-				}elseif($print){
-					Debug::print("successfully executed create statement for routine \"{$name}\"");
-				}
-				$count++;
-			}
-			if($print){
-				Debug::print("returning successfully");
-			}
-			return $count;
-		}catch(Exception $x){
-			x($f, $x);
+		$csr = new CreateStoredRoutinesUseCase($this);
+		$csr->validateTransition();
+		$count = $csr->createStoredRoutines($mysqli);
+		app()->setUseCase($this);
+		if($count < 0){
+			$this->setObjectStatus($csr->getObjectStatus());
 		}
+		deallocate($csr);
+		return $count;
 	}
 	
 	public function createDatabases(mysqli $mysqli):int{
@@ -145,7 +90,7 @@ class InstallFrameworkUseCase extends UseCase{
 		$print = false;
 		//4, Create databases
 		$classes = mods()->getDataStructureClasses();
-		if(emptY($classes)){
+		if(empty($classes)){
 			Debug::error("data structure classes array is empty");
 		}elseif($print){
 			Debug::printArray($classes);
@@ -247,7 +192,7 @@ class InstallFrameworkUseCase extends UseCase{
 	
 	public function createDirectories():int{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		$directories = mods()->getInstallDirectories();
 		foreach($directories as $dir){
 			if(is_dir($dir)){
@@ -492,12 +437,14 @@ class InstallFrameworkUseCase extends UseCase{
 		if($print){
 			Debug::print("ultra secret confidential admin password is \"{$password}\"");
 		}
-		$admin->processPasswordData(PasswordData::generate($password));
+		$pwd = PasswordData::generate($password);
+		$admin->processPasswordData($pwd);
+		deallocate($pwd);
 		$admin->setEmailAddress($email);
 		$admin->generateKey();
 		$admin->setPermission(DIRECTIVE_INSERT, SUCCESS);
 		$admin->setInsertIpAddress(SERVER_PUBLIC_IP_ADDRESS);
-		$region = geoip_country_code_by_name(SERVER_PUBLIC_IP_ADDRESS);
+		$region = region_code(SERVER_PUBLIC_IP_ADDRESS);
 		if($print){
 			Debug::print("{$f} about to assign region code \"{$region}\"");
 		}
@@ -560,6 +507,7 @@ class InstallFrameworkUseCase extends UseCase{
 		$kp->setSignaturePublicKey($password_data->getSignaturePublicKey());
 		$kp->setPrivateKey($password_data->getPrivateKey());
 		$kp->setSignaturePrivateKey($password_data->getSignaturePrivateKey());
+		deallocate($password_data);
 		$kp->setServerType(SERVER_TYPE_MONOLITHIC);
 		$kp->setCurrentServer(true);
 		$kp->setServerDomain(DOMAIN_LOWERCASE);
@@ -578,7 +526,7 @@ class InstallFrameworkUseCase extends UseCase{
 	
 	public function grantPrivileges(mysqli $mysqli):int{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		$arr = mods()->getGrantArray();
 		if($print){
 			Debug::printArray($arr);
@@ -601,7 +549,7 @@ class InstallFrameworkUseCase extends UseCase{
 							}
 							$grant = QueryBuilder::grant()->withPrivileges($privileges);
 							$type = $dsc::getRoutineTypeStatic();
-							$grant->setDatabaseName("data");
+							$grant->setDatabaseName($dsc::getDatabaseNameStatic());
 							switch($type){
 								case ROUTINE_TYPE_FUNCTION:
 									$grant->onFunction($dsc::getNameStatic());

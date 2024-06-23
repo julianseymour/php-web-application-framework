@@ -11,6 +11,6 @@ class FileNotFoundElement extends DivElement
 		$div = new DivElement();
 		$div->setInnerHTML("Placeholder 404 notice");
 		$this->appendChild($div);
-		return $this->getChildNodes();
+		return $this->hasChildNodes() ? $this->getChildNodes() : [];
 	}
 }

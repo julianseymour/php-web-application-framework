@@ -16,23 +16,23 @@ class DoubleDatum extends FloatingPointDatum{
 		$f = __METHOD__;
 		$cn = $this->getName();
 		$print = false;
-		if(is_string($v) && $this->hasApoptoticSignal() && $this->getApoptoticSignal() === $v) {
-			if($print) {
+		if(is_string($v) && $this->hasApoptoticSignal() && $this->getApoptoticSignal() === $v){
+			if($print){
 				Debug::print("{$f} received the apoptotic signal");
 			}
 			return $v;
-		}elseif($print) {
-			if(!is_string($v)) {
+		}elseif($print){
+			if(!is_string($v)){
 				$gottype = gettype($v);
 				Debug::print("{$f} \"{$v}\" is a {$gottype}, not a string");
-			}elseif(!$this->hasApoptoticSignal()) {
+			}elseif(!$this->hasApoptoticSignal()){
 				Debug::print("{$f} column \"{$cn}\" does not have an apoptotic signal");
 			}else{
 				$apop = $this->getApoptoticSignal();
-				if($apop !== $v) {
+				if($apop !== $v){
 					Debug::print("{$f} apoptotic signal \"{$apop}\" does not match received value \"{$v}\"");
 				}else{
-					Debug::error("{$f} then what's the fucking problem?");
+					Debug::error("{$f} this should be impossible");
 				}
 			}
 		}
@@ -46,11 +46,11 @@ class DoubleDatum extends FloatingPointDatum{
 	public function parseValueFromQueryResult($v){
 		$f = __METHOD__;
 		try{
-			if($v === null) {
+			if($v === null){
 				return $this->isNullable() ? null : 0;
 			}
 			return ! is_double($v) ? doubleval($v) : $v;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

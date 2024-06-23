@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\validate;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\common\ValuedTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
@@ -20,7 +21,7 @@ class DatumValidator extends Validator{
 	}
 	
 	public function evaluate(&$validate_me):int{
-		$f = __METHOD__; //DatumValidator::getShortClass()."(".static::getShortClass().")->evaluate()";
+		$f = __METHOD__;
 		try{
 			$datum = $this->getColumnDefinition();
 			$value = $this->getValue();
@@ -33,9 +34,9 @@ class DatumValidator extends Validator{
 		}
 	}
 	
-	public function dispose():void{
-		parent::dispose();
-		unset($this->columnDefinition);
-		unset($this->value);
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->columnDefinition, $deallocate);
+		$this->release($this->value, $deallocate);
 	}
 }

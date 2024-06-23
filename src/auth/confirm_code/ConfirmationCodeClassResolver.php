@@ -18,4 +18,8 @@ class ConfirmationCodeClassResolver extends IntersectionTableResolver{
 		}
 		return $ret;
 	}
+	
+	public static function getSubtypability():string{
+		return SUBTYPABILITY_ALL;
+	}
 }

@@ -53,7 +53,7 @@ class NonexistentUriForm extends AjaxForm{
 		$f = __METHOD__;
 		$context = $this->getContext();
 		$list = $context->getColumnValue("list");
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPDATE:
 				$ban = $this->generateGenericButton($name, POLICY_BLOCK);
 				$ban->setNameAttribute("directive[update][list]");
@@ -61,7 +61,7 @@ class NonexistentUriForm extends AjaxForm{
 				$authorize = $this->generateGenericButton($name, POLICY_ALLOW);
 				$authorize->setNameAttribute("directive[update][list]");
 				$authorize->setInnerHTML(_("Authorize"));
-				switch ($list) {
+				switch($list){
 					case POLICY_ALLOW:
 						return [
 							$ban

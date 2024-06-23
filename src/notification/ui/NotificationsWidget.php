@@ -3,7 +3,9 @@
 namespace JulianSeymour\PHPWebApplicationFramework\notification\ui;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousUser;
@@ -21,13 +23,14 @@ use JulianSeymour\PHPWebApplicationFramework\notification\pin\RepinNotificationF
 use JulianSeymour\PHPWebApplicationFramework\notification\pin\UnpinNotificationForm;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptCounterpartTrait;
+use JulianSeymour\PHPWebApplicationFramework\security\SecurityNotificationElement;
+use JulianSeymour\PHPWebApplicationFramework\style\StyleSheetPathTrait;
 use JulianSeymour\PHPWebApplicationFramework\ui\CloseMenuLabel;
 use JulianSeymour\PHPWebApplicationFramework\ui\CounterTab;
 use JulianSeymour\PHPWebApplicationFramework\ui\TabMutex;
 use JulianSeymour\PHPWebApplicationFramework\ui\WidgetInterface;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\style\StyleSheetPathTrait;
 
 class NotificationsWidget extends DivElement implements JavaScriptCounterpartInterface, WidgetInterface{
 
@@ -51,44 +54,48 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 	public function getTemplateScriptContainer(){
 		$f = __METHOD__;
 		try{
-
 			$print = false;
-
 			$hidden = new ScriptElement();
 			$hidden->setIdAttribute("notification_template_scripts");
 			$hidden->addClassAttribute("hidden");
-			$dummy = new RetrospectiveNotificationData();
+			$dummy = new RetrospectiveNotificationData(ALLOCATION_MODE_LAZY);
+			$dummy->disableDeallocation();
+			$dummy->allocateColumns();
+			$dummy->protectColumns();
 			$dummy->setNotificationType(NOTIFICATION_TYPE_TEMPLATE);
-
 			$pin = new PinNotificationForm(ALLOCATION_MODE_TEMPLATE);
 			$pin->bindContext($dummy);
 			$hidden->appendChild($pin->generateTemplateFunction());
-
+			deallocate($pin);
 			$repin = new RepinNotificationForm(ALLOCATION_MODE_TEMPLATE);
 			$repin->bindContext($dummy);
 			$hidden->appendChild($repin->generateTemplateFunction());
-
+			deallocate($repin);
 			$unpin = new UnpinNotificationForm(ALLOCATION_MODE_TEMPLATE);
 			$unpin->bindContext($dummy);
 			$hidden->appendChild($unpin->generateTemplateFunction());
-
-			$dismiss = new DismissNotificationForm(ALLOCATION_MODE_TEMPLATE);
-			$dismiss->bindContext($dummy);
-			$hidden->appendChild($dismiss->generateTemplateFunction());
-
-			foreach(mods()->getTypedNotificationClasses() as $nc) {
-				if($print) {
+			deallocate($unpin);
+			//$dismiss = new DismissNotificationForm(ALLOCATION_MODE_TEMPLATE);
+			//$dismiss->bindContext($dummy);
+			//$hidden->appendChild($dismiss->generateTemplateFunction());
+			//deallocate($dismiss);
+			foreach(mods()->getTypedNotificationClasses() as $nc){
+				if($print){
 					Debug::print("{$f} about to generate a template function for notifications of class \"{$nc}\"");
 				}
-				$dummy = new RetrospectiveNotificationData();
 				$dummy->setNotificationType($nc::getNotificationTypeStatic());
 				$ec = $nc::getElementClassStatic();
 				$e = new $ec(ALLOCATION_MODE_TEMPLATE);
 				$e->bindContext($dummy);
-				$hidden->appendChild($e->generateTemplateFunction());
+				$tf = $e->generateTemplateFunction();
+				deallocate($e);
+				$hidden->appendChild($tf);
 			}
+			$dummy->enableDeallocation();
+			$dummy->protectColumns(false);
+			//deallocate($dummy);
 			return $hidden;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -128,14 +135,14 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 			$single_notification_options->setNameAttribute("single_notification_options");
 			$single_notification_options->setIdAttribute("notification_options-none");
 			$this->appendChild($single_notification_options, $notification_list);
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	protected function getTabMutex(): TabMutex{
-		if(isset($this->tabMutex) && $this->tabMutex instanceof TabMutex) {
+		if(isset($this->tabMutex) && $this->tabMutex instanceof TabMutex){
 			return $this->tabMutex;
 		}
 		$mutex = new TabMutex();
@@ -147,8 +154,8 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 		$options = [
 			$all
 		];
-		foreach(mods()->getTypedNotificationClasses() as $type => $class) {
-			if($type === NOTIFICATION_TYPE_TEST) {
+		foreach(mods()->getTypedNotificationClasses() as $type => $class){
+			if($type === NOTIFICATION_TYPE_TEST){
 				continue;
 			}
 			$option = new Choice($type, $class::getNotificationTypeString(null));
@@ -195,9 +202,13 @@ class NotificationsWidget extends DivElement implements JavaScriptCounterpartInt
 	}
 
 	public static function getLoadoutGeneratorClassStatic(): ?string{
-		if(! Request::isAjaxRequest()) {
+		if(! Request::isAjaxRequest()){
 			return null;
 		}
 		return NotificationsWidgetLoadoutGenerator::class;
+	}
+	
+	public static function getContainerClassAttributes(): ?array{
+		return null;
 	}
 }

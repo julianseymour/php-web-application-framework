@@ -1,58 +1,49 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-class FileInput extends InputElement
-{
+class FileInput extends InputElement{
 
 	use MultipleAttributeTrait;
 	use RequiredAttributeTrait;
 
-	public function getTypeAttribute(): string
-	{
+	public function getTypeAttribute(): string{
 		return "file";
 	}
 
-	public function hasAcceptAttribute()
-	{
+	public function hasAcceptAttribute():bool{
 		return $this->hasAttribute("accept");
 	}
 
-	public function getAcceptAttribute()
-	{
+	public function getAcceptAttribute(){
 		return $this->getAttribute("accept");
 	}
 
-	public function setAcceptAttribute($accept)
-	{
+	public function setAcceptAttribute($accept){
 		return $this->setAttribute("accept", $accept);
 	}
 
-	public static function getTypeAttributeStatic(): string
-	{
+	public static function getTypeAttributeStatic(): string{
 		return INPUT_TYPE_FILE;
 	}
 
-	public function getAllowEmptyInnerHTML()
-	{
+	public function getAllowEmptyInnerHTML():bool{
 		return true;
 	}
 
-	public function hasCaptureAttribute()
-	{
+	public function hasCaptureAttribute():bool{
 		return $this->hasAttribute("capture");
 	}
 
-	public function setCaptureAttribute($value)
-	{
+	public function setCaptureAttribute($value){
 		return $this->setAttribute("capture", $value);
 	}
 
-	public function getCaptureAttribute()
-	{
-		$f = __METHOD__; //FileInput::getShortClass()."(".static::getShortClass().")->getCaptureAttribute()";
-		if(!$this->hasCaptureAttribute()) {
+	public function getCaptureAttribute(){
+		$f = __METHOD__;
+		if(!$this->hasCaptureAttribute()){
 			Debug::error("{$f} capture attribute is undefined");
 		}
 		return $this->getAttribute("capture");

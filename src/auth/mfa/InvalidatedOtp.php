@@ -32,7 +32,7 @@ class InvalidatedOtp extends UserFingerprint implements StaticTableNameInterface
 
 	public function getUserKey():string{
 		$f = __METHOD__;
-		if(!$this->hasUserData()) {
+		if(!$this->hasUserData()){
 			Debug::error("{$f} client object is undefined");
 		}
 		return $this->getUserData()->getIdentifierValue();
@@ -45,8 +45,8 @@ class InvalidatedOtp extends UserFingerprint implements StaticTableNameInterface
 	public static function getPermissionStatic(string $name, $data){
 		$f = __METHOD__;
 		$print = false;
-		if($name === DIRECTIVE_INSERT && user() instanceof AnonymousUser) {
-			if($print) {
+		if($name === DIRECTIVE_INSERT && user() instanceof AnonymousUser){
+			if($print){
 				Debug::print("{$f} granting permission for insert (current user is unregistered)");
 			}
 			return SUCCESS;
@@ -68,10 +68,10 @@ class InvalidatedOtp extends UserFingerprint implements StaticTableNameInterface
 				'userTemporaryRole',
 				'updatedTimestamp'
 			];
-			foreach($fields as $field) {
+			foreach($fields as $field){
 				$columns[$field]->volatilize();
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -114,13 +114,13 @@ class InvalidatedOtp extends UserFingerprint implements StaticTableNameInterface
 	public function insert(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try{
-			if(!$this->hasUserData()) {
+			if(!$this->hasUserData()){
 				Debug::error("{$f} user data is undefined");
-			}elseif(!$this->getUserData() instanceof AuthenticatedUser) {
+			}elseif(!$this->getUserData() instanceof AuthenticatedUser){
 				Debug::error("{$f} mfa is only for authenticated users");
 			}
 			return parent::insert($mysqli);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

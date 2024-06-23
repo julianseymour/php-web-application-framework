@@ -1,61 +1,98 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\constraint;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
+use function JulianSeymour\PHPWebApplicationFramework\claim;
 use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnNamesTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\database\DatabaseNameTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\index\IndexNameTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\index\KeyPart;
 use JulianSeymour\PHPWebApplicationFramework\query\index\KeyPartsTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\table\TableNameTrait;
+use JulianSeymour\PHPWebApplicationFramework\query\table\FullTableNameTrait;
 use Exception;
 
-class ForeignKeyConstraint extends Constraint implements ArrayKeyProviderInterface
-{
+class ForeignKeyConstraint extends Constraint implements ArrayKeyProviderInterface{
 
-	use DatabaseNameTrait;
+	use FullTableNameTrait;
 	use ForeignKeyConstraintTrait;
 	use IndexNameTrait;
 	use KeyPartsTrait;
 	use MultipleColumnNamesTrait;
-	use TableNameTrait;
 
 	protected $matchType;
 
-	public function __construct(?string $symbol, string $indexName, array $columnNames, string $databaseName, string $tableName, array $keyparts)
-	{
+	public function __construct(?string $symbol=null, ?string $indexName=null, ?array $columnNames=null, ?string $databaseName=null, ?string $tableName=null, ?array $keyparts=null){
 		parent::__construct($symbol);
 		$this->requirePropertyType("columnNames", "s");
 		$this->requirePropertyType("keyParts", KeyPart::class);
-		$this->setIndexName($indexName);
-		$this->setColumnNames($columnNames);
-		$this->setDatabaseName($databaseName);
-		$this->setTableName($tableName);
-		$this->setKeyParts($keyparts);
+		if($indexName !== null){
+			$this->setIndexName($indexName);
+		}
+		if($columnNames !== null){
+			$this->setColumnNames($columnNames);
+		}
+		if($databaseName !== null){
+			$this->setDatabaseName($databaseName);
+		}
+		if($tableName !== null){
+			$this->setTableName($tableName);
+		}
+		if($keyparts !== null){
+			$this->setKeyParts($keyparts);
+		}
 		// symbol, index name, columnNames, tableName, keyparts, matchType, onDelete, onUpdate
 	}
 
-	public function getArrayKey(int $count)
-	{
+	public function copy($that):int{
+		$f = __METHOD__;
+		$ret = parent::copy($that);
+		if($that->hasDatabaseName()){
+			$this->setDatabaseName(replicate($that->getDatabaseName()));
+		}
+		if($that->hasTableName()){
+			$this->setTableName(replicate($that->getTableName()));
+		}
+		if($that->hasOnDelete()){
+			$this->setOnDelete(replicate($that->getOnDelete()));
+		}
+		if($that->hasOnUpdate()){
+			$this->setOnUpdate(replicate($that->getOnUpdate()));
+		}
+		if($that->hasIndexName()){
+			$this->setIndexName(replicate($that->getIndexName()));
+		}
+		if($that->hasProperties()){
+			$this->setProperties(replicate($that->getProperties()));
+		}
+		if($that->hasPropertyTypes()){
+			$this->setPropertyTypes(replicate($that->getPropertyTypes()));
+		}
+		if($that->hasMatch()){
+			$this->setMatch(replicate($that->getMatch()));
+		}
+		return $ret;
+	}
+	
+	public function getArrayKey(int $count){
 		return $this->getIndexName();
 	}
 
-	public function setMatch($type)
-	{
-		$f = __METHOD__; //ForeignKeyConstraint::getShortClass()."(".static::getShortClass().")->setMatch()";
-		if($type == null) {
-			unset($this->matchType);
-			return null;
-		}elseif(!is_string($type)) {
+	public function setMatch($type){
+		$f = __METHOD__;
+		if(!is_string($type)){
 			Debug::error("{$f} match type must be a string");
+		}elseif($this->hasMatch()){
+			$this->release($this->matchType);
 		}
 		$type = strtolower($type);
-		switch ($type) {
+		switch($type){
 			case MATCH_FULL:
 			case MATCH_PARTIAL:
 			case MATCH_SIMPLE:
@@ -63,32 +100,28 @@ class ForeignKeyConstraint extends Constraint implements ArrayKeyProviderInterfa
 			default:
 				Debug::error("{$f} invalid match type \"{$type}\"");
 		}
-		return $this->matchType = $type;
+		return $this->matchType = $this->claim($type);
 	}
 
-	public function hasMatch()
-	{
+	public function hasMatch():bool{
 		return isset($this->matchType);
 	}
 
-	public function getMatch()
-	{
-		$f = __METHOD__; //ForeignKeyConstraint::getShortClass()."(".static::getShortClass().")->getMatch()";
-		if(!$this->hasMatch()) {
+	public function getMatch(){
+		$f = __METHOD__;
+		if(!$this->hasMatch()){
 			Debug::error("{$f} match type is undefined");
 		}
 		return $this->matchType;
 	}
 
-	public function match($type)
-	{
+	public function match($type):ForeignKeyConstraint{
 		$this->setMatch($type);
 		return $this;
 	}
 
-	public function toSQL(): string
-	{
-		$f = __METHOD__; //ForeignKeyConstraint::getShortClass()."(".static::getShortClass().")->toSQL()";
+	public function toSQL(): string{
+		$f = __METHOD__;
 		try{
 
 			// reference_definition:
@@ -97,48 +130,53 @@ class ForeignKeyConstraint extends Constraint implements ArrayKeyProviderInterfa
 			// RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT
 
 			$string = parent::toSQL() . "foreign key ";
-			if($this->hasIndexName()) {
+			if($this->hasIndexName()){
 				$string .= $this->getIndexName() . " ";
 			}
 			$columnNames = implode_back_quotes(',', $this->getColumnNames());
 			$dbtable = "";
-			if($this->hasDatabaseName()) {
+			if($this->hasDatabaseName()){
 				$dbtable .= back_quote($this->getDatabaseName()) . ".";
 			}
 			$dbtable .= back_quote($this->getTableName());
 			$keyparts = [];
-			foreach($this->getKeyParts() as $kp) {
-				if($kp instanceof SQLInterface) {
+			foreach($this->getKeyParts() as $kp){
+				if($kp instanceof SQLInterface){
 					$kp = $kp->toSQL();
 				}
 				array_push($keyparts, $kp);
 			}
-			$keyparts = implode_back_quotes(',', $keyparts); // XXX reassigning an string to something initially declared as an array rubs me the wrong way
+			$keyparts = implode_back_quotes(',', $keyparts);
 			$string .= "({$columnNames}) references {$dbtable} ({$keyparts})";
-			if($this->hasMatch()) {
+			if($this->hasMatch()){
 				$string .= " match " . $this->getMatch();
 			}
-			if($this->hasOnDelete()) {
+			if($this->hasOnDelete()){
 				$onDelete = $this->getOnDelete();
 				$string .= " on delete {$onDelete}";
 			}
-			if($this->hasOnUpdate()) {
+			if($this->hasOnUpdate()){
 				$onUpdate = $this->getOnUpdate();
 				$string .= " on update {$onUpdate}";
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->properties);
-		unset($this->indexName);
-		unset($this->onDelete);
-		unset($this->onUpdate);
-		unset($this->parentTableName);
+	public function dispose(bool $deallocate=false): void{
+		if($this->hasProperties()){
+			$this->releaseProperties($deallocate);
+		}
+		parent::dispose($deallocate);
+		$this->release($this->indexName, $deallocate);
+		$this->release($this->matchType, $deallocate);
+		$this->release($this->onDeleteReferenceOption, $deallocate);
+		$this->release($this->onUpdateReferenceOption, $deallocate);
+		if($this->hasPropertyTypes()){
+			$this->release($this->propertyTypes, $deallocate);
+		}
+		$this->release($this->tableName, $deallocate);
 	}
 }

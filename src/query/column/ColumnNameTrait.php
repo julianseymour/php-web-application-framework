@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\query\column;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
@@ -16,11 +18,10 @@ trait ColumnNameTrait{
 	 * @return NULL|string|ValueReturningCommandInterface
 	 */
 	public function setColumnName($columnName){
-		if($columnName === null) {
-			unset($this->columnName);
-			return null;
+		if($this->hasColumnName()){
+			$this->release($this->columnName);
 		}
-		return $this->columnName = $columnName;
+		return $this->columnName = $this->claim($columnName);
 	}
 
 	public function hasColumnName(): bool{
@@ -29,9 +30,8 @@ trait ColumnNameTrait{
 
 	public function getColumnName(){
 		$f = __METHOD__;
-		if(!$this->hasColumnName()) {
-			$decl = $this->getDeclarationLine();
-			Debug::error("{$f} column name is undefined. Declared {$decl}");
+		if(!$this->hasColumnName()){
+			Debug::error("{$f} column name is undefined for this ".$this->getDebugString());
 		}
 		return $this->columnName;
 	}

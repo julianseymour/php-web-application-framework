@@ -23,7 +23,7 @@ class RenameColumnOption extends AlterColumnOption{
 
 	public function getNewColumnName(){
 		$f = __METHOD__;
-		if(!$this->hasNewColumnName()) {
+		if(!$this->hasNewColumnName()){
 			Debug::error("{$f} new column name is undefined");
 		}
 		return $this->newColumnName;

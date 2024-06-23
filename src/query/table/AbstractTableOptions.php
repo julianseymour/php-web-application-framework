@@ -1,14 +1,16 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\table;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\CommentTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\StorageEngineTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\table\alter\AlterOption;
 use JulianSeymour\PHPWebApplicationFramework\query\tablespace\TablespaceNameTrait;
 
-abstract class AbstractTableOptions extends AlterOption
-{
+abstract class AbstractTableOptions extends AlterOption{
 
 	use CommentTrait;
 	use StorageEngineTrait;
@@ -22,135 +24,122 @@ abstract class AbstractTableOptions extends AlterOption
 
 	protected $maximumRowCount;
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->comment);
-		unset($this->dataDirectoryName);
-		unset($this->indexDirectoryName);
-		unset($this->maximumRowCount);
-		unset($this->minimumRowCount);
-		unset($this->storageEngineName);
-		unset($this->tablespaceName);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->comment, $deallocate);
+		$this->release($this->dataDirectoryName, $deallocate);
+		$this->release($this->indexDirectoryName, $deallocate);
+		$this->release($this->maximumRowCount, $deallocate);
+		$this->release($this->minimumRowCount, $deallocate);
+		$this->release($this->storageEngineName, $deallocate);
+		$this->release($this->tablespaceName, $deallocate);
 	}
 
-	public function dataDirectory($name)
-	{
+	public function dataDirectory($name):AbstractTableOptions{
 		$this->setDataDirectoryName($name);
 		return $this;
 	}
 
-	public function indexDirectory($name)
-	{
+	public function indexDirectory($name):AbstractTableOptions{
 		$this->setIndexDirectoryName($name);
 		return $this;
 	}
 
-	public function setDataDirectoryName($name)
-	{
-		return $this->dataDirectoryName = $name;
+	public function setDataDirectoryName($name){
+		if($this->hasDataDirectoryName()){
+			$this->release($this->dataDirectoryName);
+		}
+		return $this->dataDirectoryName = $this->claim($name);
 	}
 
-	public function hasDataDirectoryName()
-	{
+	public function hasDataDirectoryName():bool{
 		return isset($this->dataDirectoryName);
 	}
 
-	public function getDataDirectoryName()
-	{
-		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->getDataDirectoryName()";
-		if(!$this->hasDataDirectoryName()) {
+	public function getDataDirectoryName(){
+		$f = __METHOD__;
+		if(!$this->hasDataDirectoryName()){
 			Debug::error("{$f} data directory name is undefined");
 		}
 		return $this->dataDirectoryName;
 	}
 
-	public function setIndexDirectoryName($name)
-	{
-		return $this->indexDirectoryName = $name;
+	public function setIndexDirectoryName($name){
+		if($this->hasIndexDirectoryName()){
+			$this->release($this->indexDirectoryName);
+		}
+		return $this->indexDirectoryName = $this->claim($name);
 	}
 
-	public function hasIndexDirectoryName()
-	{
+	public function hasIndexDirectoryName():bool{
 		return isset($this->indexDirectoryName);
 	}
 
-	public function getIndexDirectoryName()
-	{
-		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->getIndexDirectoryName()";
-		if(!$this->hasIndexDirectoryName()) {
+	public function getIndexDirectoryName(){
+		$f = __METHOD__;
+		if(!$this->hasIndexDirectoryName()){
 			Debug::error("{$f} index directory name is undefined");
 		}
 		return $this->indexDirectoryName;
 	}
 
-	public function maxRows($count)
-	{
+	public function maxRows($count):AbstractTableOptions{
 		$this->setMaximumRowCount($count);
 		return $this;
 	}
 
-	public function minRows($count)
-	{
+	public function minRows($count):AbstractTableOptions{
 		$this->setMinimumRowCount($count);
 		return $this;
 	}
 
-	public function setMinimumRowCount($count)
-	{
-		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->setMinimumRowCount()";
-		if($count === null) {
-			unset($this->minimumRowCount);
-			return null;
-		}elseif(!is_int($count)) {
+	public function setMinimumRowCount($count){
+		$f = __METHOD__;
+		if(!is_int($count)){
 			Debug::error("{$f} minimum row count must be a positive integer");
-		}elseif($count <= 0) {
+		}elseif($count <= 0){
 			Debug::error("{$f} minimum row count must be positive");
-		}elseif($this->hasMaximumRowCount() && $count > $this->getMaximumRowCount()) {
+		}elseif($this->hasMaximumRowCount() && $count > $this->getMaximumRowCount()){
 			Debug::error("{$f} minimum row count cannot exceed the maximum");
+		}elseif($this->hasMinimumRowCount()){
+			$this->release($this->minimumRowCount);
 		}
-		return $this->minimumRowCount = $count;
+		return $this->minimumRowCount = $this->claim($count);
 	}
 
-	public function hasMinimumRowCount()
-	{
+	public function hasMinimumRowCount():bool{
 		return isset($this->minimumRowCount) && is_int($this->minimumRowCount) && $this->minimumRowCount > 0;
 	}
 
-	public function getMinimumRowCount()
-	{
-		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->getMinimumRowCount()";
-		if(!$this->hasMinimumRowCount()) {
+	public function getMinimumRowCount(){
+		$f = __METHOD__;
+		if(!$this->hasMinimumRowCount()){
 			Debug::error("{$f} minimum row count is undefined");
 		}
 		return $this->minimumRowCount;
 	}
 
-	public function setMaximumRowCount($count)
-	{
-		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->setMaximumRowCount()";
-		if($count === null) {
-			unset($this->maximumRowCount);
-			return null;
-		}elseif(!is_int($count)) {
+	public function setMaximumRowCount($count){
+		$f = __METHOD__;
+		if(!is_int($count)){
 			Debug::error("{$f} maximum row count must be a positive integer");
-		}elseif($count <= 0) {
+		}elseif($count <= 0){
 			Debug::error("{$f} maximum row count must be positive");
-		}elseif($this->hasMinimumRowCount() && $count < $this->getMinimumRowCount()) {
+		}elseif($this->hasMinimumRowCount() && $count < $this->getMinimumRowCount()){
 			Debug::error("{$f} maximum row count cannot be less than minimum");
+		}elseif($this->hasMaximumRowCount()){
+			$this->release($this->maximumRowCount);
 		}
-		return $this->maximumRowCount = $count;
+		return $this->maximumRowCount = $this->claim($count);
 	}
 
-	public function hasMaximumRowCount()
-	{
+	public function hasMaximumRowCount():bool{
 		return isset($this->maximumRowCount) && is_int($this->maximumRowCount) && $this->maximumRowCount > 0;
 	}
 
-	public function getMaximumRowCount()
-	{
-		$f = __METHOD__; //AbstractTableOptions::getShortClass()."(".static::getShortClass().")->getMaximumRowCount()";
-		if(!$this->hasMaximumRowCount()) {
+	public function getMaximumRowCount(){
+		$f = __METHOD__;
+		if(!$this->hasMaximumRowCount()){
 			Debug::error("{$f} maximum row count is undefined");
 		}
 		return $this->maximumRowCount;

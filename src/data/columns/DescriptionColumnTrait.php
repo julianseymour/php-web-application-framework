@@ -1,25 +1,18 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data\columns;
 
-use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
+trait DescriptionColumnTrait{
 
-trait DescriptionColumnTrait
-{
-
-	use MultipleColumnDefiningTrait;
-
-	public function setDescription($value)
-	{
+	public function setDescription($value){
 		return $this->setColumnValue("description", $value);
 	}
 
-	public function getDescription()
-	{
+	public function getDescription(){
 		return $this->getColumnValue("description");
 	}
 
-	public function hasDescription()
-	{
+	public function hasDescription():bool{
 		return $this->hasColumnValue("description");
 	}
 }

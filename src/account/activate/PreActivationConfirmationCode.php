@@ -16,7 +16,7 @@ class PreActivationConfirmationCode extends AuthenticatedConfirmationCode{
 	}
 
 	public static function getConfirmationUriStatic(string $suffix):string{
-		return "https://" . WEBSITE_DOMAIN . "/activate/{$suffix}";
+		return "https://" . DOMAIN_LOWERCASE . "/activate/{$suffix}";
 	}
 
 	public function setName(string $name):string{
@@ -42,9 +42,9 @@ class PreActivationConfirmationCode extends AuthenticatedConfirmationCode{
 	public static function getPermissionStatic(string $name, $data){
 		$f = __METHOD__;
 		$print = false;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
-				if($print) {
+				if($print){
 					Debug::print("{$f} returning new owner permission");
 				}
 				return SUCCESS;

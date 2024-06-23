@@ -3,6 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\command\func;
 
 use function JulianSeymour\PHPWebApplicationFramework\escape_quotes;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
 use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\ParametricTrait;
@@ -21,8 +22,8 @@ abstract class InvokeFunctionCommand extends Command implements JavaScriptInterf
 		$print = false;
 		parent::__construct();
 		$this->setName($name);
-		if(!empty($params)) {
-			if($print) {
+		if(!empty($params)){
+			if($print){
 				$count = count($params);
 				Debug::print("{$f} {$count} params");
 			}
@@ -31,7 +32,7 @@ abstract class InvokeFunctionCommand extends Command implements JavaScriptInterf
 	}
 
 	public function echoJson(bool $destroy = false): void{
-		if($this->getEscapeType() == ESCAPE_TYPE_STRING || $this->getEscapeType() == ESCAPE_TYPE_FUNCTION) {
+		if($this->getEscapeType() == ESCAPE_TYPE_STRING || $this->getEscapeType() == ESCAPE_TYPE_FUNCTION){
 			Json::echo($this->toJavaScript());
 		}else{
 			parent::echoJson($destroy);
@@ -40,10 +41,10 @@ abstract class InvokeFunctionCommand extends Command implements JavaScriptInterf
 
 	public function echoInnerJson(bool $destroy = false): void{
 		Json::echoKeyValuePair('name', $this->getName(), $destroy);
-		if($this->hasParameters()) {
+		if($this->hasParameters()){
 			$param_array = [];
-			foreach($this->getParameters() as $param) {
-				if($param instanceof Element) {
+			foreach($this->getParameters() as $param){
+				if($param instanceof Element){
 					$param = $param->getIdOverride();
 				}
 				array_push($param_array, $param);
@@ -53,30 +54,29 @@ abstract class InvokeFunctionCommand extends Command implements JavaScriptInterf
 		parent::echoInnerJson($destroy);
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->name);
-		unset($this->parameters);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->name, $deallocate);
 	}
 
 	public function toJavaScript():string{
 		$f = __METHOD__;
 		$print = false;
 		$fn = $this->getName();
-		if($fn instanceof JavaScriptInterface) {
+		if($fn instanceof JavaScriptInterface){
 			$fn = $fn->toJavaScript();
 		}
 		$params = $this->getParameterString(true);
 		$string = "{$fn}({$params})";
-		if($this->hasEscapeType() && $this->getEscapeType() === ESCAPE_TYPE_STRING) {
+		if($this->hasEscapeType() && $this->getEscapeType() === ESCAPE_TYPE_STRING){
 			$q = $this->getQuoteStyle();
-			if($print) {
+			if($print){
 				Debug::print("{$f} quote style is \"{$q}\"");
 			}
 			$string = escape_quotes($string, $q);
 			$string = "{$q}{$string}{$q}";
 		}
-		if($print) {
+		if($print){
 			Debug::print("{$f} string is \"{$string}\"");
 		}
 		return $string;

@@ -4,5 +4,5 @@ namespace JulianSeymour\PHPWebApplicationFramework\common;
 interface StringifiableInterface
 {
 
-	public function __toString();
+	public function __toString():string;
 }

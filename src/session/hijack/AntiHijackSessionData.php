@@ -12,6 +12,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\security\xsrf\AntiXsrfTokenData;
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 
 /**
  * Used to end a session if IP address/UA has changed.
@@ -23,6 +24,7 @@ use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 class AntiHijackSessionData extends DataStructure{
 	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		$f = __METHOD__;
 		$boundIpAddress = new IpAddressDatum("boundIpAddress");
 		$boundIpAddress->setNullable(true);
 		$boundUserAgent = new TextDatum("boundUserAgent");
@@ -90,10 +92,10 @@ class AntiHijackSessionData extends DataStructure{
 	}
 
 	public function setUserData(UserData $user):UserData{
-		if($user->getBindIpAddress()) {
+		if($user->getBindIpAddress()){
 			$this->setBoundIpAddress($_SERVER['REMOTE_ADDR']);
 		}
-		if($user->getBindUserAgent()) {
+		if($user->getBindUserAgent()){
 			$this->setBoundUserAgent($_SERVER['HTTP_USER_AGENT']);
 		}
 		return $user;
@@ -126,47 +128,50 @@ class AntiHijackSessionData extends DataStructure{
 	public static function protect():int{
 		$f = __METHOD__;
 		$print = false;
-		$that = new static();
+		$that = new static(ALLOCATION_MODE_LAZY);
+		$that->allocateColumns();
 		$failed = false;
-		if($that->hasBoundIpAddress()) {
-			if($that->getBoundIpAddress() !== $_SERVER['REMOTE_ADDR']) {
+		if($that->hasBoundIpAddress()){
+			if($that->getBoundIpAddress() !== $_SERVER['REMOTE_ADDR']){
 				$failed = true;
 				$that->setIpAddressChanged(true);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} IP address \"{$_SERVER['REMOTE_ADDR']}\" matches perfectly");
 			}
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} IP address is not bound");
 		}
-		if($that->hasBoundUserAgent()) {
-			if($that->getBoundUserAgent() !== $_SERVER['HTTP_USER_AGENT']) {
+		if($that->hasBoundUserAgent()){
+			if($that->getBoundUserAgent() !== $_SERVER['HTTP_USER_AGENT']){
 				$failed = true;
 				$that->setUserAgentChanged(true);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} user agent \"{$_SERVER['HTTP_USER_AGENT']}\" matches perfectly");
 			}
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} user agent is not bound");
 		}
-		if($failed) {
-			if($that->hasBoundIpAddress()) {
+		if($failed){
+			if($that->hasBoundIpAddress()){
 				$that->unsetBoundIpAddress();
 			}
-			if($that->hasBoundUserAgent()) {
+			if($that->hasBoundUserAgent()){
 				$that->unsetBoundUserAgent();
 			}
 			foreach([
 				PreMultifactorAuthenticationData::class,
 				FullAuthenticationData::class,
 				AntiXsrfTokenData::class
-			] as $class) {
+			] as $class){
 				$class::unsetColumnValuesStatic();
 			}
 			unset($_POST);
 			unset($_GET);
+			deallocate($that);
 			// XXX unset php input file contents
 			return FAILURE;
 		}
+		deallocate($that);
 		return SUCCESS;
 	}
 }

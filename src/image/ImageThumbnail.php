@@ -15,7 +15,7 @@ class ImageThumbnail extends ImageData{
 	// the image that this object is a thumbnail of
 	public function __construct($image = null){
 		parent::__construct();
-		if(isset($image)) {
+		if(isset($image)){
 			$this->setImageData($image);
 		}
 	}
@@ -24,20 +24,20 @@ class ImageThumbnail extends ImageData{
 		return $this->imageData = $image;
 	}
 
-	protected function beforeDeleteHook(mysqli $mysqli): int{
+	public function beforeDeleteHook(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try{
 			$filename = $this->getFullFilePath();
-			if(! file_exists($filename)) {
+			if(! file_exists($filename)){
 				Debug::print("{$f} already deleted");
 				return SUCCESS;
 			}
 			$deleted = unlink($filename);
-			if(!$deleted) {
+			if(!$deleted){
 				Debug::error("{$f} deletion failed");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -50,7 +50,7 @@ class ImageThumbnail extends ImageData{
 	 */
 	public function getImageData(){
 		$f = __METHOD__;
-		if(!$this->hasImageData()) {
+		if(!$this->hasImageData()){
 			Debug::error("{$f} image data is undefined");
 		}
 		return $this->imageData;
@@ -117,18 +117,26 @@ class ImageThumbnail extends ImageData{
 	}
 
 	public function getImageWidth():int{
-		$height = $this->getImageData()->getImageHeight();
-		$width = $this->getImageData()->getImageWidth();
-		if($width < $height) {
+		$img = $this->getImageData();
+		if(!$img->hasImageHeight() || !$img->hasImageWidth()){
+			return 0;
+		}
+		$height = $img->getImageHeight();
+		$width = $img->getImageWidth();
+		if($width < $height){
 			return floor((THUMBNAIL_MAX_DIMENSION / $height) * $width);
 		}
 		return THUMBNAIL_MAX_DIMENSION;
 	}
 
 	public function getImageHeight():int{
-		$height = $this->getImageData()->getImageHeight();
-		$width = $this->getImageData()->getImageWidth();
-		if($width > $height) {
+		$img = $this->getImageData();
+		if(!$img->hasImageHeight() || !$img->hasImageWidth()){
+			return 0;
+		}
+		$height = $img->getImageHeight();
+		$width = $img->getImageWidth();
+		if($width > $height){
 			return floor((THUMBNAIL_MAX_DIMENSION / $width) * $height);
 		}
 		return THUMBNAIL_MAX_DIMENSION;

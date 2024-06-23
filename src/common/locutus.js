@@ -23,7 +23,7 @@
 
 //https://locutus.io/php/array/array_key_exists/
 function array_key_exists(key, search){
-	if(!search || (search.constructor !== Array && search.constructor !== Object)) {
+	if(!search || (search.constructor !== Array && search.constructor !== Object)){
 		return false;
 	}
 	return key in search;
@@ -108,7 +108,7 @@ function array_slice(arr, offst, lgth, preserveKeys){
 }
 
 //https://locutus.io/php/var/empty/
-//XXX seems that something has changed in Firefox during development -- hasOwnProperty now returns false for all properties of an uploaded File object
+//seems that something has changed in Firefox during development -- hasOwnProperty now returns false for all properties of an uploaded File object
 function empty(value){
 	let f = "empty()";
 	let print = false;
@@ -175,7 +175,7 @@ function http_build_query(formdata, numericPrefix, argSeparator, encType){
 				val = '0';
 			}
 			if(val !== null){
-				if(typeof val === 'object') {
+				if(typeof val === 'object'){
 					for(k in val){
 						if(val[k] !== null){
 							tmp.push(_httpBuildQueryHelper(key + '[' + k + ']', val[k], argSeparator));
@@ -211,11 +211,11 @@ function http_build_query(formdata, numericPrefix, argSeparator, encType){
 }
 
 //https://locutus.io/php/var/is_int/
-//XXX inform locutus that isset($zero) in php returns true
 function is_int(mixedVar){
 	return mixedVar === +mixedVar && isFinite(mixedVar) && !(mixedVar % 1)
 }
 
+//XXX inform locutus that isset($zero) in php returns true
 function isset(val){
 	let f = "isset()";
 	let print = false;
@@ -228,7 +228,6 @@ function isset(val){
 		}
 	}
 	return typeof val != 'undefined' && val != null; //&& val != 0; 
-	
 }
 
 //https://locutus.io/php/strings/nl2br/
@@ -312,7 +311,7 @@ function urlencode(str){
 }
 
 //https://locutus.io/php/var/is_array/
-function is_array (mixedVar) { // eslint-disable-line camelcase
+function is_array (mixedVar){ // eslint-disable-line camelcase
 	  //  discuss at: https://locutus.io/php/is_array/
 	  // original by: Kevin van Zonneveld (https://kvz.io)
 	  // improved by: Legaev Andrey
@@ -341,19 +340,19 @@ function is_array (mixedVar) { // eslint-disable-line camelcase
 	  //   returns 4: false
 	  //   example 5: is_array(function tmp_a (){ this.name = 'Kevin' })
 	  //   returns 5: false
-	  const _getFuncName = function (fn) {
+	  const _getFuncName = function (fn){
 	    const name = (/\W*function\s+([\w$]+)\s*\(/).exec(fn)
-	    if(!name) {
+	    if(!name){
 	      return '(Anonymous)'
 	    }
 	    return name[1]
 	  }
-	  const _isArray = function (mixedVar) {
+	  const _isArray = function (mixedVar){
 	    // return Object.prototype.toString.call(mixedVar) === '[object Array]';
 	    // The above works, but let's do the even more stringent approach:
 	    // (since Object.prototype.toString could be overridden)
 	    // Null, Not an object, no length property so couldn't be an Array (or String)
-	    if(!mixedVar || typeof mixedVar !== 'object' || typeof mixedVar.length !== 'number') {
+	    if(!mixedVar || typeof mixedVar !== 'object' || typeof mixedVar.length !== 'number'){
 	      return false
 	    }
 	    const len = mixedVar.length
@@ -366,7 +365,7 @@ function is_array (mixedVar) { // eslint-disable-line camelcase
 	    // specific indexes; but there should be no false negatives
 	    // and such a false positive would need to rely on later JavaScript
 	    // innovations like __defineSetter__
-	    if(len !== mixedVar.length) {
+	    if(len !== mixedVar.length){
 	      // We know it's an array since length auto-changed with the addition of a
 	      // numeric property at its length end, so safely get rid of our bogus element
 	      mixedVar.length -= 1
@@ -379,18 +378,18 @@ function is_array (mixedVar) { // eslint-disable-line camelcase
 	    delete mixedVar[mixedVar.length]
 	    return false
 	  }
-	  if(!mixedVar || typeof mixedVar !== 'object') {
+	  if(!mixedVar || typeof mixedVar !== 'object'){
 	    return false
 	  }
 	  const isArray = _isArray(mixedVar)
-	  if(isArray) {
+	  if(isArray){
 	    return true
 	  }
 	  const iniVal = (typeof require !== 'undefined' ? require('../info/ini_get')('locutus.objectsAsArrays') : undefined) || 'on'
-	  if(iniVal === 'on') {
+	  if(iniVal === 'on'){
 	    const asString = Object.prototype.toString.call(mixedVar)
 	    const asFunc = _getFuncName(mixedVar.constructor)
-	    if(asString === '[object Object]' && asFunc === 'Object') {
+	    if(asString === '[object Object]' && asFunc === 'Object'){
 	      // Most likely a literal and intended as assoc. array
 	      return true
 	    }

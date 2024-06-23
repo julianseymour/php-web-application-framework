@@ -20,7 +20,7 @@ trait HypertextAttributeTrait
 	public function getHrefAttribute()
 	{
 		$f = __METHOD__; //"HypertextAttributeTrait(".static::getShortClass().")->geHrefAttribute()";
-		if(!$this->hasHrefAttribute()) {
+		if(!$this->hasHrefAttribute()){
 			Debug::error("{$f} href attribute is undefined");
 		}
 		return $this->getAttribute("href");

@@ -1,11 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\event;
 
-class AfterEditEvent extends Event
-{
+class AfterEditEvent extends AbstractDirectiveEvent{
 
-	public function __construct(?array $properties = null)
-	{
-		parent::__construct(EVENT_AFTER_EDIT, $properties);
+	public function __construct(?string $directive=null, ?array $properties = null){
+		parent::__construct(EVENT_AFTER_EDIT, $directive, $properties);
 	}
 }

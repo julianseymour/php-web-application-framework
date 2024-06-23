@@ -30,7 +30,7 @@ class InfoBoxResponder extends Responder{
 	}
 	
 	public function getInfo(){
-		$f = __METHOD__; //InfoBoxResponder::getShortClass()."(".static::getShortClass().")->getInfo()";
+		$f = __METHOD__;
 		if(!$this->hasInfo()){
 			Debug::error("{$f} info is undefined");
 		}

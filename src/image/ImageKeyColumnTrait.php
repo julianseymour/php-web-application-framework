@@ -9,7 +9,7 @@ trait ImageKeyColumnTrait
 	public function getImageData(): ImageData
 	{
 		$f = __METHOD__; //"ImageKeyColumnTrait(".static::getShortClass().")->getImageData()";
-		if(!$this->hasImageData()) {
+		if(!$this->hasImageData()){
 			Debug::error("{$f} image data is undefined");
 		}
 		return $this->getForeignDataStructure("imageKey");

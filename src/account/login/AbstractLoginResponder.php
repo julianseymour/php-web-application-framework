@@ -8,7 +8,7 @@ use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\app\Responder;
 use JulianSeymour\PHPWebApplicationFramework\app\XMLHttpResponse;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
-use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
+use JulianSeymour\PHPWebApplicationFramework\command\element\GetElementByIdCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\input\SetInputValueCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\ui\PageContentElement;
@@ -32,12 +32,12 @@ abstract class AbstractLoginResponder extends Responder{
 			$print = false;
 			parent::modifyResponse($response, $use_case);
 			$user = user();
-			if($user == null) {
+			if($user == null){
 				Debug::error("{$f} user returned null");
 				$status = ERROR_NULL_USER_OBJECT;
 				return $status;
 			}
-			if(ULTRA_LAZY) {
+			if(ULTRA_LAZY){
 				$mode = ALLOCATION_MODE_ULTRA_LAZY;
 			}else{
 				$mode = ALLOCATION_MODE_LAZY;
@@ -45,15 +45,15 @@ abstract class AbstractLoginResponder extends Responder{
 			$commands = $this->getStartingResponseCommandArray();
 			// widgets
 			$widgets = mods()->getWidgetClasses($use_case);
-			if(!empty($widgets)) {
+			if(!empty($widgets)){
 				$i = 0;
-				foreach($widgets as $widget_class) {
+				foreach($widgets as $widget_class){
 					$container = new WidgetContainer($mode);
 					$container->setIterator($i ++);
 					$container->setWidgetClass($widget_class);
 					$container->bindContext($user);
 					$command = $container->update();
-					if($print) {
+					if($print){
 						Debug::print("{$f} pushing login response command for widget class \"{$widget_class}\"");
 					}
 					array_push($commands, $command);
@@ -61,8 +61,8 @@ abstract class AbstractLoginResponder extends Responder{
 			}
 			if(!$use_case instanceof ExecutiveLoginUseCase){
 				// page content
-				if($use_case->isPageUpdatedAfterLogin()) {
-					if($print) {
+				if($use_case->isPageUpdatedAfterLogin()){
+					if($print){
 						Debug::print("{$f} use case does update the page after login");
 					}
 					$div = new PageContentElement($mode);
@@ -72,7 +72,7 @@ abstract class AbstractLoginResponder extends Responder{
 					$page_command = $div->updateInnerHTML();
 					array_push($commands, $page_command);
 				}else{
-					if($print) {
+					if($print){
 						Debug::print("{$f} no, the use case does not update the page after login");
 					}
 				}
@@ -80,19 +80,22 @@ abstract class AbstractLoginResponder extends Responder{
 				Debug::print("{$f} use case is an ExecutiveLoginUseCase");
 			}
 			// put them all together
-			foreach($commands as $command) {
-				if(is_array($command)) {
+			foreach($commands as $command){
+				if(is_array($command)){
 					Debug::error("{$f} string \"{$command}\"");
 				}
 			}
 			$linked_command = Command::linkCommands(...$commands);
-			if(is_array($linked_command)) {
+			if(is_array($linked_command)){
 				Debug::error("{$f} linked commands is an array");
 			}
 			// notification delivery timestamp
-			$notify_ts = CommandBuilder::setValue(CommandBuilder::getElementById("notify_ts"), $user->getNotificationDeliveryTimestamp());
+			$notify_ts = new SetInputValueCommand(
+				new GetElementByIdCommand("notify_ts"), 
+				$user->getNotificationDeliveryTimestamp()
+			);
 			$response->pushCommand($linked_command, $notify_ts);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

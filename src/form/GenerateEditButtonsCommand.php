@@ -1,26 +1,23 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\form;
 
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 
-class GenerateEditButtonsCommand extends GenerateFormButtonsCommand
-{
+class GenerateEditButtonsCommand extends GenerateFormButtonsCommand{
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "generateEditButtons";
 	}
 
-	public static function extractAnyway()
-	{
+	public static function extractAnyway(){
 		return false;
 	}
 
-	public function toJavaScript(): string
-	{
-		$f = __METHOD__; //GenerateEditButtonsCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
+	public function toJavaScript(): string{
+		$f = __METHOD__;
 		$idcs = $this->getIdCommandString();
-		if($idcs instanceof JavaScriptInterface) {
+		if($idcs instanceof JavaScriptInterface){
 			$idcs = $idcs->toJavaScript();
 		}
 		return "AjaxForm.generateEditButtons({$idcs}, context)";

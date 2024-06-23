@@ -11,8 +11,7 @@ use JulianSeymour\PHPWebApplicationFramework\input\FancyCheckbox;
 use JulianSeymour\PHPWebApplicationFramework\ui\ExpandingMenuNestedForm;
 use Exception;
 
-abstract class AbstractSessionForm extends ExpandingMenuNestedForm
-{
+abstract class AbstractSessionForm extends ExpandingMenuNestedForm{
 
 	protected abstract function getIpAddressHint();
 
@@ -28,33 +27,28 @@ abstract class AbstractSessionForm extends ExpandingMenuNestedForm
 		]);
 	}
 	
-	public static function getActionAttributeStatic(): ?string
-	{
+	public static function getActionAttributeStatic(): ?string{
 		return "/settings";
 	}
 
-	public function getFormDataIndices(): ?array
-	{
+	public function getFormDataIndices(): ?array{
 		return [
 			"bindIpAddress" => FancyCheckbox::class,
 			"bindUserAgent" => FancyCheckbox::class
 		];
 	}
 
-	public function generateFormHeader(): void
-	{
+	public function generateFormHeader(): void{
 		$div = new DivElement($this->getAllocationMode());
 		$div->setInnerHTML($this->getFormHeaderString());
 		$this->appendChild($div);
 	}
 
-	public static function getMethodAttributeStatic(): ?string
-	{
+	public static function getMethodAttributeStatic(): ?string{
 		return HTTP_REQUEST_METHOD_POST;
 	}
 
-	public static function getMaxHeightRequirement()
-	{
+	public static function getMaxHeightRequirement(){
 		return "999px";
 	}
 
@@ -64,7 +58,7 @@ abstract class AbstractSessionForm extends ExpandingMenuNestedForm
 			$print = false;
 			$mode = $this->getAllocationMode();
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "bindIpAddress":
 					$bindme = _("IP address");
 					$hint = $this->getIpAddressHint();
@@ -100,14 +94,14 @@ abstract class AbstractSessionForm extends ExpandingMenuNestedForm
 			$input->setLabelString($span);
 			// $key = $this->getContext()->getUserKey();
 			$input->setIdAttribute($this->getIdAttribute() . "-" . $input->getNameAttribute());
-			$label = $input->getLabelElement(); // must be called otherwise it will not have a label in time for its getSuccessors call
-			if(!$label->hasAttributes()) {
+			$label = $input->getLabel(); // must be called otherwise it will not have a label in time for its getSuccessors call
+			if(!$label->hasAttributes()){
 				Debug::error("{$f} label has no attributes");
-			}elseif($print) {
+			}elseif($print){
 				// Debug::print("{$f} generated label does indeed have attributes");
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -15,6 +15,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereCondition;
 use Exception;
 use mysqli;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 
 abstract class ThrottleMeterData extends DataStructure{
 
@@ -143,7 +144,7 @@ abstract class ThrottleMeterData extends DataStructure{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(!$query instanceof SelectStatement) {
+			if(!$query instanceof SelectStatement){
 				Debug::error("{$f} query is not an instance of a select query");
 			}
 			$intervals = [
@@ -155,10 +156,12 @@ abstract class ThrottleMeterData extends DataStructure{
 				"perYear",
 				"perDecade"
 			];
-			if($print) {
+			if($print){
 				Debug::print("{$f} throttled query is \"{$query}\"");
 			}
-			$query->select(new CountCommand("*"));
+			if(!$query->hasExpressions()){
+				$query->select(new CountCommand("*"));
+			}
 			$insert_ts = new WhereCondition("insertTimestamp", OPERATOR_GREATERTHAN);
 			$query->pushWhereConditionParameters($insert_ts);
 			$base_typedef = $query->hasTypeSpecifier() ? $query->getTypeSpecifier() : "";
@@ -166,18 +169,18 @@ abstract class ThrottleMeterData extends DataStructure{
 			$final_typedef = "";
 			$final_params = [];
 			$select_columns = [];
-			foreach($intervals as $index) {
+			foreach($intervals as $index){
 				$interval = $this->getColumn($index);
-				if(!$interval->hasValue()) {
+				if(!$interval->hasValue()){
 					continue;
 				}
 				// extend parameter array for this interval
 				$cutoff = $timestamp - $interval->getIntervalSeconds();
 				// create alias for that column
 				$select = QueryBuilder::select(new CountCommand('*'));
-				if($query->hasTableName()) {
+				if($query->hasTableName()){
 					$select->from($query->getTableName());
-				}elseif($query->hasJoinExpressions()) {
+				}elseif($query->hasJoinExpressions()){
 					$select->setJoinExpressions($query->getJoinExpressions());
 				}else{
 					Debug::error("{$f} query lacks either a table name or join expressions");
@@ -191,69 +194,79 @@ abstract class ThrottleMeterData extends DataStructure{
 				$interval->setAliasExpression($select);
 				array_push($select_columns, $interval->getColumnAlias());
 			}
-			if(empty($select_columns)) {
-				if($print) {
+			if(empty($select_columns)){
+				if($print){
 					Debug::print("{$f} no columns have quotas");
 				}
 				return true;
 			}
 			$superquery = new SelectStatement();
-			$superquery->select(...$select_columns)
-				->withTypeSpecifier($final_typedef)
-				->withParameters($final_params);
-			if($print) {
+			$superquery->select(...$select_columns)->withTypeSpecifier($final_typedef)->withParameters($final_params);
+			if($print){
 				Debug::print("{$f} generated super query \"{$superquery}\"");
 			}
 			$results = $superquery->executeGetResult($mysqli)->fetch_all(MYSQLI_ASSOC);
-			if($print) {
+			if($print){
 				Debug::print("{$f} executing super query returned the following result array:");
 				Debug::printArray($results[0]);
 			}
-			foreach($select_columns as $interval) {
+			foreach($select_columns as $interval){
 				if($interval instanceof Datum){
 					$column_name = $interval->getName();
 				}else{
 					$column_name = $interval->getColumnName();
 				}
-				if($print) {
+				if($column_name === null || $column_name === ""){
+					Debug::error("{$f} column name is null or empty string");
+				}
+				if($print){
 					Debug::print("{$f} about to check count for column \"{$column_name}\"");
 					// Debug::printArray($results);
 				}
+				if(!array_key_exists(0, $results)){
+					Debug::error("{$f} error getting results");
+				}elseif(!array_key_exists($column_name, $results[0])){
+					Debug::error("{$f} error getting results for column {$column_name}");
+				}
 				$count = $results[0][$column_name];
 				$quota = $this->getColumnValue($column_name);
-				if($print) {
+				if($print){
 					Debug::print("{$f} result count is {$count} for interval {$column_name}");
 				}
-				switch ($quota_operator) {
+				switch($quota_operator){
 					case OPERATOR_GREATERTHAN:
-						if($count <= $quota) {
-							if($print) {
+						if($count <= $quota){
+							if($print){
 								Debug::print("{$f} quota {$quota} failed for item count {$count} and operator {$quota_operator}");
 							}
+							deallocate($superquery);
 							return false;
 						}
 						continue 2;
 					case OPERATOR_GREATERTHANEQUALS:
-						if($count < $quota) {
-							if($print) {
+						if($count < $quota){
+							if($print){
 								Debug::print("{$f} quota {$quota} failed for item count {$count} and operator {$quota_operator}");
 							}
+							deallocate($superquery);
 							return false;
 						}
 						continue 2;
 					case OPERATOR_LESSTHAN:
-						if($count >= $quota) {
-							if($print) {
+						if($count >= $quota){
+							if($print){
 								Debug::print("{$f} quota {$quota} failed for item count {$count} and operator {$quota_operator}");
 							}
+							deallocate($superquery);
 							return false;
 						}
 						continue 2;
 					case OPERATOR_LESSTHANEQUALS:
-						if($count > $quota) {
-							if($print) {
+						if($count > $quota){
+							if($print){
 								Debug::print("{$f} quota {$quota} failed for item count {$count} and operator {$quota_operator}");
 							}
+							deallocate($superquery);
 							return false;
 						}
 						continue 2;
@@ -263,14 +276,16 @@ abstract class ThrottleMeterData extends DataStructure{
 					case OPERATOR_LESSTHANGREATERTHAN:
 					default:
 						Debug::error("{$f} invalid operator \"{$quota_operator}\"");
+						deallocate($superquery);
 						return false;
 				}
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} inequality satisfied");
 			}
+			deallocate($superquery);
 			return true;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -303,8 +318,8 @@ abstract class ThrottleMeterData extends DataStructure{
 			$per_decade->setIntervalSeconds($year * 10);
 			$per_lifetime = new QuotaDatum("perLifetime", 64);
 			$per_lifetime->setIntervalSeconds(time());
-			array_push($columns, $metered_type, $per_minute, $per_hour, $per_day, $per_week, $per_month, $per_year, $per_decade, $per_lifetime);
-		}catch(Exception $x) {
+			array_push($columns, $metered_type, $per_minute, $per_hour, $per_day, $per_week, $per_month, $per_quarter, $per_year, $per_decade, $per_lifetime);
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

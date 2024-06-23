@@ -1,6 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\table\alter\column;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnNameTrait;
 
 /**
@@ -13,23 +15,25 @@ class ChangeColumnOption extends ModifyColumnOption{
 
 	use ColumnNameTrait;
 
-	public function __construct($oldColumnName, $newColumnDefinition, $position = null, $afterColumnName = null){
+	public function __construct($oldColumnName=null, $newColumnDefinition=null, $position = null, $afterColumnName = null){
 		parent::__construct($newColumnDefinition, $position, $afterColumnName);
-		$this->setColumnName($oldColumnName);
+		if($oldColumnName !== null){
+			$this->setColumnName($oldColumnName);
+		}
 	}
 
 	public function toSQL(): string{
 		$oldName = $this->getColumnName();
 		$newDefinition = $this->getColumnDefinition()->toSQL();
 		$string = "change {$oldName} {$newDefinition}";
-		if($this->hasColumnPositon()) {
+		if($this->hasColumnPositon()){
 			$string .= $this->getColumnPositionString();
 		}
 		return $string;
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->columnName);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->columnName, $deallocate);
 	}
 }

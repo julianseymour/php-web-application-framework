@@ -32,7 +32,7 @@ class GrantData extends DataStructure implements StaticTableNameInterface{
 		// scope, aka in what context (group/channel) is the grant considered
 		$scope_key = new ForeignMetadataBundle("scope", $ds);
 		$scope_key->setForeignDataStructureClassResolver(GrantScopeClassResolver::class);
-		if(static::getScopeNullability()) {
+		if(static::getScopeNullability()){
 			$scope_key->setNullable(true);
 		}
 		$scope_key->constrain();

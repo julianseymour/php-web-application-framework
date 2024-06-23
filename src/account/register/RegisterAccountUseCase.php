@@ -24,7 +24,7 @@ class RegisterAccountUseCase extends InteractiveUseCase{
 		$f = __METHOD__;
 		try{
 			$status = $this->getObjectStatus();
-			if($status === SUCCESS) {
+			if($status === SUCCESS){
 				return [
 					new SuccessfulRegistrationNotice(ALLOCATION_MODE_LAZY, $this->getDataOperandObject())
 				];
@@ -33,7 +33,7 @@ class RegisterAccountUseCase extends InteractiveUseCase{
 					ErrorMessage::getResultMessage($status)
 				];
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -95,20 +95,20 @@ class RegisterAccountUseCase extends InteractiveUseCase{
 	public function getResponder(int $status): ?Responder{
 		$f = __METHOD__;
 		$print = false;
-		if($status !== SUCCESS) {
-			if($print) {
+		if($status !== SUCCESS){
+			if($print){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::print("{$f} error status \"{$err}\". Returning parent function");
 			}
 			return new RegistrationErrorResponder();
 		}
 		$directive = directive();
-		switch ($directive) {
+		switch($directive){
 			case DIRECTIVE_INSERT:
 				return new UpdateResponder(false);
 			default:
 		}
-		if($print) {
+		if($print){
 			Debug::print("{$f} directive \"{$directive}\". Returning parent function.");
 		}
 		return parent::getResponder($status);

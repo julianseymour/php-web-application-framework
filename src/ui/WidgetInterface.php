@@ -1,10 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 
-interface WidgetInterface extends OpenAndClosableElementInterface
-{
+interface WidgetInterface extends OpenAndClosableElementInterface{
 
 	public static function getIdAttributeStatic();
 
@@ -17,4 +17,6 @@ interface WidgetInterface extends OpenAndClosableElementInterface
 	public static function getIconClass($context = null): ?string;
 
 	public static function getLoadoutGeneratorClassStatic(): ?string;
+	
+	public static function getContainerClassAttributes():?array;
 }

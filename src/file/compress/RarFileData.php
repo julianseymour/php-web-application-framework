@@ -8,14 +8,14 @@ class RarFileData extends CompressedFileData{
 
 	public static function extractAll(string $compressed_filename, ?string $directory = null): array{
 		$f = __METHOD__;
-		if($directory === null) {
+		if($directory === null){
 			$directory = "tmp";
 		}
 		$filenames = static::extractTempFilenames($compressed_filename, $directory);
 		$files = [];
-		foreach($filenames as $filename => $tempfilename) {
+		foreach($filenames as $filename => $tempfilename){
 			$file = file_get_contents($tempfilename);
-			if($file === false) {
+			if($file === false){
 				Debug::error("{$f} file_get_contents returned false");
 			}
 			$files[$filename] = $file;
@@ -26,15 +26,15 @@ class RarFileData extends CompressedFileData{
 	public static function extractTempFilenames(string $compressed_filename, ?string $directory = null): array{
 		$f = __METHOD__;
 		$rar = RarArchive::open($compressed_filename);
-		if($rar === false) {
+		if($rar === false){
 			Debug::error("{$f} could not open rar file");
 		}
 		$entries = $rar->getEntries();
-		if($entries === false) {
+		if($entries === false){
 			Debug::error("{$f} RarArchive->getEntries() returned false");
 		}
 		$filenames = [];
-		foreach($entries as $entry) {
+		foreach($entries as $entry){
 			$tempfilename = tempnam($directory, static::getExtension());
 			$entry->extract(false, $tempfilename);
 			$filenames[$entry->getName()] = $tempfilename;

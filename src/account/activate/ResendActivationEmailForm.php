@@ -44,7 +44,7 @@ class ResendActivationEmailForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_EMAIL_CONFIRMATION_CODE:
 				$button = new ButtonInput($this->getAllocationMode());
 				$button->setNameAttribute("directive");

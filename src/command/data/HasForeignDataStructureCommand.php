@@ -16,10 +16,10 @@ class HasForeignDataStructureCommand extends DataStructureCommand implements Val
 	{
 		$f = __METHOD__; //HasForeignDataStructureCommand::getShortClass()."(".static::getShortClass().")->__construct()";
 		parent::__construct($context);
-		if($context instanceof DataStructure) {
+		if($context instanceof DataStructure){
 			$this->setIdCommand("context");
 		}
-		if(isset($vn)) {
+		if(isset($vn)){
 			$this->setColumnName($vn);
 		}
 	}
@@ -32,7 +32,7 @@ class HasForeignDataStructureCommand extends DataStructureCommand implements Val
 	public function evaluate(?array $params = null)
 	{
 		$context = $this->getDataStructure();
-		while ($context instanceof ValueReturningCommandInterface) {
+		while($context instanceof ValueReturningCommandInterface){
 			$context = $context->evaluate();
 		}
 		return $context->hasForeignDataStructure($this->getColumnName());
@@ -43,7 +43,7 @@ class HasForeignDataStructureCommand extends DataStructureCommand implements Val
 		$f = __METHOD__; //HasForeignDataStructureCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
 		try{
 			$e = $this->getIdCommandString();
-			if($e instanceof JavaScriptInterface) {
+			if($e instanceof JavaScriptInterface){
 				$e = $e->toJavaScript();
 			}
 			$vn = $this->getColumnName();
@@ -54,13 +54,13 @@ class HasForeignDataStructureCommand extends DataStructureCommand implements Val
 			 * }
 			 * }
 			 */
-			if($vn instanceof JavaScriptInterface) {
+			if($vn instanceof JavaScriptInterface){
 				$vn = $vn->toJavaScript();
-			}elseif(is_string($vn) || $vn instanceof StringifiableInterface) {
+			}elseif(is_string($vn) || $vn instanceof StringifiableInterface){
 				$vn = single_quote($vn);
 			}
 			return "{$e}.hasForeignDataStructure({$vn})";
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, x);
 		}
 	}

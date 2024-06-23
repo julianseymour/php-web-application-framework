@@ -78,8 +78,7 @@ define("ERROR_NULL_REFLECTED_CLASS", 606);
 define("ERROR_IDNUM_UNDEFINED", 607);
 define("ERROR_KEY_UNDEFINED", 608);
 define("ERROR_SEARCHNAME_UNDEFINED", 609);
-// define("ERROR_NULL_COUNTERPARTKEY", 610);
-
+define("ERROR_CYCLE_DETECTED", 610);
 define("ERROR_SIGNATURE_FAILED", 611); // sodium_crypto_sign_verify_detatched returned false
 define("ERROR_CONVERSATION_TYPE", 612);
 define("ERROR_NULL_KEYPAIR", 613);

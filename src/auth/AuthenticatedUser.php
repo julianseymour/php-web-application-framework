@@ -5,6 +5,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\auth;
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\ip_mask;
@@ -15,6 +16,7 @@ use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\account\UserNameKeyColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\account\UsernameData;
 use JulianSeymour\PHPWebApplicationFramework\account\avatar\ProfileImageData;
+use JulianSeymour\PHPWebApplicationFramework\account\login\FullAuthenticationData;
 use JulianSeymour\PHPWebApplicationFramework\account\login\LoginAttempt;
 use JulianSeymour\PHPWebApplicationFramework\app\workflow\Workflow;
 use JulianSeymour\PHPWebApplicationFramework\auth\mfa\InvalidatedOtp;
@@ -75,25 +77,25 @@ abstract class AuthenticatedUser extends PlayableUser{
 		$f = __METHOD__;
 		$print = false;
 		$config = parent::getArrayMembershipConfiguration($config_id);
-		switch ($config_id) {
+		switch($config_id){
 			case CONST_DEFAULT:
 			default:
 				$config['displayName'] = $this->hasDisplayName();
-				if($this->hasProfileImageData()) {
+				if($this->hasProfileImageData()){
 					// Debug::print("{$f} this user does indeed have an avatar");
 					$pid = $this->getProfileImageData();
 					$ps = $pid->getObjectStatus();
-					if($ps === SUCCESS) {
+					if($ps === SUCCESS){
 						$s = $pid->getArrayMembershipConfiguration($config_id);
 					}else{
 						$s = false;
 					}
 					$config['profileImageKey'] = $s;
 				}else{
-					if($print) {
+					if($print){
 						Debug::print("{$f} this user does not have an avatar");
 					}
-					if($print && $this->hasProfileImageKey()) {
+					if($print && $this->hasProfileImageKey()){
 						Debug::print("{$f} however the key is defined");
 					}
 				}
@@ -105,12 +107,12 @@ abstract class AuthenticatedUser extends PlayableUser{
 	public function getPushNotificationStatus(string $type):bool{
 		$f = __METHOD__;
 		try{
-			if(!$this->getPushAllNotifications()) {
+			if(!$this->getPushAllNotifications()){
 				return false;
 			}
 			$tnc = mods()->getTypedNotificationClass($type);
 			return $this->getColumnValue($tnc::getPushStatusVariableName());
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -118,7 +120,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 	public function getEmailNotificationStatus(string $type):bool{
 		$f = __METHOD__;
 		try{
-			switch ($type) {
+			switch($type){
 				case NOTIFICATION_TYPE_REGISTRATION:
 				case NOTIFICATION_TYPE_CHANGE_EMAIL:
 				case NOTIFICATION_TYPE_LOCKOUT:
@@ -128,15 +130,15 @@ abstract class AuthenticatedUser extends PlayableUser{
 				default:
 					break;
 			}
-			if(!$this->getEmailAllNotifications()) {
+			if(!$this->getEmailAllNotifications()){
 				return false;
 			}
 			$tnc = mods()->getTypedNotificationClass($type);
-			if(!$tnc::canDisable()) {
+			if(!$tnc::canDisable()){
 				return true;
 			}
 			return $this->getColumnValue($tnc::getEmailStatusVariableName());
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -193,20 +195,20 @@ abstract class AuthenticatedUser extends PlayableUser{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($ip_address === null) {
-				if($print) {
+			if($ip_address === null){
+				if($print){
 					Debug::print("{$f} getting listed IP address count for current IP");
 				}
 				$ip_address = $_SERVER['REMOTE_ADDR'];
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} getting listed IP address count for {$ip_address}");
 			}
-			if(strlen($ip_address) === 0) {
+			if(strlen($ip_address) === 0){
 				Debug::error("{$f} IP address is empty string");
 			}
 			$select = ListedIpAddress::selectStatic(null, 'ipAddress', "mask")->where(new AndCommand(new WhereCondition('ipAddress', OPERATOR_EQUALS), new WhereCondition('mask', OPERATOR_EQUALS), ListedIpAddress::whereIntersectionalHostKey(static::class, "userKey")));
 			$mask = ip_mask($ip_address);
-			if($print) {
+			if($print){
 				$params = [
 					$ip_address,
 					$mask,
@@ -217,11 +219,12 @@ abstract class AuthenticatedUser extends PlayableUser{
 				Debug::printArray($params);
 			}
 			$count = $select->prepareBindExecuteGetResultCount($mysqli, 'siss', $ip_address, $mask, $this->getIdentifierValue(), "userKey");
-			if($print) {
+			deallocate($select);
+			if($print){
 				Debug::print("{$f} returning {$count}");
 			}
 			return $count;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -231,23 +234,28 @@ abstract class AuthenticatedUser extends PlayableUser{
 		try{
 			$print = false;
 			$phylum = ListedIpAddress::getPhylumName();
-			if($this->hasForeignDataStructureList($phylum)) {
+			if($this->hasForeignDataStructureList($phylum)){
+				if($print){
+					Debug::print("{$f} we already have all of our listed IP addresses ready");
+				}
 				return $this->getForeignDataStructureList($phylum);
+			}elseif($print){
+				Debug::print("{$f} listed IP addresses are not loaded, about to check whether they are cached");
 			}
-			if(cache()->enabled() && USER_CACHE_ENABLED) {
-				if($print) {
+			if(cache()->enabled() && USER_CACHE_ENABLED){
+				if($print){
 					Debug::print("{$f} cache is enabled");
 				}
 				$user_key = $this->getIdentifierValue();
 				$index = "ip_addresses_{$user_key}";
-				if(cache()->hasAPCu($index)) {
-					if($print) {
+				if(cache()->hasAPCu($index)){
+					if($print){
 						Debug::print("{$f} found a cached IP address list \"{$index}\"");
 					}
 					$results = cache()->getAPCu($index);
-					foreach($results as $key => $parsed) {
+					foreach($results as $key => $parsed){
 						$cidr = $parsed['cidr'];
-						if($print) {
+						if($print){
 							Debug::print("{$f} IP address/range {$r} with key \"{$key}\"");
 						}
 						$ip = new ListedIpAddress();
@@ -258,7 +266,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 						$splat = explode('/', $cidr);
 						$mask = $splat[1];
 						$range = $splat[0];
-						if($print) {
+						if($print){
 							Debug::print("{$f} range {$range} with mask {$mask}");
 						}
 						$ip->setIpAddress($range);
@@ -267,30 +275,41 @@ abstract class AuthenticatedUser extends PlayableUser{
 						$this->setForeignDataStructureListMember($phylum, $ip);
 					}
 					return $this->getForeignDataStructureList($phylum);
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} nothing cached for \"{$index}\"");
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} user cache is disabled");
 			}
-			$ts = 'ss';
 			$select = ListedIpAddress::selectStatic()->where(
 				ListedIpAddress::whereIntersectionalHostKey(static::class, "userKey")
-			)->orderBy(new OrderByClause("mask", DIRECTION_DESCENDING))->withTypeSpecifier($ts)->withParameters($this->getIdentifierValue(), "userKey");
-			if(!$select->hasWhereCondition()) {
+			)->orderBy(new OrderByClause("mask", DIRECTION_DESCENDING))->withTypeSpecifier('ss')->withParameters($this->getIdentifierValue(), "userKey")->withParentKeyName("userKey");
+			if(!$select->hasWhereCondition()){
 				Debug::error("{$f} apparently, this query has no where condition");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} where condition assigned correctly");
 			}
 			$children = Loadout::loadChildClass($mysqli, $this, $phylum, ListedIpAddress::class, $select, false);
-			if(empty($children)) {
-				if($print) {
+			if($print){
+				Debug::print("{$f} returned from loadChildClass");
+			}
+			deallocate($select);
+			if(empty($children)){
+				if($print){
 					Debug::print("{$f} there are no listed IP addresses for this user");
 				}
 				return [];
+			}elseif($print){
+				Debug::print("{$f} ".count($children)." listed IP addresses for this ".$this->getDebugString());
 			}
 			$cache_me = [];
-			foreach($children as $key => $ip) {
+			foreach($children as $key => $ip){
+				if(!$ip->getColumn("userKey")->getRank() === RANK_PARENT){
+					Debug::error("{$f} userKey column does not have the parent key flag set for ".$ip->getDebugString()."with key \"{$key}\"");
+				}
+				if($print){
+					Debug::print("{$f} about to call loadForeignDataStructures on ".$ip->getDebugString());
+				}
 				$status = $ip->loadForeignDataStructures($mysqli);
 				if($status !== SUCCESS){
 					$err = ErrorMessage::getResultMessage($status);
@@ -298,23 +317,27 @@ abstract class AuthenticatedUser extends PlayableUser{
 					$this->setObjectStatus($status);
 				}
 				// cache listed IP addresses
-				$this->setForeignDataStructureListMember($phylum, $ip);
-				if(! cache()->enabled() || ! USER_CACHE_ENABLED) {
-					if($print) {
+				if(!cache()->enabled() || ! USER_CACHE_ENABLED){
+					if($print){
 						Debug::print("{$f} cache is disabled, continuing");
 					}
 					continue;
+				}elseif($print){
+					Debug::print("{$f} about to get cacheable value of ".$ip->getDebugString());
 				}
 				$ip->configureArrayMembership("cache");
 				$cache_me[$ip->getIdentifierValue()] = $ip->toArray();
 			}
-			if(cache()->enabled() && USER_CACHE_ENABLED) {
+			if(cache()->enabled() && USER_CACHE_ENABLED){
 				cache()->setAPCu($index, $cache_me, $this->getTimeToLive());
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} cache is disabled, skipping cache of listed IP addresses");
 			}
+			if($print){
+				Debug::print("{$f} returning normally");
+			}
 			return $this->getForeignDataStructureList($phylum);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -323,19 +346,19 @@ abstract class AuthenticatedUser extends PlayableUser{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($ip_address === null) {
+			if($ip_address === null){
 				$ip_address = $_SERVER['REMOTE_ADDR'];
 			}
-			if(strlen($ip_address) === 0) {
+			if(strlen($ip_address) === 0){
 				Debug::error("{$f} IP address is empty string");
 			}
 			$user = $this;
-			app()->getWorkflow()->addEventListener(EVENT_AFTER_RESPOND, function (AfterRespondEvent $event, Workflow $target) use ($f, $print, $user, $ip_address, $skip_insert) {
+			app()->getWorkflow()->addEventListener(EVENT_AFTER_RESPOND, function (AfterRespondEvent $event, Workflow $target) use ($f, $print, $user, $ip_address, $skip_insert){
 				$unlisted = false;
-				if(!$skip_insert) {
+				if(!$skip_insert){
 					$mysqli = db()->getConnection(PublicWriteCredentials::class);
 				} else{
-					if($print) {
+					if($print){
 						Debug::print("{$f} skipping check for auto insert");
 					}
 					$mysqli = db()->getConnection(PublicReadCredentials::class);
@@ -345,69 +368,75 @@ abstract class AuthenticatedUser extends PlayableUser{
 					Debug::error("{$f} mysqli is not an instanceof mysqli");
 				}
 				$count = $user->getListedIpAddressCount($mysqli, $ip_address);
-				if($count === 0) {
-					if($print) {
+				if($count === 0){
+					if($print){
 						Debug::print("{$f} this is an unlisted IP address");
 					}
 					$unlisted = true;
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} this IP address is not unlisted");
 				}
-				if($unlisted && ! $skip_insert) {
-					if($print) {
+				if($unlisted && ! $skip_insert){
+					if($print){
 						Debug::print("{$f} this is a real validation -- automatically inserting new IP ddress");
 					}
 					$mysqli = db()->getConnection(PublicWriteCredentials::class);
-					if(! isset($mysqli)) {
+					if(!isset($mysqli)){
 						$status = $user->setObjectStatus(ERROR_MYSQL_CONNECT);
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} {$err}");
 						return $status;
 					}
 					$status = $user->listIpAddress($mysqli, $ip_address);
-					if($status !== SUCCESS) {
+					if($status !== SUCCESS){
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} listIpAddress returned error status \"{$err}\"");
 						return $user->setObjectStatus($status);
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} successfully inserted unlisted IP address");
 					}
-					if(db()->hasPendingTransactionId()) {
+					if(db()->hasPendingTransactionId()){
 						db()->commitTransaction($mysqli, db()->getPendingTransactionId());
 					}
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} IP is not unlisted -- skipping auto insert");
 				}
 				return SUCCESS;
 			});
+			if($print){
+				Debug::print("{$f} about to call acquireListedIpAddresses");
+			}
 			$children = $this->acquireListedIpAddresses($mysqli);
+			if($print){
+				Debug::print("{$f} returned from acquireListedIpAddresses");
+			}
 			$cc = count($children);
-			if($cc === 0) {
-				if($print) {
+			if($cc === 0){
+				if($print){
 					Debug::print("{$f} 0 children");
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} {$cc} listed IP addresses for this user");
 			}
 			$policy = $this->getFilterPolicy();
-			if(!empty(($children))) {
-				foreach($children as $listed_ip) {
-					if($listed_ip->getDeleteFlag()) {
-						if($print) {
+			if(!empty(($children))){
+				foreach($children as $listed_ip){
+					if($listed_ip->getDeleteFlag()){
+						if($print){
 							Debug::print("{$f} listed IP address is flagged for deletion");
 						}
 						continue;
-					}elseif($listed_ip->getList() === POLICY_NONE) {
-						if($print) {
+					}elseif($listed_ip->getList() === POLICY_NONE){
+						if($print){
 							Debug::print("{$f} no policy for this IP address/range");
 						}
 						continue;
-					}elseif($listed_ip->getObjectStatus() === STATUS_SKIP_ME) {
-						if($print) {
+					}elseif($listed_ip->getObjectStatus() === STATUS_SKIP_ME){
+						if($print){
 							Debug::print("{$f} skipping this IP address");
 						}
 						continue;
-					}elseif(!$listed_ip->hasUserData()) {
+					}elseif(!$listed_ip->hasUserData()){
 						Debug::warning("{$f} a listed IP address is missing its user data");
 						if($listed_ip->hasUserKey() && $listed_ip->hasUserAccountType()){
 							Debug::print("{$f} user key and user account type are both defined");
@@ -420,55 +449,55 @@ abstract class AuthenticatedUser extends PlayableUser{
 						Debug::error("{$f} listed IP address is missing its user key and/or account type");
 					}
 					$status = $listed_ip->cidrMatchYourself($ip_address);
-					if(!is_int($status)) {
+					if(!is_int($status)){
 						Debug::error("{$f} cidrMatchYourself returned non-integer value");
 					}
 					$err = ErrorMessage::getResultMessage($status);
-					if($status !== RESULT_CIDR_UNMATCHED) {
-						if($print) {
+					if($status !== RESULT_CIDR_UNMATCHED){
+						if($print){
 							Debug::print("{$f} match found");
 						}
-						if(! isset($mysqli)) {
+						if(!isset($mysqli)){
 							Debug::warning("{$f} mysqli object is null, skipping access flag check");
-						}elseif(!$listed_ip->getAccessAttempted()) {
-							if($print) {
+						}elseif(!$listed_ip->getAccessAttempted()){
+							if($print){
 								Debug::print("{$f} access was not previously attempted -- updating IP listing now");
 							}
 							$listed_ip->setAccessAttempted(true);
 							$listed_ip->setColumnValue("wasAccessAttempted", true);
 							$status2 = $listed_ip->update($mysqli);
-							if($status2 !== SUCCESS) {
+							if($status2 !== SUCCESS){
 								$err = ErrorMessage::getResultMessage($status2);
 								Debug::warning("{$f} updating wasAccessAttempted returned error status \"{$err}\"");
 								return $this->setObjectStatus($status2);
 							}
-							if($print) {
+							if($print){
 								Debug::print("{$f} successfully marked IP address as access attempted");
 							}
-						}elseif($print) {
+						}elseif($print){
 							Debug::print("{$f} IP address was already marked for attempted access");
 						}
-						if($print) {
+						if($print){
 							Debug::print("{$f} returning status \"{$err}\" with match found");
 						}
 						return $status;
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} match not found");
 					}
 				}
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} user's IP address is not explicitly listed -- if they have a whitelist in effect, block this login attempt");
 			}
-			if($policy === POLICY_BLOCK) {
+			if($policy === POLICY_BLOCK){
 				Debug::warning("{$f} this user has whitelist mode in effect");
 				return $this->setObjectStatus(RESULT_BFP_WHITELIST_UNAUTHORIZED);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} user has filter policy \"{$policy}\"");
 			}
 			app()->setFlag("validIpAddress");
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -477,14 +506,14 @@ abstract class AuthenticatedUser extends PlayableUser{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(!$this->hasRequestEventObject()) {
+			if(!$this->hasRequestEventObject()){
 				Debug::error("{$f} request attempt object is undefined");
 			}
-			if($ip_address === null) {
+			if($ip_address === null){
 				$ip_address = $_SERVER['REMOTE_ADDR'];
 			}
 			$version = ip_version($ip_address);
-			switch ($version) {
+			switch($version){
 				case 4:
 					$mask = 32;
 					break;
@@ -496,7 +525,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 			}
 			$listed_ip = new ListedIpAddress();
 			$listed_ip->setUserData($this);
-			if(!$listed_ip->hasUserKey()) {
+			if(!$listed_ip->hasUserKey()){
 				Debug::error("{$f} listed IP address lacks a user key");
 			}
 			$listed_ip->setIpAddress($ip_address);
@@ -505,14 +534,14 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$listed_ip->setMask($mask);
 			$listed_ip->setAccessAttempted(true);
 			$attempt = $this->getRequestEventObject();
-			if(! isset($attempt)) {
+			if(!isset($attempt)){
 				Debug::error("{$f} request attempt object is undefined");
 			}
 			$reason = $attempt->getReasonLoggedStatic();
 			$listed_ip->setReasonLogged($reason);
-			if(!$attempt instanceof ReauthenticationEvent) {
+			if(!$attempt instanceof ReauthenticationEvent){
 				$status = $attempt->getObjectStatus();
-				if($status !== SUCCESS) {
+				if($status !== SUCCESS){
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::print("{$f} request attempt object has error status \"{$err}\"");
 				}
@@ -520,71 +549,73 @@ abstract class AuthenticatedUser extends PlayableUser{
 			}
 			$this->setForeignDataStructureListMember(ListedIpAddress::getPhylumName(), $listed_ip);
 			$user = $this;
-			$attempt->addEventListener(EVENT_AFTER_INSERT, function (AfterInsertEvent $event, RequestEvent $attempt) use ($user, $listed_ip, $f, $print) {
+			$attempt->addEventListener(EVENT_AFTER_INSERT, function (AfterInsertEvent $event, RequestEvent $attempt) use ($user, $listed_ip, $f, $print){
 				$attempt->removeEventListener($event);
 				$mysqli = db()->reconnect(PublicWriteCredentials::class);
 				$status = $listed_ip->insert($mysqli);
-				if($status !== SUCCESS) {
+				if($status !== SUCCESS){
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::error("{$f} writing new IP to database returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
 				$user->setRequestEventObject($listed_ip);
-				if($print) {
+				if($print){
 					Debug::print("{$f} successfuly wrote new IP address to database");
 				}
-				if($user->getFilterPolicy() === POLICY_BLOCK || $user->getAuthLinkEnabled()) {
-					if($print) {
+				if($user->getFilterPolicy() === POLICY_BLOCK || $user->getAuthLinkEnabled()){
+					if($print){
 						Debug::print("{$f} auth link is enabled -- about to send this user an UnlistedIpAddressConfirmationCode");
 					}
 					$status = UnlistedIpAddressConfirmationCode::submitStatic($mysqli, $user);
-					if($status === RESULT_CIDR_UNMATCHED) {
-						if($print) {
+					if($status === RESULT_CIDR_UNMATCHED){
+						if($print){
 							Debug::print("{$f} successfully wrote record to database");
 						}
-					}elseif($status !== SUCCESS) {
+					}elseif($status !== SUCCESS){
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::error("{$f} writeToDatabase returned error status \"{$err}\"");
 						return $user->setObjectStatus($status);
 					}else{
 						Debug::error("{$f} submitStatic should not return success");
 					}
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} authorization link email is not permitted");
 				}
 				$user->setTemporaryRole(USER_ROLE_RECIPIENT);
 				$status = $listed_ip->reload($mysqli, false);
-				if($status !== SUCCESS) {
+				if($status !== SUCCESS){
 					$err = ErrorMessage::getResultMessage($status);
 					Debug::warning("{$f} reloading listed IP address returned error status \"{$err}\"");
 					return $this->setObjectStatus($status);
 				}
 				$type = SecurityNotificationData::getNotificationTypeStatic();
-				if($user->getEmailNotificationStatus($type) || $user->getPushNotificationStatus($type)) {
+				if($user->getEmailNotificationStatus($type) || $user->getPushNotificationStatus($type)){
 					$status = $user->notify($mysqli, $listed_ip);
-					if($status !== SUCCESS) {
+					if($status !== SUCCESS){
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::warning("{$f} sending notification returned error status \"{$err}\"");
 						return $event->setObjectStatus($status);
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} returning normally");
 					}
 				}
 				return $this->setObjectStatus(SUCCESS);
 			});
-			if($attempt instanceof ReauthenticationEvent) {
-				if($print) {
+			if($attempt instanceof ReauthenticationEvent){
+				if($print){
 					Debug::print("{$f} attempt is a reauthentication event -- dispatching AfterInsertEvent immediately");
 				}
-				$attempt->dispatchEvent(new AfterInsertEvent());
-			}elseif($print) {
+				if($attempt->hasAnyEventListener(EVENT_AFTER_INSERT)){
+					$attempt->dispatchEvent(new AfterInsertEvent());
+				}
+			}elseif($print){
 				Debug::print("{$f} attempt is not a reauthentication event");
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning normally");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -625,9 +656,9 @@ abstract class AuthenticatedUser extends PlayableUser{
 		$f = __METHOD__;
 		try{
 			$normal = $this->getColumnValue('normalizedEmailAddress');
-			if(! isset($normal)) {
+			if(!isset($normal)){
 				$email = $this->getEmailAddress();
-				if(! isset($email)) {
+				if(!isset($email)){
 					Debug::error("{$f} email address (normal and non-normalized) is undefined");
 				}
 				// Debug::print("{$f} normalizing email address");
@@ -635,7 +666,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 				return $this->setNormalizedEmailAddress($normal);
 			}
 			return $normal;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -643,12 +674,27 @@ abstract class AuthenticatedUser extends PlayableUser{
 	public function getNormalizedNameSelectStatement(string $normalized): SelectStatement{
 		$f = __METHOD__;
 		$print = false;
-		$select = $this->select()->where(new WhereCondition('uniqueKey', OPERATOR_EQUALS, null, UsernameData::generateLazyAliasExpression(static::class, "userKey", // we are selecting user keys
-		QueryBuilder::select('uniqueKey')->from(UsernameData::getDatabaseNameStatic(), UsernameData::getTableNameStatic())->where(new WhereCondition("normalizedName", OPERATOR_EQUALS))->escape(ESCAPE_TYPE_PARENTHESIS))))->withTypeSpecifier("ss")->withParameters([
+		$select = $this->select()->where(
+			new WhereCondition(
+				'uniqueKey', 
+				OPERATOR_EQUALS, 
+				null, 
+				UsernameData::generateLazyAliasExpression(
+					static::class, 
+					"userKey", // we are selecting user keys
+					QueryBuilder::select('uniqueKey')->from(
+						UsernameData::getDatabaseNameStatic(), 
+						UsernameData::getTableNameStatic()
+					)->where(
+						new WhereCondition("normalizedName", OPERATOR_EQUALS)
+					)->escape(ESCAPE_TYPE_PARENTHESIS)
+				)
+			)
+		)->withTypeSpecifier("ss")->withParameters([
 			$normalized,
 			"userKey"
 		]);
-		if($print) {
+		if($print){
 			Debug::print("{$f} query for selecting user by normalized name: \"{$select}\", with the following parameters");
 			$params = $select->getParameters();
 			Debug::printArray($params);
@@ -665,29 +711,29 @@ abstract class AuthenticatedUser extends PlayableUser{
 		try{
 			$print = false;
 			$emc = $subject->getEmailNotificationClass();
-			if($emc === null) {
-				if($print) {
+			if($emc === null){
+				if($print){
 					Debug::print("{$f} this class does not send email notifications");
 				}
 				return SUCCESS;
-			}elseif(!is_string($emc)) {
+			}elseif(!is_string($emc)){
 				Debug::error("{$f} email notification class is not a string");
-			}elseif(! class_exists($emc)) {
+			}elseif(!class_exists($emc)){
 				Debug::error("{$f} email notification class \"{$emc}\" does not exist");
-			}elseif(!is_a($emc, SpamEmail::class, true)) {
+			}elseif(!is_a($emc, SpamEmail::class, true)){
 				Debug::error("{$f} email notification class \"{$emc}\" does not extend SpamEmail");
-			}elseif($print) {
+			}elseif($print){
 				$sc = $subject->getClass();
 				Debug::print("{$f} about to send an email notification of class \"{$emc}\" for subject of class \"{$sc}\"");
 			}
 			$message = new $emc();
 			$message->setRecipient($this);
 			$message->setSubjectData($subject);
-			if(!$message->hasSubjectData()) {
+			if(!$message->hasSubjectData()){
 				Debug::error("{$f} immediately after setting subject data, it is undefined");
 			}
 			return $message->sendAndInsert($mysqli);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -703,9 +749,9 @@ abstract class AuthenticatedUser extends PlayableUser{
 	public function acquireLastAuthenticatedIpAddress($mysqli){
 		$f = __METHOD__;
 		try{
-			if($this->hasLastAuthenticatedIpAddress()) {
+			if($this->hasLastAuthenticatedIpAddress()){
 				return $this->getLastAuthenticatedIpAddress();
-			}elseif(! isset($mysqli)) {
+			}elseif(!isset($mysqli)){
 				$err = ErrorMessage::getResultMessage(ERROR_MYSQL_CONNECT);
 				Debug::error("{$f} {$err}");
 			}
@@ -720,7 +766,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$attempt = new LoginAttempt();
 			$attempt->setUserData($this);
 			$status = $attempt->load($mysqli, $where, $identifiers, $order_by, 1);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} loading last authenticated IP address returned error status \"{$err}\"");
 				// $this->setObjectStatus($status);
@@ -729,7 +775,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$ip = $attempt->getInsertIpAddress();
 			// Debug::print("{$f} returning \"{$ip}\"");
 			return $this->setLastAuthenticatedIpAddress($ip);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 			return null;
 		}
@@ -737,7 +783,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 
 	public function getLastAuthenticatedIpAddress(){
 		$f = __METHOD__;
-		if($this->hasLastAuthenticatedIpAddress()) {
+		if($this->hasLastAuthenticatedIpAddress()){
 			return $this->getColumnValue('lastAuthenticatedIpAddress');
 		}
 		$name = $this->getName();
@@ -761,24 +807,24 @@ abstract class AuthenticatedUser extends PlayableUser{
 		try{
 			$invalidated = new InvalidatedOtp();
 			$invalidated->setUserData($this);
-			if(!$this->hasUsernameData()) {
+			if(!$this->hasUsernameData()){
 				$decl = $this->getDeclarationLine();
 				Debug::error("{$f} user lacks username data; instantiated {$decl}");
-			}elseif(!$invalidated->hasUserNameKey()) {
+			}elseif(!$invalidated->hasUserNameKey()){
 				Debug::error("{$f} username key is undefined for OTP data");
 			}
 			// Debug::print("{$f} created invalidated OTP object; about to set its code");
 			$invalidated->setOTP($otp);
 			// Debug::print("{$f} set invalidated OTP code; about to write to database");
 			$status = $invalidated->insert($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} failed to write invalidated MFA: got abnormal failure status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			// Debug::print("{$f} returning successfully");
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -813,16 +859,16 @@ abstract class AuthenticatedUser extends PlayableUser{
 		$f = __METHOD__;
 		try{
 			$count = InvalidatedOtp::selectStatic(null, "otp", "insertTimestamp")->where(new AndCommand(new WhereCondition("otp", OPERATOR_EQUALS), new WhereCondition("insertTimestamp", OPERATOR_GREATERTHAN)))->prepareBindExecuteGetResultCount($mysqli, 'si', $otp, time() - 1440);
-			if($count > 0) {
+			if($count > 0){
 				return true;
 			}
 			$status = $this->invalidateOTP($mysqli, $otp);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$this->setObjectStatus($status);
 				return true;
 			}
 			return false;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -834,10 +880,11 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$email = new EmailAddressDatum("emailAddress");
 			$email->setUserWritableFlag(true);
 			// $email->setSensitiveFlag(true);
-			$email->addEventListener(EVENT_AFTER_SET_VALUE, function ($event, $target) {
+			$email->setHumanReadableName(_("Email address"));
+			$email->addEventListener(EVENT_AFTER_SET_VALUE, function ($event, $target){
 				$value = $event->getProperty('value');
 				$ds = $target->getDataStructure();
-				if(empty($value)) {
+				if(empty($value)){
 					$ds->setNormalizedEmailAddress(null);
 				}else{
 					$ds->setNormalizedEmailAddress(EmailAddressDatum::normalize($value));
@@ -848,9 +895,10 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$lastLoginTimestamp->setUserWritableFlag(true);
 			$lastLoginTimestamp->setSensitiveFlag(true);
 			$lastLoginTimestamp->setDefaultValue(0);
-			$reset = new TimestampDatum("passwordResetTimestamp");
+			$reset = new TimestampDatum("hardResetTimestamp");
 			$reset->setUserWritableFlag(true);
 			$reset->setSensitiveFlag(true);
+			$reset->setNullable(true);
 			$mfa = new BooleanDatum("MFAStatus");
 			$mfa->setDefaultValue(false);
 			// $mfa->setSensitiveFlag(true);
@@ -894,14 +942,14 @@ abstract class AuthenticatedUser extends PlayableUser{
 				POLICY_ALLOW
 			]);
 			$filter->setHumanReadableName(_("Whitelist mode"));
-			$filter->setValidationClosure(function ($value, TextDatum $target) {
+			$filter->setValidationClosure(function ($value, TextDatum $target){
 				$user = $target->getDataStructure();
 				$backup = $target->getValue();
 				$target->setValue($value);
 				$mysqli = db()->getConnection(PublicReadCredentials::class);
 				$r = $user->filterIpAddress($mysqli, $_SERVER['REMOTE_ADDR'], true);
 				$target->setValue($backup);
-				switch ($r) {
+				switch($r){
 					case ERROR_IP_ADDRESS_NOT_AUTHORIZED:
 						return ERROR_FILTER_LOCKED_OUT;
 					default:
@@ -930,22 +978,24 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$profile_image_key->setOnDelete(REFERENCE_OPTION_SET_NULL);
 			$profile_image_key->setConverseRelationshipKeyName("userKey");
 			$profile_image_key->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_ONE);
-			if($ds !== null && $ds->getAllocationMode() === ALLOCATION_MODE_SUBJECTIVE) {
+			if($ds !== null && $ds->getAllocationMode() === ALLOCATION_MODE_SUBJECTIVE){
 				$profile_image_key->setTimeToLive(SESSION_TIMEOUT_SECONDS);
+				$profile_image_key->setRank(RANK_CHILD);
 			}
-
 			$logoutTimestamp = new TimestampDatum("logoutTimestamp");
 			$logoutTimestamp->setNullable(true);
 			$logoutTimestamp->setDefaultValue(null);
-
 			$push_note_bundle = new NotificationStatusDatumBundle("push");
 			$email_note_bundle = new NotificationStatusDatumBundle("email");
-
-			$where = BinaryExpressionCommand::equals(new GetDeclaredVariableCommand("usernames_alias.uniqueKey"), new GetDeclaredVariableCommand("t0.userNameKey"));
+			$where = new BinaryExpressionCommand(
+				new GetDeclaredVariableCommand("usernames_alias.uniqueKey"), 
+				OPERATOR_EQUALSEQUALS,
+				new GetDeclaredVariableCommand("t0.userNameKey")
+			);
 			$name = new NameDatum('name');
 			$name->setSubqueryClass(UsernameData::class);
 			$name->setSubqueryWhereCondition($where);
-
+			
 			$normalized_name = new TextDatum("normalizedName");
 			$normalized_name->setSortable(true);
 			$normalized_name->setSubqueryClass(UsernameData::class);
@@ -956,25 +1006,25 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$display_name->setDefaultValue(null);
 			$display_name->setSubqueryClass(UsernameData::class);
 			$display_name->setSubqueryWhereCondition($where);
-
+			
 			$bind_ip = new BooleanDatum("bindIpAddress");
 			$bind_ip->setDefaultValue(false);
 			$bind_ip->setPersistenceMode(PERSISTENCE_MODE_COOKIE);
 			$bind_ip->setHumanReadableName(_("Bind IP address"));
-			$bind_ip->addEventListener(EVENT_AFTER_SET_VALUE, function (AfterSetValueEvent $event, BooleanDatum $target) {
+			$bind_ip->addEventListener(EVENT_AFTER_SET_VALUE, function (AfterSetValueEvent $event, BooleanDatum $target){
 				$f = __METHOD__;
 				$print = false;
-				if($print) {
+				if($print){
 					Debug::print("{$f} fired event");
 				}
 				$ahsd = new AntiHijackSessionData();
 				$value = $event->getValue();
-				if($value) {
-					if($print) {
+				if($value){
+					if($print){
 						Debug::print("{$f} value is set");
 					}
 					$ahsd->setBoundIpAddress($_SERVER['REMOTE_ADDR']);
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} value is not set");
 					$ahsd->unsetBoundIpAddress();
 				}
@@ -983,20 +1033,20 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$bind_ua->setDefaultValue(false);
 			$bind_ua->setPersistenceMode(PERSISTENCE_MODE_COOKIE);
 			$bind_ua->setHumanReadableName(_("Bind user agent"));
-			$bind_ua->addEventListener(EVENT_AFTER_SET_VALUE, function (AfterSetValueEvent $event, BooleanDatum $target) {
+			$bind_ua->addEventListener(EVENT_AFTER_SET_VALUE, function (AfterSetValueEvent $event, BooleanDatum $target){
 				$f = __METHOD__;
 				$print = false;
-				if($print) {
+				if($print){
 					Debug::print("{$f} fired event");
 				}
 				$ahsd = new AntiHijackSessionData();
 				$value = $event->getValue();
-				if($value) {
-					if($print) {
+				if($value){
+					if($print){
 						Debug::print("{$f} value is set");
 					}
 					$ahsd->setBoundUserAgent($_SERVER['HTTP_USER_AGENT']);
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} value is not set");
 					$ahsd->unsetBoundUserAgent();
 				}
@@ -1008,7 +1058,8 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$userNameKey = new ForeignKeyDatum("userNameKey");
 			$userNameKey->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_ONE);
 			$userNameKey->setForeignDataStructureClass(UsernameData::class);
-			if($ds !== null && $ds->getAllocationMode() === ALLOCATION_MODE_SUBJECTIVE) {
+			if($ds !== null && $ds->getAllocationMode() === ALLOCATION_MODE_SUBJECTIVE){
+				$userNameKey->setRank(RANK_CHILD);
 				$userNameKey->autoload();
 			}
 			$userNameKey->constrain();
@@ -1016,9 +1067,8 @@ abstract class AuthenticatedUser extends PlayableUser{
 			$userNameKey->onDelete(REFERENCE_OPTION_SET_NULL);
 			$userNameKey->setConverseRelationshipKeyName("userKey");
 
-			array_push($columns, $email, $normalized, $lastLoginTimestamp, $mfa, $notify, $send_mail, $mfa_seed, $encrypt_email, $hard, $block_ipv6, $filter, $auth_link, $reset_name, $reset_email, $profile_image_key, $logoutTimestamp, $name, $normalized_name, $display_name, $push_note_bundle, $email_note_bundle, $bind_ip, $bind_ua, $lastAuthenticatedIpAddress, $userNameKey
-			);
-		}catch(Exception $x) {
+			array_push($columns, $email, $normalized, $lastLoginTimestamp, $mfa, $notify, $send_mail, $mfa_seed, $encrypt_email, $hard, $block_ipv6, $filter, $auth_link, $reset_name, $reset_email, $profile_image_key, $logoutTimestamp, $name, $normalized_name, $display_name, $push_note_bundle, $email_note_bundle, $bind_ip, $bind_ua, $lastAuthenticatedIpAddress, $userNameKey, $reset);
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -1066,8 +1116,8 @@ abstract class AuthenticatedUser extends PlayableUser{
 
 	public static function getPassword(){
 		$f = __METHOD__;
-		if(! hasInputParameter("password")) {
-			Debug::error("{$f} shit outta luck");
+		if(!hasInputParameter("password")){
+			Debug::error("{$f} password is undefined");
 		}
 		return getInputParameter('password');
 	}
@@ -1082,7 +1132,7 @@ abstract class AuthenticatedUser extends PlayableUser{
 
 	public function getUnambiguousName(): string{
 		$name = $this->getName();
-		if(!$this->hasDisplayName()) {
+		if(!$this->hasDisplayName()){
 			return $name;
 		}
 		return $this->getDisplayName() . " ({$name})";

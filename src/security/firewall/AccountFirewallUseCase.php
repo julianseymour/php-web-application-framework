@@ -3,12 +3,10 @@
 namespace JulianSeymour\PHPWebApplicationFramework\security\firewall;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
-use function JulianSeymour\PHPWebApplicationFramework\array_remove_key;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
-
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\hasInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -37,10 +35,10 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 
 	public function getDataOperandClass(): ?string{
 		// $f = __METHOD__;
-		if(hasInputParameter("dataType", $this)) {
+		if(hasInputParameter("dataType", $this)){
 			$classes = $this->getConditionalDataOperandClasses();
 			$dataType = getInputParameter('dataType', $this);
-			if(array_key_exists($dataType, $classes)) {
+			if(array_key_exists($dataType, $classes)){
 				return $classes[$dataType];
 			}
 		}
@@ -61,7 +59,7 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 		$f = __METHOD__;
 		$list = $ds->getList();
 		$div = new DivElement();
-		switch ($list) {
+		switch($list){
 			case POLICY_BLOCK:
 				$div->setIdAttribute("blacklist_top");
 				return $div;
@@ -83,18 +81,18 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 			return parent::getResponder($status);
 		}
 		$directive = directive();
-		switch ($directive) {
+		switch($directive){
 			case DIRECTIVE_INSERT:
 			case DIRECTIVE_UPDATE:
-				if($this->getObjectStatus() === SUCCESS) {
+				if($this->getObjectStatus() === SUCCESS){
 					$operand = $this->getDataOperandObject();
 					$type = $operand->getDataType();
-					if($type !== DATATYPE_USER) {
+					if($type !== DATATYPE_USER){
 						$backup = $this->getOriginalOperand();
-						if($operand->getList() !== $backup->getList()) {
-							if($directive === DIRECTIVE_INSERT) {
+						if($operand->getList() !== $backup->getList()){
+							if($directive === DIRECTIVE_INSERT){
 								return new InsertAfterResponder();
-							}elseif($directive === DIRECTIVE_UPDATE) {
+							}elseif($directive === DIRECTIVE_UPDATE){
 								return new AccountFirewallResponder();
 							}
 						}
@@ -125,16 +123,16 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 			}
 			$ret = [];
 			$user = user();
-			if(! isset($user)) {
+			if(!isset($user)){
 				Debug::error("{$f} user data returned null");
-			}elseif($status !== SUCCESS) {
+			}elseif($status !== SUCCESS){
 				array_push($ret, ErrorMessage::getVisualError($status));
 			}
 			$mode = ALLOCATION_MODE_LAZY;
 			array_push($ret, new AccountFirewallElement($mode, $user));
 			Debug::print("{$f} returning normally");
 			return $ret;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -169,9 +167,9 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 	}
 
 	public function getProcessedDataType(): ?string{
-		if(hasInputParameter("dataType", $this)) {
+		if(hasInputParameter("dataType", $this)){
 			$type = getInputParameter('dataType', $this);
-			switch ($type) {
+			switch($type){
 				case DATATYPE_USER:
 				case DATATYPE_IP_ADDRESS:
 					return $type;
@@ -191,23 +189,23 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 	public function reconfigureDataOperand(mysqli $mysqli, object &$object): int{
 		$f = __METHOD__;
 		$print = false;
-		if($object instanceof ListedIpAddress) {
+		if($object instanceof ListedIpAddress){
 			$object->disableNotifications();
-			if($print) {
+			if($print){
 				Debug::print("{$f} the operand is a listed IP address");
 			}
 			$directive = directive();
-			switch ($directive) {
+			switch($directive){
 				case DIRECTIVE_INSERT:
 				case DIRECTIVE_UPDATE:
-					if($print) {
+					if($print){
 						Debug::print("{$f} this is an {$directive}");
 					}
 					// validation closures to prevent locking yourself out
 					$object->setValidationClosure(function (ListedIpAddress $target) use ($directive, $f, $print): int {
 						$phylum = ListedIpAddress::getPhylumName();
 						$user = $target->getUserData();
-						if($directive === DIRECTIVE_INSERT) {
+						if($directive === DIRECTIVE_INSERT){
 							$user->setForeignDataStructureListMember($phylum, $target);
 						}
 						if($user->hasDebugId() && user()->hasDebugId() && $user->getDebugId() !== user()->getDebugId()){
@@ -218,9 +216,9 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 						$listed_ip_addresses = $user->getForeignDataStructureList($phylum);
 						uasort($listed_ip_addresses, function (ListedIpAddress $a, ListedIpAddress $b): int {
 							$diff = $a->getMask() - $b->getMask();
-							if($diff === 0) {
+							if($diff === 0){
 								return 0;
-							}elseif($diff > 0) {
+							}elseif($diff > 0){
 								return - 1;
 							}else{
 								return 1;
@@ -228,48 +226,48 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 						});
 						$user->setForeignDataStructureList($phylum, $listed_ip_addresses);
 						$r = $target->preventSelfLockout();
-						if($print) {
+						if($print){
 							$err = ErrorMessage::getResultMessage($r);
 							Debug::print("{$f} returning \"{$err}\"");
 						}
 						return $r;
 					});
 					// event handlers for refreshing cached IP addresses for zero DB access firewall
-					if(cache()->enabled() && USER_CACHE_ENABLED) {
-						$object->addEventListener(EVENT_AFTER_SAVE, function (AfterSaveEvent $event, ListedIpAddress $target) use ($f, $print) {
+					if(cache()->enabled() && USER_CACHE_ENABLED){
+						$object->addEventListener(EVENT_AFTER_SAVE, function (AfterSaveEvent $event, ListedIpAddress $target) use ($f, $print){
 							$target->removeEventListener($event);
 							$object = $target;
 							app()->getWorkflow()
-								->addEventListener(EVENT_AFTER_RESPOND, function (AfterRespondEvent $event, Workflow $target) use ($object, $f, $print) {
+								->addEventListener(EVENT_AFTER_RESPOND, function (AfterRespondEvent $event, Workflow $target) use ($object, $f, $print){
 								$target->removeEventListener($event);
 								$user_key = $object->getIdentifierValue();
 								$index = "ip_addresses_{$user_key}";
-								if(cache()->hasAPCu($index)) {
-									if($print) {
+								if(cache()->hasAPCu($index)){
+									if($print){
 										Debug::print("{$f} about to set new listed IP address in cache");
 									}
 									$object->configureArrayMembership('cache');
 									$results[$object->getIdentifierValue()] = $object->toArray();
 									uasort($results, function ($a, $b) use ($f, $print): int {
-										if($print) {
+										if($print){
 											Debug::print("{$f} array A:");
 											Debug::printArray($a);
 											Debug::print("{$f} array B:");
 											Debug::printArray($b);
 										}
 										$diff = $a['mask'] - $b['mask'];
-										if($diff === 0) {
-											if($print) {
+										if($diff === 0){
+											if($print){
 												Debug::print("{$f} masks are the same size");
 											}
 											return 0;
-										}elseif($diff < 0) {
-											if($print) {
+										}elseif($diff < 0){
+											if($print){
 												Debug::print("{$f} IP address B has a larger mask, returning 1");
 											}
 											return 1;
-										}elseif($diff > 0) {
-											if($print) {
+										}elseif($diff > 0){
+											if($print){
 												Debug::print("{$f} IP address B has a smaller mask, returning -1");
 											}
 											return - 1;
@@ -278,53 +276,53 @@ class AccountFirewallUseCase extends InteractiveUseCase{
 										}
 									});
 									cache()->setAPCu($index, $results);
-								}elseif($print) {
+								}elseif($print){
 									Debug::print("{$f} cache miss for \"{$index}\"");
 								}
 							});
 						});
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} cache is disabled");
 					}
 					break;
 				case DIRECTIVE_DELETE:
-					if($print) {
+					if($print){
 						Debug::print("{$f} this is a delete");
 					}
-					$object->setPermission(DIRECTIVE_DELETE, new RoleBasedPermission(DIRECTIVE_DELETE, function (AuthenticatedUser $user, ListedIpAddress $object) {
+					$object->setPermission(DIRECTIVE_DELETE, new RoleBasedPermission(DIRECTIVE_DELETE, function (AuthenticatedUser $user, ListedIpAddress $object){
 						$mysqli = db()->getConnection(PublicWriteCredentials::class);
 						return $user->filterIpAddress($mysqli);
 					}, [
 						USER_ROLE_OWNER => POLICY_REQUIRE
 					]));
-					if(cache()->enabled() && USER_CACHE_ENABLED) {
-						$object->addEventListener(EVENT_AFTER_DELETE, function (AfterDeleteEvent $event, ListedIpAddress $target) use ($f, $print) {
+					if(cache()->enabled() && USER_CACHE_ENABLED){
+						$object->addEventListener(EVENT_AFTER_DELETE, function (AfterDeleteEvent $event, ListedIpAddress $target) use ($f, $print){
 							$target->removeEventListener($event);
 							$object = $target;
 							app()->getWorkflow()
-								->addEventListener(EVENT_AFTER_RESPOND, function (AfterRespondEvent $event, Workflow $target) use ($object, $f, $print) {
+								->addEventListener(EVENT_AFTER_RESPOND, function (AfterRespondEvent $event, Workflow $target) use ($object, $f, $print){
 								$target->removeEventListener($event);
 								$index = "ip_addresses_" . $object->getIdentifierValue();
-								if(cache()->hasAPCu($index)) {
-									if($print) {
+								if(cache()->hasAPCu($index)){
+									if($print){
 										Debug::print("{$f} about to delete listed IP address in cache");
 									}
 									$results = cache()->getAPCu($index);
-									$results = array_remove_key($results, $object->getIdentifierValue());
+									unset($results[$object->getIdentifierValue()]);
 									cache()->setAPCu($index, $results);
-								}elseif($print) {
+								}elseif($print){
 									Debug::print("{$f} cache miss for \"{$index}\"");
 								}
 							});
 						});
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} cache is disabled");
 					}
 					break;
 				default:
 					Debug::warning("{$f} unusual directive \"{$directive}\"");
 			}
-		}elseif($object instanceof AuthenticatedUser) {
+		}elseif($object instanceof AuthenticatedUser){
 			//
 		}else{
 			Debug::error("{$f} what else gets processed by this use case?");

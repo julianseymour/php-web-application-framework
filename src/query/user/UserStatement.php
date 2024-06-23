@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\user;
 
 use function JulianSeymour\PHPWebApplicationFramework\escape_quotes;
@@ -10,9 +11,9 @@ use JulianSeymour\PHPWebApplicationFramework\query\CommentTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\LockOptionTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\QueryStatement;
 use Exception;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 
-abstract class UserStatement extends QueryStatement
-{
+abstract class UserStatement extends QueryStatement{
 
 	use CommentTrait;
 	use LockOptionTrait;
@@ -46,17 +47,15 @@ abstract class UserStatement extends QueryStatement
 
 	protected $tlsSubject;
 
-	public function __construct(...$users)
-	{
+	public function __construct(...$users){
 		parent::__construct();
 		$this->requirePropertyType("users", DatabaseUserDefinition::class);
-		if(isset($users)) {
+		if(isset($users)){
 			$this->setUsers($users);
 		}
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"passwordExpired",
 			"requireCurrentPassword",
@@ -66,504 +65,469 @@ abstract class UserStatement extends QueryStatement
 		]);
 	}
 
-	public function setRequireCurrentPasswordFlag($value = true)
-	{
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"passwordExpired",
+			"requireCurrentPassword",
+			"requireNone",
+			"SSL",
+			"X509"
+		]);
+	}
+	
+	public function dispose(bool $deallocate=false): void{
+		if($this->hasProperties()){
+			$this->releaseProperties($deallocate);
+		}
+		parent::dispose($deallocate);
+		$this->release($this->propertyTypes, $deallocate);
+		$this->release($this->_attribute, $deallocate);
+		$this->release($this->comment, $deallocate);
+		$this->release($this->failedLoginAttemptsCount, $deallocate);
+		$this->release($this->lockOption, $deallocate);
+		$this->release($this->maxConnectionsPerHourCount, $deallocate);
+		$this->release($this->maxQueriesPerHourCount, $deallocate);
+		$this->release($this->maxUpdatesPerHourCount, $deallocate);
+		$this->release($this->maxUserConnectionsCount, $deallocate);
+		$this->release($this->passwordExpires, $deallocate);
+		$this->release($this->passwordHistoryOption, $deallocate);
+		$this->release($this->passwordLockTimeDays, $deallocate);
+		$this->release($this->requireCurrentPasswordOption, $deallocate);
+		$this->release($this->passwordReuseIntervalOption, $deallocate);
+		$this->release($this->tlsCipher, $deallocate);
+		$this->release($this->tlsIssuer, $deallocate);
+		$this->release($this->tlsSubject, $deallocate);
+	}
+	
+	public function setRequireCurrentPasswordFlag(bool $value = true):bool{
 		return $this->setFlag("requireCurrentPassword");
 	}
 
-	public function getRequireCurrentPasswordFlag()
-	{
+	public function getRequireCurrentPasswordFlag():bool{
 		return $this->getFlag("requireCurrentPassword");
 	}
 
-	public function setPasswordExpiredFlag($value = true)
-	{
+	public function setPasswordExpiredFlag(bool $value = true):bool{
 		return $this->setFlag("passwordExpired", $value);
 	}
 
-	public function getPasswordExpiredFlag()
-	{
+	public function getPasswordExpiredFlag():bool{
 		return $this->getFlag("passwordExpired");
 	}
 
-	public function setRequireNoneFlag($value = true)
-	{
+	public function setRequireNoneFlag(bool $value = true):bool{
 		return $this->setFlag("requireNone", $value);
 	}
 
-	public function getRequireNoneFlag()
-	{
+	public function getRequireNoneFlag():bool{
 		return $this->getFlag("requireNone");
 	}
 
-	public function requireNone()
-	{
-		$this->setRequireNoneFlag(true);
+	public function requireNone(bool $value=true):UserStatement{
+		$this->setRequireNoneFlag($value);
 		return $this;
 	}
 
-	public function defaultRole(...$values)
-	{
+	public function defaultRole(...$values):UserStatement{
 		$this->setRoles($values);
 		return $this;
 	}
 
-	public function setSSLFlag($value = true)
-	{
+	public function setSSLFlag(bool $value = true):bool{
 		return $this->setFlag("SSL", $value);
 	}
 
-	public function getSSLFlag()
-	{
+	public function getSSLFlag():bool{
 		return $this->getFlag("SSL");
 	}
 
-	public function setX509Flag($value = true)
-	{
+	public function setX509Flag(bool $value = true):bool{
 		return $this->setFlag("X509", $value);
 	}
 
-	public function getX509Flag()
-	{
+	public function getX509Flag():bool{
 		return $this->getFlag("X509");
 	}
 
-	public function setCipher($cipher)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setCipher()";
-		if($cipher == null) {
-			unset($this->tlsCipher);
-			return null;
-		}elseif(!is_string($cipher)) {
+	public function setCipher($cipher){
+		$f = __METHOD__;
+		if(!is_string($cipher)){
 			Debug::error("{$f} cipher must be a string");
+		}elseif($this->hasCipher()){
+			$this->release($this->tlsCipher);
 		}
-		return $this->tlsCipher = $cipher;
+		return $this->tlsCipher = $this->claim($cipher);
 	}
 
-	public function hasCipher()
-	{
+	public function hasCipher():bool{
 		return isset($this->cipher);
 	}
 
-	public function getCipher()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getCipher()";
-		if(!$this->hasCipher()) {
+	public function getCipher(){
+		$f = __METHOD__;
+		if(!$this->hasCipher()){
 			Debug::error("{$f} cipher is undefined");
 		}
 		return $this->tlsCipher;
 	}
 
-	public function cipher($cipher)
-	{
+	public function cipher($cipher):UserStatement{
 		$this->setCipher($cipher);
 		return $this;
 	}
 
-	public function setIssuer($issuer)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setIssuer()";
-		if($issuer == null) {
-			unset($this->tlsIssuer);
-			return null;
-		}elseif(!is_string($issuer)) {
+	public function setIssuer($issuer){
+		$f = __METHOD__;
+		if(!is_string($issuer)){
 			Debug::error("{$f} issuer must be a string");
+		}elseif($this->hasIssuer()){
+			$this->release($this->tlsIssuer);
 		}
-		return $this->tlsIssuer = $issuer;
+		return $this->tlsIssuer = $this->claim($issuer);
 	}
 
-	public function hasIssuer()
-	{
+	public function hasIssuer():bool{
 		return isset($this->tlsIssuer);
 	}
 
-	public function getIssuer()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getIssuer()";
-		if(!$this->hasIssuer()) {
+	public function getIssuer(){
+		$f = __METHOD__;
+		if(!$this->hasIssuer()){
 			Debug::error("{$f} issuer is undefined");
 		}
 		return $this->tlsIssuer;
 	}
 
-	public function issuer($issuer)
-	{
+	public function issuer($issuer):UserStatement{
 		$this->setIssuer($issuer);
 		return $this;
 	}
 
-	public function setSubject($subject)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setSubject()";
-		if($subject == null) {
-			unset($this->tlsSubject);
-			return null;
-		}elseif(!is_string($subject)) {
+	public function setSubject($subject){
+		$f = __METHOD__;
+		if(!is_string($subject)){
 			Debug::error("{$f} subject is undefined");
+		}elseif($this->hasSubject()){
+			$this->release($this->tlsSubject);
 		}
-		return $this->tlsSubject = $subject;
+		return $this->tlsSubject = $this->claim($subject);
 	}
 
-	public function hasSubject()
-	{
+	public function hasSubject():bool{
 		return isset($this->tlsSubject);
 	}
 
-	public function getSubject()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getSubject()";
-		if(!$this->hasSubject()) {
+	public function getSubject(){
+		$f = __METHOD__;
+		if(!$this->hasSubject()){
 			Debug::error("{$f} subject is undefined");
 		}
 		return $this->tlsSubject;
 	}
 
-	public function subject($subject)
-	{
+	public function subject($subject):UserStatement{
 		$this->setSubject($subject);
 		return $this;
 	}
 
-	public function hasTLSOptions()
-	{
+	public function hasTLSOptions():bool{
 		return $this->getSSLFlag() || $this->getX509Flag() || $this->hasCipher() || $this->hasIssuer() || $this->hasSubject();
 	}
 
-	public function setMaxQueriesPerHour($count)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setMaxQueriesPerHour()";
-		if($count == null) {
-			unset($this->maxQueriesPerHourCount);
-			return null;
-		}elseif(!is_int($count)) {
+	public function setMaxQueriesPerHour($count){
+		$f = __METHOD__;
+		if(!is_int($count)){
 			Debug::error("{$f} input parameter must be a positive integer");
-		}elseif($count < 1) {
+		}elseif($count < 1){
 			Debug::error("{$f} input parameter must be positive");
+		}elseif($this->hasMaxQueriesPerHour()){
+			$this->release($this->maxQueriesPerHourCount);
 		}
-		return $this->maxQueriesPerHourCount = $count;
+		return $this->maxQueriesPerHourCount = $this->claim($count);
 	}
 
-	public function hasMaxQueriesPerHour()
-	{
+	public function hasMaxQueriesPerHour():bool{
 		return isset($this->maxQueriesPerHourCount);
 	}
 
-	public function getMaxQueriesPerHour()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getMaxQueriesPerHour()";
-		if(!$this->hasMaxQueriesPerHour()) {
+	public function getMaxQueriesPerHour(){
+		$f = __METHOD__;
+		if(!$this->hasMaxQueriesPerHour()){
 			Debug::error("{$f} undefined");
 		}
 		return $this->maxQueriesPerHourCount;
 	}
 
-	public function maxQueriesPerHour($count)
-	{
+	public function maxQueriesPerHour($count):UserStatement{
 		$this->setMaxQueriesPerHour($count);
 		return $this;
 	}
 
-	public function setMaxUpdatesPerHour($count)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setMaxUpdatesPerHour()";
-		if($count == null) {
-			unset($this->maxUpdatesPerHourCount);
-			return null;
-		}elseif(!is_int($count)) {
+	public function setMaxUpdatesPerHour($count){
+		$f = __METHOD__;
+		if(!is_int($count)){
 			Debug::error("{$f} input parameter must be a positive integer");
-		}elseif($count < 1) {
+		}elseif($count < 1){
 			Debug::error("{$f} input parameter must be positive");
+		}elseif($this->hasMaxUpdatesPerHour()){
+			$this->release($this->maxUserConnectionsCount);
 		}
-		return $this->maxUpdatesPerHourCount = $count;
+		return $this->maxUpdatesPerHourCount = $this->claim($count);
 	}
 
-	public function hasMaxUpdatesPerHour()
-	{
+	public function hasMaxUpdatesPerHour():bool{
 		return isset($this->maxUpdatesPerHourCount);
 	}
 
-	public function getMaxUpdatesPerHour()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getMaxUpdatesPerHour()";
-		if(!$this->hasMaxUpdatesPerHour()) {
+	public function getMaxUpdatesPerHour(){
+		$f = __METHOD__;
+		if(!$this->hasMaxUpdatesPerHour()){
 			Debug::error("{$f} undefined");
 		}
 		return $this->maxUpdatesPerHourCount;
 	}
 
-	public function maxUpdatesPerHour($count)
-	{
+	public function maxUpdatesPerHour($count):UserStatement{
 		$this->setMaxUpdatesPerHour($count);
 		return $this;
 	}
 
-	public function setMaxConnectionsPerHour($count)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setMaxConnectionsPerHour()";
-		if($count == null) {
-			unset($this->maxConnectionsPerHourCount);
-			return null;
-		}elseif(!is_int($count)) {
+	public function setMaxConnectionsPerHour($count){
+		$f = __METHOD__;
+		if(!is_int($count)){
 			Debug::error("{$f} input parameter must be a positive integer");
-		}elseif($count < 1) {
+		}elseif($count < 1){
 			Debug::error("{$f} input parameter must be positive");
+		}elseif($this->hasMaxConnectionsPerHour()){
+			$this->release($this->maxConnectionsPerHourCount);
 		}
-		return $this->maxConnectionsPerHourCount = $count;
+		return $this->maxConnectionsPerHourCount = $this->claim($count);
 	}
 
-	public function hasMaxConnectionsPerHour()
-	{
+	public function hasMaxConnectionsPerHour():bool{
 		return isset($this->maxConnectionsPerHourCount);
 	}
 
-	public function getMaxConnectionsPerHour()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getMaxConnectionsPerHour()";
-		if(!$this->hasMaxConnectionsPerHour()) {
+	public function getMaxConnectionsPerHour(){
+		$f = __METHOD__;
+		if(!$this->hasMaxConnectionsPerHour()){
 			Debug::error("{$f} undefined");
 		}
 		return $this->maxConnectionsPerHourCount;
 	}
 
-	public function maxConnectionsPerHour($count)
-	{
+	public function maxConnectionsPerHour($count):UserStatement{
 		$this->setMaxConnectionsPerHour($count);
 		return $this;
 	}
 
-	public function setMaxUserConnections($count)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setMaxUserConnections()";
-		if($count == null) {
-			unset($this->maxUserConnectionsCount);
-			return null;
-		}elseif(!is_int($count)) {
+	public function setMaxUserConnections($count){
+		$f = __METHOD__;
+		if(!is_int($count)){
 			Debug::error("{$f} input parameter must be a positive integer");
-		}elseif($count < 1) {
+		}elseif($count < 1){
 			Debug::error("{$f} input parameter must be positive");
+		}elseif($this->hasMaxUserConnections()){
+			$this->release($this->maxUserConnectionsCount);
 		}
-		return $this->maxUserConnectionsCount = $count;
+		return $this->maxUserConnectionsCount = $this->claim($count);
 	}
 
-	public function hasMaxUserConnections()
-	{
+	public function hasMaxUserConnections():bool{
 		return isset($this->maxUserConnectionsCount);
 	}
 
-	public function getMaxUserConnections()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getMaxUserConnections()";
-		if(!$this->hasMaxUserConnections()) {
+	public function getMaxUserConnections(){
+		$f = __METHOD__;
+		if(!$this->hasMaxUserConnections()){
 			Debug::error("{$f} undefined");
 		}
 		return $this->maxUserConnectionsCount;
 	}
 
-	public function maxUserConnections($count)
-	{
+	public function maxUserConnections($count):UserStatement{
 		$this->setMaxUserConnections($count);
 		return $this;
 	}
 
-	public function hasResourceOptions()
-	{
+	public function hasResourceOptions():bool{
 		return $this->hasMaxQueriesPerHour() || $this->hasMaxUpdatesPerHour() || $this->hasMaxConnectionsPerHour() || $this->hasMaxUserConnections();
 	}
 
-	public function setComment($comment)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setComment()";
+	public function setComment($comment){
+		$f = __METHOD__;
 		try{
-			if($comment == null) {
-				unset($this->commentString);
-				return null;
-			}elseif($this->hasAttribute()) {
+			if($this->hasAttribute()){
 				Debug::error("{$f} you cannot have both comment and attribute in the same query");
-			}elseif(!is_string($comment)) {
+			}elseif(!is_string($comment)){
 				$comment = "{$comment}";
 			}
 			// $this->setRequiredMySQLVersion("8.0.21");
-			return $this->commentString = $comment;
-		}catch(Exception $x) {
+			if($this->hasComment()){
+				$this->release($this->comment);
+			}
+			return $this->comment = $this->claim($comment);
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function setAttribute($attr)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setAttribute()";
-		if($attr == null) {
-			unset($this->_attribute);
-			return null;
-		}elseif($this->hasComment()) {
+	public function setAttribute($attr){
+		$f = __METHOD__;
+		if($this->hasComment()){
 			Debug::error("{$f} you cannot have both comment and attribute in the same query");
-		}elseif(is_array($attr)) {
+		}elseif(is_array($attr)){
 			$attr = json_encode($attr);
 		}
-		if(!is_json($attr)) {
+		if(!is_json($attr)){
 			Debug::error("{$f} attribute is not valid JSON");
 		}
 		// $this->setRequiredMySQLVersion("8.0.21");
-		return $this->_attribute = $attr;
+		if($this->hasAttribute()){
+			$this->release($this->_attribute);
+		}
+		return $this->_attribute = $this->claim($attr);
 	}
 
-	public function hasAttribute()
-	{
+	public function hasAttribute():bool{
 		return isset($this->_attribute) && is_json($this->_attribute);
 	}
 
-	public function getAttribute()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getAttribute()";
-		if(!$this->hasAttribute()) {
+	public function getAttribute(){
+		$f = __METHOD__;
+		if(!$this->hasAttribute()){
 			Debug::error("{$f} attribute is undefined");
 		}
 		return $this->_attribute;
 	}
 
-	public function setLockOption($opt)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setLockOption()";
-		if($opt == null) {
-			unset($this->lockOption);
-			return null;
-		}elseif(!is_string($opt)) {
+	public function setLockOption($opt){
+		$f = __METHOD__;
+		if(!is_string($opt)){
 			Debug::error("{$f} lock option must be a string");
 		}
 		$opt = strtolower($opt);
-		switch ($opt) {
+		switch($opt){
 			case LOCK_OPTION_LOCK:
 			case LOCK_OPTION_UNLOCK:
 				break;
 			default:
 				Debug::error("{$f} invalid lock option \"{$opt}\"");
 		}
-		return $this->lockOption = $opt;
+		if($this->hasLockOption()){
+			$this->release($this->lockOption);
+		}
+		return $this->lockOption = $this->claim($opt);
 	}
 
-	public function accountLock()
-	{
+	public function accountLock():UserStatement{
 		$this->setLockOption(LOCK_OPTION_LOCK);
 		return $this;
 	}
 
-	public function accountUnlock()
-	{
+	public function accountUnlock():UserStatement{
 		$this->setLockOption(LOCK_OPTION_UNLOCK);
 		return $this;
 	}
 
-	public function setPasswordLockTime($n)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setPasswordLockTime()";
-		if($n == null) {
-			unset($this->passwordLockTimeDays);
-			return null;
-		}elseif(is_string($n)) {
+	public function setPasswordLockTime($n){
+		$f = __METHOD__;
+		if(is_string($n)){
 			$n = strtolower($n);
-			if($n !== PASSWORD_OPTION_UNBOUNDED) {
+			if($n !== PASSWORD_OPTION_UNBOUNDED){
 				Debug::error("{$f} invalid password lock option \"{$n}\"");
 			}
-		}elseif(is_int($n)) {
-			if($n < 1) {
+		}elseif(is_int($n)){
+			if($n < 1){
 				Debug::error("{$f} password lock time must be a positive integer");
 			}
 		}else{
 			Debug::error("{$f} none of the above");
 		}
-		return $this->passwordLockTimeDays = $n;
+		if($this->hasPasswordLockTime()){
+			$this->release($this->passwordLockTimeDays);
+		}
+		return $this->passwordLockTimeDays = $this->claim($n);
 	}
 
-	public function hasPasswordLockTime()
-	{
+	public function hasPasswordLockTime():bool{
 		return isset($this->passwordLockTimeDays);
 	}
 
-	public function getPasswordLockTime()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getPasswordLockTime()";
-		if(!$this->hasPasswordLockTime()) {
+	public function getPasswordLockTime(){
+		$f = __METHOD__;
+		if(!$this->hasPasswordLockTime()){
 			Debug::error("{$f} password lock time is undefined");
 		}
 		return $this->passwordLockTimeDays;
 	}
 
-	public function passwordLockTime($n)
-	{
+	public function passwordLockTime($n):UserStatement{
 		$this->setPasswordLockTime($n);
 		return $this;
 	}
 
-	public function setFailedLoginAttempts($n)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setFailedLoginAttempts()";
-		if($n !== 0 && $n == null) {
-			unset($this->failedLoginAttemptsCount);
-			return null;
-		}elseif(!is_int($n)) {
+	public function setFailedLoginAttempts($n){
+		$f = __METHOD__;
+		if(!is_int($n)){
 			Debug::error("{$f} failed login attempt count must be a non-negative integer");
-		}elseif($n < 0) {
+		}elseif($n < 0){
 			Debug::error("{$f} failed login attempt count must be non-negative");
+		}elseif($this->hasFailedLoginAttempts()){
+			$this->release($this->failedLoginAttemptsCount);
 		}
-		return $this->failedLoginAttemptsCount = $n;
+		return $this->failedLoginAttemptsCount = $this->claim($n);
 	}
 
-	public function hasFailedLoginAttempts()
-	{
+	public function hasFailedLoginAttempts():bool{
 		return isset($this->failedLoginAttemptsCount) && is_int($this->failedLoginAttemptsCount);
 	}
 
-	public function getFailedLoginAttempts()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getFailedLoginAttempts()";
-		if(!$this->hasFailedLoginAttempts()) {
+	public function getFailedLoginAttempts(){
+		$f = __METHOD__;
+		if(!$this->hasFailedLoginAttempts()){
 			Debug::error("{$f} failed login attempt count is undefined");
 		}
 		return $this->failedLoginAttemptsCount;
 	}
 
-	public function failedLoginAttempts($n)
-	{
+	public function failedLoginAttempts($n):UserStatement{
 		$this->setFailedLoginAttempts($n);
 		return $this;
 	}
 
-	public function setRequireCurrentPasswordOption($opt)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setRequireCurrentPasswordOption()";
-		if($opt == null) {
-			unset($this->requireCurrentPasswordOption);
-			return null;
-		}elseif(!is_string($opt)) {
+	public function setRequireCurrentPasswordOption($opt){
+		$f = __METHOD__;
+		if(!is_string($opt)){
 			Debug::error("{$f} require current password option must be a string");
 		}
 		$opt = strtolower($opt);
-		switch ($opt) {
+		switch($opt){
 			case CONST_DEFAULT:
 			case PASSWORD_OPTION_OPTIONAL:
 				break;
 			default:
 				Debug::error("{$f} invalid option \"{$opt}\"");
 		}
-		return $this->requireCurrentPasswordOption = $opt;
+		if($this->hasRequireCurrentPasswordOption()){
+			$this->release($this->requireCurrentPasswordOption);
+		}
+		return $this->requireCurrentPasswordOption = $this->claim($opt);
 	}
 
-	public function hasRequireCurrentPasswordOption()
-	{
+	public function hasRequireCurrentPasswordOption():bool{
 		return isset($this->requireCurrentPasswordOption);
 	}
 
-	public function getRequireCurrentPasswordOption()
-	{
-		if(!$this->hasRequireCurrentPasswordOption()) {
+	public function getRequireCurrentPasswordOption(){
+		if(!$this->hasRequireCurrentPasswordOption()){
 			return CONST_DEFAULT;
 		}
 		return $this->requireCurrentPasswordOption;
 	}
 
-	public function passwordRequireCurrent($opt = null)
-	{
-		if($opt === null) {
+	public function passwordRequireCurrent($opt = null):UserStatement{
+		if($opt === null){
 			$this->setRequireCurrentPasswordFlag(true);
 		}else{
 			$this->setRequireCurrentPasswordOption($opt);
@@ -571,128 +535,116 @@ abstract class UserStatement extends QueryStatement
 		return $this;
 	}
 
-	public function setPasswordReuseInterval($count)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setPasswordReuseInterval()";
-		if($count == null) {
-			unset($this->passwordReuseIntervalOption);
-			return null;
-		}elseif(is_string($count)) {
+	public function setPasswordReuseInterval($count){
+		$f = __METHOD__;
+		if(is_string($count)){
 			$count = strtolower($count);
-			if($count !== CONST_DEFAULT) {
+			if($count !== CONST_DEFAULT){
 				Debug::error("{$f} invalid password reuse interval option \"{$count}\"");
 			}
-		}elseif(is_int($count)) {
-			if($count < 1) {
+		}elseif(is_int($count)){
+			if($count < 1){
 				Debug::error("{$f} password reuse interval must be a positive integer");
 			}
 		}else{
 			Debug::error("{$f} none of the above");
 		}
-		return $this->passwordReuseIntervalOption = $count;
+		if($this->hasPasswordReuseInterval()){
+			$this->release($this->passwordReuseIntervalOption);
+		}
+		return $this->passwordReuseIntervalOption = $this->claim($count);
 	}
 
-	public function hasPasswordReuseInterval()
-	{
+	public function hasPasswordReuseInterval():bool{
 		return isset($this->passwordReuseIntervalOption);
 	}
 
-	public function getPasswordReuseInterval()
-	{
-		if(!$this->hasPasswordReuseInterval()) {
+	public function getPasswordReuseInterval(){
+		if(!$this->hasPasswordReuseInterval()){
 			return CONST_DEFAULT;
 		}
 		return $this->passwordReuseIntervalOption;
 	}
 
-	public function passwordReuseInterval($count)
-	{
+	public function passwordReuseInterval($count):UserStatement{
 		$this->setPasswordReuseInterval($count);
 		return $this;
 	}
 
-	public function setPasswordHistoryOption($count)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setPasswordHistoryOption()";
-		if($count !== 0 && $count == null) {
-			unset($this->passwordHistoryOption);
-			return null;
-		}elseif(is_string($count)) {
+	public function setPasswordHistoryOption($count){
+		$f = __METHOD__;
+		if(is_string($count)){
 			$count = strtolower($count);
-			if($count !== CONST_DEFAULT) {
+			if($count !== CONST_DEFAULT){
 				Debug::error("{$f} invalid password history option \"{$count}\"");
 			}
-		}elseif(is_int($count)) {
-			if($count < 0) {
+		}elseif(is_int($count)){
+			if($count < 0){
 				Debug::error("{$f} password history count cannot be negative");
 			}
 		}else{
 			Debug::error("{$f} none of the above");
 		}
-		return $this->passwordHistoryOption = $count;
+		if($this->hasPasswordHistoryOption()){
+			$this->release($this->passwordHistoryOption);
+		}
+		return $this->passwordHistoryOption = $this->claim($count);
 	}
 
-	public function hasPasswordHistoryOption()
-	{
+	public function hasPasswordHistoryOption():bool{
 		return isset($this->passwordHistoryOption);
 	}
 
-	public function getPasswordHistoryOption()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getPasswordHistoryOption()";
-		if(!$this->hasPasswordHistory()) {
+	public function getPasswordHistoryOption(){
+		$f = __METHOD__;
+		if(!$this->hasPasswordHistory()){
 			Debug::error("{$f} password history is undefined");
 		}
 		return $this->passwordHistoryOption;
 	}
 
-	public function passwordHistory($count)
-	{
+	public function passwordHistory($count):UserStatement{
 		$this->setPasswordHistoryOption($count);
 		return $this;
 	}
 
-	public function setPasswordExpiration($interval)
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->setPasswordExpiration()";
-		if($interval == null) {
-			unset($this->passwordExpires);
-			return null;
-		}elseif(is_string($interval)) {
+	public function setPasswordExpiration($interval){
+		$f = __METHOD__;
+		if(is_string($interval)){
 			$interval = strtolower($interval);
-			switch ($interval) {
+			switch($interval){
 				case CONST_DEFAULT:
 				case PASSWORD_OPTION_NEVER:
 					break;
 				default:
 					Debug::error("{$f} invalid password expiration string \"{$interval}\"");
 			}
-		}elseif(is_int($interval)) {
-			if($interval < 1) {
+		}elseif(is_int($interval)){
+			if($interval < 1){
 				Debug::error("{$f} interval must be a positive integer");
 			}
 		}else{
 			Debug::error("{$f} none of the above");
 		}
-		return $this->passwordExpires = $interval;
+		if($this->hasPasswordExpiration()){
+			$this->release($this->passwordExpires);
+		}
+		return $this->passwordExpires = $this->claim($interval);
 	}
 
-	public function hasPasswordExpiration()
-	{
+	public function hasPasswordExpiration():bool{
 		return isset($this->passwordExpires);
 	}
 
-	public function getPasswordExpiration()
-	{
-		if(!$this->hasPasswordExpiration()) {
+	public function getPasswordExpiration(){
+		if(!$this->hasPasswordExpiration()){
 			return CONST_DEFAULT;
 		}
 		return $this->passwordExpires;
 	}
 
-	public function passwordExpire($interval = null)
-	{
-		if($interval === null) {
+	public function passwordExpire($interval = null):UserStatement{
+		if($interval === null){
 			$this->setPasswordExpiredFlag(true);
 		}else{
 			$this->setPasswordExpiration($interval);
@@ -700,26 +652,25 @@ abstract class UserStatement extends QueryStatement
 		return $this;
 	}
 
-	protected function getTLSOptionsString()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getTLSOptionsString()";
+	protected function getTLSOptionsString():string{
+		$f = __METHOD__;
 		$string = "require";
-		if($this->getRequireNoneFlag()) {
+		if($this->getRequireNoneFlag()){
 			$string .= " none";
-		}elseif($this->hasTLSOptions()) {
-			if($this->getSSLFlag()) {
+		}elseif($this->hasTLSOptions()){
+			if($this->getSSLFlag()){
 				$string .= " SSL";
 			}
-			if($this->getX509Flag()) {
+			if($this->getX509Flag()){
 				$string .= " X509";
 			}
-			if($this->hasCipher()) {
+			if($this->hasCipher()){
 				$string .= " cipher '" . escape_quotes($this->getCipher(), QUOTE_STYLE_SINGLE) . "'";
 			}
-			if($this->hasIssuer()) {
+			if($this->hasIssuer()){
 				$string .= " issuer '" . escape_quotes($this->getIssuer(), QUOTE_STYLE_SINGLE) . "'";
 			}
-			if($this->hasSubject()) {
+			if($this->hasSubject()){
 				$string .= " subject '" . escape_quotes($this->getSubject(), QUOTE_STYLE_SINGLE) . "'";
 			}
 		}else{
@@ -728,53 +679,50 @@ abstract class UserStatement extends QueryStatement
 		return $string;
 	}
 
-	protected function getResourceOptionsString()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getResourceOptionsString()";
-		if(!$this->hasResourceOptions()) {
+	protected function getResourceOptionsString():string{
+		$f = __METHOD__;
+		if(!$this->hasResourceOptions()){
 			Debug::error("{$f} resource options are undefined");
 		}
 		$string = " with ";
 		// MAX_QUERIES_PER_HOUR count
-		if($this->hasMaxQueriesPerHour()) {
+		if($this->hasMaxQueriesPerHour()){
 			$string .= "max_queries_per_hour " . $this->getMaxQueriesPerHour();
 		}
 		// | MAX_UPDATES_PER_HOUR count
-		if($this->hasMaxUpdatesPerHour()) {
+		if($this->hasMaxUpdatesPerHour()){
 			$string .= "max_updates_per_hour " . $this->getMaxUpdatesPerHour();
 		}
 		// | MAX_CONNECTIONS_PER_HOUR count
-		if($this->hasMaxConnectionsPerHour()) {
+		if($this->hasMaxConnectionsPerHour()){
 			$string .= "max_connections_per_hour " . $this->getMaxConnectionsPerHour();
 		}
 		// | MAX_USER_CONNECTIONS count
-		if($this->hasMaxUserConnections()) {
+		if($this->hasMaxUserConnections()){
 			$string .= "max_user_connection " . $this->getMaxUserConnections();
 		}
 		return $string;
 	}
 
-	public function hasPasswordOptions()
-	{
+	public function hasPasswordOptions():bool{
 		return $this->hasPasswordExpiration() || $this->getPasswordExpiredFlag() || $this->hasPasswordHistoryOption() || $this->hasPasswordReuseInterval() || $this->getRequireCurrentPasswordFlag() || $this->hasRequireCurrentPasswordOption() || $this->hasLockOption() || ($this->hasFailedLoginAttempts() && $this->hasPasswordLockTime() && hasMinimumMySQLVersion("8.0.19"));
 	}
 
-	protected function getPasswordOptionsString()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getPasswordOptionsString()";
-		if(!$this->hasPasswordOptions()) {
+	protected function getPasswordOptionsString():bool{
+		$f = __METHOD__;
+		if(!$this->hasPasswordOptions()){
 			Debug::error("{$f} password options are undefined");
 		}
 		$string = "";
 		// PASSWORD EXPIRE [DEFAULT | NEVER | INTERVAL N DAY]
-		if($this->hasPasswordExpiration() || $this->getPasswordExpiredFlag()) {
+		if($this->hasPasswordExpiration() || $this->getPasswordExpiredFlag()){
 			$string .= " password expire";
-			if(!$this->getPasswordExpiredFlag() && $this->hasPasswordExpiration()) {
+			if(!$this->getPasswordExpiredFlag() && $this->hasPasswordExpiration()){
 				$string .= " ";
 				$interval = $this->getPasswordExpiration();
-				if(is_int($interval)) {
+				if(is_int($interval)){
 					$string .= "interval {$interval} day";
-				}elseif(is_string($interval)) {
+				}elseif(is_string($interval)){
 					$string .= $interval;
 				}else{
 					Debug::error("{$f} neither of the above");
@@ -782,72 +730,48 @@ abstract class UserStatement extends QueryStatement
 			}
 		}
 		// | PASSWORD HISTORY {DEFAULT | N}
-		if($this->hasPasswordHistoryOption()) {
+		if($this->hasPasswordHistoryOption()){
 			$string .= " password history " . $this->getPasswordHistoryOption();
 		}
 		// | PASSWORD REUSE INTERVAL {DEFAULT | N DAY}
-		if($this->hasPasswordReuseInterval()) {
+		if($this->hasPasswordReuseInterval()){
 			$interval = $this->getPasswordReuseInterval();
 			$string .= " password reuse interval {$interval}";
-			if(is_int($interval)) {
+			if(is_int($interval)){
 				$string .= " day";
 			}
 		}
 		// | PASSWORD REQUIRE CURRENT [DEFAULT | OPTIONAL]
-		if($this->getRequireCurrentPasswordFlag() || $this->hasRequireCurrentPasswordOption()) {
+		if($this->getRequireCurrentPasswordFlag() || $this->hasRequireCurrentPasswordOption()){
 			$string .= " password require current";
-			if($this->hasRequireCurrentPasswordOption()) {
+			if($this->hasRequireCurrentPasswordOption()){
 				$string .= " " . $this->getRequireCurrentPasswordOption();
 			}
 		}
-		if($this->hasFailedLoginAttempts() && $this->hasPasswordLockTime() && hasMinimumMySQLVersion("8.0.19")) {
+		if($this->hasFailedLoginAttempts() && $this->hasPasswordLockTime() && hasMinimumMySQLVersion("8.0.19")){
 			// | FAILED_LOGIN_ATTEMPTS N
 			$string .= " failed_login_attempts " . $this->getFailedLoginAttempts();
 			// | PASSWORD_LOCK_TIME {N | UNBOUNDED}
 			$string .= " password_lock_time " . $this->getPasswordLockTime();
 		}
 		// [{ ACCOUNT LOCK | ACCOUNT UNLOCK }]
-		if($this->hasLockOption()) {
+		if($this->hasLockOption()){
 			$string .= " account " . $this->getLockOption();
 		}
 		return $string;
 	}
 
-	protected function getCommentAttributeString()
-	{
-		$f = __METHOD__; //UserStatement::getShortClass()."(".static::getShortClass().")->getCommentAttributeString()";
-		if(! hasMinimumMySQLVersion("8.0.21")) {
+	protected function getCommentAttributeString():string{
+		$f = __METHOD__;
+		if(!hasMinimumMySQLVersion("8.0.21")){
 			Debug::error("{$f} insufficient MySQL version");
 		}
-		if($this->hasComment()) {
+		if($this->hasComment()){
 			return " comment '" . escape_quotes($this->getComment(), QUOTE_STYLE_SINGLE) . "'";
-		}elseif($this->hasAttribute()) {
+		}elseif($this->hasAttribute()){
 			$attr = escape_quotes($this->getAttribute(), QUOTE_STYLE_SINGLE);
 			return " attribute '{$attr}'";
 		}
 		Debug::error("{$f} comment and attribute are undefined");
-	}
-
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->properties);
-		unset($this->propertyTypes);
-		unset($this->_attribute);
-		unset($this->commentString);
-		unset($this->failedLoginAttemptsCount);
-		unset($this->lockOption);
-		unset($this->maxConnectionsPerHourCount);
-		unset($this->maxQueriesPerHourCount);
-		unset($this->maxUpdatesPerHourCount);
-		unset($this->maxUserConnectionsCount);
-		unset($this->passwordExpires);
-		unset($this->passwordHistoryOption);
-		unset($this->passwordLockTimeDays);
-		unset($this->requireCurrentPasswordOption);
-		unset($this->passwordReuseIntervalOption);
-		unset($this->tlsCipher);
-		unset($this->tlsIssuer);
-		unset($this->tlsSubject);
 	}
 }

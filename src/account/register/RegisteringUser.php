@@ -1,7 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\register;
 
-use function JulianSeymour\PHPWebApplicationFramework\config;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameters;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\NormalUser;
@@ -19,18 +20,13 @@ use mysqli;
 
 class RegisteringUser extends NormalUser{
 
-	public function __construct(){
+	public function __construct(int $mode=ALLOCATION_MODE_EAGER){
 		$f = __METHOD__;
-		parent::__construct();
-		$this->setHardResetCount(0);
-		$this->setAccountType(ACCOUNT_TYPE_USER);
-	}
-
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
-		parent::declareColumns($columns, $ds);
-		$dsk = new BlobDatum("deterministicSecretKey");
-		$dsk->volatilize();
-		array_push($columns, $dsk);
+		parent::__construct($mode);
+		if($mode === ALLOCATION_MODE_EAGER){
+			$this->setHardResetCount(0);
+			$this->setAccountType(ACCOUNT_TYPE_USER);
+		}
 	}
 
 	public function setDeterministicSecretKey(string $value, int $unused = LOGIN_TYPE_UNDEFINED):string{
@@ -43,10 +39,11 @@ class RegisteringUser extends NormalUser{
 			$ret = parent::beforeGenerateInitialValuesHook();
 			$session = new LanguageSettingsData();
 			$language = $session->getLanguageCode();
+			deallocate($session);
 			$this->setLanguagePreference($language);
 			$this->setFilterPolicy(POLICY_NONE);
 			return $ret;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -61,7 +58,7 @@ class RegisteringUser extends NormalUser{
 
 	public function getGuestUser(): AnonymousUser{
 		$f = __METHOD__;
-		if(!$this->hasGuestUser()) {
+		if(!$this->hasGuestUser()){
 			Debug::error("{$f} anonymous user data was never assigned");
 		}
 		return $this->getForeignDataStructure("guest");
@@ -83,30 +80,30 @@ class RegisteringUser extends NormalUser{
 			$anon->setColumnValue('hasEverAuthenticated', true);
 			Debug::print("{$f} returned from marking anonymous user as having authenticated");
 			$status = $anon->update($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} setting hasEverAuthenticated flag to 1 returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			Debug::print("{$f} about to rename message and notification tables");
 			$post = getInputParameters();
-			if(! isset($post['name'])) {
+			if(!isset($post['name'])){
 				Debug::error("{$f} name was not posted");
 			}
 			$status = $anon->writeIntroductoryMessageNote($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} writing anonymous user's introductory message notifications returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			Debug::print("{$f} returning normally");
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	protected function afterInsertHook($mysqli): int{
+	public function afterInsertHook($mysqli): int{
 		$f = __METHOD__;
 		try{
 			$print = false;
@@ -114,25 +111,25 @@ class RegisteringUser extends NormalUser{
 				Debug::print("{$f} about to call parent function");
 			}
 			$status = parent::afterInsertHook($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} registration returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} parent function executed successfully");
 			}
 			$status = PreActivationConfirmationCode::submitStatic($mysqli, $this);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} error finishing registration: \"{$err}\"");
 			}elseif($print){
 				Debug::print("{$f} successfully submitted PreActivationConfirmationCode");
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to insert registration IP address");
 			}
 			$status = $this->insertRegistrationIpAddress($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} insertRegistrationIpAddress returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -140,7 +137,7 @@ class RegisteringUser extends NormalUser{
 				Debug::print("{$f} successfully inserted registration IP address");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -155,14 +152,14 @@ class RegisteringUser extends NormalUser{
 			$this->filterIpAddress($mysqli, $_SERVER['REMOTE_ADDR'], false);
 			Debug::warning("{$f} not implemented -- denote the IP address that was just inserted as the one used for registration");
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public static function getPermissionStatic($name, $object){
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
 			case DIRECTIVE_PREINSERT_FOREIGN:
 			case DIRECTIVE_POSTINSERT_FOREIGN:

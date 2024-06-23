@@ -1,12 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnExpressionsTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\join\JoinExpression;
@@ -14,10 +14,8 @@ use JulianSeymour\PHPWebApplicationFramework\query\join\JoinExpressionsTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereConditionalStatement;
 use Exception;
 
-class UpdateStatement extends WhereConditionalStatement implements StaticPropertyTypeInterface
-{
+class UpdateStatement extends WhereConditionalStatement implements StaticPropertyTypeInterface{
 
-	use ArrayPropertyTrait;
 	use ColumnExpressionsTrait;
 	use IgnoreFlagBearingTrait;
 	use JoinExpressionsTrait;
@@ -25,37 +23,67 @@ class UpdateStatement extends WhereConditionalStatement implements StaticPropert
 	use OrderableTrait;
 	use StaticPropertyTypeTrait;
 
-	public function __construct(...$dbtable)
-	{
-		$f = __METHOD__; //UpdateStatement::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct(...$dbtable){
+		$f = __METHOD__;
 		parent::__construct();
 		// $this->requirePropertyType('columnExpressions', ExpressionCommand::class);
 		// $this->requirePropertyType('joinExpressions', JoinExpression::class);
-		$this->unpackTableName($dbtable);
+		if(isset($dbtable) && count($dbtable) > 0){
+			$this->unpackTableName($dbtable);
+		}
 	}
 
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null):array{
 		return [
 			'joinExpressions' => JoinExpression::class
 		];
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"ignore",
 			PRIORITY_LOW
 		]);
 	}
 
-	public function set(...$assignments): UpdateStatement{
-		$this->setColumnExpressions(...$assignments);
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"ignore",
+			PRIORITY_LOW
+		]);
+	}
+	
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasColumnExpressions()){
+			$this->setColumnExpressions(replicate($that->getColumnExpressions()));
+		}
+		if($that->hasJoinExpressions()){
+			$this->setJoinExpressions(replicate($that->getJoinExpressions()));
+		}
+		if($that->hasOrderBy()){
+			$this->setOrderBy(...replicate($that->getOrderBy()));
+		}
+		return $ret;
+	}
+	
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		if($this->hasOrderBy()){
+			$this->release($this->orderByExpression, $deallocate);
+		}
+	}
+	
+	public function set(...$assignments):UpdateStatement{
+		if(isset($assignments) && count($assignments) === 1 && is_array($assignments[0]) && !empty($assignments[0])){
+			return $this->set(...array_values($assignments[0]));
+		}
+		$this->setColumnExpressions($assignments);
 		return $this;
 	}
 
 	public function getTableReferenceCount():int{
-		if($this->hasJoinExpressions()) {
+		if($this->hasJoinExpressions()){
 			return $this->getJoinExpressionCount();
 		}
 		return 1;
@@ -67,26 +95,26 @@ class UpdateStatement extends WhereConditionalStatement implements StaticPropert
 			// UPDATE
 			$string = "update ";
 			// [LOW_PRIORITY]
-			if($this->getLowPriorityFlag()) {
+			if($this->getLowPriorityFlag()){
 				$string .= "low_priority ";
 			}
 			// [IGNORE]
-			if($this->getIgnoreFlag()) {
+			if($this->getIgnoreFlag()){
 				$string .= "ignore ";
 			}
 			// table_reference
-			if($this->hasJoinExpressions() || $this->hasTableName()) {
-				if($this->hasJoinExpressions()) {
+			if($this->hasJoinExpressions() || $this->hasTableName()){
+				if($this->hasJoinExpressions()){
 					$joins = [];
-					foreach($this->getJoinExpressions() as $j) {
-						if($j instanceof SQLInterface) {
+					foreach($this->getJoinExpressions() as $j){
+						if($j instanceof SQLInterface){
 							$j = $j->toSQL();
 						}
 						array_push($joins, $j);
 					}
 					$string .= implode(',', $joins);
-				}elseif($this->hasTableName()) {
-					if($this->hasDatabaseName()) {
+				}elseif($this->hasTableName()){
+					if($this->hasDatabaseName()){
 						$string .= back_quote($this->getDatabaseName()) . ".";
 					}
 					$string .= back_quote($this->getTableName());
@@ -98,31 +126,30 @@ class UpdateStatement extends WhereConditionalStatement implements StaticPropert
 			// SET assignment_list
 			$string .= " set " . $this->getAssignmentListString($this->getColumnExpressions());
 			// [WHERE where_condition]
-			if($this->hasWhereCondition()) {
+			if($this->hasWhereCondition()){
 				$where = $this->getWhereCondition();
-				if($where instanceof SQLInterface) {
+				if($where instanceof SQLInterface){
 					$where = $where->toSQL();
 				}
 				$string .= " where {$where}";
 			}
-			if($this->getTableReferenceCount() === 1) {
+			if($this->getTableReferenceCount() === 1){
 				// [ORDER BY ...]
-				if($this->hasOrderBy()) {
+				if($this->hasOrderBy()){
 					$string .= " order by " . $this->getOrderByString();
 				}
 				// [LIMIT row_count]
-				if($this->hasLimit()) {
+				if($this->hasLimit()){
 					$string .= " limit " . $this->getLimit();
 				}
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function getColumnNames(): array
-	{
+	public function getColumnNames(): array{
 		return array_keys($this->getColumnExpressions());
 	}
 }

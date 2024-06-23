@@ -12,16 +12,16 @@ abstract class MultipleElementCommand extends Command implements JavaScriptInter
 	public function __construct(...$element_s){
 		$f = __METHOD__;
 		parent::__construct();
-		if(! isset($element_s)) {
-			Debug::error("{$f} elements are undefined");
-		}elseif(count($element_s) === 1 && is_array($element_s)) {
-			$element_s = $element_s[0];
+		if(isset($element_s) && count($element_s) > 0){
+			if(count($element_s) === 1 && is_array($element_s[0])){
+				$element_s = $element_s[0];
+			}
+			$this->setElements($element_s);
 		}
-		$this->setElements($element_s);
 	}
 
 	public function setElements($elements){
-		if(!is_array($elements)) {
+		if(!is_array($elements)){
 			$elements = [
 				$elements
 			];
@@ -43,9 +43,9 @@ abstract class MultipleElementCommand extends Command implements JavaScriptInter
 
 	public function setTemplateLoopFlag(bool $value = true):bool{
 		$f = __METHOD__;
-		if($this->hasElements()) {
-			foreach($this->getElements() as $element) {
-				if($element instanceof Element || $element instanceof ElementCommand || $element instanceof MultipleElementCommand) {
+		if($this->hasElements()){
+			foreach($this->getElements() as $element){
+				if($element instanceof Element || $element instanceof ElementCommand || $element instanceof MultipleElementCommand){
 					$element->setTemplateLoopFlag($value);
 				}else{
 					Debug::warning("{$f} element is not an element or element command");

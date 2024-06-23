@@ -1,46 +1,25 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\table\alter\index;
 
-use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use JulianSeymour\PHPWebApplicationFramework\common\NewNameTrait;
 
-class RenameIndexOption extends IndexNameOption
-{
+class RenameIndexOption extends IndexNameOption{
 
-	protected $newIndexName;
+	use NewNameTrait;
 
-	public function __construct($oldName, $newName)
-	{
+	public function __construct($oldName, $newName){
 		parent::__construct($oldName);
-		$this->setNewIndexName($newName);
+		$this->setNewName($newName);
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->newIndexName);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->newName, $deallocate);
 	}
 
-	public function setNewIndexName($newIndexName)
-	{
-		return $this->newIndexName = $newIndexName;
-	}
-
-	public function hasNewIndexName()
-	{
-		return isset($this->newIndexName);
-	}
-
-	public function getNewIndexName()
-	{
-		$f = __METHOD__; //RenameIndexOption::getShortClass()."(".static::getShortClass().")->getNewIndexName()";
-		if(!$this->hasNewIndexName()) {
-			Debug::error("{$f} new index name is undefined");
-		}
-		return $this->newIndexName;
-	}
-
-	public function toSQL(): string
-	{
-		return "rename index " . $this->getIndexName() . " to " . $this->getNewIndexName();
+	public function toSQL(): string{
+		return "rename index " . $this->getIndexName() . " to " . $this->getNewName();
 	}
 }

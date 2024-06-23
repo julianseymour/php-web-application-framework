@@ -24,7 +24,7 @@ class IntegerEnumeratedDatum extends UnsignedIntegerDatum implements EnumeratedD
 	public function validate($value): int{
 		$f = __METHOD__;
 		$status = $this->validateEnumeration($value);
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} validate enumeration returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
@@ -39,15 +39,15 @@ class IntegerEnumeratedDatum extends UnsignedIntegerDatum implements EnumeratedD
 	 * @see Datum::unset()
 	 */
 	public function unsetValue(bool $force = false): int{
-		if($force) {
+		if($force){
 			return parent::unset($force);
 		}
 		$column_name = $this->getName();
-		if($this->value !== 0) {
+		if($this->value !== 0){
 			$this->setValue(0);
 			$this->setUpdateFlag(true);
 			$storage = $this->getPersistenceMode();
-			switch ($storage) {
+			switch($storage){
 				case PERSISTENCE_MODE_COOKIE:
 					unset($_COOKIE[$column_name]);
 					break;

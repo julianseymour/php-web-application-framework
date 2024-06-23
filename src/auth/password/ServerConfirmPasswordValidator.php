@@ -6,7 +6,7 @@ use function JulianSeymour\PHPWebApplicationFramework\substitute;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
-use JulianSeymour\PHPWebApplicationFramework\input\InputInterface;
+use JulianSeymour\PHPWebApplicationFramework\input\InputlikeInterface;
 use JulianSeymour\PHPWebApplicationFramework\input\PasswordInput;
 use Exception;
 
@@ -20,7 +20,7 @@ use Exception;
  */
 class ServerConfirmPasswordValidator extends ConfirmPasswordValidator{
 
-	public function setInput(InputInterface $input){
+	public function setInput(InputlikeInterface $input){
 		$f = __METHOD__;
 		try{
 			$print = false;
@@ -36,24 +36,24 @@ class ServerConfirmPasswordValidator extends ConfirmPasswordValidator{
 			// oninvalid event
 			$input->setAttribute("counterpartName", $cpname);
 			$input->setOnInputAttribute("ClientConfirmPasswordValidator.changePassword(event, this)");
-			if($input->hasPlaceholderMode()) {
+			if($input->hasPlaceholderMode()){
 				$confirm_input->setPlaceholderMode($input->getPlaceholderMode());
 			}
-			if($input->hasLabelString()) {
-				if($print) {
+			if($input->hasLabelString()){
+				if($print){
 					Debug::print("{$f} input has a label string");
 				}
 				$confirm_input->setLabelString(substitute(_("Confirm %1%"), $input->getLabelString()));
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} input lacks a label string");
 			}
-			if($input->hasForm()) {
-				if($print) {
+			if($input->hasForm()){
+				if($print){
 					Debug::print("{$f} input has a form");
 				}
 				$confirm_input->setForm($input->getForm());
 				$input->getForm()->reconfigureInput($confirm_input);
-			}elseif($print) {
+			}elseif($print){
 				$decl = $input->getDeclarationLine();
 				Debug::print("{$f} input does not have a form, instantiated {$decl}");
 			}

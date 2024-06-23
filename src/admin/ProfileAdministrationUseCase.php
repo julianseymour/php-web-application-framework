@@ -40,7 +40,7 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 	public static function getCorrespondentClass():string{
 		$f = __METHOD__;
 		$segment = getRequestURISegment(1);
-		switch ($segment) {
+		switch($segment){
 			case ACCOUNT_TYPE_USER:
 				return config()->getNormalUserClass();
 			case ACCOUNT_TYPE_SHADOW:
@@ -78,7 +78,7 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 		$f = __METHOD__;
 		$print = false;
 		$user = user();
-		if($user->hasCorrespondentObject()) {
+		if($user->hasCorrespondentObject()){
 			if($print){
 				Debug::print("{$f} correspondent was already assigned");
 			}
@@ -108,7 +108,7 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 		$f = __METHOD__;
 		$print = false;
 		$status = parent::afterLoadHook($mysqli);
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} {$err}");
 			return $this->setObjectStatus($status);
@@ -151,16 +151,16 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 		$doc = $this->getDataOperandClass();
 		$element_class = $this->getConditionalElementClass($doc::getDataType());
 		$phylum = $doc::getPhylumName();
-		if($correspondent->hasForeignDataStructureList($phylum)) {
+		if($correspondent->hasForeignDataStructureList($phylum)){
 			$objects = $correspondent->getForeignDataStructureList($phylum);
 			if($print){
 				Debug::print("{$f} ".count($objects)." objects");
 			}
-			foreach($objects as $object) {
+			foreach($objects as $object){
 				$element = new $element_class(ALLOCATION_MODE_LAZY, $object);
 				array_push($content, $element);
 			}
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} correspondent lacks any interesting data in phylum \"{$phylum}\"");
 		}
 		return $content;
@@ -175,8 +175,6 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 	public function getInsertHereElement(?DataStructure $ds=null){
 		$f = __METHOD__;
 		$print = false;
-		$doc = $this->getDataOperandClass();
-		$new_data_operand = new $doc();
 		$mysqli = db()->getConnection(PublicReadCredentials::class);
 		$correspondent = $this->acquireCorrespondentObject($mysqli);
 		if($correspondent === null){
@@ -184,8 +182,13 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 				Debug::print("{$f} correspondent object returned null");
 			}
 			return null;
-		}elseif($correspondent instanceof Administrator) {
+		}elseif($correspondent instanceof Administrator){
 			Debug::error("{$f} this use case is for administrators to issue invoices to customers, not the other way around");
+		}
+		$doc = $this->getDataOperandClass();
+		$new_data_operand = new $doc();
+		if(!BACKWARDS_REFERENCES_ENABLED && $new_data_operand->hasColumn("userKey")){
+			$new_data_operand->getColumn("userKey")->setRank(RANK_PARENT);
 		}
 		$new_data_operand->setUserData($correspondent);
 		$form_class = $this->getProcessedFormClass();
@@ -199,10 +202,10 @@ abstract class ProfileAdministrationUseCase extends InteractiveUseCase{
 	}
 
 	public function getResponder(int $status): ?Responder{
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			return parent::getResponder($status);
 		}
-		switch (directive()) {
+		switch(directive()){
 			case DIRECTIVE_DELETE_FOREIGN:
 				return new UpdateResponder();
 			case DIRECTIVE_INSERT:

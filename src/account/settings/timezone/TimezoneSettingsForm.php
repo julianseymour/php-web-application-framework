@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\settings\timezone;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -13,8 +14,7 @@ use JulianSeymour\PHPWebApplicationFramework\input\choice\SelectInput;
 use JulianSeymour\PHPWebApplicationFramework\ui\ExpandingMenuNestedForm;
 use Exception;
 
-class TimezoneSettingsForm extends ExpandingMenuNestedForm
-{
+class TimezoneSettingsForm extends ExpandingMenuNestedForm{
 
 	public function __construct(int $mode=ALLOCATION_MODE_UNDEFINED, $context=null){
 		parent::__construct($mode, $context);
@@ -27,7 +27,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPDATE:
 				$button = $this->generateGenericButton($name);
 				$button->setInnerHTML(_("Update timezone"));
@@ -35,7 +35,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 				$autodetect = new ButtonInput($mode);
 				$autodetect->setInnerHTML(_("Autodetect"));
 				$autodetect->setOnclickAttribute("autodetectTimezone()");
-				if(! Request::isAjaxRequest()) {
+				if(!Request::isAjaxRequest()){
 					$autodetect->setStyleProperty("display", "none");
 				}
 				$autodetect->setIdAttribute("autodetect_timezone");
@@ -83,7 +83,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 		$f = __METHOD__;
 		try{
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "timezone":
 					$input->setIdAttribute("timezone_select");
 					break;
@@ -91,7 +91,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 					break;
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -103,7 +103,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 	public function generateFormFooter(): void{
 		$f = __METHOD__;
 		try{
-			if(! Request::isAjaxRequest()) {
+			if(! Request::isAjaxRequest()){
 				$script = new ScriptElement($this->getAllocationMode());
 				$element = new GetElementByIdCommand('autodetect_timezone');
 				$element->setParseType(TYPE_STRING);
@@ -113,7 +113,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 				$this->appendChild($script);
 			}
 			parent::generateFormFooter();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -124,7 +124,7 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 			$print = false;
 			$column_name = $input->getColumnName();
 			$ds = $input->getContext()->getDataStructure();
-			switch ($column_name) {
+			switch($column_name){
 				case "timezone":
 					// thanks to Maulik Gangani
 					// https://stackoverflow.com/questions/39263321/javascript-get-html-timezone-dropdown
@@ -214,17 +214,17 @@ class TimezoneSettingsForm extends ExpandingMenuNestedForm
 					];
 					$choices = [];
 					$timezone = $ds->getTimezone();
-					if($print) {
+					if($print){
 						Debug::print("{$f} this user's timezone is \"{$timezone}\"");
 					}
-					foreach($keyvalues as $key => $value) {
+					foreach($keyvalues as $key => $value){
 						$choices[$key] = new Choice($key, $value, $timezone === $key);
 					}
 					return $choices;
 				default:
 					return parent::generateChoices($input);
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

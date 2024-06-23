@@ -18,7 +18,7 @@ class ClearServerCacheForm extends AjaxForm{
 
 	public function generateButtons(string $directive): ?array{
 		$f = __METHOD__;
-		if($directive !== "clear") {
+		if($directive !== "clear"){
 			Debug::error("{$f} invalid directive \"{$directive}\"");
 		}
 		return [

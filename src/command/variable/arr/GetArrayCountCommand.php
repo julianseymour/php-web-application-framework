@@ -15,7 +15,7 @@ class GetArrayCountCommand extends ArrayCommand implements ValueReturningCommand
 	public function evaluate(?array $params = null)
 	{
 		$array = $this->getArray();
-		while ($array instanceof ValueReturningCommandInterface) {
+		while($array instanceof ValueReturningCommandInterface){
 			$array = $array->evaluate();
 		}
 		return count($array);
@@ -24,7 +24,7 @@ class GetArrayCountCommand extends ArrayCommand implements ValueReturningCommand
 	public function toJavaScript(): string
 	{
 		$array = $this->getArray();
-		if($array instanceof JavaScriptInterface) {
+		if($array instanceof JavaScriptInterface){
 			$array = $array->toJavaScript();
 		}
 		return "{$array}.length";

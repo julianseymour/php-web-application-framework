@@ -55,8 +55,8 @@ class HamburgerMenuLabelElement extends LabelElement
 			$div->appendChild($m1, $m2, $m3, $m4, $m5);
 			// $icon->appendChild($div);
 			$this->appendChild($div); // icon);
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

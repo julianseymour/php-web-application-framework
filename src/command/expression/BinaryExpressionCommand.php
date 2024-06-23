@@ -1,10 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\expression;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
-use JulianSeymour\PHPWebApplicationFramework\command\control\IfCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\ComputerLanguageTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -13,47 +15,56 @@ use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereConditionalInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\language\MultilingualStringDatumBundle;
+use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
 
-class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInterface, SQLInterface, WhereConditionalInterface
-{
+class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInterface, SQLInterface, WhereConditionalInterface{
 
+	use BinaryExpressionTrait;
 	use ComputerLanguageTrait;
 
-	protected $leftHandSide;
-
-	protected $rightHandSide;
-
-	public function __construct($lhs = null, $operator = null, $rhs = null)
-	{
-		$f = __METHOD__; //BinaryExpressionCommand::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($lhs = null, $operator = null, $rhs = null){
+		$f = __METHOD__;
 		$print = false;
 		parent::__construct();
-		if(!empty($lhs)) {
+		if(!empty($lhs)){
 			$this->setLeftHandSide($lhs);
 		}
-		if(!empty($operator)) {
+		if(!empty($operator)){
 			$this->setOperator($operator);
 		}
-		if($rhs !== null) {
+		if($rhs !== null){
 			$this->setRightHandSide($rhs);
 		}
-
-		if($print && $this->hasLeftHandSide() && $this->hasOperator() && $this->hasRightHandSide()) {
-			if($operator === OPERATOR_EQUALS) {
+		if($print && $this->hasLeftHandSide() && $this->hasOperator() && $this->hasRightHandSide()){
+			if($operator === OPERATOR_EQUALS){
 				$lhs = $this->getLeftHandSide();
 				$rhs = $this->getRightHandSide();
-				if(is_string($lhs) && is_string($rhs) && $lhs !== $rhs) {
+				if(is_string($lhs) && is_string($rhs) && $lhs !== $rhs){
 					Debug::error("{$f} false string comparison");
 				}
 			}
 		}
 	}
 
-	public static function negateOperator($op)
-	{
-		$f = __METHOD__; //ExpressionCommand::getShortClass()."(".static::getShortClass().")::negateOperator()";
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasLeftHandSide()){
+			$this->setLeftHandSide(replicate($that->getLeftHandSide()));
+		}
+		if($that->hasRightHandSide()){
+			$this->setRightHandSide(replicate($that->getRightHandSide()));
+		}
+		if($that->hasComputerLanguage()){
+			$this->setComputerLanguage(replicate($that->getComputerLanguage()));
+		}
+		return $ret;
+	}
+	
+	public static function negateOperator($op){
+		$f = __METHOD__;
 		try{
-			switch ($op) {
+			switch($op){
 				case OPERATOR_EQUALS:
 				case OPERATOR_EQUALSEQUALS:
 					return OPERATOR_NOTEQUALS;
@@ -80,123 +91,63 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 				default:
 					Debug::error("{$f} unnegatable operator \"{$op}\"");
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public static function equals($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function equals($lhs, $rhs): BinaryExpressionCommand{
+		$f = __METHOD__;
+		Debug::printStackTrace("{$f} entered");
 		return new BinaryExpressionCommand($lhs, OPERATOR_EQUALSEQUALS, $rhs);
 	}
 
-	public static function assign($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function assign($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_EQUALS, $rhs);
 	}
 
-	public static function lessThan($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function lessThan($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_LESSTHAN, $rhs);
 	}
 
-	public static function lessThanOrEquals($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function lessThanOrEquals($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_LESSTHANEQUALS, $rhs);
 	}
 
-	public static function greaterThan($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function greaterThan($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_GREATERTHAN, $rhs);
 	}
 
-	public static function greaterThanOrEquals($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function greaterThanOrEquals($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_GREATERTHAN, $rhs);
 	}
 
-	public static function notEquals($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function notEquals($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_NOTEQUALS, $rhs);
 	}
 
-	public static function add($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function add($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_PLUS, $rhs);
 	}
 
-	public static function subtract($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function subtract($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_MINUS, $rhs);
 	}
 
-	public static function multiply($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function multiply($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_MULT, $rhs);
 	}
 
-	public static function divide($lhs, $rhs): BinaryExpressionCommand
-	{
+	public static function divide($lhs, $rhs): BinaryExpressionCommand{
 		return new BinaryExpressionCommand($lhs, OPERATOR_DIVISION, $rhs);
 	}
 
-	public function hasLeftHandSide()
-	{
-		return isset($this->leftHandSide);
-	}
-
-	public function setLeftHandSide($lhs)
-	{
-		if(! isset($lhs)) {
-			unset($this->leftHandSide);
-			return null;
-		}
-		return $this->leftHandSide = $lhs;
-	}
-
-	public function getLeftHandSide()
-	{
-		/*
-		 * $f = __METHOD__; //IfCommand::getShortClass()."(".static::getShortClass().")->getLeftHandSide()";
-		 * if(!$this->hasLeftHandSide()){
-		 * Debug::error("{$f} left hand side is undefined");
-		 * }
-		 */
-		return $this->leftHandSide;
-	}
-
-	public function hasRightHandSide()
-	{
-		return $this->rightHandSide !== null;
-	}
-
-	public function getRightHandSide()
-	{
-		$f = __METHOD__; //IfCommand::getShortClass()."(".static::getShortClass().")->getRightHandSide()";
-		/*
-		 * if(!$this->hasRightHandSide()){
-		 * Debug::error("{$f} right hand side is undefined");
-		 * }
-		 */
-		return $this->rightHandSide;
-	}
-
-	public function setRightHandSide($rhs)
-	{
-		if($rhs === null) {
-			unset($this->rightHandSide);
-			return null;
-		}
-		return $this->rightHandSide = $rhs;
-	}
-
-	public function echoInnerJson(bool $destroy = false): void
-	{
-		$f = __METHOD__; //BinaryExpressionCommand::getShortClass()."(".static::getShortClass().")->echoInnerJson()";
+	public function echoInnerJson(bool $destroy = false):void{
+		$f = __METHOD__;
 		try{
 			Json::echoKeyValuePair("lhs", $this->getLeftHandSide());
-			if(!$this->hasRightHandSide() && ! $this->hasOperator()) {
-				if($this->isNegated()) {
+			if(!$this->hasRightHandSide() && ! $this->hasOperator()){
+				if($this->getNegateFlag()){
 					Debug::error("{$f} haven't dealt with negations client side");
 					Json::echoKeyValuePair("negated", "true", $destroy);
 				}
@@ -205,40 +156,43 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 				Json::echoKeyValuePair("rhs", $this->getRightHandSide());
 			}
 			parent::echoInnerJson($destroy);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->leftHandSide);
-		unset($this->rightHandSide);
+	public function dispose(bool $deallocate=false): void{
+		$f = __METHOD__;
+		parent::dispose($deallocate);
+		$this->release($this->computerLanguage, $deallocate);
+		if($this->hasLeftHandSide()){
+			$this->release($this->leftHandSide, $deallocate);
+		}
+		if($this->hasRightHandSide()){
+			$this->release($this->rightHandSide, $deallocate);
+		}
 	}
 
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "binaryExpression";
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		$f = __METHOD__; //BinaryExpressionCommand::getShortClass()."(".static::getShortClass().")->evaluate()";
+	public function evaluate(?array $params = null){
+		$f = __METHOD__;
 		try{
 			$lhs = $this->getLeftHandSide();
-			if($lhs instanceof Command) {
+			if($lhs instanceof Command){
 				$lhs = $lhs->evaluate();
 			}
-			if(!$this->hasRightHandSide() && ! $this->hasOperator()) {
+			if(!$this->hasRightHandSide() && ! $this->hasOperator()){
 				return $lhs;
 			}
 			$rhs = $this->getRightHandSide();
-			if($rhs instanceof Command) {
+			if($rhs instanceof Command){
 				$rhs = $rhs->evaluate();
 			}
 			$operator = $this->getOperator();
-			switch ($operator) {
+			switch($operator){
 				case OPERATOR_AND_BITWISE:
 					return $lhs & $rhs;
 				case OPERATOR_AND_BOOLEAN:
@@ -272,16 +226,16 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 				case OPERATOR_MINUS:
 					return $lhs - $rhs;
 				case OPERATOR_MULT:
-					if(!is_numeric($lhs)) {
+					if(!is_numeric($lhs)){
 						Debug::error("{$f} left hand side \"{$lhs}\" is not a number");
-					}elseif(!is_numeric($rhs)) {
+					}elseif(!is_numeric($rhs)){
 						Debug::error("{$f} right hand side \"{$rhs}\" is not a number");
 					}
 					return $lhs * $rhs;
 				case OPERATOR_DIVISION:
-					if(!is_numeric($lhs)) {
+					if(!is_numeric($lhs)){
 						Debug::error("{$f} left hand side \"{$lhs}\" is not a number");
-					}elseif(!is_numeric($rhs)) {
+					}elseif(!is_numeric($rhs)){
 						Debug::error("{$f} right hand side \"{$rhs}\" is not a number");
 					}
 					return $lhs / $rhs;
@@ -290,83 +244,80 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 				default:
 					return Debug::error("{$f} Invalid operator \"{$operator}\"");
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function toSQL(): string
-	{
+	public function toSQL(): string{
 		$this->setComputerLanguage(COMPUTER_LANGUAGE_SQL);
 		return $this->__toString();
 	}
 
-	public function toJavaScript(): string
-	{
+	public function toJavaScript(): string{
 		$this->setComputerLanguage(COMPUTER_LANGUAGE_JAVASCRIPT);
 		return $this->__toString();
 	}
 
-	public function __toString(): string
-	{
-		$f = __METHOD__; //BinaryExpressionCommand::getShortClass()."(".static::getShortClass().")->__toString()";
+	public function __toString(): string{
+		$f = __METHOD__;
 		try{
 			$print = false;
 			$lhs = $this->getLeftHandSide();
-			if(!$this->hasComputerLanguage()) {
+			if(!$this->hasComputerLanguage()){
 				Debug::error("{$f} computer language is undefined");
 			}
 			$cl = $this->getComputerLanguage();
-			if($print) {
+			if($print){
 				Debug::print("{$f} computer language is \"{$cl}\"");
 			}
-			if($lhs instanceof JavaScriptInterface && $cl === COMPUTER_LANGUAGE_JAVASCRIPT) {
+			if($lhs instanceof JavaScriptInterface && $cl === COMPUTER_LANGUAGE_JAVASCRIPT){
 				$lhs = $lhs->toJavaScript();
-			}elseif($lhs instanceof SQLInterface && $cl === COMPUTER_LANGUAGE_SQL) {
+			}elseif($lhs instanceof SQLInterface && $cl === COMPUTER_LANGUAGE_SQL){
 				$lhs = $lhs->toSQL();
-			}elseif(is_string($lhs) || $lhs instanceof StringifiableInterface) {
+			}elseif(is_string($lhs) || $lhs instanceof StringifiableInterface){
 				$lhs = single_quote($lhs);
 			}
 			$operator = $this->getOperator();
-			if($operator instanceof JavaScriptInterface && $cl === COMPUTER_LANGUAGE_JAVASCRIPT) {
+			if($operator instanceof JavaScriptInterface && $cl === COMPUTER_LANGUAGE_JAVASCRIPT){
 				$operator = $operator->toJavaScript();
-			}elseif($operator instanceof SQLInterface && $cl === COMPUTER_LANGUAGE_SQL) {
+			}elseif($operator instanceof SQLInterface && $cl === COMPUTER_LANGUAGE_SQL){
 				$operator = $operator->toSQL();
 			}
-			if($operator === OPERATOR_EQUALSEQUALS && $cl === COMPUTER_LANGUAGE_SQL) {
+			if($operator === OPERATOR_EQUALSEQUALS && $cl === COMPUTER_LANGUAGE_SQL){
 				$operator = OPERATOR_EQUALS;
 			}
 			$rhs = $this->getRightHandSide();
-			if($rhs instanceof JavaScriptInterface && $cl === COMPUTER_LANGUAGE_JAVASCRIPT) {
+			if($rhs instanceof JavaScriptInterface && $cl === COMPUTER_LANGUAGE_JAVASCRIPT){
 				$rhs = $rhs->toJavaScript();
-			}elseif($rhs instanceof SQLInterface && $cl === COMPUTER_LANGUAGE_SQL) {
+			}elseif($rhs instanceof SQLInterface && $cl === COMPUTER_LANGUAGE_SQL){
 				$rhs = $rhs->toSQL();
-			}elseif(is_string($rhs) || $rhs instanceof StringifiableInterface) {
-				if($print) {
+			}elseif(is_string($rhs) || $rhs instanceof StringifiableInterface){
+				if($print){
 					Debug::print("{$f} right hand side is a string");
 				}
 				$rhs = single_quote($rhs);
-			}elseif($print) {
+			}elseif($print){
 				$gottype = is_object($rhs) ? $rhs->getClass() : gettype($rhs);
 				Debug::print("{$f} right hand side type is \"{$gottype}\"");
 			}
 			$ret = "{$lhs} {$operator} {$rhs}";
-			if($this->hasEscapeType() && $this->getEscapeType() === ESCAPE_TYPE_PARENTHESIS) {
+			if($this->hasEscapeType() && $this->getEscapeType() === ESCAPE_TYPE_PARENTHESIS){
 				$ret = "({$ret})";
 			}
 
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning \"{$ret}\"");
 			}
 
 			return $ret;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function hasWhereConditionalRightHandSide(): bool{
-		if(!$this->hasRightHandSide()) {
+		if(!$this->hasRightHandSide()){
 			return false;
 		}
 		return $this->getRightHandSide() instanceof WhereConditionalInterface;
@@ -374,7 +325,7 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 
 	public function getSuperflatWhereConditionArray(): ?array{
 		$f = __METHOD__;
-		if(!$this->hasWhereConditionalRightHandSide()) {
+		if(!$this->hasWhereConditionalRightHandSide()){
 			$decl = $this->getDeclarationLine();
 			Debug::warning("{$f} right hand side is undefined; declared {$decl}");
 			return null;
@@ -384,7 +335,7 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 
 	public function getConditionalColumnNames(): array{
 		$f = __METHOD__;
-		if(!$this->hasWhereConditionalRightHandSide()) {
+		if(!$this->hasWhereConditionalRightHandSide()){
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} right hand side is undefined; declared {$decl}");
 		}
@@ -394,8 +345,8 @@ class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInt
 	public function getFlatWhereConditionArray(): ?array{
 		$f = __METHOD__;
 		$print = false;
-		if(!$this->hasWhereConditionalRightHandSide()) {
-			if($print) {
+		if(!$this->hasWhereConditionalRightHandSide()){
+			if($print){
 				$decl = $this->getDeclarationLine();
 				Debug::warning("{$f} right hand side is undefined; declared {$decl}");
 			}

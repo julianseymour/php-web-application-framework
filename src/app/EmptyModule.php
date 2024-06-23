@@ -150,4 +150,8 @@ class EmptyModule extends Module{
 	public function getInstallDirectories(): ?array{
 		return [];
 	}
+	
+	public function getContentSecurityPolicyDirectives(): ?array{
+		return [];
+	}
 }

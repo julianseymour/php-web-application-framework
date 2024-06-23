@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\config;
-use function JulianSeymour\PHPWebApplicationFramework\getlocale;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\use_case;
 use function JulianSeymour\PHPWebApplicationFramework\user;
@@ -12,6 +12,7 @@ use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\app\Request;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
+use JulianSeymour\PHPWebApplicationFramework\command\func\CallFunctionCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\core\Document;
 use JulianSeymour\PHPWebApplicationFramework\element\BodyElement;
@@ -43,7 +44,7 @@ class RiggedBodyElement extends BodyElement{
 			$use_case = app()->getUseCase();
 			$user = app()->hasUserData() ? user() : null;
 			$mode = $this->getAllocationMode();
-			if($use_case->hasMenu()) {
+			if($use_case->hasMenu()){
 				$banner_class = config()->getBannerElementClass();
 				$banner = new $banner_class($mode, $user);
 				$this->appendChild($banner);
@@ -54,18 +55,18 @@ class RiggedBodyElement extends BodyElement{
 			$content_and_footer = new DivElement($mode);
 			$content_and_footer->addClassAttribute("content_and_footer");
 			$page_content = new PageContentElement($mode);
-			$status = $use_case->getObjectStatus(); //XXX leave this alone for now
+			$status = $use_case->getObjectStatus(); //leave this alone for now
 			$content_array = $use_case->getPageContent();
-			if(empty($content_array)) {
+			if(empty($content_array)){
 				$page_content->appendChild(ErrorMessage::getVisualError($use_case->getObjectStatus()));
-			}elseif(!is_array($content_array)) {
+			}elseif(!is_array($content_array)){
 				$ccn = $use_case->getClass();
 				Debug::error("{$f} {$ccn}->getPageContent should return an array of elements");
 			}else{
 				$page_content->appendChild(...$content_array);
 			}
 			$content_and_footer->appendChild($page_content);
-			if($use_case->hasMenu()) {
+			if($use_case->hasMenu()){
 				$footer_class = config()->getFooterElementClass();
 				if(is_a($footer_class, Element::class, true)){
 					if($print){
@@ -73,14 +74,14 @@ class RiggedBodyElement extends BodyElement{
 					}
 					$footer = new $footer_class($mode, $user);
 					$content_and_footer->appendChild($footer);
-					if($print) {
+					if($print){
 						Debug::print("{$f} appended footer");
 					}
 				}elseif($print){
 					Debug::print("{$f} no footer class");
 				}
-			}elseif($print) {
-				if($user == null) {
+			}elseif($print){
+				if($user == null){
 					Debug::error("{$f} skipping footer because user is null");
 				}else{
 					Debug::print("{$f} skipping footer because this use case does not have a menu");
@@ -88,7 +89,7 @@ class RiggedBodyElement extends BodyElement{
 			}
 			$webkit_fix->appendChild($content_and_footer);
 			$this->appendChild($webkit_fix);
-			if($user !== null && $use_case->hasMenu()) {
+			if($user !== null && $use_case->hasMenu()){
 				$menu_class = config()->getMenuElementClass();
 				$menu = new $menu_class($mode, $user);
 				$fixed = new DivElement($mode);
@@ -96,8 +97,8 @@ class RiggedBodyElement extends BodyElement{
 				$fixed->setIdAttribute("fixed");
 				$fixed->appendChild($menu);
 				$widget_classes = mods()->getWidgetClasses(use_case());
-				if($print) {
-					if(empty($widget_classes)) {
+				if($print){
+					if(empty($widget_classes)){
 						Debug::print("{$f} there are no widget classes");
 					}else{
 						$count = count($widget_classes);
@@ -105,27 +106,27 @@ class RiggedBodyElement extends BodyElement{
 					}
 				}
 				$fixed->appendChild(new ToolBelt($mode, $user));
-				if(false && class_exists(SessionTimeoutOverlay::class)) {
+				if(false && class_exists(SessionTimeoutOverlay::class)){
 					$session_timeout = new SessionTimeoutOverlay($mode, $user);
-					$session_timeout->setCacheKey(SessionTimeoutOverlay::class);
+					$session_timeout->setCacheKey(SessionTimeoutOverlay::getShortClass());
 					$session_timeout->setHTMLCacheableFlag(false);
 					$fixed->appendChild($session_timeout);
 				}
-				if(class_exists(InfoBoxElement::class)) {
+				if(class_exists(InfoBoxElement::class)){
 					$info_box = new InfoBoxElement($mode, $user);
 					$fixed->appendChild($info_box);
 				}
 				$xsrf = new AntiXsrfTokenContainer($mode, $user);
 				$fixed->appendChild($xsrf);
 				$this->appendChild($fixed);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} skipping menu");
 			}
 			if($user instanceof PlayableUser){
 				$this->appendChild(new ShortPollForm($mode, $user));
 			}
-			if(! Request::isAjaxRequest()) {
-				if($print) {
+			if(!Request::isAjaxRequest()){
+				if($print){
 					Debug::print("{$f} this is not an AJAX request");
 				}
 				$this->appendChild(
@@ -135,25 +136,27 @@ class RiggedBodyElement extends BodyElement{
 						CommandBuilder::addEventListener("window.visualViewport", "resize", "windowResizeListener")
 					)
 				);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} this is an AJAX request");
 			}
 			$condition = "isMobileSafari()";
+			$if = CommandBuilder::if($condition)->then(
+				new CallFunctionCommand("Menu.setViewportHeightCustomProperty")
+			)->else(
+				CommandBuilder::log("You are not browsing with mobile safari")
+			);
 			$this->appendChild(
 				Document::createElement("script")->withInnerHTML(
 					"resetSessionTimeoutAnimation(true);\n" . 
-					CommandBuilder::if($condition)->then(
-						CommandBuilder::call("Menu.setViewportHeightCustomProperty")
-					)->else(
-						CommandBuilder::log("You are not browsing with mobile safari")
-					)->toJavaScript()
+					$if->toJavaScript()
 				)
 			);
-			if($print) {
+			deallocate($if);
+			if($print){
 				Debug::print("{$f} generated child nodes");
 			}
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

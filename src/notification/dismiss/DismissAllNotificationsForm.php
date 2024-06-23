@@ -29,7 +29,7 @@ class DismissAllNotificationsForm extends AjaxForm{
 			$ai->setValueAttribute(1);
 			$inputs[$ai->getNameAttribute()] = $ai;
 			return $inputs;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -54,7 +54,7 @@ class DismissAllNotificationsForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case "dismiss_all":
 				$button = new ButtonInput();
 				$button->setNameAttribute("directive");

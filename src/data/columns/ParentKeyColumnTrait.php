@@ -1,10 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data\columns;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\command\data\GetColumnValueCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\data\HasColumnValueCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
-use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
 use Exception;
 use mysqli;
 
@@ -14,22 +16,17 @@ use mysqli;
  * @author j
  *        
  */
-trait ParentKeyColumnTrait
-{
+trait ParentKeyColumnTrait{
 
-	use MultipleColumnDefiningTrait;
-
-	public function hasParentDataType()
-	{
+	public function hasParentDataType():bool{
 		return $this->hasColumnValue("parentDataType");
 	}
 
-	public function getParentDataType()
-	{
-		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")->getParentDataType()";
-		if($this->hasParentDataType()) {
+	public function getParentDataType(){
+		$f = __METHOD__;
+		if($this->hasParentDataType()){
 			return $this->getColumnValue('parentDataType');
-		}elseif(!$this->hasParentObject()) {
+		}elseif(!$this->hasParentObject()){
 			Debug::error("{$f} parent object is null");
 			return DATATYPE_UNKNOWN;
 		}
@@ -37,8 +34,7 @@ trait ParentKeyColumnTrait
 		return $this->hasColumn("parentDataType") ? $this->setParentDataType($type) : $type;
 	}
 
-	public function setParentDataType($t)
-	{
+	public function setParentDataType($t){
 		return $this->setColumnValue('parentDataType', $t);
 	}
 
@@ -46,28 +42,16 @@ trait ParentKeyColumnTrait
 	 *
 	 * @return ParentKeyColumnTrait
 	 */
-	public function getParentObject()
-	{
+	public function getParentObject(){
 		return $this->getForeignDataStructure('parentKey');
 	}
 
-	public function getParentObjectClassName()
-	{
-		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")->getParentObjectClassName()";
-		if(!$this->hasParentObject()) {
-			Debug::error("{$f} parent object is undefined");
-		}
-		return $this->getParentObject()->getClass();
+	public function getParentKeyCommand():GetColumnValueCommand{
+		return new GetColumnValueCommand($this, "parentKey");
 	}
 
-	public function getParentKeyCommand()
-	{
-		return $this->getColumnValueCommand("parentKey");
-	}
-
-	public function hasParentKeyCommand()
-	{
-		return $this->hasColumnValueCommand("parentKey");
+	public function hasParentKeyCommand():HasColumnValueCommand{
+		return new HasColumnValueCommand($this, "parentKey");
 	}
 
 	/**
@@ -75,17 +59,16 @@ trait ParentKeyColumnTrait
 	 *
 	 * @return string
 	 */
-	public function getParentKey()
-	{
-		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")::getParentKey()";
-		if($this->hasColumn('parentKey')) {
-			if($this->hasColumnValue('parentKey')) {
+	public function getParentKey(){
+		$f = __METHOD__;
+		if($this->hasColumn('parentKey')){
+			if($this->hasColumnValue('parentKey')){
 				return $this->getColumnValue('parentKey');
 			}
 		}
-		if($this->hasParentObject()) {
+		if($this->hasParentObject()){
 			$parent = $this->getParentObject();
-			if($parent->hasIdentifierValue()) {
+			if($parent->hasIdentifierValue()){
 				$key = $parent->getIdentifierValue();
 				return $this->setParentKey($key);
 			}
@@ -93,14 +76,12 @@ trait ParentKeyColumnTrait
 		Debug::error("{$f} parent key is undefined");
 	}
 
-	public function setParentObject($parent)
-	{
+	public function setParentObject($parent){
 		return $this->setForeignDataStructure('parentKey', $parent);
 	}
 
-	public function isParentRequired()
-	{
-		if($this->hasParentObject()) {
+	public function isParentRequired():bool{
+		if($this->hasParentObject()){
 			$parent = $this->getParentObject();
 		}else{
 			$parent = null;
@@ -108,33 +89,28 @@ trait ParentKeyColumnTrait
 		return static::isParentRequiredStatic($parent);
 	}
 
-	public static function isParentRequiredStatic($parent = null)
-	{
+	public static function isParentRequiredStatic($parent = null):bool{
 		return true;
 	}
 
-	public function getParentClass()
-	{
-		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")->getParentClass()";
+	public function getParentClass():string{
+		$f = __METHOD__;
 		$type = $this->getParentDataType();
-		if(! isset($type)) {
+		if(!isset($type)){
 			Debug::error("{$f} parent data type is undefined");
 		}
 		return mods()->getDataStructureClass($type, $this);
 	}
 
-	public function getParentPrettyClassName()
-	{
+	public function getParentPrettyClassName():string{
 		return $this->getParentObject()->getPrettyClassName();
 	}
 
-	public function getParentIterator()
-	{
+	public function getParentIterator(){
 		return $this->getParentObject()->getIterator();
 	}
 
-	public function getParentNormalizedName()
-	{
+	public function getParentNormalizedName(){
 		return $this->getParentObject()->getNormalizedName();
 	}
 
@@ -144,28 +120,26 @@ trait ParentKeyColumnTrait
 	 * @param string $parent_class
 	 * @return ParentKeyColumnTrait|NULL
 	 */
-	public function acquireParentObject($mysqli)
-	{
+	public function acquireParentObject($mysqli){
 		return $this->acquireForeignDataStructure($mysqli, 'parentKey');
 	}
 
-	public function hasParentKey()
-	{
-		if($this->hasParentObject()) {
-			if($this->getParentObject()->hasIdentifierValue()) {
+	public function hasParentKey():bool{
+		if($this->hasParentObject()){
+			if($this->getParentObject()->hasIdentifierValue()){
 				return true;
 			}
 		}
 		return $this->hasColumnValue('parentKey');
 	}
 
-	public function hasParentObject(){
+	public function hasParentObject():bool{
 		return $this->hasForeignDataStructure('parentKey');
 	}
 
 	public function setParentKey($key){
 		$f = __METHOD__;
-		if(empty($key)) {
+		if(empty($key)){
 			Debug::warning("{$f} passed a null parameter");
 			return $this->setObjectStatus(ERROR_NULL_PARENT_KEY);
 		}
@@ -178,28 +152,28 @@ trait ParentKeyColumnTrait
 			$parent = $this->getParentObject();
 			$keys = [];
 			$phylum = $this->getPhylumName();
-			if(!$parent->hasForeignDataStructureList($phylum)) {
+			if(!$parent->hasForeignDataStructureList($phylum)){
 				return [];
 			}
 			$siblings = $parent->getForeignDataStructureList($phylum);
-			if(empty($siblings)) {
+			if(empty($siblings)){
 				return $keys;
 			}
-			foreach($siblings as $sib) {
-				if($sib->getIdentifierValue() === $this->getIdentifierValue()) {
+			foreach($siblings as $sib){
+				if($sib->getIdentifierValue() === $this->getIdentifierValue()){
 					continue;
 				}
 				array_push($keys, $sib->getIdentifierValue());
 			}
 			return $keys;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function getParentName(){
 		$f = __METHOD__;
-		if($this->hasParentObject()) {
+		if($this->hasParentObject()){
 			return $this->getParentObject()->getName();
 		}
 		Debug::warning("{$f} parent object is undefined");
@@ -207,10 +181,9 @@ trait ParentKeyColumnTrait
 		return null;
 	}
 
-	public function getParentSerialNumber()
-	{
-		$f = __METHOD__; //"ParentKeyColumnTrait(".static::getShortClass().")::getParentSerialNumber()";
-		if($this->getParentObject() == null) {
+	public function getParentSerialNumber(){
+		$f = __METHOD__;
+		if($this->getParentObject() == null){
 			Debug::warning("{$f} parent object is null");
 			$this->setObjectStatus(ERROR_NULL_PARENT);
 			return null;

@@ -4,9 +4,8 @@ html{
 	display:block;
 	font-size:12px;
 	/*overflow:hidden;*/
-	/*position:absolute;*//*XXX*/
 	width:100%;
-	height:100vh; /*XXX2 added*/
+	height:100vh;
 	/*height:100%;*/
 	overflow:hidden;
 	/*overscroll-behavior:none;*/
@@ -41,22 +40,9 @@ body{
 	width:100%;
 	max-height:100vh;
 	max-height:-webkit-fill-available;
-	height:inherit; /*100vh; /*XXX1 modified*/
+	height:inherit;
 	/*overflow-x:hidden;*/
 	/*height:stretch;*/
-}
-
-button:not([manual-style]), .button-like:not([manual-style]){
-	font-size:16px;
-	line-height:28px;
-	padding:12.5px 24px;
-	height:50px;
-	border-radius:3px;
-	border:none;
-	color:#fff;
-	cursor:pointer;
-	box-sizing:border-box;
-	vertical-align:bottom;
 }
 
 .align-left{
@@ -100,11 +86,11 @@ body > .absolute, body > .fixed{
 }
 
 .content_and_footer{
-	/*height:100%; /*XXX 10.23*/
+	/*height:100%; /*added 10.23*/
 	/*overflow-y:auto;*/
 	background-color:inherit;
 	-webkit-overflow-scrolling:touch; /*auto*/
-	/*overflow:hidden;*/
+	overflow:hidden; /*disabling this causes the containing element to have a margin in chromium*/
 	/*overscroll-behavior:none;*/
 	text-align:center;
 	position:relative;
@@ -122,7 +108,7 @@ body > .absolute, body > .fixed{
 	width:100%;
 	z-index:1;
 	min-height:calc(100vh - 108.5px - 0.5rem);
-	overflow-x:hidden;
+	/*overflow-x:hidden;*/ /*XXX was causing a tiny scrollbar to appear, might be needed for webkit though*/
 	transition:all 0.5s;
 	pointer-events:auto;
 	-webkit-overflow-scrolling:touch;
@@ -130,6 +116,10 @@ body > .absolute, body > .fixed{
 	text-align:center;
 	/*padding-top:1rem;*/
 	/*padding-left:1rem;*/
+	/*animation:blur_timeout 60s normal;
+	animation-play-state:running;*/
+	transition:all 0.6s;
+	will-change:transform;
 }
 
 .webkit-overflow-scroll-fix{
@@ -557,7 +547,7 @@ label .dot, .label_container .dot{
 }
 
 .placeholder_label{
-	transform:scale3d(1, 1, 1) translate(7px, 23px);
+	transform:scale3d(1, 1, 1) translate(23px, 23px);
 	position:absolute;
 	top:0;
 	left:0;
@@ -568,7 +558,7 @@ label .dot, .label_container .dot{
 
 input:not(:placeholder-shown) + .placeholder_label,
 input:focus + .placeholder_label{
-	transform:scale3d(0.75, 0.75, 0.75) translateY(45px); /*1rem);*/
+	transform:scale3d(0.75, 0.75, 0.75) translate(23px, 45px); /*1rem);*/
 }
 
 .image_container{

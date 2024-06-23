@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\index;
 
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;

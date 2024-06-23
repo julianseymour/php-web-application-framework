@@ -54,10 +54,10 @@ abstract class DefaultFormUseCase extends InteractiveUseCase{
 	}
 
 	public function getResponder(int $status): ?Responder{
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			return parent::getResponder($status);
 		}
-		switch (directive()) {
+		switch(directive()){
 			case DIRECTIVE_INSERT:
 				return new InsertAfterResponder();
 			default:

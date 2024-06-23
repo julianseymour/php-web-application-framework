@@ -14,7 +14,7 @@ class DeleteCookiesForm extends AjaxForm{
 
 	public function generateButtons(string $directive): ?array{
 		$f = __METHOD__;
-		switch ($directive) {
+		switch($directive){
 			case DIRECTIVE_DELETE:
 				$button = $this->generateGenericButton($directive);
 				$button->setInnerHTML(_("Delete all cookies"));

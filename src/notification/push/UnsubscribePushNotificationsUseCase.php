@@ -14,7 +14,7 @@ class UnsubscribePushNotificationsUseCase extends UseCase{
 		$f = __METHOD__;
 		try{
 			Debug::error(ErrorMessage::getResultMessage(ERROR_NOT_IMPLEMENTED));
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

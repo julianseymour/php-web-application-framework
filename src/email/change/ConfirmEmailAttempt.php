@@ -27,18 +27,18 @@ class ConfirmEmailAttempt extends CodeConfirmationAttempt{
 		return SUCCESS;
 	}
 
-	protected function beforeInsertHook(mysqli $mysqli): int{
+	public function beforeInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try{
 			$status = $this->getObjectStatus();
-			if($status === ERROR_LINK_EXPIRED) {
+			if($status === ERROR_LINK_EXPIRED){
 				Debug::print("{$f} link expired; skipping write");
 				return $status;
 			}
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::print("{$f} returning normally with status \"{$err}\"");
 			return parent::beforeInsertHook($mysqli);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

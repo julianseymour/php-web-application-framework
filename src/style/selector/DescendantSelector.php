@@ -1,11 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\style\selector;
 
-class DescendantSelector extends BinarySelector
-{
+class DescendantSelector extends BinarySelector{
 
-	public static function echoOperator()
-	{
+	public static function echoOperator():void{
 		return;
 	}
 }

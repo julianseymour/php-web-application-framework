@@ -1,8 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password;
 
-trait PasswordGeneratingFormTrait
-{
+trait PasswordGeneratingFormTrait{
 
 	public abstract static function getPasswordInputName();
 
@@ -13,21 +13,9 @@ trait PasswordGeneratingFormTrait
 	 *
 	 * @return object[]|ServerConfirmPasswordValidator[]
 	 */
-	protected function getConfirmPasswordValidator()
-	{
-		/*
-		 * $password_name = $this->getPasswordInputName();
-		 * $value = null;
-		 * if(hasInputParameter($password_name)){
-		 * $value = getInputParameter($password_name);
-		 * }
-		 * $valid_new = new DatumValidator(new PasswordDatum($password_name), $value);
-		 * $valid_new->setSpecialFailureStatus(ERROR_PASSWORD_WEAK);
-		 */
+	protected function getConfirmPasswordValidator(){
 		$matching = new ServerConfirmPasswordValidator($this->getConfirmPasswordInputName());
 		$matching->setSpecialFailureStatus(ERROR_PASSWORD_MISMATCH);
-		return $matching; // [$valid_new, $matching];
+		return $matching;
 	}
 }
-
-

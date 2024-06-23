@@ -12,7 +12,6 @@ use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
-use mysqli;
 
 class MultilingualStringData extends DataStructure implements StaticElementClassInterface, StaticTableNameInterface{
 
@@ -103,7 +102,7 @@ class MultilingualStringData extends DataStructure implements StaticElementClass
 		parent::declareColumns($columns, $ds);
 		$components = [];
 		$supported = config()->getSupportedLanguages();
-		foreach($supported as $language) {
+		foreach($supported as $language){
 			$string = new ForeignKeyDatum($language, RELATIONSHIP_TYPE_ONE_TO_ONE);
 			$hrvn = Internationalization::getLanguageNameFromCode($language);
 			$string->setHumanReadableName($hrvn);
@@ -123,6 +122,7 @@ class MultilingualStringData extends DataStructure implements StaticElementClass
 		$foreign_bundle->setOnUpdate($foreign_bundle->setOnDelete(REFERENCE_OPTION_CASCADE));
 		$foreign_bundle->constrain();
 		$foreign_bundle->setNullable(true);
+		$foreign_bundle->setConverseRelationshipKeyName("multilingualStringKey");
 		array_push($columns, $foreign_bundle, ...$components);
 	}
 	
@@ -136,7 +136,7 @@ class MultilingualStringData extends DataStructure implements StaticElementClass
 	
 	protected function afterSetForeignDataStructureHook(string $column_name, DataStructure $struct):int{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		if($struct->hasColumn('multilingualStringKey')){
 			if($print){
 				Debug::print("{$f} setting converse relationship key name to \"{$column_name}\"");

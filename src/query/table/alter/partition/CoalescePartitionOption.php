@@ -18,10 +18,10 @@ class CoalescePartitionOption extends AlterOption
 	public function setNumber($number)
 	{
 		$f = __METHOD__; //CoalescePartitionOption::getShortClass()."(".static::getShortClass().")->setNumber()";
-		if($number === null) {
+		if($number === null){
 			unset($this->number);
 			return null;
-		}elseif(!is_int($number)) {
+		}elseif(!is_int($number)){
 			Debug::error("{$f} this function accepts only integers");
 		}
 		return $this->number = $number;
@@ -35,7 +35,7 @@ class CoalescePartitionOption extends AlterOption
 	public function getNumber()
 	{
 		$f = __METHOD__; //CoalescePartitionOption::getShortClass()."(".static::getShortClass().")->getNumber()";
-		if(!$this->hasNumber()) {
+		if(!$this->hasNumber()){
 			Debug::error("{$f} partition number is undefined");
 		}
 		return $this->number;

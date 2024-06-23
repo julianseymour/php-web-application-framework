@@ -9,7 +9,7 @@ class SetOnLoadCommand extends SetElementEventHandlerCommand
 	public function resolve()
 	{
 		$element = $this->getElement();
-		while ($element instanceof ValueReturningCommandInterface) {
+		while($element instanceof ValueReturningCommandInterface){
 			$element = $element->evaluate();
 		}
 		$element->setOnLoadAttribute($this->getCallFunctionCommand());

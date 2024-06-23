@@ -41,7 +41,7 @@ function insertBeforeMultiple(referenceNode, ...insertedNodes){
 function hydrateElement(element_array, responseText){
 	const f = "hydrateElement()";
 	try{
-		let print = false;
+		let print = true;
 		if(!isset(element_array)){
 			return error(f, "Element array is null");
 		}else if(typeof element_array.tag == "undefined"){
@@ -81,10 +81,6 @@ function hydrateElement(element_array, responseText){
 		if(!isset(element)){
 			let err = "Element is undefined immediately after declaration";
 			console.error(element);
-			if(element instanceof Element){
-				let err = "isset is not working";
-				return error(f, err);
-			}
 			return error(f, err);
 		}
 		if(print){
@@ -92,6 +88,11 @@ function hydrateElement(element_array, responseText){
 		}
 		//assign attributes
 			if(isset(element_array.attributes)){
+				if(element instanceof DocumentFragment){
+					let err = "Document fragments cannot have attributes";
+					console.log(element_array);
+					return error(f, err);
+				}
 				let attributes = element_array.attributes;
 				if(attributes instanceof NamedNodeMap){
 					return error(f, "Attributes array is an instanceof NamedNodeMap");
@@ -141,6 +142,9 @@ function hydrateElement(element_array, responseText){
 						console.log(f.concat(": about to deal with textarea values"));
 					}
 					if(tag === "textarea"){
+						if(print){
+							console.log(f.concat(": element is a textarea"));
+						}
 						if(key === "value"){
 							if(print){
 								console.log(f+": element is a textarea, and the key is value");
@@ -332,7 +336,7 @@ function getChildNodeByClass(n, c){ //get all child nodes of node n that are cla
 		let len = n.childNodes.length;
 		//console.log(f+":\n\tEntered for a node with "+len.toString()+" children");
 		let get = [];
-		for (let i = 0; i < len; i++) {
+		for (let i = 0; i < len; i++){
 			//console.log(f+": iteration "+i.toString());
 			let cl = n.childNodes[i].className;
 			if(n.childNodes[i].className == c){
@@ -350,7 +354,7 @@ function getChildNodeByClass(n, c){ //get all child nodes of node n that are cla
 function replaceInnerHTMLById(id, html, callback_success, callback_error){ //gracefully transition between two elements 
 	const f = "replaceInnerHTMLById()";
 	try{
-		if(typeof html == 'undefined') {
+		if(typeof html == 'undefined'){
 			let err = f+" error: html is undefined";
 			console.error(err);
 			console.trace();
@@ -363,13 +367,13 @@ function replaceInnerHTMLById(id, html, callback_success, callback_error){ //gra
 		//console.log(f+": entered with html \""+html+"\"");
 		//console.log(f+" html is of type "+typeof html);
 		let ce = document.getElementById(id);		
-		if(ce == null) {
+		if(ce == null){
 			console.error(f+": element by id \""+id+"\"");
 			return false;
 		}else{
 			replaceInnerHTML(ce, html, callback_success, callback_error);
 		}
-	} catch(x) {
+	} catch(x){
 		console.error(f+" exception: "+x.toString());
 		return false;
 	}
@@ -397,7 +401,7 @@ function defer(timeout, delay=null){
 	}
 }
 
-function transitionEndHandler(element, callback_first, timeout_second, listener) {//execute the callback once the transition has ended, remove the transitionend event listener, then defer timeout if it exists
+function transitionEndHandler(element, callback_first, timeout_second, listener){//execute the callback once the transition has ended, remove the transitionend event listener, then defer timeout if it exists
 	const f = "transitionEndHandler()";
 	try{
 		//console.log(f+": entered; about to remove transition end listener");
@@ -443,7 +447,7 @@ function getImmediateChildElementByClassName(element, className, assert=true){
 				const f = "recurse(~, ".concat(className).concat(", ~)");
 				let child = element.childNodes[i];
 				let classNames = child.className != undefined? child.className.split(" ") : [];
-				for(let j = 0; j < classNames.length; j++) {
+				for(let j = 0; j < classNames.length; j++){
 					if(classNames[j] == className){
 						//console.log(f+": className match at index ".concat(j));
 						found = true;
@@ -479,7 +483,7 @@ function getImmediateChildElementByClassName(element, className, assert=true){
 function revealHiddenElement(element, callback, opacity){
 	const f = "revealHiddenElement()";
 	try{
-		if(typeof opacity == 'undefined' || opacity == null || opacity == "") {
+		if(typeof opacity == 'undefined' || opacity == null || opacity == ""){
 			//console.log(f+": opacity was initially undefined");
 			element.style['opacity'] = 1;
 		}else{
@@ -1052,7 +1056,7 @@ function isUrl(url){
 	return AjaxForm.setFormSubmitHandler(form, callback_success, callback_error);
 }*/
 
-function removeElementById(id, callback) {
+function removeElementById(id, callback){
 	const f = "removeElementById(".concat(id).concat(")");
 	try{
 		let e = document.getElementById(id);
@@ -1141,7 +1145,7 @@ function fadeElementById(id, callback){
 	const f = "fadeElementById(".concat(id).concat(")");
 	try{
 		if(!isset(id)){
-			return error(f, "Fuck off with your undefined element ID");
+			return error(f, "Undefined element ID");
 		}
 		//console.log(f+": placeholder: set element transition to all 0.5s, fade element opacity to zero, set its max height to current height, set its max-height to 0, then remove it");
 		let element = document.getElementById(id);
@@ -1495,7 +1499,7 @@ function insecureNumericHash(str){
 		if(str.length == 0){
 			return hash;
 		}
-		for (let i = 0; i < str.length; i++) {
+		for (let i = 0; i < str.length; i++){
 			hash = ((hash << 5) - hash) + str.charCodeAt(i);
 			hash = hash & hash;
 		}
@@ -1537,7 +1541,7 @@ function isJson(s){
 	try{
 		JSON.parse(s);
 		return true;
-	}catch (e) {
+	}catch (e){
 		return false;
 	}
 }
@@ -1572,12 +1576,12 @@ function isElementInViewport(element){//for whatever reason, this function no lo
 	}
 }
 
-function isScrolledIntoView(el) {
+function isScrolledIntoView(el){
 	let rect = el.getBoundingClientRect();
 	return (rect.top >= 0) && (rect.bottom <= window.innerHeight);
 }
 
-let onAppend = function(element, callback) {
+let onAppend = function(element, callback){
 	let observer = new MutationObserver(function(mutations){
 		mutations.forEach(function(m){
 			if(m.addedNodes.length){
@@ -1660,14 +1664,24 @@ function controller(response){
 		let use_case;
 		if(isset(response.action)){
 			if(is_array(response.action)){
+				if(print){
+					console.log(f.concat(": multiple use cases"));
+					console.log(response.action);
+				}
 				for(let i = 0; i < response.action.length; i++){
 					let action = response.action[i];
 					use_case = getApplicationClass().getUseCaseClass(action);
+					if(print){
+						console.log(f.concat(": about to have use case with action ").concat(action).concat(" handle the response"));
+					}
 					use_case.handleResponse(response);
+				}
+				if(print){
+					console.log(f.concat(": done letting multiple use cases handle the response"));
 				}
 			}else{
 				if(print){
-					window.alert(f.concat(": Specialized use case \"").concat(response.action).concat("\""));
+					window.alert(f.concat(": Singluar specialized use case \"").concat(response.action).concat("\""));
 				}
 				use_case = getApplicationClass().getUseCaseClass(response.action);
 				use_case.handleResponse(response);
@@ -1804,7 +1818,7 @@ function bindElement(elementClass, context){
 function setCookie(name, value, ttl){
 	let date = new Date();
 	date.setTime(date.getTime() + (ttl * 1000));
-	document.cookie = name.concat("=").concat(value).concat("; expires=").concat(date.toGMTString()).concat("; path=/").concat("; domain=").concat(WEBSITE_DOMAIN);
+	document.cookie = name.concat("=").concat(value).concat("; expires=").concat(date.toGMTString()).concat("; path=/").concat("; domain=").concat(DOMAIN_LOWERCASE);
 }
 
 function setNonAjaxJsEnabledCookie(){
@@ -1909,11 +1923,7 @@ function loadHyperlink(event, link, delay=null){
 		}else if(print){
 			console.log(f.concat(": Delay parameter is ").concat(delay));
 		}
-		
 		disable(link);
-		
-		//let loading = createPageLoadAnimationElement();
-		//loading.id = "load_pg_content";
 		let page_content = document.getElementById("page_content");
 		if(!isset(page_content)){
 			if(print){
@@ -1928,16 +1938,11 @@ function loadHyperlink(event, link, delay=null){
 			);
 			return;
 		}
-		//document.getElementById("fixed").appendChild(loading);
-		//window.alert("inspect");
 		let action = link.getAttribute("href"); //link.href returns the full URL
 		if(print){
 			console.log(f.concat(": action href attribute is \"").concat(action).concat("\""));
 		}
-		let params = {
-			//js:1,
-			pwa:1
-		};
+		let params = {pwa:1};
 		//break down get parameters
 			if(action.includes('?')){
 				let splat = action.split('?');
@@ -2060,42 +2065,42 @@ function loadHyperlink(event, link, delay=null){
 			}
 			let loading = createPageLoadAnimationElement();
 			document.getElementById("fixed").appendChild(loading);
-			//moved this from the bottom of the function
-				/*page_content.addEventListener("abort", function(){
-					if(isset(xhr)){
-						if(print){
-							console.log(f+": aborting XHR");
-						}
-						xhr.abort();
-					}else{
-						console.error(f+": error aboting XHR");
-					}
-					//removeElementById("page_load_c");
+			if(link.hasAttribute("callback")){
+				if(print){
+					let callback_name = link.getAttribute("callback");
+					console.log(f.concat(": callback name is \"").concat(callback_name).concat("\""));
+				}
+				let callback_ref = window[link.getAttribute("callback")];
+				callback = function(...params){
+					callback(...params);
 					enable(link);
-				}, false);*/
-			//moved this from up top
-				if(link.hasAttribute("callback")){
-					if(print){
-						let callback_name = link.getAttribute("callback");
-						console.log(f.concat(": callback name is \"").concat(callback_name).concat("\""));
-					}
-					//removeElementById("page_load_c");
-					let callback_ref = window[link.getAttribute("callback")];
-					callback = function(...params){
-						callback(...params);
-						enable(link);
-					}
-				}else{
-					if(print){
-						console.log(f.concat(": link does not specify a callback, using the default one"));
-					}
-					callback = function(response){
-						console.log("Caching ".concat(link.href));
-						let type = typeof response;
-						if(type == "string"){
-							console.log(f.concat(": repsonse is the string \"").concat(response).concat("\""));
+				}
+			}else{
+				if(print){
+					console.log(f.concat(": link does not specify a callback, using the default one"));
+				}
+				callback = function(response){
+					console.log("Caching ".concat(link.href));
+					let type = typeof response;
+					if(type == "string"){
+						console.log(f.concat(": repsonse is the string \"").concat(response).concat("\""));
+						try{
+							sessionStorage.setItem(link.href, response);
+						}catch(x){
+							if(x instanceof DOMException && x.name == "QuotaExceededError"){
+								console.error(f.concat(": Quota exceeded"));
+							}else{
+								return error(f, x);
+							}
+						}
+						response = new ResponseText(response);
+						response.processCommands();
+						window.history.pushState(null, null, link.href);
+					}else if(type == "object"){
+						console.log(f.concat(": response is an object"));
+						if(response instanceof ResponseText){
 							try{
-								sessionStorage.setItem(link.href, response);
+								sessionStorage.setItem(link.href, response.getBody());
 							}catch(x){
 								if(x instanceof DOMException && x.name == "QuotaExceededError"){
 									console.error(f.concat(": Quota exceeded"));
@@ -2103,44 +2108,25 @@ function loadHyperlink(event, link, delay=null){
 									return error(f, x);
 								}
 							}
-							response = new ResponseText(response);
 							response.processCommands();
 							window.history.pushState(null, null, link.href);
-						}else if(type == "object"){
-							console.log(f.concat(": response is an object"));
-							/*if(response instanceof Command){
-								console.log(f.concat(": Response is a command, it must have been cacned already"));
-								response.execute();
-							}else*/ //useless
-							if(response instanceof ResponseText){
-								try{
-									sessionStorage.setItem(link.href, response.getBody());
-								}catch(x){
-									if(x instanceof DOMException && x.name == "QuotaExceededError"){
-										console.error(f.concat(": Quota exceeded"));
-									}else{
-										return error(f, x);
-									}
-								}
-								response.processCommands();
-								window.history.pushState(null, null, link.href);
-							}else{
-								console.error(f.concat(": Response is not a ResponseText"));
-							}
 						}else{
-							console.log(f.concat(": response is a ").concat(type));
+							console.error(f.concat(": Response is not a ResponseText"));
 						}
-						enable(link);
-						removeElementById("page_load_c");
-					};
-				}
-				if(typeof callback !== "function"){
-					return error(f, "Callback is not a function");
-				}
+					}else{
+						console.log(f.concat(": response is a ").concat(type));
+					}
+					enable(link);
+					removeElementById("page_load_c");
+				};
+			}
+			if(typeof callback !== "function"){
+				return error(f, "Callback is not a function");
+			}
 			fetch_xhr(
 				"GET", action, params, callback, function(){
 					error_cb();
-					removeElementById("page_load_c"); //page_content.removeChild(loading);
+					removeElementById("page_load_c");
 					enable(link);
 				}
 			);

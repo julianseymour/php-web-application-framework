@@ -1,203 +1,160 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\style\selector;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\element\ElementTagTrait;
 
-class ElementSelector extends Selector
-{
+class ElementSelector extends Selector{
 
 	use ElementTagTrait;
 
 	private $coselectors;
 
-	public function __construct($tag = null)
-	{
+	public function __construct($tag = null){
 		parent::__construct();
-		if(isset($tag)) {
+		if(isset($tag)){
 			$this->setElementTag($tag);
 		}
 	}
 
-	public function pushCoselector(...$selectors)
-	{
-		if(!is_array($this->coselectors)) {
+	public function pushCoselector(...$selectors){
+		if(!is_array($this->coselectors)){
 			$this->coselectors = [];
 		}
 		$i = 0;
-		foreach($selectors as $selector) {
+		foreach($selectors as $selector){
+			$this->claim($selector);
 			$i += array_push($this->coselectors, $selector);
 		}
 		return $i;
 	}
 
-	/*
-	 * public function setElementTag($tag){
-	 * return $this->tag = $tag;
-	 * }
-	 *
-	 * public function getElementTag(){
-	 * return $this->tag;
-	 * }
-	 *
-	 * public function hasElementTag(){
-	 * return isset($this->tag);
-	 * }
-	 */
-	public function echo(bool $destroy = false): void
-	{
-		if($this->hasElementTag()) {
+	public function echo(bool $destroy = false): void{
+		if($this->hasElementTag()){
 			echo $this->getElementTag();
 		}
-		if($this->hasClassAttribute()) {
-			foreach($this->classList as $class) {
+		if($this->hasClassAttribute()){
+			foreach($this->classList as $class){
 				echo ".{$class}";
 			}
 		}
-		if($this->hasIdAttribute()) {
+		if($this->hasIdAttribute()){
 			echo "#" . $this->getIdAttribute();
 		}
-		if(!empty($this->coselectors)) {
-			foreach($this->coselectors as $selector) {
-				$selector->echo();
+		if(!empty($this->coselectors)){
+			foreach($this->coselectors as $selector){
+				$selector->echo($destroy);
 			}
 		}
-		if($destroy) {
-			$this->dispose();
-		}
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->coselectors);
-		unset($this->tag);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->coselectors, $deallocate);
+		$this->release($this->tag, $deallocate);
 	}
 
-	/*
-	 * public function pushCoselector(...$selectors){
-	 * foreach($selectors as $selector){
-	 * $this->pushCoselector($selector);
-	 * }
-	 * }
-	 */
-	public function attribute($key, $value = null): ElementSelector
-	{
+	public function attribute($key, $value = null): ElementSelector{
 		$this->pushCoselector(new AttributeSelector($key, $value));
 		return $this;
 	}
 
-	public function attributes(array $keyvalues): ElementSelector
-	{
-		foreach($keyvalues as $key => $value) {
+	public function attributes(array $keyvalues): ElementSelector{
+		foreach($keyvalues as $key => $value){
 			$this->pushCoselector(new AttributeSelector($key, $value));
 		}
 		return $this;
 	}
 
-	public function checked(): ElementSelector
-	{
+	public function checked(): ElementSelector{
 		return $this->pseudoclass("checked");
 	}
 
-	public function child($chile): ChildSelector
-	{
+	public function child($chile): ChildSelector{
 		return new ChildSelector($this, $chile);
 	}
 
-	public function descendant($descendant): DescendantSelector
-	{
+	public function descendant($descendant): DescendantSelector{
 		return new DescendantSelector($this, $descendant);
 	}
 
-	public function sibling($sib): SiblingSelector
-	{
+	public function sibling($sib): SiblingSelector{
 		return new SiblingSelector($this, $sib);
 	}
 
-	public function attributeContains($name, $value): ElementSelector
-	{
+	public function attributeContains($name, $value): ElementSelector{
 		$this->pushCoselector(new AttributeContainsSelector($name, $value));
 		return $this;
 	}
 
-	public function attributesContain(array $keyvalues): ElementSelector
-	{
-		foreach($keyvalues as $key => $value) {
+	public function attributesContain(array $keyvalues): ElementSelector{
+		foreach($keyvalues as $key => $value){
 			$this->pushCoselector(new AttributeContainsSelector($key, $value));
 		}
 		return $this;
 	}
 
-	public function attributeEndsWith($name, $value): ElementSelector
-	{
+	public function attributeEndsWith($name, $value): ElementSelector{
 		$this->pushCoselector(new AttributeEndsWithSelector($name, $value));
 		return $this;
 	}
 
-	public function attributesEndWith(array $keyvalues): ElementSelector
-	{
-		foreach($keyvalues as $key => $value) {
+	public function attributesEndWith(array $keyvalues): ElementSelector{
+		foreach($keyvalues as $key => $value){
 			$this->pushCoselector(new AttributeEndsWithSelector($key, $value));
 		}
 		return $this;
 	}
 
-	public function attributeStartsWith($name, $value): ElementSelector
-	{
+	public function attributeStartsWith($name, $value): ElementSelector{
 		$this->pushCoselector(new AttributeStartsWithSelector($name, $value));
 		return $this;
 	}
 
-	public function attributesStartWith(array $keyvalues): ElementSelector
-	{
-		foreach($keyvalues as $key => $value) {
+	public function attributesStartWith(array $keyvalues): ElementSelector{
+		foreach($keyvalues as $key => $value){
 			$this->pushCoselector(new AttributeStartsWithSelector($key, $value));
 		}
 		return $this;
 	}
 
-	public function nextSibling($sib): NextSiblingSelector
-	{
+	public function nextSibling($sib): NextSiblingSelector{
 		return new NextSiblingSelector($this, $sib);
 	}
 
-	public function pseudoclass(...$ps): ElementSelector
-	{
-		foreach($ps as $p) {
+	public function pseudoclass(...$ps): ElementSelector{
+		foreach($ps as $p){
 			$this->pushCoselector(new PseudoclassSelector($p));
 		}
 		return $this;
 	}
 
-	public function pseudoelement(...$ps): ElementSelector
-	{
-		foreach($ps as $p) {
+	public function pseudoelement(...$ps): ElementSelector{
+		foreach($ps as $p){
 			$this->pushCoselector(new PseudoelementSelector($p));
 		}
 		return $this;
 	}
 
-	public static function element(?string $tag = null): ElementSelector
-	{
+	public static function element(?string $tag = null): ElementSelector{
 		return new ElementSelector($tag);
 	}
 
-	public static function id($id): ElementSelector
-	{
+	public static function id($id): ElementSelector{
 		$s = new ElementSelector();
 		$s->setIdAttribute($id);
 		return $s;
 	}
 
-	public static function elementClass(...$classes): ElementSelector
-	{
+	public static function elementClass(...$classes): ElementSelector{
 		$s = new ElementSelector();
 		$s->addClassAttribute(...$classes);
 		return $s;
 	}
 
-	public function not($selector)
-	{
+	public function not($selector):ElementSelector{
 		$this->pushCoselector(new NegationSelector($selector));
 		return $this;
 	}

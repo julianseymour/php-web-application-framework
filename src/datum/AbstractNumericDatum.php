@@ -1,6 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\input\NumberInput;
 
@@ -11,68 +14,53 @@ use JulianSeymour\PHPWebApplicationFramework\input\NumberInput;
  * @author j
  *        
  */
-abstract class AbstractNumericDatum extends Datum implements StaticElementClassInterface
-{
+abstract class AbstractNumericDatum extends Datum implements StaticElementClassInterface{
 
 	protected $maximumValue;
 
 	protected $minimumValue;
 
-	/*
-	 * public function __construct($name){
-	 * $f = __METHOD__; //AbstractNumericDatum::getShortClass()."(".static::getShortClass().")->__construct()";
-	 * $count = Debug::getFunctionNestingLevel();
-	 * if($count >= 224){
-	 * Debug::error("{$f} function nesting level is {$count}");
-	 * }
-	 * parent::__construct($name);
-	 * $this->setElementClass(NumberInput::class);
-	 * }
-	 */
-	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string
-	{
+	public static function getElementClassStatic(?StaticElementClassInterface $that = null): string{
 		return NumberInput::class;
 	}
 
-	public function hasMaximumValue()
-	{
+	public function hasMaximumValue():bool{
 		return isset($this->maximumValue);
 	}
 
-	public function hasMinimumValue()
-	{
+	public function hasMinimumValue():bool{
 		return isset($this->minimumValue);
 	}
 
-	public function getMaxmimumValue()
-	{
+	public function getMaxmimumValue(){
 		return $this->maximumValue;
 	}
 
-	public function getMinimumValue()
-	{
+	public function getMinimumValue(){
 		return $this->minimumValue;
 	}
 
-	public function setMaximumValue($max)
-	{
-		return $this->maximumValue = $max;
+	public function setMaximumValue($max){
+		if($this->hasMaximumValue()){
+			$this->release($this->maximumValue);
+		}
+		return $this->maximumValue = $this->claim($max);
 	}
 
-	public function setMinimumValue($min)
-	{
-		return $this->minimumValue = $min;
+	public function setMinimumValue($min){
+		if($this->hasMinimumValue()){
+			$this->release($this->minimumValue);
+		}
+		return $this->minimumValue = $this->claim($min);
 	}
 
-	public function addValue($value)
-	{
+	public function addValue($value){
 		return $this->setValue($this->getValue() + $value);
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->minimumValue);
-		unset($this->maximumValue);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->minimumValue, $deallocate);
+		$this->release($this->maximumValue, $deallocate);
 	}
 }

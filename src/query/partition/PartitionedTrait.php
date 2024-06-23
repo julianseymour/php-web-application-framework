@@ -1,54 +1,48 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\partition;
 
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait PartitionedTrait
-{
+trait PartitionedTrait{
 
 	use ArrayPropertyTrait;
 
-	public function setPartitionDefinitions($partitionDefinitions)
-	{
-		$f = __METHOD__; //"PartitionedTrait(".static::getShortClass().")->setPartitionDefinitions()";
-		foreach($partitionDefinitions as $partitionDefinition) {
-			if(!$partitionDefinition instanceof PartitionDefinition) {
+	public function setPartitionDefinitions($partitionDefinitions){
+		$f = __METHOD__;
+		foreach($partitionDefinitions as $partitionDefinition){
+			if(!$partitionDefinition instanceof PartitionDefinition){
 				Debug::error("{$f} this function accepts only arrays of PartitionDefintions");
 			}
 		}
 		return $this->setArrayProperty("partitionDefinitions", $partitionDefinitions);
 	}
 
-	public function pushPartitionDefinitions(...$partitionDefinitions)
-	{
-		$f = __METHOD__; //"PartitionedTrait(".static::getShortClass().")->pushPartitionDefinitions()";
-		foreach($partitionDefinitions as $partitionDefinition) {
-			if(!$partitionDefinition instanceof PartitionDefinition) {
+	public function pushPartitionDefinitions(...$partitionDefinitions){
+		$f = __METHOD__;
+		foreach($partitionDefinitions as $partitionDefinition){
+			if(!$partitionDefinition instanceof PartitionDefinition){
 				Debug::error("{$f} this function accepts only arrays of PartitionDefintions");
 			}
 		}
 		return $this->pushArrayProperty("partitionDefinitions", $partitionDefinitions);
 	}
 
-	public function withPartitionDefinitions($partitionDefinitions)
-	{
+	public function withPartitionDefinitions($partitionDefinitions){
 		$this->setPartitionDefinitions($partitionDefinitions);
 		return $this;
 	}
 
-	public function hasPartitionDefinitions()
-	{
+	public function hasPartitionDefinitions():bool{
 		return $this->hasArrayProperty("partitionDefinitions");
 	}
 
-	public function getPartitionDefinitions()
-	{
+	public function getPartitionDefinitions(){
 		return $this->getProperty("partitionDefinitions");
 	}
 
-	public function mergePartitionDefinitions($partitionDefintions)
-	{
+	public function mergePartitionDefinitions($partitionDefintions){
 		return $this->mergeArrayProperty("partitionDefinitions", $partitionDefintions);
 	}
 }

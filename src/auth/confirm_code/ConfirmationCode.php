@@ -28,8 +28,9 @@ use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ConcreteSubtypeColumnInterface;
 
-abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyInterface, StaticSubtypeInterface, StaticTableNameInterface{
+abstract class ConfirmationCode extends RequestEvent implements ConcreteSubtypeColumnInterface, EmailNoteworthyInterface, StaticSubtypeInterface, StaticTableNameInterface{
 
 	use EmailNoteworthyTrait;
 	use StaticTableNameTrait;
@@ -53,12 +54,12 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 			$print = false;
 			parent::__construct();
 			$type = static::getConfirmationCodeTypeStatic();
-			if($type !== ACCESS_TYPE_BACKUP) {
+			if($type !== ACCESS_TYPE_BACKUP){
 				$this->setConfirmationCodeType($type);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} this is just a backup; skipping record type initialization");
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -120,19 +121,19 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	public function getVirtualColumnValue(string $column_name){
 		$f = __METHOD__;
 		try{
-			switch ($column_name) {
+			switch($column_name){
 				case 'subtype':
 					return $this->getSubtypeStatic();
 				default:
 					return parent::getVirtualColumnValue($column_name);
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 	
 	public function hasVirtualColumnValue(string $column_name): bool{
-		switch ($column_name) {
+		switch($column_name){
 			case 'subtype':
 				return true;
 			default:
@@ -143,7 +144,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	protected function getConfirmationUriGetParameters(): array{
 		$f = __METHOD__;
 		$x1 = $this->getSecretCodeXorKey();
-		if(empty($x1)) {
+		if(empty($x1)){
 			Debug::error("{$f} secret code XOR key is null or empty string");
 		}
 		return [
@@ -157,11 +158,11 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$print = false;
 		$this->getHashedSecretCode();
 		$params = $this->getConfirmationUriGetParameters();
-		if(! isset($params['x1_64'])) {
+		if(!isset($params['x1_64'])){
 			Debug::error("{$f} x1_64 is undefined");
 		}
 		$uri = $this->getConfirmationUriStatic(base64url_encode($this->encrypt(http_build_query($params))));
-		if($print) {
+		if($print){
 			Debug::print("{$f} confirmation URI is \"{$uri}\"");
 		}
 		return $uri;
@@ -175,21 +176,21 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				Debug::print("{$f} entered");
 			}
 			$confirm = base64_decode($data_arr['confirm_64']);
 			$this->setHashedSecretCode($confirm);
 			$xored_secret = base64_decode($data_arr['xored_secret_64']);
 			$this->setXoredSecretCode($xored_secret);
-			if(isset($data_arr['emailAddress']) && method_exists($this, "setEmailAddress")) {
+			if(isset($data_arr['emailAddress']) && method_exists($this, "setEmailAddress")){
 				$email = $data_arr['emailAddress'];
 				$this->setEmailAddress($email);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} returning normally");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -197,11 +198,11 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	public function getSecretCode(){
 		$f = __METHOD__;
 		try{
-			if($this->hasSecretCode()) {
+			if($this->hasSecretCode()){
 				return $this->getColumnValue("secretCode");
 			}
 			Debug::error("{$f} secret code is undefined");
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -213,9 +214,9 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	public function setSecretCodeXorKey($key){
 		$f = __METHOD__;
 		$print = false;
-		if(empty($key)) {
+		if(empty($key)){
 			Debug::error("{$f} key is null or empty string");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} returning normally");
 		}
 		return $this->setColumnValue("secretCodeXorKey", $key);
@@ -236,11 +237,11 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	public function getHashedSecretCode(){
 		$f = __METHOD__;
 		try{
-			if($this->hasHashedSecretCode()) {
+			if($this->hasHashedSecretCode()){
 				return $this->getColumnValue("hashedSecretCode");
 			}
 			return null;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -259,15 +260,15 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				Debug::print("{$f} entered");
 			}
-			if($this->hasSecretCode()) {
-				if($print) {
+			if($this->hasSecretCode()){
+				if($print){
 					Debug::print("{$f} already generated");
 				}
 				return $this->getSecretCode();
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} generating a new secret code");
 			}
 			$secret = $this->setSecretCode(random_bytes(32)); // destroyed
@@ -278,7 +279,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 			$confirm = argon_hash($secret, $nonce);
 			$this->setHashedSecretCode($confirm);
 			return $this->getSecretCode();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -289,7 +290,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 			$this->generateSecretCode();
 			$x1 = $this->getSecretCodeXorKey();
 			return $x1;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -302,19 +303,19 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				Debug::print("{$f} entered");
 			}
 			$this->generateAdditionalData();
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to call generateSecretCode()");
 			}
 			$this->generateSecretCode();
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to call parent function");
 			}
 			return parent::afterGenerateInitialValuesHook();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -323,29 +324,29 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				Debug::error("{$f} entered");
 			}
 			$data_clear = $this->getDecryptedAdditionalData();
-			if(! isset($data_clear) || $data_clear == "") {
-				if($print) {
+			if(!isset($data_clear) || $data_clear == ""){
+				if($print){
 					Debug::warning("{$f} data cleartext is undefined");
 				}
 				return $this->setObjectStatus(FAILURE);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} decrypted additional data is \"{$data_clear}\"");
 			}
 			$parsed = [];
 			parse_str($data_clear, $parsed);
-			if(empty($parsed)) {
+			if(empty($parsed)){
 				Debug::error("{$f} parsed additional data is null");
 			}
 			$this->processDecryptedAdditionalDataArray($parsed);
-			if(!$this->hasHashedSecretCode()) {
+			if(!$this->hasHashedSecretCode()){
 				Debug::error("{$f} missing confirmation code");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -354,17 +355,17 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(!$this->hasXoredSecretCode()) { // for records being loaded
-				if($print) {
+			if(!$this->hasXoredSecretCode()){ // for records being loaded
+				if($print){
 					Debug::print("{$f} xored secret code is undefined -- need to get it from the additionalData");
 				}
 				$this->parseAdditionalData();
-				if(!$this->hasXoredSecretCode()) {
+				if(!$this->hasXoredSecretCode()){
 					Debug::error("{$f} xoredSecretCode is undefined");
 				}
 			}
 			return $this->getColumnValue("xoredSecretCode");
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -372,11 +373,11 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	protected function generateXoredSecretCode(){
 		$f = __METHOD__;
 		try{
-			if(!$this->hasXoredSecretCode()) {
+			if(!$this->hasXoredSecretCode()){
 				$this->generateSecretCode();
 			}
 			return $this->getXoredSecretCode();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -384,11 +385,11 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	public function generateHashedSecretCode(){
 		$f = __METHOD__;
 		try{
-			if(!$this->hasHashedSecretCode()) {
+			if(!$this->hasHashedSecretCode()){
 				$this->generateSecretCode();
 			}
 			return $this->getHashedSecretCode();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -406,8 +407,8 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($this->hasAdditionalData()) {
-				if($print) {
+			if($this->hasAdditionalData()){
+				if($print){
 					Debug::print("{$f} already generated");
 				}
 				return $this->getAdditionalData();
@@ -415,11 +416,11 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 			$arr = $this->getAdditionalDataArray();
 			$data = http_build_query($arr);
 			$ret = $this->encodeAdditionalData($data);
-			if($print) {
+			if($print){
 				Debug::print("{$f} additional data is \"{$ret}\"");
 			}
 			return $this->setAdditionalData($ret);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -435,11 +436,11 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	public function getRequestTimeoutDuration(){
 		$f = __METHOD__;
 		try{
-			if(! isset(static::$requestTimeoutDuration) || static::$requestTimeoutDuration < 0) {
+			if(!isset(static::$requestTimeoutDuration) || static::$requestTimeoutDuration < 0){
 				static::debugErrorStatic($f, ERROR_NULL_DURATION);
 			}
 			return static::$requestTimeoutDuration;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -455,27 +456,27 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($user instanceof AnonymousUser) {
+			if($user instanceof AnonymousUser){
 				Debug::error("{$f} this should never be passed an anonymous user");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} user is authenticated");
 			}
 			// generate confirmation code object
 			$confirmation_code = new static();
 			$confirmation_code->setUserData($user);
 			$status = $confirmation_code->extractAdditionalDataFromUser($user);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} processing post returned error status \"{$err}\"");
 				$confirmation_code->setObjectStatus($status);
 			}
 			// insert confirmation code
 			$status = $confirmation_code->insert($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} error inserting email verification code: \"{$err}\"");
 				return $user->setObjectStatus($status);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} about to send email");
 			}
 			// send email
@@ -490,15 +491,15 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 				Debug::error("{$f} immediately after assigning it, recipient is undefined");
 			}
 			$status = $spam->sendAndInsert($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} sending email returned error status \"{$err}\"");
 				return $status;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} returning normally");
 			}
 			return $confirmation_code->setObjectStatus($confirmation_code->getSentEmailStatus());
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -541,10 +542,10 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 	}
 
 	public function getSubtype():string{
-		if($this->hasColumnValue('subtype')) {
+		if($this->hasColumnValue('subtype')){
 			return $this->getColumnValue('subtype');
 		}
-		return $this->setSubtype(static::getSubypeStatic());
+		return $this->setSubtype(static::getSubtypeStatic());
 	}
 	
 	public function getConfirmationCodeType():string{
@@ -559,11 +560,11 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$nonce = $this->getColumnValue('nonce');
-			if(isset($nonce) && $nonce != "") {
+			if(isset($nonce) && $nonce != ""){
 				return $this->getNonce();
 			}
 			return $this->setNonce(random_bytes(SODIUM_CRYPTO_PWHASH_SALTBYTES));
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -572,7 +573,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		$len = strlen($n);
 		$mnl = SODIUM_CRYPTO_PWHASH_SALTBYTES;
-		if($len !== $mnl) {
+		if($len !== $mnl){
 			Debug::error("{$f} nonce is wrong length ({$len}, should be {$mnl})");
 		}
 		return $this->setColumnValue('nonce', $n);
@@ -584,7 +585,7 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 
 	public function getNonce(){
 		$f = __METHOD__;
-		if(!$this->hasNonce()) {
+		if(!$this->hasNonce()){
 			Debug::error("{$f} nonce is undefined");
 			$this->setObjectStatus(ERROR_NULL_NONCE);
 			return null;
@@ -604,34 +605,34 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				Debug::print("{$f} entered");
 			}
-			if(!$this->hasSecretCode()) {
+			if(!$this->hasSecretCode()){
 				Debug::error("{$f} secret code is undefined");
-			}elseif(!$this->hasHashedSecretCode()) {
+			}elseif(!$this->hasHashedSecretCode()){
 				Debug::error("{$f} confirmation code is undefined");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} about to validate confirmation code");
 			}
 			$secret = $this->getSecretCode($mysqli);
 			$nonce = $this->getNonce();
 			$alleged_code = argon_hash($secret, $nonce);
 			$actual_code = $this->getHashedSecretCode();
-			if($print) {
+			if($print){
 				$ac64 = base64_encode($actual_code);
 				Debug::print("{$f} actual code in base64 is \"{$ac64}\"");
 			}
-			if($actual_code === $alleged_code) {
-				if($print) {
+			if($actual_code === $alleged_code){
+				if($print){
 					Debug::print("{$f} code validated successfully");
 				}
 				return $this->setObjectStatus(SUCCESS);
-			}elseif($print) {
+			}elseif($print){
 				Debug::warning("{$f} code validation failed");
 			}
 			return $this->setObjectStatus(ERROR_CONFIRMATION_CODE_UNDEFINED);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -652,42 +653,42 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				Debug::print("{$f} entered");
 			}
-			if(!$this->hasAdditionalData()) {
+			if(!$this->hasAdditionalData()){
 				Debug::error("{$f} additional data is null or empty string");
 			}
 			$data_64 = $this->getAdditionalData();
-			if(! isset($data_64)) {
+			if(!isset($data_64)){
 				Debug::error("{$f} additional data is undefined");
-			}elseif(!is_base64($data_64)) {
+			}elseif(!is_base64($data_64)){
 				Debug::error("{$f} additional data is not base 64");
 			}
 			$data = base64_decode($data_64);
 			$clear = $this->decrypt($data); // getKeypair()->decrypt($data, LOGIN_TYPE_FULL);
-			if(! isset($clear) || $clear == "") {
+			if(!isset($clear) || $clear == ""){
 				Debug::error("{$f} cleartext returned null");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} cleartext is \"{$clear}\"");
 			}
 			$parsed = [];
 			parse_str($clear, $parsed);
-			if($parsed == null) {
+			if($parsed == null){
 				Debug::warning("{$f} error parsing cleartext; about to try urldecoding it");
 				$unescaped = rawurldecode($clear);
 				Debug::print("{$f} unescaped cleartext is \"{$unescaped}\"");
 				parse_str($unescaped, $parsed);
-				if($parsed == null) {
+				if($parsed == null){
 					Debug::error("{$f} parsed additional data array returned null");
 				}
 				Debug::print("{$f} successfully parsed additional data array the second time");
 				$clear = $unescaped;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} successfully parsed additional data array the first time");
 			}
 			return $clear;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -696,13 +697,13 @@ abstract class ConfirmationCode extends RequestEvent implements EmailNoteworthyI
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(is_array($data)) {
+			if(is_array($data)){
 				Debug::error("{$f} additional data is an array");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} about to encrypt additional data");
 			}
 			return base64_encode($this->encrypt($data));
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

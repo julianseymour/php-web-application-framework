@@ -1,45 +1,40 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\role;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\QueryStatement;
 
-abstract class RoleStatement extends QueryStatement
-{
+abstract class RoleStatement extends QueryStatement{
 
 	use MultipleRolesTrait;
 
-	public abstract function getRoleStatementString();
+	public abstract function getRoleStatementString():string;
 
 	protected $roleType;
 
-	public function __construct(...$roles)
-	{
+	public function __construct(...$roles){
 		parent::__construct();
 		$this->requirePropertyType("roles", DatabaseRoleData::class);
-		if(isset($roles)) {
+		if(isset($roles)){
 			$this->setRoles($roles);
 		}
 	}
 
-	public function setRoleType($type)
-	{
-		$f = __METHOD__; //RoleStatement::getShortClass()."(".static::getShortClass().")->setRoleType()";
-		if($type == null) {
-			unset($this->roleType);
-			return null;
-		}elseif(!is_string($type)) {
+	public function setRoleType($type){
+		$f = __METHOD__;
+		if(!is_string($type)){
 			Debug::error("{$f} as user role type must be a string");
 		}
 		$type = strtolower($type);
-		switch ($type) {
+		switch($type){
 			case "all except":
-				if($this instanceof SetRoleStatement) {
+				if($this instanceof SetRoleStatement){
 					$this->setAllExceptFlag(true);
 					return $type;
 				}
 			case CONST_DEFAULT:
-				if($this instanceof SetDefaultRoleStatement) {
+				if($this instanceof SetDefaultRoleStatement){
 					Debug::error("{$f} SetDefaultRoleStatement does not support default role type or 'all except'");
 				}
 			case CONST_NONE:
@@ -48,40 +43,40 @@ abstract class RoleStatement extends QueryStatement
 			default:
 				Debug::error("{$f} invalid as user role type \"{$type}\"");
 		}
-		return $this->roleType = $type;
+		if($this->hasRoleType()){
+			$this->release($this->roleType);
+		}
+		return $this->roleType = $this->claim($type);
 	}
 
-	public function hasRoleType()
-	{
+	public function hasRoleType():bool{
 		return isset($this->roleType);
 	}
 
-	public function getRoleType()
-	{
-		$f = __METHOD__; //RoleStatement::getShortClass()."(".static::getShortClass().")->getRoleType()";
-		if(!$this->hasRoleType()) {
+	public function getRoleType(){
+		$f = __METHOD__;
+		if(!$this->hasRoleType()){
 			Debug::error("{$f} as user role type is undefined");
 		}
 		return $this->roleType;
 	}
 
-	public function setTemporaryRole(...$role)
-	{
-		$f = __METHOD__; //RoleStatement::getShortClass()."(".static::getShortClass().")->setTemporaryRole()";
-		if(count($role) > 1) {
+	public function setTemporaryRole(...$role){
+		$f = __METHOD__;
+		if(count($role) > 1){
 			return $this->withRoles($role);
 		}
 		$role = $role[0];
-		if(is_array($role)) {
+		if(is_array($role)){
 			return $this->withRole(...$role);
-		}elseif(!is_string($role)) {
-			if($role instanceof DatabaseRoleData) {
+		}elseif(!is_string($role)){
+			if($role instanceof DatabaseRoleData){
 				$role = $role->getUsername();
 			}else{
 				Debug::error("{$f} role name is not a string");
 			}
 		}
-		switch ($role) {
+		switch($role){
 			case CONST_DEFAULT:
 			case CONST_NONE:
 			case CONST_ALL:
@@ -94,8 +89,7 @@ abstract class RoleStatement extends QueryStatement
 		}
 	}
 
-	public function getQueryStatementString()
-	{
+	public function getQueryStatementString():string{
 		return "set " . $this->getRoleStatementString();
 	}
 }

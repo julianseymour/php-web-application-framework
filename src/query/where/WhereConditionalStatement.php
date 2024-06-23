@@ -3,7 +3,10 @@
 namespace JulianSeymour\PHPWebApplicationFramework\query\where;
 
 use function JulianSeymour\PHPWebApplicationFramework\cache;
+use function JulianSeymour\PHPWebApplicationFramework\claim;
 use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\cache\CacheableInterface;
 use JulianSeymour\PHPWebApplicationFramework\cache\CacheableTrait;
@@ -17,13 +20,17 @@ use Exception;
 use mysqli;
 use mysqli_result;
 use mysqli_sql_exception;
+use JulianSeymour\PHPWebApplicationFramework\common\ReplicableTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ReplicableInterface;
 
-abstract class WhereConditionalStatement extends QueryStatement implements CacheableInterface, WhereConditionalInterface{
+abstract class WhereConditionalStatement extends QueryStatement 
+implements CacheableInterface, ReplicableInterface, WhereConditionalInterface{
 
 	use CacheableTrait;
 	use LimitOffsetTrait;
 	use FullTableNameTrait;
-
+	use ReplicableTrait;
+	
 	/**
 	 * Either a WhereCondition or VariadicExpression with WhereCondition/VariadicExpression params
 	 *
@@ -31,17 +38,30 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	 */
 	protected $whereCondition;
 
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->cacheKey, $deallocate);
+		$this->release($this->databaseName, $deallocate);
+		$this->release($this->limitCount, $deallocate);
+		$this->release($this->offsetRowCount, $deallocate);
+		$this->release($this->tableName, $deallocate);
+		$this->release($this->timeToLive, $deallocate);
+		if($this->hasWhereCondition()){
+			$this->release($this->whereCondition, $deallocate);
+		}
+	}
+	
 	public function where(...$wc): WhereConditionalStatement{
 		$this->setWhereCondition(...$wc);
 		return $this;
 	}
 
 	public function inferParameterCount(){
-		if(!$this->hasParameters()) {
+		if(!$this->hasParameters()){
 			$count = 0;
 			$wheres = $this->getFlatWhereConditionArray();
-			if(!empty($wheres)) {
-				foreach($wheres as $where) {
+			if(!empty($wheres)){
+				foreach($wheres as $where){
 					$count += $where->inferParameterCount();
 				}
 			}
@@ -72,64 +92,67 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 		try{
 			$print = false;
 			$count = count($conditions);
-			if($count === 0) {
+			if($count === 0){
 				Debug::error("{$f} undefined where condition");
-			}elseif($count > 1 || is_array($conditions[0])) {
-				if(is_array($conditions[0])) {
+			}elseif($count > 1 || is_array($conditions[0])){
+				if(is_array($conditions[0])){
 					$conditions = $conditions[0];
 				}
-				if(count($conditions) === 1 && $conditions[0] instanceof WhereConditionalInterface) {
-					if($print) {
+				if(count($conditions) === 1 && $conditions[0] instanceof WhereConditionalInterface){
+					if($print){
 						Debug::print("{$f} array has 1 member and it's a WhereConditionalInterface");
 					}
-					return $this->whereCondition = $conditions[0];
-				}elseif($print) {
+					return $this->setWhereCondition($conditions[0]);
+				}elseif($print){
 					Debug::print("{$f} array has more than one member, or it has something that isn't a WhereConditionalInterface");
 				}
-				foreach($conditions as $i => $condition) {
-					if(is_array($condition)) {
+				foreach($conditions as $i => $condition){
+					if(is_array($condition)){
 						Debug::error("{$f} multidimensional array");
-					}elseif(is_string($condition)) {
+					}elseif(is_string($condition)){
 						$conditions[$i] = new WhereCondition($condition, OPERATOR_EQUALS);
-					}elseif(!$condition instanceof WhereConditionalInterface) {
+					}elseif(!$condition instanceof WhereConditionalInterface){
 						$gottype = is_object($condition) ? $condition->getClass() : gettype($condition);
 						Debug::error("{$f} item at position {$i} is a {$gottype}");
 					}
 				}
 				$whereCondition = new AndCommand($conditions);
-			}elseif(is_string($conditions[0])) {
+			}elseif(is_string($conditions[0])){
 				$whereCondition = new WhereCondition($conditions[0], OPERATOR_EQUALS);
-			}elseif($conditions[0] instanceof WhereConditionalInterface || $conditions[0] instanceof BinaryExpressionCommand) {
+			}elseif($conditions[0] instanceof WhereConditionalInterface || $conditions[0] instanceof BinaryExpressionCommand){
 				$whereCondition = $conditions[0];
 			}else{
 				Debug::error("{$f} none of the above");
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} assigning WhereCondition \"{$whereCondition}\"");
 			}
-			return $this->whereCondition = $whereCondition;
-		}catch(Exception $x) {
+			if($this->hasWhereCondition()){
+				$this->release($this->whereCondition);
+			}
+			return $this->whereCondition = $this->claim($whereCondition);
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function getWhereCondition(){
 		$f = __METHOD__;
-		if(!$this->hasWhereCondition()) {
+		if(!$this->hasWhereCondition()){
 			Debug::error("{$f} where condition is undefined");
 		}
 		return $this->whereCondition;
 	}
 
 	public function getFlatWhereConditionArray(): ?array{
-		if(!$this->hasWhereCondition()) {
+		if(!$this->hasWhereCondition()){
 			return null;
 		}
 		return $this->getWhereCondition()->getFlatWhereConditionArray();
 	}
 
 	public function getSuperflatWhereConditionArray(): ?array{
-		if(!$this->hasWhereCondition()) {
+		if(!$this->hasWhereCondition()){
 			return null;
 		}
 		return $this->getWhereCondition()->getSuperflatWhereConditionArray();
@@ -142,21 +165,21 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	public function pushWhereConditionParameters(...$parameters){
 		$f = __METHOD__; 
 		$print = false;
-		if(!$this->hasWhereCondition()) {
+		if(!$this->hasWhereCondition()){
 			Debug::error("{$f} don't call this unless the QueryStatement already has a WhereCondition");
 		}
 		$wc = $this->getWhereCondition();
-		if($wc instanceof AndCommand) {
-			if($print) {
+		if($wc instanceof AndCommand){
+			if($print){
 				Debug::print("{$f} where condition is an AND expression -- pushing additional parameters");
 			}
 			return $wc->pushParameters(...$parameters);
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} where condition already exists, and it's not an AND expression -- creating one now");
 		}
 		$and = new AndCommand($wc, ...$parameters);
 		// $and->mySQLFormat();
-		if($print) {
+		if($print){
 			Debug::print("{$f} new where condition is \"{$and}\"");
 		}
 		return $this->setWhereCondition($and);
@@ -172,62 +195,69 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	public function prepareBindExecuteGetResult($mysqli, $typedef, ...$params){
 		$f = __METHOD__;
 		try{
-			$print = $this->getDebugFlag();
-			if(empty($mysqli)) {
+			$print = false && $this->getDebugFlag();
+			if(empty($mysqli)){
 				Debug::error("{$f} mysqli object is undefined");
-			}elseif(!$mysqli instanceof mysqli) {
+			}elseif(!$mysqli instanceof mysqli){
 				Debug::error("{$f} mysqli object is not a mysqli");
-			}elseif($mysqli->connect_errno) {
-				Debug::warning("{$f} Failed to connect to MySQL: ({$mysqli->connect_errno}) {$mysqli->connect_error}");
+			}elseif($mysqli->connect_errno){
+				Debug::warning("{$f} Failed to connect to MySQL: ({$mysqli->connect_errno}){$mysqli->connect_error}");
 				$this->setObjectStatus(ERROR_MYSQL_CONNECT);
 				return db()->rollbackTransaction($mysqli);
-			}elseif(!$mysqli->ping()) {
+			}elseif(!$mysqli->ping()){
 				Debug::error("{$f} mysqli connection failed ping test: \"" . $mysqli->error . "\"");
 				$this->setObjectStatus(ERROR_MYSQL_CONNECT);
 				return db()->rollbackTransaction($mysqli);
-			}elseif(empty($params)) {
+			}elseif(empty($params)){
 				Debug::printStackTraceNoExit("{$f} don't use this function unless there are parameters to bind");
 				return $this->executeGetResult($mysqli);
 			} else
-				foreach($params as $param) {
-					if(is_array($param)) {
-						if(count($params) === 1) {
+				foreach($params as $param){
+					if(is_array($param)){
+						if(count($params) === 1){
 							$params = $param[0];
 						}
 						$decl = $this->getDeclarationLine();
 						Debug::error("{$f} you forgot to unroll the parameters. Instantiated {$decl}");
 					}
 				}
-
-			if(cache()->enabled() && QUERY_CACHE_ENABLED && cache()->has($this)) {
-				if($print) {
+			if(cache()->enabled() && QUERY_CACHE_ENABLED && cache()->has($this)){
+				if($print){
 					Debug::print("{$f} this statement's results have been cached");
 				}
 				return cache()->get($this);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} this statement's results have not been cached; about to prepare, bind and execute statement \'{$this}\" with type specifier \"{$typedef}\" and the following parameters");
 				Debug::printArray($params);
 			}
 			$st = $this->prepareBindExecuteGetStatement($mysqli, $typedef, ...$params);
-			if($st === null) {
-				if($print) {
+			if($st === null){
+				if($print){
 					Debug::error("{$f} executed statement returned null -- this is only permissible in the case of a failed WhereCondition evaluation");
 				}
 				return null;
-			}elseif($result = $st->get_result()) {
-				if($print) {
+			}
+			Debug::checkMemoryUsage("now", 112000000);
+			Debug::limitExecutionDepth();
+			if($result = $st->get_result()){
+				if($print){
 					Debug::print("{$f} successfully got result of prepared query statement {$this}");
 				}
-				if($result->num_rows > 0) {
-					if($this->isCacheable() && QUERY_CACHE_ENABLED) {
-						if($print) {
+				if($result->num_rows > 0){
+					if($print){
+						Debug::print("{$f} {$result->num_rows} results");
+					}
+					if($this->isCacheable() && QUERY_CACHE_ENABLED){
+						if($print){
 							Debug::print("{$f} updating cache");
 						}
-						cache()->set($this->getCacheKey(), $result->fetch_all(MYSQLI_ASSOC), time() + 30 * 60);
-					}elseif($print) {
+						$results = $result->fetch_all(MYSQLI_ASSOC);
+						cache()->set($this->getCacheKey(), $results, time() + 30 * 60);
+						return $results;
+					}elseif($print){
 						Debug::print("{$f} skipping cache update");
 					}
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} no results for query {$this} with the following parameters:");
 					Debug::printArray($params);
 				}
@@ -236,7 +266,7 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 			Debug::error("{$f} failed to get result of prepared query statement: \"{$st->error}\"");
 			$this->setObjectStatus(ERROR_MYSQL_RESULT);
 			return db()->rollbackTransaction($mysqli);
-		}catch(mysqli_sql_exception $x) {
+		}catch(mysqli_sql_exception $x){
 			x($f, $x);
 		}
 	}
@@ -252,20 +282,20 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	public function executeGetResult($mysqli){
 		$f = __METHOD__;
 		try{
-			$print = $this->getDebugFlag();
-			if($this->hasParameters() && $this->hasTypeSpecifier()) {
+			$print = false && $this->getDebugFlag();
+			if($this->hasParameters() && $this->hasTypeSpecifier()){
 				$typedef = $this->getTypeSpecifier();
 				$params = $this->getParameters();
-				if($print) {
+				if($print){
 					Debug::print("{$f} parameters are bundled with the query; about to call prepareBindExecuteGetResult() with type specifier {$typedef}");
 					Debug::printArray($params);
 				}
 				return $this->prepareBindExecuteGetResult($mysqli, $typedef, ...$params);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} this statement lacks parameters and/or a type specifier");
 			}
 			return parent::executeGetResult($mysqli);
-		}catch(mysqli_sql_exception $x) {
+		}catch(mysqli_sql_exception $x){
 			x($f, $x);
 		}
 	}
@@ -280,42 +310,70 @@ abstract class WhereConditionalStatement extends QueryStatement implements Cache
 	public function prepareBindExecuteGetResultCount(mysqli $mysqli, string $typedef, ...$params): ?int{
 		$f = __METHOD__;
 		try{
-			$print = $this->getDebugFlag();
-			if($print) {
+			$print = false && $this->getDebugFlag();
+			if($print){
 				Debug::print("{$f} about to get result count for query \"{$this}\" with type specifier string \"{$typedef}\" and the following parameters:");
 				Debug::printArray($params);
 			}
-
-			if(cache()->enabled() && QUERY_CACHE_ENABLED && cache()->has($this)) {
+			if(cache()->enabled() && QUERY_CACHE_ENABLED && cache()->has($this)){
 				return count(cache()->get($this));
 			}
 			$st = $this->prepareBindExecuteGetStatement($mysqli, $typedef, ...$params);
-			if($st == null) {
+			if($st == null){
 				Debug::warning("{$f} executed statement returned null");
 				db()->rollbackTransaction($mysqli);
 				return 0;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} successfully executed prepared query statement");
 			}
-			if($result = $st->get_result()) {
-				if($print) {
+			if($result = $st->get_result()){
+				if($print){
 					Debug::print("{$f} successfully got result of prepared query statement");
 				}
 				$count = $result->num_rows;
 				$st->free_result();
+				$result->free();
 				$this->setObjectStatus(SUCCESS);
-				if($print) {
+				if($print){
 					Debug::print("{$f} returning {$count}");
 				}
 				return $count;
-			}elseif($print) {
+			}elseif($print){
 				Debug::warning("{$f} failed to get result of prepared query statement: \"{$st->error}\"");
 			}
 			$this->setObjectStatus(ERROR_MYSQL_RESULT);
 			db()->rollbackTransaction($mysqli);
 			return 0;
-		}catch(mysqli_sql_exception $x) {
+		}catch(mysqli_sql_exception $x){
 			x($f, $x);
 		}
+	}
+	
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		//use CacheableTrait;
+		if($that->hasCacheKey()){
+			$this->setTimeToLive(replicate($that->getCacheKey()));
+		}
+		if($that->hasTimeToLive()){
+			$this->setTimeToLive(replicate($that->getTimeToLive()));
+		}
+		//use FullTableNameTrait;
+		if($that->hasLimit()){
+			$this->setLimit(replicate($that->getLimit()));
+			if($that->hasOffset()){
+				$this->setOffset(replicate($that->getOffset()));
+			}
+		}
+		if($that->hasDatabaseName()){
+			$this->setDatabaseName(replicate($that->getDatabaseName()));
+		}
+		if($that->hasTableName()){
+			$this->setTableName(replicate($that->getTableName()));
+		}
+		if($that->hasWhereCondition()){
+			$this->setWhereCondition(replicate($that->getWhereCondition()));
+		}
+		return $ret;
 	}
 }

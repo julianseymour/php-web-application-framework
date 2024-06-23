@@ -1,74 +1,52 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\style\selector;
 
-class AttributeSelector extends Selector
-{
+use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\ValuedTrait;
 
-	protected $attributeName;
+class AttributeSelector extends Selector{
 
-	protected $attributeValue;
+	use NamedTrait;
+	use ValuedTrait;
 
-	public function setAttributeName($attribute)
-	{
-		return $this->attributeName = $attribute;
-	}
-
-	public function getAttributeName()
-	{
-		return $this->attributeName;
-	}
-
-	public function setAttributeValue($value)
-	{
-		return $this->attributeValue = $value;
-	}
-
-	public function getAttributeValue()
-	{
-		return $this->attributeValue;
-	}
-
-	public function hasAttributeValue()
-	{
-		return isset($this->attributeValue) && $this->attributeValue !== "";
-	}
-
-	public static function echoQuotes()
-	{
+	public static function echoQuotes():void{
 		echo "\"";
 	}
 
-	public function echoAttributeValue()
-	{
+	public function echoValue():void{
 		$this->echoQuotes();
-		echo $this->getAttributeValue();
+		echo $this->getValue();
 		$this->echoQuotes();
 	}
 
-	public static function echoOperator()
-	{
+	public static function echoOperator():void{
 		echo "=";
 	}
 
-	public function echo(bool $destroy = false): void
-	{
+	public function echo(bool $destroy = false):void{
 		echo "[";
-		echo $this->getAttributeName();
-		if($this->hasAttributeValue()) {
+		echo $this->getName();
+		if($this->hasValue()){
 			static::echoOperator();
-			$this->echoAttributeValue();
+			$this->echoValue();
 		}
 		echo "]";
 	}
 
-	public function __construct($name = null, $value = null)
-	{
+	public function __construct($name = null, $value = null){
 		parent::__construct();
-		if(isset($name)) {
-			$this->setAttributeName($name);
-			if(isset($value)) {
-				$this->setAttributeValue($value);
+		if(isset($name)){
+			$this->setName($name);
+			if(isset($value)){
+				$this->setValue($value);
 			}
 		}
+	}
+	
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->name, $deallocate);
+		$this->release($this->value, $deallocate);
 	}
 }

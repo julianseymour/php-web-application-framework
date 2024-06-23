@@ -28,17 +28,17 @@ class DeleteCookiesUseCase extends UseCase{
 		$f = __METHOD__;
 		$print = false;
 		$directive = directive();
-		if($directive !== DIRECTIVE_DELETE) {
-			if($print) {
+		if($directive !== DIRECTIVE_DELETE){
+			if($print){
 				Debug::print("{$f} about to delete the following cookies:");
 			}
-			foreach($_COOKIE as $key) {
-				if($print) {
+			foreach($_COOKIE as $key){
+				if($print){
 					Debug::print("{$f} \"{$key}\"");
 				}
 				unset_cookie($key);
 			}
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} not deleting cookies");
 		}
 		return SUCCESS;
@@ -48,8 +48,8 @@ class DeleteCookiesUseCase extends UseCase{
 		$f = __METHOD__;
 		$print = false;
 		$directive = directive();
-		if($directive !== DIRECTIVE_DELETE) {
-			if($print) {
+		if($directive !== DIRECTIVE_DELETE){
+			if($print){
 				Debug::print("{$f} nothing to delete");
 			}
 			$form = new DeleteCookiesForm(ALLOCATION_MODE_LAZY, user());
@@ -57,7 +57,7 @@ class DeleteCookiesUseCase extends UseCase{
 				$form
 			];
 		}
-		if($print) {
+		if($print){
 			Debug::print("{$f} cookies deleted");
 		}
 		$innerHTML = _("Cookies deleted");
@@ -70,7 +70,7 @@ class DeleteCookiesUseCase extends UseCase{
 
 	public function getResponder(int $status):?Responder{
 		$directive = directive();
-		if($status === SUCCESS && $directive === DIRECTIVE_DELETE) {
+		if($status === SUCCESS && $directive === DIRECTIVE_DELETE){
 			return new LogoutResponder();
 		}
 		return null;

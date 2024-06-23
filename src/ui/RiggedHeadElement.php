@@ -13,6 +13,7 @@ use JulianSeymour\PHPWebApplicationFramework\element\MetaElement;
 use JulianSeymour\PHPWebApplicationFramework\element\ScriptElement;
 use JulianSeymour\PHPWebApplicationFramework\element\TitleElement;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
 class RiggedHeadElement extends HeadElement{
 
@@ -54,31 +55,14 @@ class RiggedHeadElement extends HeadElement{
 			$title = new TitleElement();
 			$title->setInnerHTML(WEBSITE_NAME);
 			$this->appendChild($title);
-			$bundle_css = true;
-			if($bundle_css) {
-				$styles = [
-					'bundle'
-				];
-				foreach($styles as $s) {
-					$link = new LinkElement();
-					$link->setTypeAttribute("text/css");
-					$link->setRelationshipAttribute("stylesheet");
-					$link->setHrefAttribute("/style/{$s}.css");
-					$this->appendChild($link);
-				}
-			}else{
-				foreach(mods()->getCascadingStyleSheetFilepaths() as $fn => $path) {
-					$fn = "/style/{$fn}";
-					$link = new LinkElement();
-					$link->setTypeAttribute("text/css");
-					$link->setRelationshipAttribute("stylesheet");
-					$link->setHrefAttribute($fn);
-					$this->appendChild($link);
-				}
-			}
+			$link = new LinkElement();
+			$link->setTypeAttribute("text/css");
+			$link->setRelationshipAttribute("stylesheet");
+			$link->setHrefAttribute("/style/bundle.css");
+			$this->appendChild($link);
 			$script = static::getScriptBundleElement();
 			$this->appendChild($script);
-			if(defined("HCAPTCHA_SITE_KEY")) {
+			if(defined("HCAPTCHA_SITE_KEY")){
 				$hcaptcha = new ScriptElement();
 				$hcaptcha->setSourceAttribute("https://hcaptcha.com/1/api.js");
 				$hcaptcha->setAsyncAttribute("async");
@@ -96,8 +80,8 @@ class RiggedHeadElement extends HeadElement{
 			$manifest->setRelationshipAttribute("manifest");
 			$manifest->setHrefAttribute("/manifest.json");
 			$this->appendChild($manifest);
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

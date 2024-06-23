@@ -30,19 +30,19 @@ class CidrIpAddressForm extends AjaxForm
 		try{
 			$vn = $input->getColumnName();
 			$context = $this->getContext();
-			switch ($vn) {
+			switch($vn){
 				case "ipAddress":
 					$cidr_notation = _("CIDR notation");
 					$placeholder = _("IP address") . " ({$cidr_notation})";
 					$input->setLabelString($placeholder);
-					if(!$context->isUninitialized()) {
+					if(!$context->isUninitialized()){
 						$input->setValueAttribute($context->getCidrNotation());
 					}
 					return SUCCESS;
 				default:
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -51,7 +51,7 @@ class CidrIpAddressForm extends AjaxForm
 		$f = __METHOD__;
 		try{
 			$context = $this->getContext();
-			if($context->isUninitialized()) {
+			if($context->isUninitialized()){
 				return [
 					DIRECTIVE_INSERT
 				];
@@ -59,11 +59,11 @@ class CidrIpAddressForm extends AjaxForm
 			$submits = [
 				DIRECTIVE_UPDATE
 			];
-			if(!$context->getAccessAttempted()) {
+			if(!$context->getAccessAttempted()){
 				array_push($submits, DIRECTIVE_DELETE);
 			}
 			return $submits;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -88,9 +88,9 @@ class CidrIpAddressForm extends AjaxForm
 		$f = __METHOD__;
 		$context = $this->getContext();
 		$list = $context->getList();
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
-				switch ($list) {
+				switch($list){
 					case POLICY_ALLOW:
 						$button = $this->generateGenericButton($name);
 						$button->setNameAttribute("directive[insert][list]");
@@ -121,7 +121,7 @@ class CidrIpAddressForm extends AjaxForm
 				$delist = $this->generateGenericButton($name);
 				$delist->setNameAttribute("directive[update][list]");
 				$delist->setValueAttribute(POLICY_NONE);
-				switch ($list) {
+				switch($list){
 					case POLICY_ALLOW:
 						$delist->setInnerHTML(_("Deauthorize"));
 						if($context->getAccessAttempted()){

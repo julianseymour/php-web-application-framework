@@ -30,16 +30,16 @@ class UniversalWorkflow extends StandardWorkflow{
 		try{
 			$print = false;
 			$directive = directive();
-			switch ($directive) {
+			switch($directive){
 				case DIRECTIVE_FORGOT_CREDENTIALS:
-					if($print) {
+					if($print){
 						Debug::print("{$f} handing request over to ForgotCredentials");
 					}
 					$forgot = new ForgotCredentialsUseCase($entry_point);
 					$forgot->validateTransition();
 					return $this->execute($request, $forgot);
 				case DIRECTIVE_LOGIN:
-					if($print) {
+					if($print){
 						Debug::print("{$f} user is logging in");
 					}
 					$login_class = $this->getLoginUseCaseClass();
@@ -47,14 +47,15 @@ class UniversalWorkflow extends StandardWorkflow{
 					$login->validateTransition();
 					return $this->execute($request, $login);
 				case DIRECTIVE_ADMIN_LOGIN:
-					if($print) {
+					if($print){
 						Debug::print("{$f} admin login");
 					}
-					$login = new AdminLoginUseCase($entry_point);
+					$login = new AdminLoginUseCase();
+					$login->setPredecessor($entry_point);
 					$login->validateTransition();
 					return $this->execute($request, $login);
 				case DIRECTIVE_MFA:
-					if($print) {
+					if($print){
 						Debug::print("{$f} user is submitting a MFA OTP");
 					}
 					$mfa_class = $this->getMultifactorAuthenticationUseCaseClass();
@@ -64,16 +65,16 @@ class UniversalWorkflow extends StandardWorkflow{
 				default:
 			}
 			$ret = parent::authenticate($request, $entry_point);
-			switch ($directive) {
+			switch($directive){
 				case DIRECTIVE_LOGOUT:
-					if($print) {
+					if($print){
 						Debug::print("{$f} user is logging out");
 					}
 					$logout = new LogoutUseCase($entry_point);
 					$logout->setObjectStatus($logout->validateTransition());
 					return $this->execute($request, $logout);
 				case DIRECTIVE_LANGUAGE:
-					if($print) {
+					if($print){
 						Debug::print("{$f} about to update language settings");
 					}
 					$language = new UpdateLanguageSettingsUseCase($entry_point);
@@ -81,7 +82,7 @@ class UniversalWorkflow extends StandardWorkflow{
 					return $this->execute($request, $language);
 			}
 			return $ret;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

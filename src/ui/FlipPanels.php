@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
 use function JulianSeymour\PHPWebApplicationFramework\mods;
@@ -11,56 +12,42 @@ use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\LabelElement;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
 use JulianSeymour\PHPWebApplicationFramework\input\CheckboxInput;
+use JulianSeymour\PHPWebApplicationFramework\input\InputTrait;
 use Exception;
 
-class FlipPanels extends DivElement
-{
+class FlipPanels extends DivElement{
 
-	protected $checkboxInput;
-
-	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
-	{
+	use InputTrait;
+	
+	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		parent::__construct($mode, $context);
 		$this->addClassAttribute("horizontal_container");
 		$this->setIdAttribute("flip_panels");
 	}
 
-	public function getCheckboxInput(): CheckboxInput
-	{
-		if(isset($this->checkboxInput)) {
-			return $this->checkboxInput;
+	public function getInput(){
+		if($this->hasInput()){
+			return parent::getInput();
 		}
 		$input = new CheckboxInput();
 		$input->setIdAttribute("login_panel_flip");
 		$input->hide();
-		return $this->checkboxInput = $input;
+		return $this->setInput($input);
 	}
 
-	protected function generatePredecessors(): ?array
-	{
+	protected function getSelfGeneratedPredecessors(): ?array{
 		return [
-			$this->getCheckboxInput()
+			$this->getInput()
 		];
 	}
 
-	public function generateChildNodes(): ?array
-	{
-		$f = __METHOD__; //FlipPanels::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
+	public function generateChildNodes(): ?array{
+		$f = __METHOD__;
 		try{
-			// $context = $this->getContext();
 			$mode = $this->getAllocationMode();
 			$login_forms = new DivElement($mode);
 			$login_forms->addClassAttribute("login_forms");
 			$login_forms->addClassAttribute("list_scroll");
-			/*
-			 * $login_select = new RadioButtonInput($mode);
-			 * $login_select->addClassAttribute("login_select");
-			 * $login_select->addClassAttribute("hidden");
-			 * $login_select->setIdAttribute("__login");
-			 * $login_select->setCheckedAttribute("checked");
-			 * $login_select->setNameAttribute("select_login");
-			 * $login_forms->appendChild($login_select);
-			 */
 			$flip_panel = new DivElement($mode);
 			$flip_panel->addClassAttribute("flip_panel", "background_color_1");
 			$login_header = new DivElement($mode);
@@ -72,8 +59,9 @@ class FlipPanels extends DivElement
 			$login_notice->setIdAttribute("login_notice");
 			$login_notice->setInnerHTML(_("Enter your credentials below"));
 			$flip_panel->appendChild($login_notice);
-			$user_class = mods()->getUserClass(NormalUser::getAccountTypeStatic());
-			$user = new $user_class();
+			$user_class = mods()->getUserClass(NormalUser::getSubtypeStatic());
+			$user = new $user_class(ALLOCATION_MODE_LAZY);
+			$user->allocateColumns();
 			$login_form = new LoginForm($mode);
 			$login_form->bindContext($user);
 			$flip_panel->appendChild($login_form);
@@ -112,8 +100,10 @@ class FlipPanels extends DivElement
 			$register_notice->setIdAttribute("register_notice");
 			$register_notice->setAllowEmptyInnerHTML(true);
 			$lenap_pilf->appendChild($register_notice);
-			$register_me = new RegisteringUser();
+			$register_me = new RegisteringUser(ALLOCATION_MODE_LAZY);
+			$register_me->allocateColumns();
 			$registration_form = new RegistrationForm($mode);
+			$registration_form->setDisposeContextFlag(true);
 			$registration_form->bindContext($register_me);
 			$lenap_pilf->appendChild($registration_form);
 			$register_or = new DivElement($mode);
@@ -143,7 +133,7 @@ class FlipPanels extends DivElement
 			return [
 				$login_forms
 			];
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -1,11 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\notification;
 
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
 
-interface NoteworthyInterface
-{
+interface NoteworthyInterface{
 
 	/**
 	 *
@@ -16,10 +16,6 @@ interface NoteworthyInterface
 	static function getNotificationClass(): string;
 
 	function getNotificationPreview();
-
-	function getSubtype():string;
-
-	function hasSubtype(): bool;
 
 	function isNotificationDataWarranted(PlayableUser $user): bool;
 }

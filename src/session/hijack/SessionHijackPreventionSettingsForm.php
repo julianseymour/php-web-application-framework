@@ -17,7 +17,7 @@ class SessionHijackPreventionSettingsForm extends AbstractSessionForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		if($name !== DIRECTIVE_UPDATE) {
+		if($name !== DIRECTIVE_UPDATE){
 			Debug::error("{$f} invalid button name \"{$name}\"");
 		}
 		$button = $this->generateGenericButton($name);

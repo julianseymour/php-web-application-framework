@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\register;
 
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
@@ -13,9 +14,8 @@ class SuccessfulRegistrationNotice extends DivElement{
 
 	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		parent::__construct($mode, $context);
-		// $this->addClassAttribute("flip_notice");
 		$this->addClassAttribute("lenap_pilf");
-		$this->setIdAttribute("lenap_pilf"); // register_notice");
+		$this->setIdAttribute("lenap_pilf");
 	}
 
 	public function generateChildNodes(): ?array{
@@ -32,8 +32,8 @@ class SuccessfulRegistrationNotice extends DivElement{
 			$flip_label->setForAttribute("login_panel_flip");
 			$flip_label->setInnerHTML(_("Login"));
 			$this->appendChild($flip_label);
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -26,58 +26,58 @@ class FetchNotificationUseCase extends InteractiveUseCase{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
+			if($print){
 				$name = user()->getName();
 				Debug::print("{$f} username is \"{$name}\"");
 			}
 			$mysqli = db()->getConnection(PublicReadCredentials::class);
 			$arr_cipher_64 = getInputParameters();
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to print base 64 encoded cipher array");
 				Debug::printArray($arr_cipher_64);
 			}
 			$num = user()->decrypt(base64_decode($arr_cipher_64['num_cipher_64'])); // ,
 			$user_key = user()->decrypt(base64_decode($arr_cipher_64['user_key_cipher_64'])); // ,
-			if($user_key == null || $user_key == "") {
+			if($user_key == null || $user_key == ""){
 				Debug::error("{$f} user key is null or empty string");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} client key is \"{$user_key}\"");
 			}
 			$key = user()->getIdentifierValue();
-			if($user_key !== $key) {
+			if($user_key !== $key){
 				Debug::error("{$f} looks like you logged in on a public computer -- need to reassign notification with user key \"{$user_key}\" so it has user key \"{$key}\"");
 				return $this->setObjectStatus(ERROR_EXPIRED_PUSH_SUBSCRIPTION);
 			}
-			if(! isset($num)) {
+			if(!isset($num)){
 				Debug::warning("{$f} object number is undefined");
 				return $this->setObjectStatus(ERROR_NULL_OBJECTNUM);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} about to fetch notification \"{$num}\"");
 			}
 			$note = new RetrospectiveNotificationData();
 			$note->setUserData(user());
 			$note->load($mysqli, "num", $num);
 			$status = $note->getObjectStatus();
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} object has error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			$status = $note->loadForeignDataStructures($mysqli, false, 3);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} loadForeignDataStructures returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			$status = Loadout::expandForeignDataStructures($note, $mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f}} expandTree returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
-			if($print && $note->getNotificationType() === NOTIFICATION_TYPE_MESSAGE) {
+			if($print && $note->getNotificationType() === NOTIFICATION_TYPE_MESSAGE){
 				$target = $note->getSubjectData();
-				if(!$target->hasMessageType()) {
+				if(!$target->hasMessageType()){
 					$class = $target->getClass();
 					Debug::error("{$f} target object of class \"{$class}\" lacks a message type");
 				}
@@ -87,11 +87,11 @@ class FetchNotificationUseCase extends InteractiveUseCase{
 			$this->setDataOperandObject($note);
 			// $note->configureArrayMembership("push");
 			// app()->getResponse($this)->pushDataStructure($note);
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning normally");
 			}
 			return $this->setObjectStatus(SUCCESS);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -149,7 +149,7 @@ class FetchNotificationUseCase extends InteractiveUseCase{
 	}
 
 	public function getResponder(int $status): ?Responder{
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			return parent::getResponder($status);
 		}
 		return new FetchNotificationResponder();

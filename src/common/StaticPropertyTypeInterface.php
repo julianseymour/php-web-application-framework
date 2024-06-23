@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
 /**
@@ -7,10 +8,9 @@ namespace JulianSeymour\PHPWebApplicationFramework\common;
  * @author j
  *        
  */
-interface StaticPropertyTypeInterface
-{
+interface StaticPropertyTypeInterface{
 
-	static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array;
+	static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null):array;
 
 	static function getPropertyTypeStatic($key, ?StaticPropertyTypeInterface $object = null); // implemented by StaticPropertyTypeTrait
 }

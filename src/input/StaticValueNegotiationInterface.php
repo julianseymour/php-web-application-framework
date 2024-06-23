@@ -6,5 +6,5 @@ use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 interface StaticValueNegotiationInterface
 {
 
-	static function negotiateValueStatic(InputInterface $input, Datum $column);
+	static function negotiateValueStatic(InputlikeInterface $input, Datum $column);
 }

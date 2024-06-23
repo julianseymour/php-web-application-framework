@@ -35,7 +35,7 @@ class PersonalNoteForm extends AjaxForm{
 	public function bindContext($context){
 		$context = parent::bindContext($context);
 		$idn = $context->getIdentifierName();
-		$this->setAttribute($idn, $context->getColumnValueCommand($idn));
+		$this->setAttribute($idn, new GetColumnValueCommand($context, $idn));
 		return $context;
 	}
 
@@ -45,7 +45,7 @@ class PersonalNoteForm extends AjaxForm{
 
 	public function reconfigureInput($input): int{
 		$vn = $input->getColumnName();
-		switch ($vn) {
+		switch($vn){
 			case "note":
 				$context = $this->getContext();
 				$input->setIdAttribute(GetColumnValueCommand::concatIndex("note_", $context, $context->getIdentifierName()));
@@ -61,7 +61,7 @@ class PersonalNoteForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPDATE:
 				$button = $this->generateGenericButton($name);
 				$button->setInnerHTML(_("Save note"));

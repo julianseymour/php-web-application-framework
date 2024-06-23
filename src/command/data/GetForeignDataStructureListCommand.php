@@ -23,17 +23,17 @@ class GetForeignDataStructureListCommand extends ForeignDataStructureCommand imp
 		$f = __METHOD__;
 		try{
 			$idcs = $this->getIdCommandString();
-			if($idcs instanceof JavaScriptInterface) {
+			if($idcs instanceof JavaScriptInterface){
 				$idcs = $idcs->toJavaScript();
 			}
 			$cn = $this->getColumnName();
-			if($cn instanceof JavaScriptInterface) {
+			if($cn instanceof JavaScriptInterface){
 				$cn = $cn->toJavaScript();
-			}elseif(is_string($cn) || $cn instanceof StringifiableInterface) {
+			}elseif(is_string($cn) || $cn instanceof StringifiableInterface){
 				$cn = single_quote($cn);
 			}
 			return "{$idcs}.getForeignDataStructureList({$cn})";
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

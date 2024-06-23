@@ -2,7 +2,9 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\account\shadow;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use JulianSeymour\PHPWebApplicationFramework\account\UserData;
+use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\MessageEncryptionScheme;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
@@ -14,11 +16,6 @@ use mysqli;
 
 class ShadowUser extends UserData{
 
-	public function __construct(){
-		parent::__construct();
-		$this->setAccountType($this->getAccountTypeStatic());
-	}
-
 	public function getHardResetCount(): int{
 		return 0;
 	}
@@ -27,7 +24,7 @@ class ShadowUser extends UserData{
 		return false;
 	}
 
-	public static function getAccountTypeStatic():string{
+	public static function getSubtypeStatic():string{
 		return ACCOUNT_TYPE_SHADOW;
 	}
 
@@ -52,7 +49,7 @@ class ShadowUser extends UserData{
 	}
 
 	public function getAccountType():string{
-		return static::getAccountTypeStatic();
+		return static::getSubtypeStatic();
 	}
 
 	public function getFirstName():string{
@@ -78,40 +75,40 @@ class ShadowUser extends UserData{
 	public function hasLastName():bool{
 		return $this->hasColumnValue("lastName");
 	}
-
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+	
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null):void{
+		$f = __METHOD__;
 		parent::declareColumns($columns, $ds);
 		$first = new NameDatum("firstName");
 		$first->setHumanReadableName(_("First name"));
-		// $first->setEncryptionScheme(MessageEncryptionScheme::class);
 		$last = new NameDatum("lastName");
 		$last->setHumanReadableName(_("Last name"));
 		$last->setNullable(true);
 		$last->setDefaultValue(null);
-		// $last->setEncryptionScheme(MessageEncryptionScheme::class);
 		$full = new VirtualDatum("fullName");
 		$email = new EmailAddressDatum("emailAddress");
 		$email->setNullable(true);
 		$email->setDefaultValue(null);
 		$email->setEncryptionScheme(MessageEncryptionScheme::class);
+		$email->setHumanReadableName(_("Email address"));
 		$name = new VirtualDatum("name");
-		// $normalizedName = new VirtualDatum("normalizedName");
 		array_push($columns, $first, $last, $full, $email, $name);
 	}
 
 	public function getFullName():string{
 		$first = $this->getFirstName();
-		if(!$this->hasLastName()) {
+		if(!$this->hasLastName()){
 			return $first;
 		}
 		$session = new LanguageSettingsData();
 		$lang = $session->getLanguageCode();
+		deallocate($session);
 		$last = $this->getLastName();
 		return Internationalization::lastNameFirst($lang) ? "{$last} {$first}" : "{$first} {$last}";
 	}
 
 	public function getVirtualColumnValue(string $column_name){
-		switch ($column_name) {
+		switch($column_name){
 			case "fullName":
 			case "name":
 				return $this->getFullName();
@@ -123,7 +120,7 @@ class ShadowUser extends UserData{
 	}
 
 	public function hasVirtualColumnValue(string $column_name): bool{
-		switch ($column_name) {
+		switch($column_name){
 			case "fullName":
 			case "name":
 			case "normalizedName":

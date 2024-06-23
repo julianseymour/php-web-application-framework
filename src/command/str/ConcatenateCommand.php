@@ -4,18 +4,17 @@ namespace JulianSeymour\PHPWebApplicationFramework\command\str;
 
 use function JulianSeymour\PHPWebApplicationFramework\ends_with;
 use function JulianSeymour\PHPWebApplicationFramework\escape_quotes;
+use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use function JulianSeymour\PHPWebApplicationFramework\starts_with;
-use function JulianSeymour\PHPWebApplicationFramework\str_contains;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\json\Json;
+use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
-use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 
 class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInterface, StringifiableInterface, ValueReturningCommandInterface{
 	
@@ -23,35 +22,34 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 		return "concat";
 	}
 
-	public function __construct($s1, ...$more){
+	public function __construct(...$strings){
 		$f = __METHOD__;
 		parent::__construct();
-		$strings = [
-			$s1
-		];
-		if(!empty($more)) {
-			foreach($more as $s) {
-				array_push($strings, $s);
+		$print = false;
+		$count = count($strings);
+		if(isset($strings) && $count > 0){
+			$this->setStrings($strings);
+			if(!$this->hasStrings()){
+				Debug::error("{$f} strings are mandatory");
+			}elseif($print){
+				Debug::print("{$f} {$count} strings");
 			}
-		}
-		$this->setStrings($strings);
-		if(!$this->hasStrings()) {
-			Debug::error("{$f} strings are mandatory");
+		}elseif($print){
+			Debug::print("{$f} this object was instantiated without input parameters");
 		}
 	}
 
-	public static function declareFlags(): array{
+	/*public static function declareFlags(): array{
 		return array_merge(parent::declareFlags(), [
-			"allocated",
 			"reserved"
 		]);
-	}
+	}*/
 
 	public function getStringAtOffset(int $offset){
 		return $this->getArrayPropertyValueAtOffset("strings", $offset);
 	}
 
-	public function starts_with($needle){
+	public function startsWith($needle){
 		return starts_with($this->evaluate(), $needle);
 	}
 
@@ -59,7 +57,7 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 		return str_contains($this->evaluate(), $needle);
 	}
 
-	public function ends_with($needle):bool{
+	public function endsWith($needle):bool{
 		return ends_with($this->evaluate(), $needle);
 	}
 
@@ -67,7 +65,17 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 		return $this->setArrayProperty("strings", $strings);
 	}
 
+	public function pushString(...$strings):int{
+		return $this->pushArrayProperty('strings', ...$strings);
+	}
+	
 	public function getStrings(){
+		$f = __METHOD__;
+		if($this->getStringCount() === 0){
+			$decl = $this->getDeclarationLine();
+			$did = $this->getDebugId();
+			Debug::error("{$f} string count is zero. eclared {$decl} with debug ID {$did}");
+		}
 		return $this->getProperty("strings");
 	}
 
@@ -85,28 +93,33 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 			$print = false;
 			$q = $this->getQuoteStyle();
 			$strings = $this->getStrings();
+			if(!array_key_exists(0, $strings)){
+				Debug::warning("{$f} strings array is either associative or empty");
+				Debug::printArray($strings);
+				Debug::printStackTrace();
+			}
 			$string = $strings[0];
-			if($string instanceof JavaScriptInterface) {
+			if($string instanceof JavaScriptInterface){
 				$string = $string->toJavaScript();
-			}elseif(is_string($string) || $string instanceof StringifiableInterface) {
+			}elseif(is_string($string) || $string instanceof StringifiableInterface){
 				$string = escape_quotes($string, $q);
 				$string = "{$q}{$string}{$q}";
 			}
-			for ($i = 1; $i < count($strings); $i ++) {
+			for ($i = 1; $i < count($strings); $i ++){
 				$s = $strings[$i];
-				if($s instanceof JavaScriptInterface) {
+				if($s instanceof JavaScriptInterface){
 					$s = $s->toJavaScript();
-				}elseif(is_string($s) || $s instanceof StringifiableInterface) {
+				}elseif(is_string($s) || $s instanceof StringifiableInterface){
 					$s = escape_quotes($s, $q);
 					$s = "{$q}{$s}{$q}";
 				}
 				$string .= ".concat({$s})";
-				if($print) {
+				if($print){
 					Debug::print("{$f} after concatenating string {$i}, we have \"{$string}\"");
 				}
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -116,9 +129,9 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 		try{
 			$strings = $this->getStrings();
 			$value = "";
-			foreach($strings as $s) {
-				if($s instanceof ValueReturningCommandInterface) {
-					while ($s instanceof ValueReturningCommandInterface) {
+			foreach($strings as $s){
+				if($s instanceof ValueReturningCommandInterface){
+					while($s instanceof ValueReturningCommandInterface){
 						$s = $s->evaluate();
 					}
 				}
@@ -133,12 +146,6 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 	public function echoInnerJson(bool $destroy = false): void{
 		Json::echoKeyValuePair('strings', $this->getStrings());
 		parent::echoInnerJson($destroy);
-	}
-
-	public function replicate(){
-		$class = static::class;
-		$replica = new $class(...$this->getStrings());
-		return $replica;
 	}
 
 	public function __toString(): string{
@@ -156,7 +163,7 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 			if($s instanceof SQLInterface){
 				$s = $s->toSQL();
 			}else{
-				while ($s instanceof ValueReturningCommandInterface){
+				while($s instanceof ValueReturningCommandInterface){
 					$s = $s->evaluate();
 				}
 				$s = single_quote($s);
@@ -165,9 +172,5 @@ class ConcatenateCommand extends Command implements JavaScriptInterface, SQLInte
 		}
 		$string .= ")";
 		return $string;
-	}
-
-	public function getAllocatedFlag(): bool{
-		return $this->getFlag("allocated");
 	}
 }

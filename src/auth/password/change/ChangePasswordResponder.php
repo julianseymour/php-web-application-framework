@@ -22,7 +22,7 @@ class ChangePasswordResponder extends Responder
 		$f = __METHOD__;
 		parent::modifyResponse($response, $use_case);
 		$user = user();
-		if($user instanceof AuthenticatedUser) {
+		if($user instanceof AuthenticatedUser){
 			Debug::error("{$f} user data is not anonymous");
 		}
 		$updated_element = new DivElement(ALLOCATION_MODE_LAZY);

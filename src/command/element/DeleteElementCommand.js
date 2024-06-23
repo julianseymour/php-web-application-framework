@@ -52,7 +52,7 @@ class DeleteElementCommand extends Command{
 					}
 					callback = delete_callback;
 				}else if(print){
-					console.log(f.concat(": key \"").concat(i).concat("\" is not the last key (").concat(last_key).concat("), not going to process shit"));
+					console.log(f.concat(": key \"").concat(i).concat("\" is not the last key (").concat(last_key).concat(")"));
 				}
 				switch(effect){
 					case EFFECT_FADE:

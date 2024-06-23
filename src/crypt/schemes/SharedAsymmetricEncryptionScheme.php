@@ -15,6 +15,9 @@ class SharedAsymmetricEncryptionScheme extends AsymmetricEncryptionScheme implem
 		$admin_cipher->setEncryptionScheme(static::class);
 		$admin_cipher->setSensitiveFlag($datum->getSensitiveFlag());
 		$admin_cipher->setOriginalDatumClass($datum->getClass());
+		if($datum->isNullable()){
+			$admin_cipher->setNullable(true);
+		}
 		array_push($components, $admin_cipher);
 		return $components;
 	}

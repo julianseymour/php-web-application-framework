@@ -1,40 +1,32 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait ValuedTrait
-{
+trait ValuedTrait{
 
 	protected $value;
 
-	public function getValue()
-	{
-		$f = __METHOD__; //"ValuedTrait(".static::getShortClass().")->getValue()";
-		if(!$this->hasValue()) {
+	public function getValue(){
+		$f = __METHOD__;
+		if(!$this->hasValue()){
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} value is undefined; declared {$decl}");
 		}
 		return $this->value;
 	}
 
-	public function setValue($value)
-	{
-		$f = __METHOD__; //"ValuedTrait(".static::getShortClass().")->setValue()";
-		$print = false; // $this instanceof SetInputValueCommand;
-		if($print) {
-			if(is_string($value)) {
-				Debug::print("{$f} value is \"{$value}\"");
-			}else{
-				$gottype = gettype($value);
-				Debug::print("{$f} value is a {$gottype}");
-			}
+	public function setValue($value){
+		if($this->hasValue()){
+			$this->release($this->value);
 		}
-		return $this->value = $value;
+		return $this->value = $this->claim($value);
 	}
-
-	public function hasValue()
-	{
+	
+	public function hasValue():bool{
 		return isset($this->value);
 	}
 }

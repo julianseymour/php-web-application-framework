@@ -1,8 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\password\reset;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\input\ToggleInput;
 use JulianSeymour\PHPWebApplicationFramework\ui\ExpandingMenuNestedForm;
 use Exception;
@@ -20,7 +22,7 @@ class PasswordResetOptionsForm extends ExpandingMenuNestedForm{
 		$f = __METHOD__;
 		try{
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "forgotPasswordEnabled":
 					$input->setIdAttribute("forgot_password_enabled");
 					break;
@@ -30,7 +32,7 @@ class PasswordResetOptionsForm extends ExpandingMenuNestedForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -70,7 +72,7 @@ class PasswordResetOptionsForm extends ExpandingMenuNestedForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPDATE:
 				$button = $this->generateGenericButton($name);
 				$innerHTML = _("Save settings");
@@ -82,5 +84,11 @@ class PasswordResetOptionsForm extends ExpandingMenuNestedForm{
 				Debug::error("{$f} invalid name attribute \"{$name}\"");
 				return null;
 		}
+	}
+	
+	public function generateFormHeader(): void{
+		$div = new DivElement($this->getAllocationMode());
+		$div->setInnerHTML(_("Configure which information can be used to reset your password in the event that you forget it. It is recommended that you leave at least one option enabled to prevent the possibility of getting locked out of your account."));
+		$this->appendChild($div);
 	}
 }

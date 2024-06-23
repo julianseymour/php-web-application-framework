@@ -1,14 +1,15 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\tablespace;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
 use function JulianSeymour\PHPWebApplicationFramework\escape_quotes;
 use function JulianSeymour\PHPWebApplicationFramework\hasMinimumMySQLVersion;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\CommentTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\table\CreateTableStatement;
 
-class CreateTablespaceStatement extends DefineTablespaceStatement
-{
+class CreateTablespaceStatement extends DefineTablespaceStatement{
 
 	use CommentTrait;
 
@@ -18,259 +19,234 @@ class CreateTablespaceStatement extends DefineTablespaceStatement
 
 	protected $logfileGroup;
 
-	protected $maxSizeValue;
+	protected $maxSizeValue;// MAX_SIZE: Currently ignored by MySQL; reserved for possible future use. Has no effect in any release of MySQL 8.0 or MySQL NDB Cluster 8.0, regardless of the storage engine used.
 
-	// MAX_SIZE: Currently ignored by MySQL; reserved for possible future use. Has no effect in any release of MySQL 8.0 or MySQL NDB Cluster 8.0, regardless of the storage engine used.
 	protected $nodegroupId;
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->commentString);
-		unset($this->extentSizeValue);
-		unset($this->fileBlockSizeValue);
-		unset($this->logfileGroup);
-		unset($this->maxSizeValue);
-		unset($this->nodegroupId);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->comment, $deallocate);
+		$this->release($this->extentSizeValue, $deallocate);
+		$this->release($this->fileBlockSizeValue, $deallocate);
+		$this->release($this->logfileGroup, $deallocate);
+		$this->release($this->maxSizeValue, $deallocate);
+		$this->release($this->nodegroupId, $deallocate);
 	}
 
-	public function setFileBlockSize($value)
-	{
-		$f = __METHOD__; //CreateTableStatement::getShortClass()."(".static::getShortClass().")->setFileBlockSize()";
-		if($value == null) {
-			unset($this->fileBlockSizeValue);
-			return null;
-		}elseif(is_string($value)) {
-			if(! preg_match('/^[1-9]+[0-9]*[Kk]?/', $value)) { // Values can be specified in bytes or kilobytes. For example, an 8 kilobyte file block size can be specified as 8192 or 8K.
+	public function setFileBlockSize($value){
+		$f = __METHOD__;
+		if(is_string($value)){
+			if(! preg_match('/^[1-9]+[0-9]*[Kk]?/', $value)){ // Values can be specified in bytes or kilobytes. For example, an 8 kilobyte file block size can be specified as 8192 or 8K.
 				Debug::error("{$f} patch mismatch");
 			}
-		}elseif(!is_int($value)) {
+		}elseif(!is_int($value)){
 			Debug::error("{$f} file block size must be a positive integer");
-		}elseif($value < 1) {
+		}elseif($value < 1){
 			Debug::error("{$f} file block size must be positive");
 		}
-		return $this->fileBlockSizeValue = $value;
+		if($this->hasFileBlockSize()){
+			$this->release($this->fileBlockSizeValue);
+		}
+		return $this->fileBlockSizeValue = $this->claim($value);
 	}
 
-	public function hasFileBlockSize()
-	{
+	public function hasFileBlockSize():bool{
 		return isset($this->fileBlockSizeValue);
 	}
 
-	public function getFileBlockSize()
-	{
-		$f = __METHOD__; //CreateTablespaceStatement::getShortClass()."(".static::getShortClass().")->getFileBlockSize()";
-		if(!$this->hasFileBlockSize()) {
+	public function getFileBlockSize(){
+		$f = __METHOD__;
+		if(!$this->hasFileBlockSize()){
 			Debug::error("{$f} file block size value is undefined");
 		}
 		return $this->fileBlockSizeValue;
 	}
 
-	public function fileBlockSize($value)
-	{
+	public function fileBlockSize($value):CreateTablespaceStatement{
 		$this->setFileBlockSize($value);
 		return $this;
 	}
 
-	public function setLogfileGroup($group)
-	{
-		$f = __METHOD__; //CreateTablespaceStatement::getShortClass()."(".static::getShortClass().")->setLogfileGroup()";
-		if($group == null) {
-			unset($this->logfileGroup);
-			return null;
-		}elseif(!is_string($group)) {
+	public function setLogfileGroup($group){
+		$f = __METHOD__;
+		if(!is_string($group)){
 			Debug::error("{$f} logfile group is undefined");
+		}elseif($this->hasLogfileGroup()){
+			$this->release($this->logfileGroup);
 		}
-		return $this->logfileGroup = $group;
+		return $this->logfileGroup = $this->claim($group);
 	}
 
-	public function hasLogfileGroup()
-	{
+	public function hasLogfileGroup():bool{
 		return isset($this->logfileGroup);
 	}
 
-	public function getLogfileGroup()
-	{
-		$f = __METHOD__; //CreateTablespaceStatement::getShortClass()."(".static::getShortClass().")->getLogfileGroup()";
-		if(!$this->hasLogfileGroup()) {
+	public function getLogfileGroup(){
+		$f = __METHOD__;
+		if(!$this->hasLogfileGroup()){
 			Debug::error("{$f} logfile group is undefined");
 		}
 		return $this->logfileGroup;
 	}
 
-	public function useLogfileGroup($group)
-	{
+	public function useLogfileGroup($group):CreateTablespaceStatement{
 		$this->setLogfileGroup($group);
 		return $this;
 	}
 
-	public function setExtentSize($value)
-	{
-		$f = __METHOD__; //CreateTablespaceStatement::getShortClass()."(".static::getShortClass().")->setExtentSize()";
-		if($value == null) {
-			unset($this->extentSizeValue);
-			return null;
-		}elseif(is_string($value)) {
-			if(! preg_match('/^[1-9]+[0-9]*[TtGgMmKk]?/', $value)) { // When setting EXTENT_SIZE or INITIAL_SIZE, you may optionally follow the number with a one-letter abbreviation for an order of magnitude, similar to those used in my.cnf. Generally, this is one of the letters M (for megabytes) or G (for gigabytes).
+	public function setExtentSize($value){
+		$f = __METHOD__;
+		if(is_string($value)){
+			if(! preg_match('/^[1-9]+[0-9]*[TtGgMmKk]?/', $value)){ // When setting EXTENT_SIZE or INITIAL_SIZE, you may optionally follow the number with a one-letter abbreviation for an order of magnitude, similar to those used in my.cnf. Generally, this is one of the letters M (for megabytes) or G (for gigabytes).
 				Debug::error("{$f} pattern mismatch");
 			}
-		}elseif(!is_int($value)) {
+		}elseif(!is_int($value)){
 			Debug::error("{$f} extent size must be a positive integer");
-		}elseif($value < 0) { // EXTENT_SIZE is rounded up to the nearest whole multiple of 32K
+		}elseif($value < 0){ // EXTENT_SIZE is rounded up to the nearest whole multiple of 32K
 			Debug::error("{$f} extent size must be positive");
 		}
-		return $this->extentSizeValue = $value;
+		if($this->hasExtentSize()){
+			$this->release($this->extentSizeValue);
+		}
+		return $this->extentSizeValue = $this->claim($value);
 	}
 
-	public function hasExtentSize()
-	{
+	public function hasExtentSize():bool{
 		return isset($this->extentSizeValue);
 	}
 
-	public function getExtentSize()
-	{
-		$f = __METHOD__; //CreateTablespaceStatement::getShortClass()."(".static::getShortClass().")->getExtentSize()";
-		if(!$this->hasExtentSize()) {
+	public function getExtentSize(){
+		$f = __METHOD__;
+		if(!$this->hasExtentSize()){
 			Debug::error("{$f} extent size is undefined");
 		}
 		return $this->extentSizeValue;
 	}
 
-	public function extentSize($value)
-	{
+	public function extentSize($value):CreateTablespaceStatement{
 		$this->setExtentSize($value);
 		return $this;
 	}
 
-	public function setMaxSize($value)
-	{
-		$f = __METHOD__; //CreateTablespaceStatement::getShortClass()."(".static::getShortClass().")->setMaxSize()";
-		if($value !== 0 && $value == null) {
-			unset($this->maxSizeValue);
-			return null;
-		}elseif(is_string($value)) {
-			if(! preg_match('/^[1-9]+[0-9]*[TtGgMmKk]?/', $value)) {
+	public function setMaxSize($value){
+		$f = __METHOD__;
+		if(is_string($value)){
+			if(! preg_match('/^[1-9]+[0-9]*[TtGgMmKk]?/', $value)){
 				Debug::error("{$f} pattern mismatch");
 			}
-		}elseif(!is_int($value)) {
+		}elseif(!is_int($value)){
 			Debug::error("{$f} max size must be a positive integer");
-		}elseif($value < 0) {
+		}elseif($value < 0){
 			Debug::error("{$f} max size must be positive");
-		}elseif($this->hasInitialSize() && $value < $this->getInitialSize()) {
+		}elseif($this->hasInitialSize() && $value < $this->getInitialSize()){
 			Debug::error("{$f} max size cannot exceed initial size");
 		}
-		return $this->maxSizeValue = $value;
+		if($this->hasMaxSize()){
+			$this->release($this->maxSizeValue);
+		}
+		return $this->maxSizeValue = $this->claim($value);
 	}
 
-	public function hasMaxSize()
-	{
+	public function hasMaxSize():bool{
 		return isset($this->maxSizeValue);
 	}
 
-	public function getMaxSize()
-	{
-		$f = __METHOD__; //CreateTablespaceStatement::getShortClass()."(".static::getShortClass().")->getMaxSize()";
-		if(!$this->hasMaxSize()) {
+	public function getMaxSize(){
+		$f = __METHOD__;
+		if(!$this->hasMaxSize()){
 			Debug::error("{$f} initial size is undefined");
 		}
 		return $this->maxSizeValue;
 	}
 
-	public function maxSize($value)
-	{
+	public function maxSize($value):CreateTablespaceStatement{
 		$this->setMaxSize($value);
 		return $this;
 	}
 
-	public function setNodegroup($id)
-	{
-		$f = __METHOD__; //CreateTablespaceStatement::getShortClass()."(".static::getShortClass().")->setNodegroup()";
-		if($id == null) {
-			unset($this->nodegroupId);
-			return null;
-		}elseif(!is_string($id)) {
+	public function setNodegroup($id){
+		$f = __METHOD__;
+		if(!is_string($id)){
 			Debug::error("{$f} nodegroup ID must be a string");
+		}elseif($this->hasNodegroup()){
+			$this->release($this->nodegroupId, false);
 		}
-		return $this->nodegroupId = $id;
+		return $this->nodegroupId = $this->claim($id);
 	}
 
-	public function hasNodegroup()
-	{
+	public function hasNodegroup():bool{
 		return isset($this->nodegroupId);
 	}
 
-	public function getNodegroup()
-	{
-		$f = __METHOD__; //CreateTablespaceStatement::getShortClass()."(".static::getShortClass().")->getNodegroup()";
-		if(!$this->hasNodegroup()) {
+	public function getNodegroup(){
+		$f = __METHOD__;
+		if(!$this->hasNodegroup()){
 			Debug::error("{$f} nodegroup ID is undefined");
 		}
 		return $this->nodegroupId;
 	}
 
-	public function nodegroup($id)
-	{
+	public function nodegroup($id):CreateTablespaceStatement{
 		$this->setNodegroup($id);
 		return $this;
 	}
 
-	public function getQueryStatementString()
-	{
+	public function getQueryStatementString():bool{
 		// CREATE
 		$string = "create ";
 		// [UNDO]
-		if($this->getUndoFlag() && hasMinimumMySQLVersion("8.0.14")) {
+		if($this->getUndoFlag() && hasMinimumMySQLVersion("8.0.14")){
 			$string .= "undo ";
 		}
 		// TABLESPACE tablespace_name
 		$string .= "tablespace '" . escape_quotes($this->getTablespaceName(), QUOTE_STYLE_SINGLE) . "'";
 		$engine = $this->getStorageEngine();
-		if($engine === STORAGE_ENGINE_INNODB || $engine === STORAGE_ENGINE_NDB) { // InnoDB and NDB:
+		if($engine === STORAGE_ENGINE_INNODB || $engine === STORAGE_ENGINE_NDB){ // InnoDB and NDB:
 		                                                                           // [ADD DATAFILE 'file_name']
-			if($this->hasDatafilename()) {
+			if($this->hasDatafilename()){
 				$dfn = escape_quotes($this->getDatafilename(), QUOTE_STYLE_SINGLE);
 				$string .= " add datafile '{$dfn}'";
 			}
 			// [AUTOEXTEND_SIZE [=] value]
-			if($this->hasAutoextendSize()) {
+			if($this->hasAutoextendSize()){
 				$string .= " autoextend_size " . $this->getAutoextendSize();
 			}
-			if($engine === STORAGE_ENGINE_INNODB) { // InnoDB only:
+			if($engine === STORAGE_ENGINE_INNODB){ // InnoDB only:
 			                                         // [FILE_BLOCK_SIZE = value]
-				if($this->hasFileBlockSizeValue()) {
+				if($this->hasFileBlockSizeValue()){
 					$string .= " file_block_size " . $this->getFileBlockSize();
 				}
 				// [ENCRYPTION [=] {'Y' | 'N'}]
-				if($this->hasEncryption()) {
+				if($this->hasEncryption()){
 					$string .= " encryption '" . $this->getEncryption() . "'";
 				}
-			}elseif($engine === STORAGE_ENGINE_NDB) { // NDB only:
+			}elseif($engine === STORAGE_ENGINE_NDB){ // NDB only:
 			                                            // USE LOGFILE GROUP logfile_group
-				if($this->hasLogfileGroup()) {
+				if($this->hasLogfileGroup()){
 					$string .= " use logfile group " . $this->getLogfileGroup();
 				}
 				// [EXTENT_SIZE [=] extent_size]
-				if($this->hasExtentSize()) {
+				if($this->hasExtentSize()){
 					$string .= " extent_size " . $this->getExtentSize();
 				}
 				// [INITIAL_SIZE [=] initial_size]
-				if($this->hasInitialSize()) {
+				if($this->hasInitialSize()){
 					$string .= " initial_size " . $this->getInitialSize();
 				}
 				// [MAX_SIZE [=] max_size]
-				if($this->hasMaxSize()) {
+				if($this->hasMaxSize()){
 					$string .= " max_size " . $this->getMaxSize();
 				}
 				// [NODEGROUP [=] nodegroup_id]
-				if($this->hasNodegroup()) {
+				if($this->hasNodegroup()){
 					$string .= " nodegroup " . $this->getNodegroup();
 				}
 				// [WAIT]
-				if($this->getWaitFlag()) {
+				if($this->getWaitFlag()){
 					$string .= " wait";
 				}
 				// [COMMENT [=] 'string']
-				if($this->hasComment()) {
+				if($this->hasComment()){
 					$string .= " comment '" . escape_quotes($this->getComment(), QUOTE_STYLE_SINGLE) . "'";
 				}
 			}

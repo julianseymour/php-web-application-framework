@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\poll;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
@@ -47,18 +48,18 @@ class ShortPollForm extends AjaxForm{
 			foreach([
 				$ii,
 				$swi
-			] as $input) {
+			] as $input){
 				$inputs[$input->getNameAttribute()] = $input;
 			}
 			foreach([
 				$push_sub,
 				$dirty_bit
-			] as $input) {
+			] as $input){
 				$inputs[$input->getIdAttribute()] = $input;
 			}
 
 			return $inputs;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -67,7 +68,7 @@ class ShortPollForm extends AjaxForm{
 		$f = __METHOD__;
 		try{
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "notificationDeliveryTimestamp":
 					$input->setIdAttribute("notify_ts");
 					return SUCCESS;
@@ -80,7 +81,7 @@ class ShortPollForm extends AjaxForm{
 				default:
 					return parent::reconfigureInput($input);
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -109,7 +110,7 @@ class ShortPollForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_READ_MULTIPLE:
 				$button = new ButtonInput();
 				$button->setNameAttribute("directive");

@@ -1,43 +1,31 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element\attributes;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 
-trait ActionAttributeTrait
-{
+trait ActionAttributeTrait{
 
-	public function hasActionAttribute()
-	{
+	public function hasActionAttribute():bool{
 		return $this->hasAttribute("action");
 	}
 
 	public function getActionAttribute(){
-		$f = __METHOD__; //"ActionAttributeTrait(".static::getShortClass().")->getActionAttribute()";
+		$f = __METHOD__;
 		try{
-			if(!$this->hasActionAttribute()) {
+			if(!$this->hasActionAttribute()){
 				$decl = $this->getDeclarationLine();
 				Debug::error("{$f} action attribute is undefined; declared {$decl}");
 			}
 			return $this->getAttribute("action");
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function setActionAttribute($action)
-	{
-		$f = __METHOD__; //"ActionAttributeTrait(".static::getShortClass().")->setActionAttribute()";
-		if(! isset($action) || empty($action)) {
-			$this->removeAttribute("action");
-			return null;
-		}
-		/*
-		 * elseif(ends_with($action, '/') && strlen($action) > 1){
-		 * Debug::error("{$f} action attribute ends with a /");
-		 * }
-		 */
+	public function setActionAttribute($action){
 		return $this->setAttribute("action", $action);
 	}
 }

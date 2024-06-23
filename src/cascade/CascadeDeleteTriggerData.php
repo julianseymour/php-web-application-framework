@@ -3,7 +3,6 @@
 namespace JulianSeymour\PHPWebApplicationFramework\cascade;
 
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
-use JulianSeymour\PHPWebApplicationFramework\data\UniversalDataClassResolver;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
@@ -60,91 +59,75 @@ class CascadeDeleteTriggerData extends DataStructure implements StaticTableNameI
 			"instigatorDataType",
 			"instigatorSubtype"
 		];
-		foreach($columns as $name => $column) {
-			if(! in_array($name, $keep, true)) {
+		foreach($columns as $name => $column){
+			if(!in_array($name, $keep, true)){
 				$column->volatilize();
 			}
 		}
 		$columns['instigatorSubtype']->setNullable(true);
 	}
 
-	public function hasInstigatorKey(): bool
-	{
+	public function hasInstigatorKey(): bool{
 		return $this->hasColumnValue("instigatorKey");
 	}
 
-	public function setInstigatorKey(string $value): string
-	{
+	public function setInstigatorKey(string $value): string{
 		return $this->setColumnValue("instigatorKey", $value);
 	}
 
-	public function getInstigatorKey(): string
-	{
+	public function getInstigatorKey(): string{
 		return $this->getColumnValue("instigatorKey");
 	}
 
-	public function ejectInstigatorKey(): ?string
-	{
+	public function ejectInstigatorKey(): ?string{
 		return $this->ejectColumnValue("instigatorKey");
 	}
 
-	public function hasInstigatorData(): bool
-	{
+	public function hasInstigatorData(): bool{
 		return $this->hasForeignDataStructure("instigatorKey");
 	}
 
-	public function setInstigatorData(DataStructure $struct): DataStructure
-	{
+	public function setInstigatorData(DataStructure $struct): DataStructure{
 		return $this->setForeignDataStructure("instigatorKey", $struct);
 	}
 
-	public function getInstigatorData(): DataStructure
-	{
+	public function getInstigatorData(): DataStructure{
 		return $this->getForeignDataStructure("instigatorKey");
 	}
 
-	public function ejectInstgiatorData(): ?DataStructure
-	{
+	public function ejectInstgiatorData(): ?DataStructure{
 		return $this->ejectForeignDataStructure("instigatorKey");
 	}
 
-	public function hasInstigatorDataType(): bool
-	{
+	public function hasInstigatorDataType(): bool{
 		return $this->hasColumnValue("instigatorDataType");
 	}
 
-	public function setInstigatorDataType(string $value): string
-	{
+	public function setInstigatorDataType(string $value): string{
 		return $this->setColumnValue("instigatorDataType", $value);
 	}
 
-	public function getInstigatorDataType(): string
-	{
+	public function getInstigatorDataType(): string{
 		return $this->getColumnValue("instigatorDataType");
 	}
 
-	public function ejectInstigatorDataType(): ?string
-	{
+	public function ejectInstigatorDataType(): ?string{
 		return $this->ejectColumnValue("instigatorDataType");
 	}
 
-	public function hasInstigatorSubtype(): bool
-	{
+	public function hasInstigatorSubtype(): bool{
 		return $this->hasColumnValue("instigatorSubtype");
 	}
 
-	public function setInstigatorSubtype(string $value): string
-	{
+	public function setInstigatorSubtype(string $value): string{
 		return $this->setColumnValue("instigatorSubtype", $value);
 	}
 
-	public function getInstigatorSubtype(): string
-	{
+	public function getInstigatorSubtype(): string{
 		return $this->getColumnValue("instigatorSubtype");
 	}
 
-	public function ejectInstigatorSubtype(): ?string
-	{
+	public function ejectInstigatorSubtype(): ?string{
 		return $this->ejectColumnValue("instigatorSubtype");
 	}
 }

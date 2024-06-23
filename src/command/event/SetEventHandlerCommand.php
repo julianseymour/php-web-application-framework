@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\event;
 
 use function JulianSeymour\PHPWebApplicationFramework\escape_quotes;
@@ -10,18 +11,16 @@ use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptFunction;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use Exception;
 
-abstract class SetEventHandlerCommand extends Command implements JavaScriptInterface
-{
+abstract class SetEventHandlerCommand extends Command implements JavaScriptInterface{
 
 	protected $callFunctionCommand;
 
 	public abstract function getIdCommandString();
 
-	public function __construct($call_function = null)
-	{
-		$f = __METHOD__; //SetEventHandlerCommand::getShortClass()."(".static::getShortClass().")->__construct()";
+	public function __construct($call_function = null){
+		$f = __METHOD__;
 		parent::__construct();
-		if(isset($call_function)) {
+		if($call_function !== null){
 			$this->setCallFunctionCommand($call_function);
 		}
 	}
@@ -31,55 +30,53 @@ abstract class SetEventHandlerCommand extends Command implements JavaScriptInter
 	 * @param CallFunctionCommand $callFunctionCommand
 	 * @return CallFunctionCommand
 	 */
-	public function setCallFunctionCommand($cf)
-	{
-		$f = __METHOD__; //SetEventHandlerCommand::getShortClass()."(".static::getShortClass().")->setCallFunctionCommand()";
-		/*
-		 * if(!$cf instanceof CallFunctionCommand && !$cf instanceof JavaScriptFunction){
-		 * $gottype = is_object($cf) ? $cf->getClass() : gettype($cf);
-		 * Debug::error("{$f} this function requires a call function media command; received a {$gottype}");
-		 * }
-		 */
-		return $this->callFunctionCommand = $cf;
+	public function setCallFunctionCommand($cf){
+		$f = __METHOD__;
+		if($this->hasCallFunctionCommand()){
+			$this->release($this->callFunctionCommand);
+		}
+		return $this->callFunctionCommand = $this->claim($cf);
 	}
 
-	public function hasCallFunctionCommand()
-	{
+	public function hasCallFunctionCommand():bool{
 		return isset($this->callFunctionCommand);
 	}
 
-	public function getCallFunctionCommand()
-	{
-		$f = __METHOD__; //SetEventHandlerCommand::getShortClass()."(".static::getShortClass().")->getCallFunctionCommand()";
-		if(!$this->hasCallFunctionCommand()) {
+	public function getCallFunctionCommand(){
+		$f = __METHOD__;
+		if(!$this->hasCallFunctionCommand()){
 			Debug::error("{$f} callFunctionCommand is undefined");
 		}
 		return $this->callFunctionCommand;
 	}
 
-	public function toJavaScript(): string
-	{
-		$f = __METHOD__; //SetEventHandlerCommand::getShortClass()."(".static::getShortClass().")->toJavaScript()";
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->callFunctionCommand, $deallocate);
+	}
+	
+	public function toJavaScript(): string{
+		$f = __METHOD__;
 		try{
 			$print = false;
 			$e = $this->getIdCommandString();
-			if($e instanceof JavaScriptInterface) {
+			if($e instanceof JavaScriptInterface){
 				$e = $e->toJavaScript();
 			}
 			$cf = $this->getCallFunctionCommand();
-			if($this->hasEscapeType()) {
+			if($this->hasEscapeType()){
 				$pt = $this->getEscapeType();
-				switch ($pt) {
+				switch($pt){
 					case ESCAPE_TYPE_FUNCTION:
-						if($print) {
+						if($print){
 							Debug::print("{$f} escapeType is function -- wrapping callFunctionCommand in script element");
 						}
 						$script = new JavaScriptFunction(null, ...$cf->getParameters());
-						$script->pushSubcommand($cf->toJavaScript());
+						$script->pushCodeBlock($cf->toJavaScript());
 						$cf = $script->toJavaScript();
 						break;
 					case ESCAPE_TYPE_STRING:
-						if($print) {
+						if($print){
 							Debug::print("{$f} escape type string");
 						}
 						$q = $this->getQuoteStyle();
@@ -92,16 +89,16 @@ abstract class SetEventHandlerCommand extends Command implements JavaScriptInter
 				}
 			}
 			$command = $this->getCommandId();
-			if($command instanceof JavaScriptInterface) {
+			if($command instanceof JavaScriptInterface){
 				$command = $command->toJavaScript();
 			}
 			$string = "{$e}.{$command} = {$cf}";
 			// $string .= "\nif(!isset({$e}.{$command})){return error(f, \"{$command} attribute is undefined\");}";
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning \"{$string}\"");
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

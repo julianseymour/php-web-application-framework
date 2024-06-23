@@ -8,10 +8,10 @@ class UseCaseTransitionEvent extends Event
 
 	public function __construct($successor, $properties = null)
 	{
-		if(!is_array($properties)) {
+		if(!is_array($properties)){
 			$properties = [];
 		}
-		if($successor !== null) {
+		if($successor !== null){
 			$properties['successor'] = $successor;
 		}
 		parent::__construct(EVENT_USE_CASE_TRANSITION, $properties);

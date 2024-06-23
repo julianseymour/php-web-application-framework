@@ -40,7 +40,7 @@ abstract class StoredIpAddress extends UserFingerprint implements StaticSubtypeI
 
 	public function setIpVersion(int $v):int{
 		$f = __METHOD__;
-		if($v !== 4 && $v !== 6) {
+		if($v !== 4 && $v !== 6){
 			Debug::error("{$f} unsupported IP version \"{$v}\"");
 		}
 		return $this->setColumnValue("ipVersion", $v);
@@ -51,10 +51,10 @@ abstract class StoredIpAddress extends UserFingerprint implements StaticSubtypeI
 	}
 
 	public function getSubtype():string{
-		if($this->hasColumnValue('subtype')) {
+		if($this->hasColumnValue('subtype')){
 			return $this->getColumnValue('subtype');
 		}
-		return $this->setSubtype(static::getSubypeStatic());
+		return $this->setSubtype(static::getSubtypeStatic());
 	}
 
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
@@ -84,7 +84,7 @@ abstract class StoredIpAddress extends UserFingerprint implements StaticSubtypeI
 			"userName",
 			"userTemporaryRole"
 		];
-		foreach($fields as $field) {
+		foreach($fields as $field){
 			$columns[$field]->volatilize();
 		}
 	}
@@ -101,5 +101,28 @@ abstract class StoredIpAddress extends UserFingerprint implements StaticSubtypeI
 		$ret = parent::afterGenerateInitialValuesHook();
 		$this->setIpVersion(ip_version($this->getIpAddress()));
 		return $ret;
+	}
+	
+	public function getVirtualColumnValue(string $column_name){
+		$f = __METHOD__;
+		try{
+			switch($column_name){
+				case 'subtype':
+					return $this->getSubtypeStatic();
+				default:
+					return parent::getVirtualColumnValue($column_name);
+			}
+		}catch(Exception $x){
+			x($f, $x);
+		}
+	}
+	
+	public function hasVirtualColumnValue(string $column_name): bool{
+		switch($column_name){
+			case 'subtype':
+				return true;
+			default:
+				return parent::hasVirtualColumnValue($column_name);
+		}
 	}
 }

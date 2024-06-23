@@ -19,7 +19,9 @@ class YouAreLoggedInAsElement extends DivElement{
 
 	public function generateChildNodes(): ?array{
 		$name = user()->getName();
-		$this->appendChild(Document::createElement("div")->withInnerHTML(substitute(_("You are logged in as %1%"), $name)));
-		return $this->getChildNodes();
+		$div = new DivElement();
+		$div->setInnerHTML(substitute(_("You are logged in as %1%"), $name));
+		$this->appendChild($div);
+		return $this->hasChildNodes() ? $this->getChildNodes() : [];
 	}
 }

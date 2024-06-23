@@ -9,7 +9,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\core\Document;
 use JulianSeymour\PHPWebApplicationFramework\email\EmailAddressDatum;
 use JulianSeymour\PHPWebApplicationFramework\input\EmailInput;
-use JulianSeymour\PHPWebApplicationFramework\input\InputInterface;
+use JulianSeymour\PHPWebApplicationFramework\input\InputlikeInterface;
 use JulianSeymour\PHPWebApplicationFramework\security\xsrf\AntiXsrfTokenValidator;
 use JulianSeymour\PHPWebApplicationFramework\ui\ExpandingMenuNestedForm;
 use JulianSeymour\PHPWebApplicationFramework\validate\DatumValidator;
@@ -68,7 +68,7 @@ class ChangeEmailAddressForm extends ExpandingMenuNestedForm implements Confirma
 		$validator = new AntiXsrfTokenValidator($this->getActionAttribute());
 		// app()->getUseCase(), $this->getActionAttribute());
 		$value = null;
-		if(hasInputParameter("emailAddress")) {
+		if(hasInputParameter("emailAddress")){
 			$value = getInputParameter("emailAddress");
 		}
 		$validator->setCovalidateWhen(CONST_AFTER);
@@ -76,12 +76,12 @@ class ChangeEmailAddressForm extends ExpandingMenuNestedForm implements Confirma
 		return $this->setValidator($validator);
 	}
 
-	protected function attachInputValidators(InputInterface $input): InputInterface{
+	protected function attachInputValidators(InputlikeInterface $input): InputlikeInterface{
 		if(!$input->hasColumnName()){
 			return $input;
 		}
 		$cn = $input->getColumnName();
-		switch ($cn) {
+		switch($cn){
 			case "emailAddress":
 				$input->pushValidator(new RegistrationEmailAddressValidator());
 				break;
@@ -92,7 +92,7 @@ class ChangeEmailAddressForm extends ExpandingMenuNestedForm implements Confirma
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_EMAIL_CONFIRMATION_CODE:
 				$button = $this->generateGenericButton($name);
 				$innerHTML = _("Save email address");
@@ -109,7 +109,7 @@ class ChangeEmailAddressForm extends ExpandingMenuNestedForm implements Confirma
 
 	public function reconfigureInput($input): int{
 		$cn = $input->getColumnName();
-		switch ($cn) {
+		switch($cn){
 			case "emailAddress":
 				$input->setIdAttribute("change_email_address_input");
 				$input->setLabelString(_("Enter email address"));

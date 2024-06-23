@@ -1,50 +1,48 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\index;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 
-trait IndexTypeTrait
-{
+trait IndexTypeTrait{
 
 	protected $indexType;
 
-	public function setIndexType($type)
-	{
-		$f = __METHOD__; //"IndexTypeTrait(".static::getShortClass().")->setIndexType()";
-		if($type == null) {
-			unset($this->indexType);
-			return null;
-		}elseif(!is_string($type)) {
+	public function setIndexType($type){
+		$f = __METHOD__;
+		if(!is_string($type)){
 			Debug::error("{$f} index type must be a string");
 		}
 		$type = strtolower($type);
-		switch ($type) {
+		switch($type){
 			case INDEX_TYPE_BTREE:
 			case INDEX_TYPE_FULLTEXT:
 			case INDEX_TYPE_HASH:
 			case INDEX_TYPE_SPATIAL:
-				return $this->indexType = $type;
+				break;
 			default:
 				Debug::error("{$f} invalid index type \"{$type}\"");
 		}
+		if($this->hasIndexType()){
+			$this->release($this->indexType);
+		}
+		return $this->indexType = $this->claim($type);
 	}
 
-	public function getIndexType()
-	{
-		$f = __METHOD__; //"IndexTypeTrait(".static::getShortClass().")->getIndexType()";
-		if(!$this->hasIndexType()) {
+	public function getIndexType(){
+		$f = __METHOD__;
+		if(!$this->hasIndexType()){
 			Debug::error("{$f} index type is undefined");
 		}
 		return $this->indexType;
 	}
 
-	public function hasIndexType()
-	{
+	public function hasIndexType():bool{
 		return isset($this->indexType);
 	}
 
-	public function withIndexType($type)
-	{
+	public function withIndexType($type){
 		$this->setIndexType($type);
 		return $this;
 	}

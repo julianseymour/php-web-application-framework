@@ -21,7 +21,7 @@ class JumpToPageForm extends AjaxForm{
 			return [
 				$span
 			];
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -42,7 +42,7 @@ class JumpToPageForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_SUBMIT:
 				$button = $this->generateGenericButton($name);
 				$innerHTML = _("Go to page");
@@ -77,11 +77,11 @@ class JumpToPageForm extends AjaxForm{
 			foreach([
 				$jump,
 				$limit
-			] as $input) {
+			] as $input){
 				$inputs[$input->getNameAttribute()] = $input;
 			}
 			return $inputs;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -1,64 +1,42 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use JulianSeymour\PHPWebApplicationFramework\common\PrecisionTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-class FloatingPointDatum extends AbstractNumericDatum
-{
+class FloatingPointDatum extends AbstractNumericDatum{
 
-	protected $precision;
-
+	use PrecisionTrait;
+	
 	protected $scaleValue;
 
-	public function setScale($value)
-	{
-		$f = __METHOD__; //FloatingPointDatum::getShortClass()."(".static::getShortClass().")->setScale()";
-		if($value === null) {
-			unset($this->scaleValue);
-			return null;
-		}elseif(!is_int($value)) {
+	public function setScale($value){
+		$f = __METHOD__;
+		if(!is_int($value)){
 			Debug::error("{$f} input parameter must be a positive integer");
-		}elseif($value < 0) {
+		}elseif($value < 0){
 			Debug::error("{$f} input parameter must be positive");
+		}elseif($this->hasScale()){
+			$this->release($this->scaleValue);
 		}
-		return $this->scaleValue = $value;
+		return $this->scaleValue = $this->claim($value);
 	}
 
-	public function hasScale()
-	{
+	public function hasScale():bool{
 		return isset($this->scaleValue);
 	}
 
-	public function getScale()
-	{
-		$f = __METHOD__; //FloatingPointDatum::getShortClass()."(".static::getShortClass().")->getScale()";
-		if(!$this->hasScale()) {
+	public function getScale(){
+		$f = __METHOD__;
+		if(!$this->hasScale()){
 			Debug::error("{$f} scale is undefined");
 		}
 		return $this->scaleValue;
 	}
 
-	public function setPrecision($precision)
-	{
-		return $this->precision = $precision;
-	}
-
-	public function hasPrecision()
-	{
-		return isset($this->precision);
-	}
-
-	public function getPrecision()
-	{
-		$f = __METHOD__; //FloatingPointDatum::getShortClass()."(".static::getShortClass().")->getPrecision()";
-		if(!$this->hasPrecision()) {
-			Debug::error("{$f} precision is undefined");
-		}
-		return $this->precision;
-	}
-
-	public function parseValueFromSuperglobalArray($value)
-	{
+	public function parseValueFromSuperglobalArray($value){
 		return doubleval($value);
 	}
 
@@ -80,13 +58,12 @@ class FloatingPointDatum extends AbstractNumericDatum
 		return "d";
 	}
 
-	public static function validateStatic($value): int
-	{
-		if(is_double($value)) {
+	public static function validateStatic($value): int{
+		if(is_double($value)){
 			return SUCCESS;
-		}elseif(is_float($value)) {
+		}elseif(is_float($value)){
 			return SUCCESS;
-		}elseif(is_int($value)) {
+		}elseif(is_int($value)){
 			return SUCCESS;
 		}
 		return FAILURE;
@@ -105,7 +82,7 @@ class FloatingPointDatum extends AbstractNumericDatum
 	}
 
 	public function getColumnTypeString(): string{
-		if($this->hasPrecision() && $this->getPrecision() > 24) {
+		if($this->hasPrecision() && $this->getPrecision() > 24){
 			$string = "double";
 		}else{
 			$string = "float";
@@ -113,10 +90,9 @@ class FloatingPointDatum extends AbstractNumericDatum
 		return $string;
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->precision);
-		unset($this->scaleValue);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->precision, $deallocate);
+		$this->release($this->scaleValue, $deallocate);
 	}
 }

@@ -1,10 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\app\generator;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
-use function JulianSeymour\PHPWebApplicationFramework\str_contains;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\app\ModuleBundler;
 use JulianSeymour\PHPWebApplicationFramework\command\control\ReturnCommand;
@@ -25,9 +26,9 @@ abstract class ApplicationJavaScriptGenerator extends Basic{
 		$function = new JavaScriptFunction("getApplicationClass");
 		$function->setRoutineType(ROUTINE_TYPE_FUNCTION);
 		$short = get_short_class(config());
-		if(str_contains($short, '\\')) {
+		if(str_contains($short, '\\')){
 			Debug::error("{$f} shortname contains \\");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} shortname is \"{$short}\"");
 		}
 		$declaration = DeclareVariableCommand::let("arr", [
@@ -35,7 +36,7 @@ abstract class ApplicationJavaScriptGenerator extends Basic{
 			]
 		);
 		$declaration->setEscapeType(ESCAPE_TYPE_OBJECT);
-		$function->pushSubcommand(
+		$function->pushCodeBlock(
 			$declaration, 
 			new ReturnCommand(
 				new ArrayAccessCommand(
@@ -51,33 +52,34 @@ abstract class ApplicationJavaScriptGenerator extends Basic{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($bundler === null) {
+			if($bundler === null){
 				$bundler = mods();
 			}
 			$short = get_short_class(config());
-			if(str_contains($short, '\\')) {
+			if(str_contains($short, '\\')){
 				Debug::error("{$f} shortname contains \\");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} shortname is \"{$short}\"");
 			}
 			$class = new JavaScriptClass($short);
 			$functions = [];
-			foreach($bundler->getJavaScriptFunctionGeneratorClasses() as $gen_class) {
+			foreach($bundler->getJavaScriptFunctionGeneratorClasses() as $gen_class){
 				$generator = new $gen_class();
 				$function = $generator->generate($bundler);
-				if($function instanceof JavaScriptFunction) {
+				deallocate($generator);
+				if($function instanceof JavaScriptFunction){
 					array_push($functions, $function);
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} JS function generator \"{$gen_class}\" did not return a function");
 				}
 			}
-			if(!empty($functions)) {
+			if(!empty($functions)){
 				$class->appendChild(...$functions);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} no functions generated");
 			}
 			return $class;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

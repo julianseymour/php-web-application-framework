@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input\choice;
 
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
@@ -8,11 +9,9 @@ use JulianSeymour\PHPWebApplicationFramework\element\Element;
  *
  * @author j
  */
-class DataListElement extends Element
-{
+class DataListElement extends Element{
 
-	public static function getElementTagStatic(): string
-	{
+	public static function getElementTagStatic():string{
 		return "datalist";
 	}
 }

@@ -2,8 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 
 /**
@@ -14,14 +14,13 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
  */
 abstract class DatumBundle extends AbstractDatum{
 
-	use ArrayPropertyTrait;
 	use NamedTrait;
 
 	public abstract function generateComponents(?DataStructure $ds = null): array;
 
 	public function __construct(?string $name = null, ?DataStructure $ds = null){
 		parent::__construct();
-		if(!empty($name)) {
+		if(!empty($name)){
 			$this->setName($name);
 		}
 	}
@@ -42,8 +41,8 @@ abstract class DatumBundle extends AbstractDatum{
 		return $this->getArrayPropertyValue("components", $name);
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->name);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->name, $deallocate);
 	}
 }

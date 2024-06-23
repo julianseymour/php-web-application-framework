@@ -1,11 +1,11 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\data\columns;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\owner\UserOwned;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
-use JulianSeymour\PHPWebApplicationFramework\query\column\MultipleColumnDefiningTrait;
 use Exception;
 use mysqli;
 
@@ -15,49 +15,42 @@ use mysqli;
  * @author j
  *        
  */
-trait SubjectiveTrait
-{
-
-	use MultipleColumnDefiningTrait;
+trait SubjectiveTrait{
 
 	/**
 	 *
 	 * @return UserOwned|NULL
 	 */
-	public function getSubjectClass()
-	{
-		$f = __METHOD__; //"SubjectiveTrait(".static::getShortClass().")->getSubjectClass()";
+	public function getSubjectClass():string{
+		$f = __METHOD__;
 		try{
-			if($this->hasSubjectData()) {
+			if($this->hasSubjectData()){
 				return $this->getSubjectData()->getClass();
 			}
 			return $this->getColumn("subjectKey")->getForeignDataStructureClass();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function setSubjectDataType(string $type): string
-	{
+	public function setSubjectDataType(string $type): string{
 		return $this->setColumnValue('subjectDataType', $type);
 	}
 
-	public function getSubjectDataType()
-	{
-		$f = __METHOD__; //"SubjectiveTrait(".static::getShortClass().")->getSubjectDataType()";
+	public function getSubjectDataType(){
+		$f = __METHOD__;
 		try{
-			// Debug::print("{$f} entered");
 			$type = $this->getColumnValue('subjectDataType');
-			if(isset($type)) {
+			if(isset($type)){
 				return $type;
-			}elseif($this->hasSubjectData()) {
+			}elseif($this->hasSubjectData()){
 				$target = $this->getSubjectData();
 				$type = $target->getDataType();
 				return $this->setSubjectDataType($type);
 			}
 			Debug::error("{$f} target type is undefined, as is the target object");
 			return DATATYPE_UNKNOWN;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -74,16 +67,16 @@ trait SubjectiveTrait
 		$f = __METHOD__;
 		try{
 			$status = $obj->getObjectStatus();
-			if($status === ERROR_NOT_FOUND) {
+			if($status === ERROR_NOT_FOUND){
 				Debug::error("{$f} object was deleted");
 				return null;
 			}
 			$ret = $this->setForeignDataStructure('subjectKey', $obj);
-			if(!$this->hasSubjectData()) {
+			if(!$this->hasSubjectData()){
 				Debug::error("{$f} immediately after setting subject data, it is undefined");
 			}
 			return $ret;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -112,8 +105,7 @@ trait SubjectiveTrait
 		return $this->getColumnValue('subjectKey');
 	}
 
-	public function acquireSubjectData(mysqli $mysqli): ?DataStructure
-	{
+	public function acquireSubjectData(mysqli $mysqli): ?DataStructure{
 		return $this->acquireForeignDataStructure($mysqli, "subjectKey"); // , false, 3);
 	}
 }

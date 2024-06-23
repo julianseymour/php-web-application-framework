@@ -4,9 +4,11 @@ namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
 class CharDatum extends FullTextStringDatum{
 
-	public function __construct($name, $i){
+	public function __construct($name=null, $i=null){
 		parent::__construct($name);
-		$this->setMaximumLength($i);
+		if($i !== null){
+			$this->setMaximumLength($i);
+		}
 	}
 
 	public function getConstructorParams(): ?array{

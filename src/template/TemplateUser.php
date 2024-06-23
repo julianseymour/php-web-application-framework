@@ -21,7 +21,7 @@ class TemplateUser extends PlayableUser implements TemplateContextInterface{
 		return $this->getColumnValue("hasEverAuthenticated");
 	}
 
-	public static function getAccountTypeStatic():string{
+	public static function getSubtypeStatic():string{
 		return ACCOUNT_TYPE_TEMPLATE;
 	}
 

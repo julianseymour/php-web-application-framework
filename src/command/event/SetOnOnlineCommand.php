@@ -9,7 +9,7 @@ class SetOnOnlineCommand extends SetWindowEventHandlerCommand
 	public function resolve()
 	{
 		$element = $this->getElement();
-		while ($element instanceof ValueReturningCommandInterface) {
+		while($element instanceof ValueReturningCommandInterface){
 			$element = $element->evaluate();
 		}
 		$element->setOnOnlineAttribute($this->getCallFunctionCommand());

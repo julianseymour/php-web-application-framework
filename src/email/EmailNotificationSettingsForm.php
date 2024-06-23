@@ -41,8 +41,8 @@ class EmailNotificationSettingsForm extends ExpandingMenuNestedForm{
 		$indices = [
 			"emailAllNotifications" => ToggleInput::class
 		];
-		foreach(mods()->getTypedNotificationClasses() as $class) {
-			if($class::getNotificationTypeStatic() === NOTIFICATION_TYPE_TEST || ! $class::canDisable()) {
+		foreach(mods()->getTypedNotificationClasses() as $class){
+			if($class::getNotificationTypeStatic() === NOTIFICATION_TYPE_TEST || ! $class::canDisable()){
 				continue;
 			}
 			$indices[$class::getEmailStatusVariableName()] = ToggleInput::class;
@@ -55,7 +55,7 @@ class EmailNotificationSettingsForm extends ExpandingMenuNestedForm{
 		$vn = $input->getColumnName();
 		$input->setIdAttribute("toggle_" . $input->getNameAttribute() . "-" . $this->getIdAttribute());
 		$context = $this->getContext();
-		if($input instanceof CheckboxInput && $context->getColumnValue($vn)) {
+		if($input instanceof CheckboxInput && $context->getColumnValue($vn)){
 			$input->setCheckedAttribute("checked");
 		}
 		return parent::reconfigureInput($input);
@@ -67,7 +67,7 @@ class EmailNotificationSettingsForm extends ExpandingMenuNestedForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_UPDATE:
 				$button = $this->generateGenericButton($name);
 				$innerHTML = _("Email notification settings");

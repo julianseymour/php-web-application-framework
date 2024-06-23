@@ -5,6 +5,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use JulianSeymour\PHPWebApplicationFramework\core\Document;
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
+use JulianSeymour\PHPWebApplicationFramework\use_case\Router;
 
 class SiteMapElement extends Element{
 	
@@ -17,7 +18,7 @@ class SiteMapElement extends Element{
 		return "urlset";
 	}
 	
-	protected function generatePredecessors():?array{
+	protected function getSelfGeneratedPredecessors():?array{
 		return [
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 		];
@@ -26,7 +27,9 @@ class SiteMapElement extends Element{
 	public function generateChildNodes():?array{
 		$count = 0;
 		foreach(mods()->getUseCaseDictionary() as $uri => $ucc){
-			if($ucc::isSiteMappable()){
+			if(is_a($ucc, Router::class, true)){
+				continue;
+			}elseif($ucc::isSiteMappable()){
 				$url = Document::createElement("url");
 				$loc = Document::createElement("loc");
 				$loc->setInnerHTML(WEBSITE_URL."/".$uri);
@@ -38,7 +41,7 @@ class SiteMapElement extends Element{
 		if($count === 0){
 			$this->setAllowEmptyInnerHTML(true);
 		}
-		return $this->getChildNodes();
+		return $this->hasChildNodes() ? $this->getChildNodes() : [];
 	}
 }
 

@@ -29,7 +29,7 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		if($print){
 			Debug::print("{$f} entered");
 		}
-		return isset($this->filesystemCachePool) && $this->filesystemCachePool instanceof \Cache\Adapter\Filesystem\FilesystemCachePool;
+		return isset($this->filesystemCachePool);
 	}
 
 	protected function getFilesystemCachePool(){
@@ -38,19 +38,29 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		if($print){
 			Debug::print("{$f} entered");
 		}
-		if($this->hasFilesystemCachePool()) {
+		if($this->hasFilesystemCachePool()){
 			return $this->filesystemCachePool;
 		}
-		return $this->filesystemCachePool = new \Cache\Adapter\Filesystem\FilesystemCachePool(new \League\Flysystem\Filesystem(new \League\Flysystem\Adapter\Local("/var/www")));
+		return $this->setFIleSystemCachePool(
+			new \Cache\Adapter\Filesystem\FilesystemCachePool(
+				new \League\Flysystem\Filesystem(
+					new \League\Flysystem\Adapter\Local("/var/www")
+				)
+			)
+		);
 	}
 
+	protected function setFIleSystemCachePool($fscp){
+		return $this->filesystemCachePool = $fscp;
+	}
+	
 	protected function hasAPCuCachePool(){
 		$f = __METHOD__;
 		$print = false;
 		if($print){
 			Debug::print("{$f} entered");
 		}
-		return isset($this->APCuCachePool) && $this->APCuCachePool instanceof \Cache\Adapter\Apcu\ApcuCachePool;
+		return isset($this->APCuCachePool);
 	}
 
 	public function getAPCuCachePool(){
@@ -59,7 +69,7 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		if($print){
 			Debug::print("{$f} entered");
 		}
-		if($this->hasAPCuCachePool()) {
+		if($this->hasAPCuCachePool()){
 			if($print){
 				Debug::print("{$f} already allocated, returning");
 			}
@@ -67,9 +77,13 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		}elseif($print){
 			Debug::print("{$f} returning new ApcuCachePool");
 		}
-		return $this->APCuCachePool = new \Cache\Adapter\Apcu\ApcuCachePool();
+		return $this->setAPCuCachePool(new \Cache\Adapter\Apcu\ApcuCachePool());
 	}
 
+	protected function setAPCuCachePool($acp){
+		return $this->APCuCachePool = $acp;
+	}
+	
 	public function has($key): bool{
 		$f = __METHOD__;
 		try{
@@ -77,8 +91,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 			if($print){
 				Debug::print("{$f} entered with key \"{$key}\"");
 			}
-			if($key instanceof CacheableInterface) {
-				if(!$key->isCacheable()) {
+			if($key instanceof CacheableInterface){
+				if(!$key->isCacheable()){
 					return false;
 				}
 				$key = $key->getCacheKey();
@@ -87,7 +101,7 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 				Debug::error("{$f} invalid key \"{$key}\"");
 			}
 			return $this->getAPCuCachePool()->has($key) || $this->getFilesystemCachePool()->has($key);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -98,8 +112,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		if($print){
 			Debug::print("{$f} entered with key \"{$key}\"");
 		}
-		if($key instanceof CacheableInterface) {
-			if(!$key->isCacheable()) {
+		if($key instanceof CacheableInterface){
+			if(!$key->isCacheable()){
 				Debug::error("{$f} uncacheable object");
 			}
 			$key = $key->getCacheKey();
@@ -107,11 +121,13 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
 			Debug::error("{$f} invalid key \"{$key}\"");
 		}
-		if($this->getAPCuCachePool()->has($key)) {
-			return $this->APCuCachePool->get($key);
+		$acp = $this->getAPCuCachePool();
+		if($acp->has($key)){
+			return $acp->get($key);
 		}
-		if($this->getFilesystemCachePool()->has($key)) {
-			return $this->filesystemCachePool->get($key);
+		$fscp = $this->getFilesystemCachePool();
+		if($fscp->has($key)){
+			return $fscp->get($key);
 		}
 		return null;
 	}
@@ -122,8 +138,8 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		if($print){
 			Debug::print("{$f} entered");
 		}
-		if($key instanceof CacheableInterface) {
-			if(!$key->isCacheable()) {
+		if($key instanceof CacheableInterface){
+			if(!$key->isCacheable()){
 				Debug::warning("{$f} uncacheable object");
 				throw new \Psr\SimpleCache\InvalidArgumentException("Uncachable object");
 				return false;
@@ -134,7 +150,7 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 			Debug::error("{$f} invalid key \"{$key}\"");
 		}
 		global $__START;
-		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START){
 			$ttl += $__START;
 		}
 		$this->getAPCuCachePool()->set($key, $value, $ttl);
@@ -148,10 +164,10 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		if($print){
 			Debug::print("{$f} entered");
 		}
-		if($key instanceof CacheableInterface) {
-			if(!$key->isCacheable()) {
+		if($key instanceof CacheableInterface){
+			if(!$key->isCacheable()){
 				Debug::warning("{$f} uncacheable object");
-			}elseif(!$key->hasCacheKey()) {
+			}elseif(!$key->hasCacheKey()){
 				throw new \Psr\SimpleCache\InvalidArgumentException("Object lacks a cache key");
 				return false;
 			}
@@ -160,10 +176,10 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		if(preg_match('|[\{\}\(\)/\\\@\:]|', $key)){
 			Debug::error("{$f} invalid key \"{$key}\"");
 		}
-		if($this->getAPCuCachePool()->has($key)) {
+		if($this->getAPCuCachePool()->has($key)){
 			$this->APCuCachePool->delete($key);
 		}
-		if($this->getFilesystemCachePool()->has($key)) {
+		if($this->getFilesystemCachePool()->has($key)){
 			$this->filesystemCachePool->delete($key);
 		}
 		return true;
@@ -175,10 +191,10 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 		if($print){
 			Debug::print("{$f} entered");
 		}
-		if($key instanceof CacheableInterface) {
-			if(!$key->isCacheable()) {
+		if($key instanceof CacheableInterface){
+			if(!$key->isCacheable()){
 				Debug::warning("{$f} uncacheable object");
-			}elseif(!$key->hasCacheKey()) {
+			}elseif(!$key->hasCacheKey()){
 				throw new \Psr\SimpleCache\InvalidArgumentException("Object lacks a cache key");
 				return false;
 			}
@@ -188,14 +204,16 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 			Debug::error("{$f} invalid key \"{$key}\"");
 		}
 		global $__START;
-		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START){
 			$ttl += $__START;
 		}
-		if($this->getAPCuCachePool()->has($key)) {
-			$this->APCuCachePool->set($key, $this->APCuCachePool->get($key), $ttl);
+		if($this->getAPCuCachePool()->has($key)){
+			$acp = $this->getAPCuCachePool();
+			$acp->set($key, $acp->get($key), $ttl);
 		}
-		if($this->getFilesystemCachePool()->has($key)) {
-			$this->filesystemCachePool->set($key, $this->filesystemCachePool->get($key), $ttl);
+		if($this->getFilesystemCachePool()->has($key)){
+			$fscp = $this->getFilesystemCachePool();
+			$fscp->set($key, $fscp->get($key), $ttl);
 		}
 		return true;
 	}
@@ -209,7 +227,7 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 			Debug::print("{$f} entered");
 		}
 		global $__START;
-		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START){
 			$ttl += $__START;
 		}
 		$pool = $this->getAPCuCachePool();
@@ -225,7 +243,7 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 			Debug::print("{$f} entered");
 		}
 		global $__START;
-		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START){
 			$ttl += $__START;
 		}
 		$pool = $this->getFilesystemCachePool();
@@ -266,11 +284,11 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 	public function getMultiple($keys, $default = null){
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
-		if($this->hasAPCuCachePool()) {
+		if($this->hasAPCuCachePool()){
 			return $this->APCuCachePool->getMultiple($keys, $default);
 		}
-		if($this->hasFilesystemCachePool()) {
-			return $this->filesystemCachePool->getMultiple($keys, $default);
+		if($this->hasFilesystemCachePool()){
+			return $this->getFilesystemCachePool()->getMultiple($keys, $default);
 		}
 		return [];
 	}
@@ -326,7 +344,7 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 			Debug::print("{$f} entered");
 		}
 		global $__START;
-		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START){
 			$ttl += $__START;
 		}
 		return $this->getFilesystemCachePool()->set($key, $value, $ttl);
@@ -371,7 +389,7 @@ class MultiCache extends Basic implements \Psr\SimpleCache\CacheInterface{
 			Debug::print("{$f} entered with key \"{$key}\"");
 		}
 		global $__START;
-		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START) {
+		if(isset($ttl) && is_int($ttl) && $ttl > 0 && $ttl < $__START){
 			$ttl += $__START;
 		}
 		return $this->getAPCuCachePool()->set($key, $value, $ttl);

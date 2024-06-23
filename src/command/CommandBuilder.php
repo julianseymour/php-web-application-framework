@@ -158,7 +158,7 @@ abstract class CommandBuilder{
 	}
 
 	public static function equals($lhs, $rhs): BinaryExpressionCommand{
-		return BinaryExpressionCommand::equals($lhs, $rhs);
+		return new BinaryExpressionCommand($lhs, OPERATOR_EQUALSEQUALS, $rhs);
 	}
 
 	public static function arrayAccess($array, $offset): ArrayAccessCommand{

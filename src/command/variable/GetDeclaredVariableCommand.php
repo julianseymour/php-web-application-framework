@@ -2,7 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\command\variable;
 
-
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\data\GetColumnValueCommand;
@@ -20,10 +21,12 @@ use JulianSeymour\PHPWebApplicationFramework\command\element\SetStylePropertiesC
 use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\Element;
+use JulianSeymour\PHPWebApplicationFramework\event\ReleaseScopeEvent;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\TypeSpecificInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\TypeSpecificTrait;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
+use JulianSeymour\PHPWebApplicationFramework\command\data\ConstructorCommand;
 
 class GetDeclaredVariableCommand extends Command implements JavaScriptInterface, ScopedCommandInterface, SQLInterface, StringifiableInterface, TypeSpecificInterface, ValueReturningCommandInterface{
 
@@ -35,44 +38,94 @@ class GetDeclaredVariableCommand extends Command implements JavaScriptInterface,
 		return "local";
 	}
 
-	public function __construct($vn, ?Scope $scope = null, ?string $parseType = null){
+	public function __construct($vn=null, ?Scope $scope = null, ?string $parseType = null){
 		parent::__construct();
-		if($vn instanceof Element) {
-			$vn = $vn->getIdOverride();
+		if($vn !== null){
+			if($vn instanceof Element){
+				$vn = $vn->getIdOverride();
+			}
+			$this->setVariableName($vn);
 		}
-		$this->setVariableName($vn);
-		if(isset($scope)) {
+		if(isset($scope)){
 			$this->setScope($scope);
 		}
-		if(isset($parseType)) {
+		if(isset($parseType)){
 			$this->setParseType($parseType);
 		}
 	}
-
+	
+	protected static function getExcludedConstructorFunctionNames():?array{
+		return array_merge(parent::getExcludedConstructorFunctionNames(), [
+			"getDeclaredVariableCommand"
+		]);
+	}
+	
+	public function setScope(?Scope $scope):?Scope{
+		return $this->scope = $scope;
+	}
+	
+	public function releaseScope(bool $deallocate=false){
+		$f = __METHOD__;
+		if(!$this->hasScope()){
+			Debug::error("{$f} scope is undefined");
+		}
+		$scope = $this->scope;
+		unset($this->scope);
+		if($this->hasAnyEventListener(EVENT_RELEASE_SCOPE)){
+			$this->dispatchEvent(new ReleaseScopeEvent($scope, $deallocate));
+		}
+	}
+	
+	public function dispose(bool $deallocate=false):void{
+		if($this->hasScope()){
+			$this->releaseScope($deallocate);
+		}
+		parent::dispose($deallocate);
+		$this->release($this->typeSpecifier, $deallocate);
+		$this->release($this->variableName, $deallocate);
+	}
+	
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasTypeSpecifier()){
+			$this->setTypeSpecifier(replicate($that->getTypeSpecifier()));
+		}
+		if($that->hasVariableName()){
+			$this->setVariableName(replicate($that->getVariableName()));
+		}
+		if($that->hasScope()){
+			$this->setScope($that->getScope());
+		}
+		return $ret;
+	}
+	
 	public function evaluate(?array $params = null){
 		$f = __METHOD__;
 		$print = $this->getDebugFlag();
-		if($print) {
-			if($this->hasScope()) {
+		if($print){
+			if($this->hasScope()){
 				$scope = $this->getScope();
 				$decl = $scope->getDeclarationLine();
 				$did = $scope->getDebugId();
 				Debug::print("{$f} scope is defined, declared {$decl} with debug ID \"{$did}\"");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} scope is undefined, declared {$decl} with debug ID \"{$did}\"");
 			}
 		}
 		$scope = $this->getScope();
 		$vn = $this->getVariableName();
+		if(!$scope->hasLocalValue($vn)){
+			Debug::error("{$f} value {$vn} is undefined for ".$scope->getDebugString()." of this ".$this->getDebugString());
+		}
 		$value = $scope->getLocalValue($vn);
-		if($value instanceof ValueReturningCommandInterface) {
-			while ($value instanceof ValueReturningCommandInterface) {
-				if($print) {
+		if($value instanceof ValueReturningCommandInterface){
+			while($value instanceof ValueReturningCommandInterface){
+				if($print){
 					$vc = $value->getClass();
 					$did = $value->getDebugId();
 					$decl = $value->getDeclarationLine();
 					Debug::print("{$f} value is an instance of {$vc} from an object with debug ID {$did}, declared {$decl}");
-					if($value instanceof GetColumnValueCommand) {
+					if($value instanceof GetColumnValueCommand){
 						$data = $value->getDataStructure();
 						$dsc = $data->getClass();
 						$did = $data->getDebugId();
@@ -82,7 +135,7 @@ class GetDeclaredVariableCommand extends Command implements JavaScriptInterface,
 				}
 				$value = $value->evaluate($params);
 			}
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} value is not a value-returning command interface");
 		}
 		return $value;
@@ -94,7 +147,7 @@ class GetDeclaredVariableCommand extends Command implements JavaScriptInterface,
 
 	public function toJavaScript(): string{
 		$vn = $this->getVariableName();
-		if($vn instanceof JavaScriptInterface) {
+		if($vn instanceof JavaScriptInterface){
 			$vn = $vn->toJavaScript();
 		}
 		return $vn;
@@ -148,7 +201,7 @@ class GetDeclaredVariableCommand extends Command implements JavaScriptInterface,
 
 	public function toSQL(): string{
 		$vn = $this->getVariableName();
-		if($vn instanceof SQLInterface) {
+		if($vn instanceof SQLInterface){
 			$vn = $vn->toSQL();
 		}
 		return $vn;

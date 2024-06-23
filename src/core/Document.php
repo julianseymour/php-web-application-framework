@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\core;
 
 use JulianSeymour\PHPWebApplicationFramework\command\DocumentVisibilityStateCommand;
@@ -137,13 +138,11 @@ use JulianSeymour\PHPWebApplicationFramework\input\choice\OptionGroupElement;
 use JulianSeymour\PHPWebApplicationFramework\input\choice\SelectInput;
 use JulianSeymour\PHPWebApplicationFramework\search\SearchInput;
 
-class Document extends Basic
-{
+class Document extends Basic{
 
-	public static function getElementClassFromTag($tag, $type = null)
-	{
-		$f = __METHOD__; //Document::getShortClass()."(".static::getShortClass().")::getElementClassFromTag()";
-		switch ($tag) {
+	public static function getElementClassFromTag($tag, $type = null){
+		$f = __METHOD__;
+		switch($tag){
 			case "!":
 				return HTMLCommentElement::class;
 			case "a":
@@ -247,7 +246,7 @@ class Document extends Basic
 			case 'img':
 				return ImageElement::class;
 			case "input":
-				switch ($type) {
+				switch($type){
 					case INPUT_TYPE_BUTTON:
 						return ButtonInput::class;
 					case INPUT_TYPE_CHECKBOX:
@@ -427,8 +426,7 @@ class Document extends Basic
 		}
 	}
 
-	public static function createElement($tag, $type = null, $mode = ALLOCATION_MODE_UNDEFINED): Element
-	{
+	public static function createElement($tag, $type = null, $mode = ALLOCATION_MODE_UNDEFINED):Element{
 		$class = static::getElementClassFromTag($tag, $type);
 		$e = new $class($mode);
 		if(get_class($e) === Element::class){

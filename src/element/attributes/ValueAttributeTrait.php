@@ -7,7 +7,7 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 trait ValueAttributeTrait{
 
-	public abstract function removeAttribute(string $name);
+	public abstract function removeAttribute(string $name, bool $deallocate=false);
 
 	public function getValueAttribute(){
 		return $this->getAttribute("value");
@@ -16,13 +16,13 @@ trait ValueAttributeTrait{
 	public function setValueAttribute($value){
 		$f = __METHOD__;
 		$print = false;
-		if($print) {
+		if($print){
 			Debug::print("{$f} assigning value \"{$value}\"");
 		}
 		return $this->setAttribute("value", $value);
 	}
 
-	public function hasValueAttribute(): bool{
+	public function hasValueAttribute():bool{
 		return $this->hasAttribute("value");
 	}
 

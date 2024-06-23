@@ -1,7 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\account\settings;
 
-use function JulianSeymour\PHPWebApplicationFramework\user;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\avatar\ProfileImageThumbnailForm;
 use JulianSeymour\PHPWebApplicationFramework\account\settings\display_name\DisplayNameOuterForm;
@@ -51,7 +52,7 @@ class AccountSettingsElement extends DivElement{
 			MfaSettingsForm::class,
 			SessionHijackPreventionSettingsForm::class
 		];
-		foreach($form_classes as $form_class) {
+		foreach($form_classes as $form_class){
 			$form = new MenuExpandingFormWrapper($mode);
 			$form->setNestedFormClass($form_class);
 			$form->bindContext($context);
@@ -60,11 +61,12 @@ class AccountSettingsElement extends DivElement{
 
 		$recovery_cookie = new SessionRecoveryCookie();
 		$recovery_cookie->setReceptivity(DATA_MODE_SEALED);
-		if($recovery_cookie->hasValidRecoveryData()) {
+		if($recovery_cookie->hasValidRecoveryData()){
 			$srd = $recovery_cookie->getSessionRecoveryData();
 		}else{
 			$srd = new SessionRecoveryData();
 		}
+		deallocate($recovery_cookie);
 		$srd->setUserData($context);
 		$form = new MenuExpandingFormWrapper($mode);
 		$form->setNestedFormClass(SessionRecoverySettingsForm::class);
@@ -80,7 +82,7 @@ class AccountSettingsElement extends DivElement{
 			// ThemeSettingsForm::class,
 			TimezoneSettingsForm::class
 		];
-		foreach($form_classes as $form_class) {
+		foreach($form_classes as $form_class){
 			$form = new MenuExpandingFormWrapper($mode);
 			$form->setNestedFormClass($form_class);
 			$form->bindContext($context);
@@ -108,8 +110,8 @@ class AccountSettingsElement extends DivElement{
 			$radio_settings_none->setIdAttribute("radio_settings_none");
 			$setlist->appendChild($radio_settings_none);
 			$this->appendChild($setlist);
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

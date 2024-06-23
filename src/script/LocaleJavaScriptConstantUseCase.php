@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\script;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 
 class LocaleJavaScriptConstantUseCase extends LocalizedJavaScriptFileUseCase{
@@ -11,7 +12,9 @@ class LocaleJavaScriptConstantUseCase extends LocalizedJavaScriptFileUseCase{
 	}
 	
 	public static function echoJavaScriptFileContentsStatic(string $locale):void{
-		echo CommandBuilder::const('LOCALE', $locale)->toJavaScript().";\n";
+		$locale = CommandBuilder::const('LOCALE', $locale);
+		echo $locale->toJavaScript().";\n";
+		deallocate($locale);
 	}
 	
 	public static function getFilename(): string{

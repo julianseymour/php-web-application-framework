@@ -13,17 +13,17 @@ class ImageThumbnailFileInput extends FileInput
 		$this->setAcceptAttribute("image/png, image/jpeg, image/gif");
 	}
 
-	protected function generatePredecessors():?array{
-		$f = __METHOD__; //ImageThumbnailFileInput::getShortClass()."(".static::getShortClass().")->generatePredecessors()";
+	protected function getSelfGeneratedPredecessors():?array{
+		$f = __METHOD__;
 		$print = false;
 		$context = $this->getContext();
 		$ds = $context->getDataStructure();
-		if($ds->isUninitialized()) {
+		if($ds->isUninitialized()){
 			if($print){
 				$decl = $ds->getDeclarationLine();
 				Debug::print("{$f} context is uninitialized, instantiated {$decl}");
 			}
-			return parent::generatePredecessors();
+			return parent::getSelfGeneratedPredecessors();
 		}elseif($print){
 			Debug::print("{$f} context is initialized. You should see a thumbnail when the form renders");
 		}
@@ -32,8 +32,7 @@ class ImageThumbnailFileInput extends FileInput
 		];
 	}
 
-	public static function getThumbnailElement($context)
-	{
+	public static function getThumbnailElement($context){
 		$img = new ImageElement();
 		$img->setSourceAttribute($context->getWebThumbnailPath());
 		$img->setStyleProperty("max-height", THUMBNAIL_MAX_DIMENSION . "px");

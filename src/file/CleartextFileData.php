@@ -17,7 +17,7 @@ class CleartextFileData extends FileData implements StaticTableNameInterface{
 	
 	public function getOriginalFilename():string{
 		$f = __METHOD__;
-		if(!$this->hasOriginalFilename()) {
+		if(!$this->hasOriginalFilename()){
 			Debug::error("{$f} original filename is undefined");
 			return null;
 		}
@@ -30,7 +30,7 @@ class CleartextFileData extends FileData implements StaticTableNameInterface{
 
 	public function getFilename():string{
 		$f = __METHOD__;
-		if(!$this->hasFilename()) {
+		if(!$this->hasFilename()){
 			$class = $this->getClass();
 			$key = $this->getIdentifierValue();
 			// $username = $this->getUserName();
@@ -50,15 +50,15 @@ class CleartextFileData extends FileData implements StaticTableNameInterface{
 			$ext = $this->getExtension();
 			$key = $this->getIdentifierValue();
 			$filename = "{$original}-{$key}.{$ext}";
-			if($print) {
+			if($print){
 				Debug::print("{$f} setting filename to \"{$filename}\"");
 			}
 			$this->setFilename($filename);
-			if($print) {
+			if($print){
 				Debug::print("{$f} returning normally");
 			}
 			return parent::afterGenerateInitialValuesHook();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -77,7 +77,7 @@ class CleartextFileData extends FileData implements StaticTableNameInterface{
 
 	public function getMimeType():string{
 		$f = __METHOD__;
-		if(!$this->hasMimeType()) {
+		if(!$this->hasMimeType()){
 			Debug::error("{$f} mime type is undefined");
 			return MIME_TYPE_OCTET_STREAM;
 		}
@@ -102,7 +102,7 @@ class CleartextFileData extends FileData implements StaticTableNameInterface{
 
 	public function getSize():int{
 		$f = __METHOD__;
-		if(!$this->hasSize()) {
+		if(!$this->hasSize()){
 			Debug::error("{$f} size is undefined");
 		}
 		return $this->getColumnValue("size");
@@ -116,7 +116,7 @@ class CleartextFileData extends FileData implements StaticTableNameInterface{
 		return "/var/www/html" . $this->getWebFileDirectory();
 	}
 
-	protected function beforeInsertHook(mysqli $mysqli): int{
+	public function beforeInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try{
 			$write_me = $this->getFileToWrite();
@@ -125,23 +125,23 @@ class CleartextFileData extends FileData implements StaticTableNameInterface{
 			// $file_hash = sha1($write_me);
 			// $this->setFileHash($file_hash);
 			return parent::beforeInsertHook($mysqli);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	protected function afterInsertHook(mysqli $mysqli): int{
+	public function afterInsertHook(mysqli $mysqli): int{
 		$f = __METHOD__;
 		try{
 			$status = parent::afterInsertHook($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} parent function returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
 			Debug::print("{$f} parent function executed successfully");
 			return $this->writeFile();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -151,7 +151,7 @@ class CleartextFileData extends FileData implements StaticTableNameInterface{
 	}
 
 	public function getFileToWrite(){
-		if($this->hasFileContents()) {
+		if($this->hasFileContents()){
 			return $this->getFileContents();
 		}
 		return $this->fileContents = file_get_contents($this->getUploadedTempFilename());

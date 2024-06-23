@@ -10,7 +10,7 @@ use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordValidator;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\core\Document;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
-use JulianSeymour\PHPWebApplicationFramework\input\InputInterface;
+use JulianSeymour\PHPWebApplicationFramework\input\InputlikeInterface;
 use JulianSeymour\PHPWebApplicationFramework\input\PasswordInput;
 use JulianSeymour\PHPWebApplicationFramework\ui\ExpandingMenuNestedForm;
 use JulianSeymour\PHPWebApplicationFramework\validate\FormDataIndexValidator;
@@ -39,7 +39,7 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 		$print = false;
 		$names = parent::getValidateInputNames();
 		array_push($names, "password_new");
-		if($print) {
+		if($print){
 			Debug::print("{$f} returning the following indices");
 			Debug::printArray($names);
 		}
@@ -49,19 +49,20 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 	public function reconfigureInput($input): int{
 		$f = __METHOD__;
 		try{
+			$ret =parent::reconfigureInput($input);
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "password":
 					$input->setLabelString(_("Current password"));
-					$input->setWrapperElement(Document::createElement("div")->withStyleProperties([
+					$input->getWrapperElement()->setStyleProperties([
 						"position" => "relative"
-					]));
+					]);
 					$input->setRequiredAttribute("required");
 					break;
 				default:
 			}
-			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+			return $ret;
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -79,7 +80,6 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 			$twelve_plus = substitute(_("%1%+ characters"), 12);
 			$placeholder = "{$new_password} ({$twelve_plus})";
 			$npi->setLabelString($placeholder);
-			$npi->setWrapperElement(new DivElement($mode));
 			$npi->setWrapperElement(Document::createElement("div")->withStyleProperties([
 				"margin-bottom" => "1rem",
 				"margin-top" => "1rem",
@@ -92,12 +92,12 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 			$npi->pushSuccessor($suffix);
 			$inputs[$npi->getNameAttribute()] = $npi;
 			return $inputs;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	protected function attachInputValidators(InputInterface $input): InputInterface{
+	protected function attachInputValidators(InputlikeInterface $input): InputlikeInterface{
 		$f = __METHOD__;
 		try{
 			$print = false;
@@ -105,12 +105,12 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 				return $input;
 			}
 			$cn = $input->getColumnName();
-			switch ($cn) {
+			switch($cn){
 				case "password":
 					$input->pushValidator(new PasswordValidator("password"));
 					break;
 				case "password_new":
-					if($print) {
+					if($print){
 						Debug::print("{$f} attaching input validators to new password input");
 					}
 					$input->setMinimumLengthAttribute(12);
@@ -119,7 +119,7 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 				default:
 			}
 			return parent::attachInputValidators($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -162,7 +162,7 @@ class ChangePasswordForm extends ExpandingMenuNestedForm implements PasswordGene
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_REGENERATE:
 				$button = $this->generateGenericButton($name);
 				$innerHTML = _("Change password");

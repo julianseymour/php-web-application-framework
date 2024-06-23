@@ -45,7 +45,7 @@ abstract class ErrorMessage{
 	public static function getResultMessage($status){
 		$f = __METHOD__;
 		try{
-			switch ($status) {
+			switch($status){
 				case (ERROR_MYSQL_QUERY):
 					return _("MySQL query error.");
 				case (ERROR_MYSQL_RESULT):
@@ -420,7 +420,7 @@ abstract class ErrorMessage{
 					Debug::warning("{$f} this function is being deprecated");
 					return substitute(_("Error code %1%."), $status);
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

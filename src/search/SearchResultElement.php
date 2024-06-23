@@ -18,8 +18,8 @@ class SearchResultElement extends AnchorElement
 			$name = new DivElement($mode);
 			$name->setInnerHTML($context->getName());
 			$this->appendChild($name);
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

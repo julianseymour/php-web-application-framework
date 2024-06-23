@@ -1,14 +1,15 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\database;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\query\CharacterSetTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\CollatedTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\EncryptionOptionTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\IfNotExistsFlagBearingTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\QueryStatement;
 
-class CreateDatabaseStatement extends QueryStatement
-{
+class CreateDatabaseStatement extends QueryStatement{
 
 	use CharacterSetTrait;
 	use CollatedTrait;
@@ -16,36 +17,39 @@ class CreateDatabaseStatement extends QueryStatement
 	use EncryptionOptionTrait;
 	use IfNotExistsFlagBearingTrait;
 
-	public function __construct($databaseName = null)
-	{
+	public function __construct($databaseName = null){
 		parent::__construct();
-		if($databaseName !== null) {
+		if($databaseName !== null){
 			$this->setDatabaseName($databaseName);
 		}
 	}
 
-	public static function declareFlags(): ?array
-	{
+	public static function declareFlags(): ?array{
 		return array_merge(parent::declareFlags(), [
 			"if not exists"
 		]);
 	}
 
-	public function getQueryStatementString()
-	{
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"if not exists"
+		]);
+	}
+	
+	public function getQueryStatementString(){
 		// CREATE {DATABASE | SCHEMA} [IF NOT EXISTS] db_name [create_option] ...
 		$string = "create database ";
-		if($this->getIfNotExistsFlag()) {
+		if($this->getIfNotExistsFlag()){
 			$string .= "if not exists ";
 		}
 		$string .= $this->getDatabaseName();
-		if($this->hasCharacterSet()) {
+		if($this->hasCharacterSet()){
 			$string .= " character set " . $this->getCharacterSet();
 		}
-		if($this->hasCollationName()) {
+		if($this->hasCollationName()){
 			$string .= " collate " . $this->getCollationName();
 		}
-		if($this->hasEncryption()) {
+		if($this->hasEncryption()){
 			$string .= " encryption " . $this->getEncryption();
 		}
 		return $string;
@@ -58,12 +62,12 @@ class CreateDatabaseStatement extends QueryStatement
 		 */
 	}
 
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->characterSet);
-		unset($this->collationName);
-		unset($this->databaseName);
-		unset($this->encryptionOption);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->characterSet, $deallocate);
+		$this->release($this->collationName, $deallocate);
+		$this->release($this->databaseName, $deallocate);
+		$this->release($this->encryptionOption, $deallocate);
+		$this->release($this->requiredMySQLVersion, $deallocate);
 	}
 }

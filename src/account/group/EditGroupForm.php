@@ -18,12 +18,12 @@ class EditGroupForm extends AjaxForm
 	public function generateButtons(string $directive): ?array
 	{
 		$f = __METHOD__; //EditGroupForm::getShortClass()."(".static::getShortClass().")->generateButtons()";
-		if(!is_string($directive)) {
+		if(!is_string($directive)){
 			Debug::error("{$f} directive must be a string");
-		}elseif(empty($directive)) {
+		}elseif(empty($directive)){
 			Debug::error("{$f} received empty string as input parameter");
 		}
-		switch ($directive) {
+		switch($directive){
 			case DIRECTIVE_UPDATE:
 			case DIRECTIVE_DELETE:
 				return [
@@ -45,7 +45,7 @@ class EditGroupForm extends AjaxForm
 			"name" => TextInput::class
 			// "groupType" => SelectInput::class
 		];
-		if(!$this->getContext()->isUninitialized()) {
+		if(!$this->getContext()->isUninitialized()){
 			$ret[RoleDeclaration::getPhylumName()] = RoleDeclarationForm::class;
 		}
 		return $ret;

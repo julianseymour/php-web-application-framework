@@ -2,7 +2,10 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\query\join;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
 use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
@@ -23,16 +26,20 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	protected $searchCondition;
 
-	public function __construct($joinType, $joinExpression, $spec = null){
+	public function __construct($joinType=null, $joinExpression=null, $spec = null){
 		$f = __METHOD__;
 		parent::__construct();
 		// $this->requirePropertyType("columnNames", 's');
-		$this->setJoinType($joinType);
-		$this->setJoinExpression($joinExpression);
-		if($spec !== null) {
-			if(is_array($spec)) {
+		if($joinType !== null){
+			$this->setJoinType($joinType);
+		}
+		if($joinExpression !== null){
+			$this->setJoinExpression($joinExpression);
+		}
+		if($spec !== null){
+			if(is_array($spec)){
 				$this->setColumnNames($spec);
-			}elseif(is_string($spec) || $spec instanceof ExpressionCommand) {
+			}elseif(is_string($spec) || $spec instanceof ExpressionCommand){
 				$this->setSearchCondition($spec);
 			}else{
 				$gottype = is_object($spec) ? $spec->getClass() : gettype($spec);
@@ -41,51 +48,69 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 		}
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->properties);
-		unset($this->propertyTypes);
-		unset($this->joinType);
-		unset($this->joinExpression);
-		unset($this->searchCondition);
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasJoinType()){
+			$this->setJoinType(replicate($that->getJoinType()));
+		}
+		if($that->hasJoinExpression()){
+			$this->setJoinExpression(replicate($that->getJoinExpression()));
+		}
+		if($that->hasSearchCondition()){
+			$this->setSearchCondition(replicate($that->getSearchCondition()));
+		}
+		if($that->hasProperties()){
+			$this->copyProperties($that);
+		}
+		return $ret;
+	}
+	
+	public function dispose(bool $deallocate=false): void{
+		if($this->hasProperties()){
+			$this->releaseProperties($deallocate);
+		}
+		parent::dispose($deallocate);
+		$this->release($this->propertyTypes, $deallocate);
+		$this->release($this->joinType, $deallocate);
+		$this->release($this->joinExpression, $deallocate);
+		$this->release($this->searchCondition, $deallocate);
 	}
 
 	public function setJoinType($type){
 		$f = __METHOD__;
-		if($type == null) {
-			unset($this->joinType);
-			unset($this->searchCondition);
-			return null;
-		}elseif(!is_string($type)) {
+		if(!is_string($type)){
 			Debug::error("{$f} join type must be a string");
-		}elseif(empty($type)) {
+		}elseif(empty($type)){
 			Debug::error("{$f} join type cannot be the empty string");
-		} else
-			switch ($type) {
-				case JOIN_TYPE_JOIN: // In MySQL, JOIN, CROSS JOIN, and INNER JOIN are syntactic equivalents (they can replace each other). In standard SQL, they are not equivalent. INNER JOIN is used with an ON clause, CROSS JOIN is used otherwise.
-				case JOIN_TYPE_INNER: // INNER JOIN and , (comma) are semantically equivalent in the absence of a join condition: both produce a Cartesian product between the specified tables (that is, each and every row in the first table is joined to each and every row in the second table).
-				case JOIN_TYPE_CROSS:
-				case JOIN_TYPE_STRAIGHT: // STRAIGHT_JOIN is similar to JOIN, except that the left table is always read before the right table. This can be used for those (few) cases for which the join optimizer processes the tables in a suboptimal order.
-				case JOIN_TYPE_LEFT:
-				case JOIN_TYPE_RIGHT: // RIGHT JOIN works analogously to LEFT JOIN. To keep code portable across databases, it is recommended that you use LEFT JOIN instead of RIGHT JOIN.
-				case JOIN_TYPE_NATURAL:
-				case JOIN_TYPE_NATURAL_INNER:
-				case JOIN_TYPE_NATURAL_LEFT: // The NATURAL [LEFT] JOIN of two tables is defined to be semantically equivalent to an INNER JOIN or a LEFT JOIN with a USING clause that names all columns that exist in both tables.
-				case JOIN_TYPE_NATURAL_RIGHT:
-					break;
-				default:
-					Debug::error("{$f} invalid join type \"{$type}\"");
-			}
-		return $this->joinType = $type;
+		}
+		switch($type){
+			case JOIN_TYPE_JOIN: // In MySQL, JOIN, CROSS JOIN, and INNER JOIN are syntactic equivalents (they can replace each other). In standard SQL, they are not equivalent. INNER JOIN is used with an ON clause, CROSS JOIN is used otherwise.
+			case JOIN_TYPE_INNER: // INNER JOIN and , (comma) are semantically equivalent in the absence of a join condition: both produce a Cartesian product between the specified tables (that is, each and every row in the first table is joined to each and every row in the second table).
+			case JOIN_TYPE_CROSS:
+			case JOIN_TYPE_STRAIGHT: // STRAIGHT_JOIN is similar to JOIN, except that the left table is always read before the right table. This can be used for those (few) cases for which the join optimizer processes the tables in a suboptimal order.
+			case JOIN_TYPE_LEFT:
+			case JOIN_TYPE_RIGHT: // RIGHT JOIN works analogously to LEFT JOIN. To keep code portable across databases, it is recommended that you use LEFT JOIN instead of RIGHT JOIN.
+			case JOIN_TYPE_NATURAL:
+			case JOIN_TYPE_NATURAL_INNER:
+			case JOIN_TYPE_NATURAL_LEFT: // The NATURAL [LEFT] JOIN of two tables is defined to be semantically equivalent to an INNER JOIN or a LEFT JOIN with a USING clause that names all columns that exist in both tables.
+			case JOIN_TYPE_NATURAL_RIGHT:
+				break;
+			default:
+				Debug::error("{$f} invalid join type \"{$type}\"");
+		}
+		if($this->hasJoinType()){
+			$this->release($this->joinType);
+		}
+		return $this->joinType = $this->claim($type);
 	}
 
 	public function hasJoinType():bool{
-		return isset($this->joinType) && is_string($this->joinType) && ! empty($this->joinType);
+		return isset($this->joinType) && is_string($this->joinType) && !empty($this->joinType);
 	}
 
 	public function getJoinType(){
 		$f = __METHOD__;
-		if(!$this->hasJoinType()) {
+		if(!$this->hasJoinType()){
 			Debug::error("{$f} join type is undefined");
 		}
 		return $this->joinType;
@@ -94,7 +119,7 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 	public function getJoinTypeString(){
 		$f = __METHOD__;
 		$type = $this->getJoinType();
-		switch ($type) {
+		switch($type){
 			case JOIN_TYPE_JOIN:
 				return "join";
 			case JOIN_TYPE_CROSS:
@@ -120,13 +145,13 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 		}
 	}
 
-	public function hasJoinExpression(){
+	public function hasJoinExpression():bool{
 		return isset($this->joinExpression);
 	}
 
 	public function getJoinExpression(){
 		$f = __METHOD__;
-		if(!$this->hasJoinExpression()) {
+		if(!$this->hasJoinExpression()){
 			Debug::error("{$f} join expression is undefined");
 		}
 		return $this->joinExpression;
@@ -134,10 +159,10 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	public function setJoinExpression($tr){
 		$f = __METHOD__;
-		if($tr instanceof JoinedTable) {
-			if($this->hasJoinType()) {
+		if($tr instanceof JoinedTable){
+			if($this->hasJoinType()){
 				$type = $this->getJoinType();
-				switch ($type) {
+				switch($type){
 					case JOIN_TYPE_LEFT:
 					case JOIN_TYPE_RIGHT:
 						break;
@@ -145,20 +170,20 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 						Debug::error("{$f} cannot use a JoinedTable except for non-natural left/right joins");
 				}
 			}
-		}elseif($tr instanceof TableFactor && $tr->getEscapeFlag()) {
+		}elseif($tr instanceof TableFactor && $tr->getEscapeFlag()){
 			Debug::error("{$f} you cannot escape table references that are part of a JoinedTable");
 		}
-		return $this->joinExpression = $tr;
+		if($this->hasJoinExpression()){
+			$this->release($this->joinExpression);
+		}
+		return $this->joinExpression = $this->claim($tr);
 	}
 
 	public function setSearchCondition($sc){
-		$f = __METHOD__;
-		if($sc == null) {
-			unset($this->searchCondition);
-			return null;
+		if($this->hasSearchCondition()){
+			$this->release($this->searchCondition);
 		}
-		// ErrorMessage::unimplemented($f);
-		return $this->searchCondition = $sc;
+		return $this->searchCondition = $this->claim($sc);
 	}
 
 	public function hasSearchCondition(){
@@ -167,7 +192,7 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 
 	public function getSearchCondition(){
 		$f = __METHOD__;
-		if(!$this->hasSearchCondition()) {
+		if(!$this->hasSearchCondition()){
 			Debug::error("{$f} search condition is undefined");
 		}
 		return $this->searchCondition;
@@ -177,37 +202,37 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 		$f = __METHOD__;
 		try{
 			$join = $this->getJoinExpression();
-			if($join instanceof SQLInterface) {
+			if($join instanceof SQLInterface){
 				$join = $join->toSQL();
 			}
 			$string = $this->getJoinTypeString() . " {$join}";
 			$type = $this->getJoinType();
-			switch ($type) {
+			switch($type){
 				case JOIN_TYPE_CROSS:
 				case JOIN_TYPE_INNER:
 				case JOIN_TYPE_JOIN:
 				case JOIN_TYPE_STRAIGHT:
 					// table_reference {[INNER | CROSS] JOIN | STRAIGHT_JOIN} table_factor [{ON search_condition | USING (join_column_list)}]
-					if($this->hasSearchCondition()) {
+					if($this->hasSearchCondition()){
 						$sc = $this->getSearchCondition();
-						if($sc instanceof SQLInterface) {
+						if($sc instanceof SQLInterface){
 							$sc = $sc->toSQL();
 						}
 						$string .= " on {$sc}";
-					}elseif($this->hasColumnNames()) {
+					}elseif($this->hasColumnNames()){
 						$string .= " using " . implode_back_quotes(',', $this->getColumnNames());
 					}
 					break;
 				case JOIN_TYPE_LEFT:
 				case JOIN_TYPE_RIGHT:
 					// table_reference {LEFT|RIGHT} [OUTER] JOIN table_reference {ON search_condition | USING (join_column_list)}
-					if($this->hasSearchCondition()) {
+					if($this->hasSearchCondition()){
 						$sc = $this->getSearchCondition();
-						if($sc instanceof SQLInterface) {
+						if($sc instanceof SQLInterface){
 							$sc = $sc->toSQL();
 						}
 						$string .= " on {$sc}";
-					}elseif($this->hasColumnNames()) {
+					}elseif($this->hasColumnNames()){
 						$string .= " using " . implode_back_quotes(',', $this->getColumnNames());
 					}else{
 						Debug::error("{$f} left/right outer joins must have either a search condition or join column list");
@@ -223,69 +248,57 @@ class JoinedTable extends JoinExpression implements StaticPropertyTypeInterface{
 					Debug::error("{$f} invalid join type \"{$type}\"");
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function on($sc)
-	{
+	public function on($sc){
 		$this->setSearchCondition($sc);
 		return $this;
 	}
 
-	public static function join($join_expression, $spec = null)
-	{
+	public static function join($join_expression, $spec = null){
 		return new JoinedTable(JOIN_TYPE_JOIN, $join_expression, $spec);
 	}
 
-	public static function crossJoin($join_expression, $spec = null)
-	{
+	public static function crossJoin($join_expression, $spec = null){
 		return new JoinedTable(JOIN_TYPE_CROSS, $join_expression, $spec);
 	}
 
-	public static function innerJoin($join_expression, $spec = null)
-	{
+	public static function innerJoin($join_expression, $spec = null){
 		return new JoinedTable(JOIN_TYPE_INNER, $join_expression, $spec);
 	}
 
-	public static function straightJoin($join_expression, $spec = null)
-	{
+	public static function straightJoin($join_expression, $spec = null){
 		return new JoinedTable(JOIN_TYPE_STRAIGHT, $join_expression, $spec);
 	}
 
-	public static function leftJoin($join_expression, $spec = null)
-	{
+	public static function leftJoin($join_expression, $spec = null){
 		return new JoinedTable(JOIN_TYPE_LEFT, $join_expression, $spec);
 	}
 
-	public static function rightJoin($join_expression, $spec = null)
-	{
+	public static function rightJoin($join_expression, $spec = null){
 		return new JoinedTable(JOIN_TYPE_RIGHT, $join_expression, $spec);
 	}
 
-	public static function naturalJoin($join_expression)
-	{
+	public static function naturalJoin($join_expression){
 		return new JoinedTable(JOIN_TYPE_NATURAL, $join_expression);
 	}
 
-	public static function naturalInnerJoin($join_expression)
-	{
+	public static function naturalInnerJoin($join_expression){
 		return new JoinedTable(JOIN_TYPE_NATURAL_INNER, $join_expression);
 	}
 
-	public static function naturalLeftJoin($join_expression)
-	{
+	public static function naturalLeftJoin($join_expression){
 		return new JoinedTable(JOIN_TYPE_NATURAL_LEFT, $join_expression);
 	}
 
-	public static function naturalRightJoin($join_expression)
-	{
+	public static function naturalRightJoin($join_expression){
 		return new JoinedTable(JOIN_TYPE_NATURAL_RIGHT, $join_expression);
 	}
 
-	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array
-	{
+	public static function declarePropertyTypes(?StaticPropertyTypeInterface $that = null): array{
 		return [
 			"columnNames" => 's'
 		];

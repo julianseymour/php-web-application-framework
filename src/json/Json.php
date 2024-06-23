@@ -3,9 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\json;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
-
 use function JulianSeymour\PHPWebApplicationFramework\x;
-use JulianSeymour\PHPWebApplicationFramework\common\DisposableInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
 
@@ -22,14 +20,14 @@ abstract class Json{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(is_object($value)) {
-				if($print) {
+			if(is_object($value)){
+				if($print){
 					Debug::print("{$f} value is an object");
 				}
-				if($value instanceof EchoJsonInterface) {
-					if(!$value->getAllocatedFlag()) {
+				if($value instanceof EchoJsonInterface){
+					if(!$value->getAllocatedFlag()){
 						$class = $value->getClass();
-						if(app()->getFlag("debug")) {
+						if(app()->getFlag("debug")){
 							$did = $value->getDebugId();
 							$decl = $value->hasDeclarationLine() ? $value->getDeclarationLine() : "unknown";
 							Debug::error("{$f} {$class} with debug ID \"{$did}\" declared {$decl} has already been deallocated");
@@ -41,24 +39,24 @@ abstract class Json{
 				}else{
 					echo json_encode($value);
 				}
-				if($destroy && $value instanceof DisposableInterface) {
-					$value->dispose();
-				}
-			}elseif(is_string($value)) {
-				if($print) {
+				/*if($destroy && $value instanceof DisposableInterface){
+					deallocate($value);
+				}*/
+			}elseif(is_string($value)){
+				if($print){
 					Debug::print("{$f} value is a string");
 				}
 				echo json_encode($value);
-			}elseif(is_array($value)) {
-				if($print) {
+			}elseif(is_array($value)){
+				if($print){
 					Debug::print("{$f} value is an array");
 				}
-				if(empty($value)) {
+				if(empty($value)){
 					if($print){
 						Debug::print("{$f} no empty arrays please");
 					}
 					echo "{}";
-					if($comma) {
+					if($comma){
 						echo ",";
 					}
 					return;
@@ -68,39 +66,39 @@ abstract class Json{
 				echo is_int($key0) ? "[" : "{";
 				// copied and pasted from //Json::echoArray($value, $destroy, $comma);
 				$i = 0;
-				foreach($value as $key => $subvalue) {
-					if(is_object($subvalue) && $subvalue instanceof EchoJsonInterface && $subvalue->skipJson()) {
+				foreach($value as $key => $subvalue){
+					if(is_object($subvalue) && $subvalue instanceof EchoJsonInterface && $subvalue->skipJson()){
 						continue;
-					}elseif($i ++ > 0) {
+					}elseif($i ++ > 0){
 						echo ",";
 					}
-					if(is_int($key)) {
+					if(is_int($key)){
 						Json::echo($subvalue, $destroy, false);
-					}elseif(is_string($key)) {
+					}elseif(is_string($key)){
 						Json::echoKeyValuePair($key, $subvalue, $destroy, false);
 					}else{
 						Debug::error("{$f} key is neither numeric or string");
 					}
 				}
-				/*if($comma) {
+				/*if($comma){
 					echo ",";
 				}*///What is this doing up here
 				echo is_int($key0) ? "]" : "}";
-				if($comma) {
+				if($comma){
 					echo ",";
 				}
-			}elseif(is_bool($value)) {
-				if($print) {
+			}elseif(is_bool($value)){
+				if($print){
 					Debug::print("{$f} value is boolean");
 				}
 				echo $value ? "true" : "false";
-			}elseif(is_int($value) || is_float($value) || is_double($value)) {
-				if($print) {
+			}elseif(is_int($value) || is_float($value) || is_double($value)){
+				if($print){
 					Debug::print("{$f} value is numeric");
 				}
 				echo $value;
-			}elseif($value === null) {
-				if($print) {
+			}elseif($value === null){
+				if($print){
 					Debug::print("{$f} value is null");
 				}
 				echo "null";
@@ -108,7 +106,7 @@ abstract class Json{
 				$gottype = gettype($value);
 				Debug::error("{$f} value of type \"{$gottype}\" is not an object, number, boolean, null, string or array");
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -128,17 +126,17 @@ abstract class Json{
 				Debug::warning("{$f} empty array received for key \"{$key}\"");
 			}
 			//do not elseif
-			if(is_string($key)) {
+			if(is_string($key)){
 				Json::echo($key, $destroy, false);
 				echo ":";
-			}elseif(!is_int($key)) {
+			}elseif(!is_int($key)){
 				Debug::error("{$f} array keys must be numeric or string");
 			}
 			Json::echo($value, $destroy, false);
-			if($comma) {
+			if($comma){
 				echo ",";
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -158,24 +156,24 @@ abstract class Json{
 		try{
 			Debug::error("{$f} disabled to reduce execution depth");
 			$i = 0;
-			foreach($arr as $key => $subvalue) {
-				if(is_object($subvalue) && $subvalue instanceof EchoJsonInterface && $subvalue->skipJson()) {
+			foreach($arr as $key => $subvalue){
+				if(is_object($subvalue) && $subvalue instanceof EchoJsonInterface && $subvalue->skipJson()){
 					continue;
-				}elseif($i ++ > 0) {
+				}elseif($i ++ > 0){
 					echo ",";
 				}
-				if(is_int($key)) {
+				if(is_int($key)){
 					Json::echo($subvalue, $destroy, false);
-				}elseif(is_string($key)) {
+				}elseif(is_string($key)){
 					Json::echoKeyValuePair($key, $subvalue, $destroy, false);
 				}else{
 					Debug::error("{$f} key is neither numeric or string");
 				}
 			}
-			if($comma) {
+			if($comma){
 				echo ",";
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -1,40 +1,39 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query\index;
 
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 
-trait MultipleIndexDefiningTrait
-{
+/**
+ * XXX TODO this is used only by DataStructure
+ * @author j
+ *
+ */
+trait MultipleIndexDefiningTrait{
 
 	use ArrayPropertyTrait;
 
-	public function setIndexDefinitions($indexDefinitions)
-	{
+	public function setIndexDefinitions($indexDefinitions){
 		return $this->setArrayProperty("indexDefinitions", $indexDefinitions);
 	}
 
-	public function hasIndexDefinitions()
-	{
+	public function hasIndexDefinitions():bool{
 		return $this->hasArrayProperty("indexDefinitions");
 	}
 
-	public function pushIndexDefinitions(...$indexDefinitions)
-	{
+	public function pushIndexDefinitions(...$indexDefinitions):int{
 		return $this->pushArrayProperty("indexDefinitions", ...$indexDefinitions);
 	}
 
-	public function mergeIndexDefinitions($indexDefinitions)
-	{
+	public function mergeIndexDefinitions($indexDefinitions){
 		return $this->mergeArrayProperty("indexDefinitions", $indexDefinitions);
 	}
 
-	public function getIndexDefinitions()
-	{
+	public function getIndexDefinitions(){
 		return $this->getProperty("indexDefinitions");
 	}
 
-	public function withIndexDefinitions($indexDefinitions)
-	{
+	public function withIndexDefinitions($indexDefinitions){
 		$this->setIndexDefinitions($indexDefinitions);
 		return $this;
 	}

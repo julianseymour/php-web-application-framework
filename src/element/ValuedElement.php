@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element;
 
 use JulianSeymour\PHPWebApplicationFramework\element\attributes\ValueAttributeInterface;

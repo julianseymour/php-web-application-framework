@@ -26,7 +26,7 @@ abstract class CompoundDatum extends Datum{
 
 	public function getComponent($component_name){
 		$f = __METHOD__;
-		if(!$this->hasComponent($component_name)) {
+		if(!$this->hasComponent($component_name)){
 			Debug::error("{$f} component \"{$component_name}\" is undefined");
 		}
 		return $this->components[$component_name];
@@ -40,10 +40,10 @@ abstract class CompoundDatum extends Datum{
 	public function processInput($input){
 		$f = __METHOD__;
 		$vn = $this->getName();
-		foreach($this->getComponents() as $component_name => $component) {
+		foreach($this->getComponents() as $component_name => $component){
 			$component_input = $input->getComponent($component_name);
 			$status = $component->processInput($component_input);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				$cvn = $component->getName();
 				Debug::print("{$f} processInput for index \"{$cvn}\" returned error status \"{$err}\"");
@@ -70,7 +70,7 @@ abstract class CompoundDatum extends Datum{
 
 	public function getComponentValue($index){
 		$f = __METHOD__;
-		if(!$this->hasComponent($index)) {
+		if(!$this->hasComponent($index)){
 			Debug::error("{$f} component \"{$index}\" does not exist");
 		}
 		return $this->getComponent($index)->getValue();
@@ -78,7 +78,7 @@ abstract class CompoundDatum extends Datum{
 
 	public function setComponentValue(string $index, $value){
 		$f = __METHOD__;
-		if(!$this->hasComponent($index)) {
+		if(!$this->hasComponent($index)){
 			Debug::error("{$f} component at index \"{$index}\" does not exist");
 		}
 		return $this->getComponent($index)->setValue($value);

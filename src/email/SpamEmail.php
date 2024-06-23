@@ -39,7 +39,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	}
 
 	public static function getPermissionStatic(string $name, $data){
-		if($name === DIRECTIVE_INSERT) {
+		if($name === DIRECTIVE_INSERT){
 			return SUCCESS;
 		}
 		return parent::getPermissionStatic($name, $data);
@@ -95,7 +95,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	
 	public function getRecipientEmailAddress(){
 		$f = __METHOD__;
-		if(!$this->hasRecipientEmailAddress()) {
+		if(!$this->hasRecipientEmailAddress()){
 			Debug::error("{$f} recipient email address is undefined");
 		}
 		return $this->getColumnValue("recipientEmailAddress");
@@ -144,7 +144,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	
 	public function getSenderEmailAddress(){
 		$f = __METHOD__;
-		if(!$this->hasSenderEmailAddress()) {
+		if(!$this->hasSenderEmailAddress()){
 			Debug::error("{$f} sender email address is undefined");
 		}
 		return $this->getColumnValue("senderEmailAddress");
@@ -161,13 +161,13 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 
 	public function embedImage($data){
 		$f = __METHOD__;
-		if(is_string($data)) {
+		if(is_string($data)){
 			$data = new EmbeddedImageData($data);
-		}elseif(!$data instanceof ImageData) {
+		}elseif(!$data instanceof ImageData){
 			Debug::error("{$f} embedded image data is not an ImageData");
-		}elseif(!$data->hasIdentifierValue()) {
+		}elseif(!$data->hasIdentifierValue()){
 			$status = $data->generateKey();
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::error("{$f} generateKey returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
@@ -187,7 +187,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 
 	public function getEmbeddedImages(){
 		$f = __METHOD__;
-		if(!$this->hasEmbeddedImages()) {
+		if(!$this->hasEmbeddedImages()){
 			Debug::error("{$f} embedded images array is undefined");
 		}
 		return $this->getForeignDataStructureList("embeddedImages");
@@ -203,7 +203,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 
 	public function addAttachment($file){
 		$f = __METHOD__;
-		if(!$file instanceof CleartextFileData) {
+		if(!$file instanceof CleartextFileData){
 			Debug::error("{$f} please don't pass your garbage to this function");
 		}
 		return $this->setForeignDataStructureListMember("attachments", $file);
@@ -215,7 +215,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 	 */
 	public function getAttachments(){
 		$f = __METHOD__;
-		if(!$this->hasAttachments()) {
+		if(!$this->hasAttachments()){
 			Debug::error("{$f} attachments are undefined");
 		}
 		return $this->getForeignDataStructureList("attachments");
@@ -227,14 +227,14 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 
 	public function getHTMLContent(){
 		$f = __METHOD__;
-		if(!$this->hasHTMLContent()) {
+		if(!$this->hasHTMLContent()){
 			Debug::error("{$f} html content is undefined");
 		}
 		return $this->htmlContent;
 	}
 
 	public function setHTMLContent($htmlContent){
-		if($htmlContent === null) {
+		if($htmlContent === null){
 			unset($this->htmlContent);
 			return null;
 		}
@@ -249,79 +249,79 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($mix === null) {
+			if($mix === null){
 				$mix = $this->hasAttachments();
-				if($print) {
-					if($mix) {
+				if($print){
+					if($mix){
 						Debug::print("{$f} yes, this email has attachments");
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} no, this email does not have attachments");
 					}
 				}
-			}elseif($print) {
-				if($mix) {
+			}elseif($print){
+				if($mix){
 					Debug::print("{$f} generating a mixed content node");
 				}else{
 					Debug::print("{$f} explicitly told to skip mixed content node");
 				}
 			}
-			if($alt === null) {
+			if($alt === null){
 				$alt = $this->hasPlaintextContent() && $this->hasHTMLContent();
-				if($print) {
-					if($alt) {
+				if($print){
+					if($alt){
 						Debug::print("{$f} this email has both plaintext and HTML content");
 					}else{
 						Debug::print("{$f} this email lacks plaintext and/or HTML content");
 					}
 				}
-			}elseif($print) {
-				if($alt) {
+			}elseif($print){
+				if($alt){
 					Debug::print("{$f} generating a alternative content node");
 				}else{
 					Debug::print("{$f} explicitly told to skip alternative content node");
 				}
 			}
-			if($mix) {
-				if($print) {
+			if($mix){
+				if($print){
 					Debug::print("{$f} now generating mixed content node");
 				}
 				$attachments = [];
-				foreach($this->getAttachments() as $attachment) {
+				foreach($this->getAttachments() as $attachment){
 					array_push($attachments, $attachment->attach());
 				}
 				return new MultipartMixedEmailContent($this->buildContentNodes(false, $alt), ...$attachments);
-			}elseif($alt) {
-				if($print) {
+			}elseif($alt){
+				if($print){
 					Debug::print("{$f} now generating alternative content node");
 				}
 				return new MultipartAlternativeEmailContent(
 					new PlaintextEmailContent($this->getPlaintextContent()), 
 					$this->buildContentNodes($mix, false)
 				);
-			}elseif($this->hasHTMLContent()) {
-				if($print) {
+			}elseif($this->hasHTMLContent()){
+				if($print){
 					Debug::print("{$f} HTML content is defined");
 				}
 				$node = new HTMLEmailContent($this->getHTMLBody());
-				if($this->hasEmbeddedImages()) {
-					if($print) {
+				if($this->hasEmbeddedImages()){
+					if($print){
 						Debug::print("{$f} this email has embedded images");
 					}
 					$embeds = [];
-					foreach($this->getEmbeddedImages() as $embed) {
+					foreach($this->getEmbeddedImages() as $embed){
 						array_push($embeds, $embed->embed());
 					}
 					return new MultipartRelatedEmailContent($node, ...$embeds);
 				}
 				return $node;
-			}elseif($this->hasPlaintextContent()) {
-				if($print) {
+			}elseif($this->hasPlaintextContent()){
+				if($print){
 					Debug::print("{$f} this element has only plaintext content");
 				}
 				return new PlaintextEmailContent($this->getPlaintextContent());
 			}
 			Debug::error("{$f} undefined behavior");
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -334,7 +334,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 		$f = __METHOD__;
 		$print = false;
 		$status = $this->send();
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} send() returned error status \"{$err}\"");
 		}elseif($print){
@@ -342,7 +342,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 		}
 		// insert email record
 		$status = $this->insert($mysqli);
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} insert() returned error status \"{$err}\"");
 			return $this->setObjectStatus($status);
@@ -372,8 +372,8 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 			$element->bindContext($this);
 			$this->setHTMLContent($element);
 			$root_node = $this->buildContentNodes();
-			if($print) {
-				if(!$root_node instanceof MultipartEmailContent) {
+			if($print){
+				if(!$root_node instanceof MultipartEmailContent){
 					$rnc = $root_node->getClass();
 					Debug::error("{$f} root node is a \"{$rnc}\"");
 				}
@@ -382,43 +382,43 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 			}
 			// generate headers
 			$content_type = $root_node->getContentType();
+			$address = $this->getRecipientEmailAddress();
 			$headers = [
-				"MIME-Version:1.0",
-				"From:noreply@" . DOMAIN_LOWERCASE,
-				// "To: {$address}",
-				"Reply-To:".$this->getSenderEmailAddress(),
-				"X-Mailer:PHP/" . PHP_VERSION,
-				"Content-Type:{$content_type}"
+				"MIME-Version: 1.0",
+				"From: noreply@".DOMAIN_LOWERCASE,
+				"To: {$address}",
+				"Reply-To: ".$this->getSenderEmailAddress(),
+				"X-Mailer: PHP/".PHP_VERSION,
+				"Content-Type: {$content_type}"
 			];
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to send an email with the following headers:");
 				Debug::printArray($headers);
 			}
 			$headers = implode("\r\n", $headers);
 			// send email
-			$address = $this->getRecipientEmailAddress();
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to send email to address \"{$address}\"");
 			}
-			if($debug) {
+			if($debug){
 				if($print){
 					Debug::print("{$f} skipping mail()");
 				}
 				$mailed = true;
 			}else{
-				$mailed = mail($address, $this->getSubjectLine(), $root_node, $headers);
+				$mailed = mail($address, $this->getSubjectLine(), $root_node, $headers, '-f noreply@'.DOMAIN_LOWERCASE);
 				iF($print){
 					Debug::print("{$f} returned from mail()");
 				}
 			}
-			if($mailed) {
-				if($print) {
+			if($mailed){
+				if($print){
 					Debug::print("{$f} sendmail reports the message was accepted for delivery");
 				}
 				$status = SUCCESS;
 				$this->setAccepted(true);
 			}else{
-				if($print) {
+				if($print){
 					Debug::warning("{$f} sendmail reports message delivery was unsuccessful");
 				}
 				$status = ERROR_SENDMAIL;
@@ -431,7 +431,7 @@ abstract class SpamEmail extends DataStructure implements StaticElementClassInte
 				Debug::print("{$f} successfully restored locale to \"{$set}\"");
 			}
 			return $this->setObjectStatus($status);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

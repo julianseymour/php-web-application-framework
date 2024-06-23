@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\query\role;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -9,9 +10,9 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\CharDatum;
 use JulianSeymour\PHPWebApplicationFramework\query\DatabaseVersionTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
-use Exception;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
+use Exception;
 
 class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTableNameInterface{
 
@@ -109,7 +110,7 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 		$f = __METHOD__;
 		try{
 			return $this->getUsernameHostString();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -149,18 +150,18 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 
 	public function getHost(){
 		$f = __METHOD__;
-		if(!$this->hasHost()) {
+		if(!$this->hasHost()){
 			Debug::error("{$f} host is undefined");
 		}
 		return $this->getColumnValue("Host");
 	}
 
-	public function setHost($host){ // XXX validate host
+	public function setHost($host){ // XXX TODO: validate host
 		$f = __METHOD__;
-		if($host == null) {
+		if($host == null){
 			$this->ejectColumnValue("Host");
 			return null;
-		}elseif(!is_string($host)) {
+		}elseif(!is_string($host)){
 			Debug::error("{$f} host must be a string");
 		}
 		return $this->setColumnValue("Host", $host);
@@ -177,7 +178,7 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 
 	public function getAuthPlugin(){
 		$f = __METHOD__;
-		if(!$this->hasAuthPlugin()) {
+		if(!$this->hasAuthPlugin()){
 			Debug::error("{$f} auth plugin is undefined");
 		}
 		return $this->getColumnValue("plugin");
@@ -185,10 +186,10 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 
 	public function setAuthPlugin($authPlugin){
 		$f = __METHOD__;
-		if($authPlugin == null) {
+		if($authPlugin == null){
 			$this->ejectColumnValue("plugin");
 			return null;
-		}elseif(!is_string($authPlugin)) {
+		}elseif(!is_string($authPlugin)){
 			Debug::error("{$f} auth plugin must be a string");
 		}
 		return $this->setColumnValue("plugin", $authPlugin);
@@ -201,5 +202,10 @@ class DatabaseRoleData extends DataStructure implements SQLInterface, StaticTabl
 
 	public static function getPermissionStatic(string $name, $data){
 		return FAILURE;
+	}
+	
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->requiredMySQLVersion, $deallocate);
 	}
 }

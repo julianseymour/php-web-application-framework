@@ -1,73 +1,61 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
-use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordTrait;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
-use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnNameTrait;
-use Exception;
 
-class PasswordFunction extends ExpressionCommand
-{
+class PasswordFunction extends ExpressionCommand{
 
 	use ColumnNameTrait;
+	use PasswordTrait;
 
-	protected $password;
-
-	public function __construct($vn = null, $password = null)
-	{
+	public function __construct($vn = null, $password = null){
 		parent::__construct();
-		if(!empty($vn)) {
+		if(!empty($vn)){
 			$this->setColumnName($vn);
 		}
-		if(!empty($password)) {
+		if(!empty($password)){
 			$this->setPassword($password);
 		}
 	}
 
-	public function setPassword($password)
-	{
-		return $this->password = $password;
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasColumnName()){
+			$this->setColumnName(replicate($that->getColumnName()));
+		}
+		if($that->hasPassword()){
+			$this->setPassword(replicate($that->getPassword()));
+		}
+		return $ret;
 	}
 
-	public function hasPassword()
-	{
-		return ! empty($this->password);
-	}
-
-	public function getParameterCount()
-	{
+	public function getParameterCount():int{
 		return 0;
 	}
 
-	public function getPassword()
-	{
-		$f = __METHOD__; //PasswordFunction::getShortClass()."(".static::getShortClass().")->getPassword()";
-		try{
-			if(!$this->hasPassword()) {
-				Debug::error("{$f} password is undefined");
-			}
-			return $this->password;
-		}catch(Exception $x) {
-			x($f, $x);
-		}
-	}
-
-	public static function getCommandId(): string
-	{
+	public static function getCommandId(): string{
 		return "password";
 	}
 
-	public function toSQL(): string
-	{
+	public function toSQL(): string{
 		return "PASSWORD(" . single_quote($this->getPassword()) . ")";
 	}
 
-	public function evaluate(?array $params = null)
-	{
-		$f = __METHOD__; //PasswordFunction::getShortClass()."(".static::getShortClass().")->evaulate()";
+	public function evaluate(?array $params = null){
+		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);
+	}
+	
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->columnName, $deallocate);
+		$this->release($this->password, $deallocate);
 	}
 }

@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\command\expression;
 
+use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
@@ -23,13 +25,19 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 
 	public function __construct(...$parameters){
 		$f = __METHOD__;
+		$print = false;
 		parent::__construct();
-		if(isset($parameters) && count($parameters) > 0) {
-			if(count($parameters) === 1 && is_array($parameters[0])) {
+		if(isset($parameters) && count($parameters) > 0){
+			if($print){
+				$count = count($parameters);
+				Debug::print("{$f} {$count} parameters");
+				//Debug::printArray($parameters);
+			}
+			if(count($parameters) === 1 && is_array($parameters[0])){
 				$parameters = $parameters[0];
 			}
-			foreach($parameters as $i => $p) {
-				if(is_array($p)) {
+			foreach($parameters as $i => $p){
+				if(is_array($p)){
 					Debug::printArray($parameters);
 					Debug::error("{$f} array parameter at index {$i}");
 				}
@@ -38,9 +46,22 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 		}
 	}
 
+	public final function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->computerLanguage, $deallocate);
+	}
+	
+	public function copy($that):int{
+		$ret = parent::copy($that);
+		if($that->hasComputerLanguage()){
+			$this->setComputerLanguage(replicate($that->getComputerLanguage()));
+		}
+		return $ret;
+	}
+	
 	public function hasMatchFunction(): bool{
-		foreach($this->getFlatWhereConditionArray() as $wc) {
-			if($wc instanceof MatchFunction) {
+		foreach($this->getFlatWhereConditionArray() as $wc){
+			if($wc instanceof MatchFunction){
 				return true;
 			}
 		}
@@ -62,13 +83,13 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 		try{
 			$print = false;
 			$cl = $this->getComputerLanguage();
-			if($this->getParameterCount() === 1) {
+			if($this->getParameterCount() === 1){
 				$params = $this->getParameters();
 				$param = $this->getParameter(array_keys($params)[0]);
-				if(is_array($param)) {
+				if(is_array($param)){
 					Debug::error("{$f} parameter is an array");
 				}
-				switch ($cl) {
+				switch($cl){
 					case COMPUTER_LANGUAGE_JAVASCRIPT:
 						return $param->toJavaScript();
 					case COMPUTER_LANGUAGE_SQL:
@@ -79,15 +100,15 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 			}
 			$operator = $this->getOperator();
 			$string = "";
-			foreach($this->getParameters() as $param) {
-				if($string !== "") {
+			foreach($this->getParameters() as $param){
+				if($string !== ""){
 					$string .= " {$operator} ";
 				}
-				if($param instanceof ValueReturningCommandInterface) {
-					if($param instanceof ExpressionCommand) {
+				if($param instanceof ValueReturningCommandInterface){
+					if($param instanceof ExpressionCommand){
 						$param->setEscapeType(ESCAPE_TYPE_PARENTHESIS);
 					}
-					switch ($cl) {
+					switch($cl){
 						case COMPUTER_LANGUAGE_JAVASCRIPT:
 							$string .= $param->toJavaScript();
 							break;
@@ -97,18 +118,18 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 						default:
 							$string .= $param;
 					}
-				}elseif($param === null) {
-					if($print) {
+				}elseif($param === null){
+					if($print){
 						Debug::print("{$f} argument is null");
 					}
 					$string .= "null";
-				}elseif(is_string($param)) {
-					if($print) {
+				}elseif(is_string($param)){
+					if($print){
 						Debug::print("{$f} argument \"{$param}\" is a string");
 					}
 					$string .= single_quote($param);
-				}elseif(is_numeric($param)) {
-					if($print) {
+				}elseif(is_numeric($param)){
+					if($print){
 						Debug::print("{$f} argument \"{$param}\" is a number");
 					}
 					$string .= $param;
@@ -117,11 +138,11 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 					Debug::error("{$f} none of the above; paramater is a {$gottype}");
 				}
 			}
-			if($this->hasEscapeType() && $this->getEscapeType() == ESCAPE_TYPE_PARENTHESIS) {
+			if($this->hasEscapeType() && $this->getEscapeType() == ESCAPE_TYPE_PARENTHESIS){
 				$string = "({$string})";
 			}
 			return $string;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -130,16 +151,21 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 		$f = __METHOD__;
 		$print = false;
 		$arr = [];
-		foreach($this->getParameters() as $param) {
-			if(!$param instanceof WhereConditionalInterface) {
+		if(!$this->hasParameters()){
+			$decl = $this->getDeclarationLine();
+			$did = $this->getDebugId();
+			Debug::error("{$f} parameters are undefined. Declared {$decl} with debug ID {$did}");
+		}
+		foreach($this->getParameters() as $param){
+			if(!$param instanceof WhereConditionalInterface){
 				$class = is_object($param) ? $param->getClass() : gettype($param);
-				if($print) {
+				if($print){
 					Debug::print("{$f} argument of class \"{$class}\" is not a WhereConditionalInterface");
 				}
 				continue;
 			}
 			$flat = $param->getFlatWhereConditionArray();
-			if(!empty($flat)) {
+			if(!empty($flat)){
 				array_push($arr, ...$flat);
 			}
 		}
@@ -149,11 +175,11 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 	public function getSuperflatWhereConditionArray(): ?array{
 		$f = __METHOD__;
 		$arr = [];
-		foreach($this->getParameters() as $param) {
-			if($param instanceof BinaryExpressionCommand) {
+		foreach($this->getParameters() as $param){
+			if($param instanceof BinaryExpressionCommand){
 				Debug::print("{$f} parameter is a binary expression command");
 				$rhs = $param->getRightHandSide();
-				if($rhs instanceof SelectStatement) {
+				if($rhs instanceof SelectStatement){
 					Debug::print("{$f} right hand side is a select statement");
 					array_push($arr, ...$rhs->getSuperflatWhereConditionArray());
 					continue;
@@ -161,12 +187,12 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 				$decl = $rhs->getDeclarationLine();
 				Debug::print("{$f} right hand side is not a select statement; it was instantiated {$decl}");
 				continue;
-			}elseif(!$param instanceof WhereConditionalInterface) {
+			}elseif(!$param instanceof WhereConditionalInterface){
 				$class = is_object($param) ? $param->getClass() : gettype($param);
 				Debug::error("{$f} argument of class \"{$class}\" is not a WhereConditionalInterface");
 			}
 			$flat = $param->getSuperflatWhereConditionArray();
-			if(!empty($flat)) {
+			if(!empty($flat)){
 				array_push($arr, ...$flat);
 			}
 		}
@@ -175,8 +201,8 @@ abstract class VariadicExpressionCommand extends ExpressionCommand implements Ja
 
 	public function getConditionalColumnNames(): array{
 		$arr = [];
-		foreach($this->getFlatWhereConditionArray() as $where) {
-			if($where->inferParameterCount() === 1) {
+		foreach($this->getFlatWhereConditionArray() as $where){
+			if($where->inferParameterCount() === 1){
 				array_push($arr, $where->getColumnName());
 			}
 		}

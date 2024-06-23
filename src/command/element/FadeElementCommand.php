@@ -1,16 +1,14 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\element;
 
-class FadeElementCommand extends DeleteElementCommand
-{
+class FadeElementCommand extends DeleteElementCommand{
 
-	public function getEffect()
-	{
+	public function getEffect(){
 		return EFFECT_FADE;
 	}
 
-	public function hasEffect()
-	{
+	public function hasEffect():bool{
 		return true;
 	}
 }

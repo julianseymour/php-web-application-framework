@@ -36,7 +36,7 @@ class ActivateAccountUseCase extends ValidConfirmationCodeUseCase{
 				Debug::print("{$f} successfully updated user's activation timestamp");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

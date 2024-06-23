@@ -11,7 +11,7 @@ use JulianSeymour\PHPWebApplicationFramework\auth\password\PasswordGeneratingFor
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
-use JulianSeymour\PHPWebApplicationFramework\input\InputInterface;
+use JulianSeymour\PHPWebApplicationFramework\input\InputlikeInterface;
 use JulianSeymour\PHPWebApplicationFramework\input\PasswordInput;
 use JulianSeymour\PHPWebApplicationFramework\input\TextInput;
 use JulianSeymour\PHPWebApplicationFramework\validate\ClosureValidator;
@@ -23,39 +23,39 @@ class ResetPasswordForm extends ConfirmationCodeForm implements PasswordGenerati
 
 	use PasswordGeneratingFormTrait;
 
-	protected function attachInputValidators(InputInterface $input): InputInterface{
+	protected function attachInputValidators(InputlikeInterface $input): InputlikeInterface{
 		$f = __METHOD__;
 		if(!$input->hasColumnName()){
 			return $input;
 		}
 		$cn = $input->getColumnName();
-		switch ($cn) {
+		switch($cn){
 			case "name":
 				$closure = function (array &$validate_me): int {
 					$f = "ResetPasswordForm.attachInputValidators()";
 					try{
 						$print = false;
-						if(! array_key_exists('name', $validate_me)) {
+						if(!array_key_exists('name', $validate_me)){
 							Debug::warning("{$f} name was not posted");
 							Debug::printArray($validate_me);
 							Debug::printStackTrace();
-						}elseif($print) {
+						}elseif($print){
 							Debug::print("{$f} entered");
 							Debug::printArray($validate_me);
 						}
 						$normalized = NameDatum::normalize($validate_me['name']);
 						$correspondent = user()->getCorrespondentObject();
 						$real_name = $correspondent->getNormalizedName();
-						if($normalized === $real_name) {
-							if($print) {
+						if($normalized === $real_name){
+							if($print){
 								Debug::print("{$f} normalized names \"{$normalized}\" match");
 							}
 							return SUCCESS;
-						}elseif($print) {
+						}elseif($print){
 							Debug::print("{$f} normalized name from post \"{$normalized}\" does not match user's actual name \"{$real_name}\"");
 						}
 						return ERROR_LOGIN_CREDENTIALS;
-					}catch(Exception $x) {
+					}catch(Exception $x){
 						x($f, $x);
 					}
 				};
@@ -99,7 +99,7 @@ class ResetPasswordForm extends ConfirmationCodeForm implements PasswordGenerati
 		$f = __METHOD__;
 		try{
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "name":
 					$input->setLabelString(_("Username"));
 					$input->setMinimumLengthAttribute(1);
@@ -114,7 +114,7 @@ class ResetPasswordForm extends ConfirmationCodeForm implements PasswordGenerati
 				default:
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -136,7 +136,7 @@ class ResetPasswordForm extends ConfirmationCodeForm implements PasswordGenerati
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_VALIDATE:
 				$button = $this->generateGenericButton($name);
 				$innerHTML = _("Reset password");

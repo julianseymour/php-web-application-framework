@@ -20,6 +20,8 @@ use JulianSeymour\PHPWebApplicationFramework\poll\ShortPollUseCase;
 use JulianSeymour\PHPWebApplicationFramework\use_case\ClientUseCaseInterface;
 use JulianSeymour\PHPWebApplicationFramework\use_case\UseCase;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\admin\Administrator;
+use JulianSeymour\PHPWebApplicationFramework\db\credentials\AdminWriteCredentials;
 
 class RecentNotificationsUseCase extends UseCase implements ClientUseCaseInterface, PollingUseCaseInterface{
 
@@ -30,8 +32,8 @@ class RecentNotificationsUseCase extends UseCase implements ClientUseCaseInterfa
 	public function getTransitionFromPermission(){
 		$f = __METHOD__;
 		$print = false;
-		return new Permission(DIRECTIVE_TRANSITION_FROM, function ($user, $use_case, $predecessor) use ($f, $print) {
-			if($print) {
+		return new Permission(DIRECTIVE_TRANSITION_FROM, function ($user, $use_case, $predecessor) use ($f, $print){
+			if($print){
 				$ucc = $use_case->getClass();
 				$pc = $predecessor->getClass();
 				Debug::print("{$f} entered; use case class is \"{$ucc}\"; predecessor class is \"{$pc}\"");
@@ -40,15 +42,15 @@ class RecentNotificationsUseCase extends UseCase implements ClientUseCaseInterfa
 		});
 	}
 
-	public function execute(): int{
+	public function execute():int{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(! hasInputParameter('uniqueKey', $this)) {
+			if(! hasInputParameter('uniqueKey', $this)){
 				Debug::printPost("{$f} user ID was not posted");
-			}elseif($print) {}
+			}elseif($print){}
 			$status = parent::execute();
-			switch ($status) {
+			switch($status){
 				case SUCCESS:
 				case RESULT_SUBMISSION_ACCEPTED:
 				case RESULT_SUBMISSION_REJECTED_FLOOD:
@@ -61,12 +63,16 @@ class RecentNotificationsUseCase extends UseCase implements ClientUseCaseInterfa
 			$user = user();
 			$key = $user->getIdentifierValue();
 			$posted_user_key = getInputParameter('uniqueKey');
-			if($key !== $posted_user_key) {
+			if($key !== $posted_user_key){
 				Debug::print("{$f} current user key \"{$key}\" does not match posted user ID \"{$posted_user_key}\" -- you have been logged out");
 				return $this->setObjectStatus(ERROR_XSRF);
 			}
-			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			if($mysqli == null) {
+			if($user instanceof Administrator){
+				$mysqli = db()->reconnect(AdminWriteCredentials::class);
+			}else{
+				$mysqli = db()->getConnection(PublicWriteCredentials::class);
+			}
+			if($mysqli == null){
 				Debug::error("{$f} error connecting client updater");
 				return $this->setObjectStatus(ERROR_MYSQL_CONNECT);
 			}
@@ -78,7 +84,7 @@ class RecentNotificationsUseCase extends UseCase implements ClientUseCaseInterfa
 				return $this->setObjectStatus($status);
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -100,11 +106,11 @@ class RecentNotificationsUseCase extends UseCase implements ClientUseCaseInterfa
 		try{
 			if($status !== SUCCESS){
 				return parent::getResponder($status);
-			}elseif(! user()->hasForeignDataStructureList("notifications") && ! user()->hasForeignDataStructureList("online")) {
+			}elseif(! user()->hasForeignDataStructureList("notifications") && ! user()->hasForeignDataStructureList("online")){
 				return parent::getResponder($status);
 			}
 			return new RecentNotificationsResponder();
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

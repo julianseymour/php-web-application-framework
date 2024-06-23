@@ -26,7 +26,7 @@ abstract class AbstractLoginMfaOtpForm extends AjaxForm{
 		$f = __METHOD__;
 		try{
 			$vn = $input->getColumnName();
-			switch ($vn) {
+			switch($vn){
 				case "otp":
 					$id = "mfa_otp";
 					$input->setIdAttribute($id);
@@ -35,7 +35,7 @@ abstract class AbstractLoginMfaOtpForm extends AjaxForm{
 				default:
 			}
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -68,7 +68,7 @@ abstract class AbstractLoginMfaOtpForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_MFA:
 				$button = $this->generateGenericButton(DIRECTIVE_MFA);
 				$button->setInnerHTML(_("Submit code"));
@@ -89,7 +89,7 @@ abstract class AbstractLoginMfaOtpForm extends AjaxForm{
 			$command = new FocusInputCommand("mfa_otp");
 			$this->reportSubcommand($command);
 			return $ret;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

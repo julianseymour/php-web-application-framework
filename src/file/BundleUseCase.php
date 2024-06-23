@@ -30,12 +30,12 @@ abstract class BundleUseCase extends UseCase{
 		$f = __METHOD__;
 		$filenames = $this->getBundledFilenames();
 		$newest = 0;
-		foreach($filenames as $fn) {
+		foreach($filenames as $fn){
 			$ts = filemtime($fn);
-			if($ts === false) {
+			if($ts === false){
 				Debug::error("{$f} file \"{$fn}\" does not exist");
 			}
-			if($ts > $newest) {
+			if($ts > $newest){
 				$newest = $ts;
 			}
 		}
@@ -76,7 +76,7 @@ abstract class BundleUseCase extends UseCase{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if(! hasInputParameter("filename", $this)) {
+			if(! hasInputParameter("filename", $this)){
 				if($print){
 					Debug::warning("{$f} filename parameter does not exist");
 				}
@@ -84,33 +84,33 @@ abstract class BundleUseCase extends UseCase{
 			}
 			$filename = getInputParameter("filename", $this);
 			$cache = false;
-			if(false && cache()->enabled() && FILE_CACHE_ENABLED) {
-				if(cache()->hasFile($filename)) {
-					if($print) {
+			if(false && cache()->enabled() && FILE_CACHE_ENABLED){
+				if(cache()->hasFile($filename)){
+					if($print){
 						Debug::print("{$f} cache hit");
 					}
 					echo cache()->getFile($filename);
 					return;
 				}else{
-					if($print) {
+					if($print){
 						Debug::print("{$f} cache miss");
 					}
 					$cache = true;
 					ob_start();
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} caching is disabled");
 			}
 			$filenames = $this->getBundledFilenames();
-			foreach($filenames as $path) {
-				if($print) {
+			foreach($filenames as $path){
+				if($print){
 					Debug::print("{$f} path to file: \"{$path}\"");
 				}
 				echo "\n/*{$path}*/\n";
 				echo php2string($path);
 			}
-			if($cache) {
-				if($print) {
+			if($cache){
+				if($print){
 					Debug::print("{$f} updating cache for file \"{$filename}\"");
 				}
 				$string = ob_get_clean();
@@ -119,7 +119,7 @@ abstract class BundleUseCase extends UseCase{
 				unset($string);
 			}
 			return;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

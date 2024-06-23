@@ -1,6 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\security\xsrf;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -14,22 +16,19 @@ use Exception;
  * @author j
  *        
  */
-class AntiXsrfTokenContainer extends DivElement
-{
+class AntiXsrfTokenContainer extends DivElement{
 
-	public function __construct($mode = ALLOCATION_MODE_UNDEFINED, $context = null)
-	{
+	public function __construct(int $mode = ALLOCATION_MODE_UNDEFINED, $context = null){
 		parent::__construct($mode, $context);
 		$this->setIdAttribute("xsrf_c");
 		$this->addClassAttribute("hidden");
 	}
 
-	public function generateChildNodes(): ?array
-	{
-		$f = __METHOD__; //AntiXsrfTokenContainer::getShortClass()."(".static::getShortClass().")->generateChildNodes()";
+	public function generateChildNodes(): ?array{
+		$f = __METHOD__;
 		try{
 			$session = new AntiXsrfTokenData();
-			if(!$session->hasAntiXsrfToken()) {
+			if(!$session->hasAntiXsrfToken()){
 				Debug::error("{$f} session is uninitialized");
 				$session->initializeSessionToken(1);
 			}
@@ -38,17 +37,21 @@ class AntiXsrfTokenContainer extends DivElement
 			$input->setIdAttribute("xsrf_token");
 			$this->appendChild($input);
 			$forms = mods()->getClientRenderedFormClasses();
-			foreach($forms as $form) {
-				$input = new HiddenInput();
+			foreach($forms as $form){
 				$action = $form::getActionAttributeStatic();
+				if($action === null || strlen($action) === 0){
+					continue;
+				}
+				$input = new HiddenInput();
 				$secondary_hmac = $session->getSecondaryHmac($action);
 				$input->setValueAttribute($secondary_hmac);
 				$suffix = strtolower(str_replace('/', '', $action));
 				$input->setIdAttribute("secondary_hmac-{$suffix}");
 				$this->appendChild($input);
 			}
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			deallocate($session);
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

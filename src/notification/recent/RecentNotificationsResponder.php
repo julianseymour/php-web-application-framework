@@ -12,22 +12,22 @@ class RecentNotificationsResponder extends Responder
 
 	public function modifyResponse(XMLHttpResponse $response, UseCase $use_case)
 	{
-		if(user()->hasForeignDataStructureList("notifications")) {
-			foreach(user()->getForeignDataStructureList("notifications") as $note) {
+		if(user()->hasForeignDataStructureList("notifications")){
+			foreach(user()->getForeignDataStructureList("notifications") as $note){
 				$note->configureArrayMembership(CONST_DEFAULT);
 				$response->pushDataStructure($note);
 			}
 		}
 		$delivery = user()->getNotificationDeliveryTimestamp();
-		if(user()->hasForeignDataStructureList("online")) {
-			foreach(user()->getForeignDataStructureList("online") as $note) {
-				if($note->getNotificationType() !== NOTIFICATION_TYPE_MESSAGE) {
+		if(user()->hasForeignDataStructureList("online")){
+			foreach(user()->getForeignDataStructureList("online") as $note){
+				if($note->getNotificationType() !== NOTIFICATION_TYPE_MESSAGE){
 					continue;
-				}elseif(!$note->hasCorrespondentObject()) {
+				}elseif(!$note->hasCorrespondentObject()){
 					continue;
 				}
 				$contact = $note->getCorrespondentObject();
-				if($contact->getLastSeenTimestamp() > $delivery || ($contact->hasColumn("logoutTimestamp") && ($contact->getLogoutTimestamp() > $delivery))) {
+				if($contact->getLastSeenTimestamp() > $delivery || ($contact->hasColumn("logoutTimestamp") && ($contact->getLogoutTimestamp() > $delivery))){
 					$contact->setCorrespondentObject(user());
 					$command = new UpdateOnlineStatusIndicatorCommand($contact);
 					$response->pushCommand($command);

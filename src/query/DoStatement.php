@@ -1,33 +1,24 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\query;
 
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\MultipleExpressionsTrait;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 
-class DoStatement extends QueryStatement
-{
+class DoStatement extends QueryStatement{
 
 	use MultipleExpressionsTrait;
 
-	public function __construct(...$expressions)
-	{
+	public function __construct(...$expressions){
 		parent::__construct();
 		$this->requirePropertyType("expressions", ExpressionCommand::class);
-		if(isset($expressions)) {
+		if(isset($expressions)){
 			$this->setExpressions($expressions);
 		}
 	}
 
-	public function getQueryStatementString()
-	{
-		// DO expr [, expr] ...
-		return "do " . implode(',', $this->getExpressions());
-	}
-
-	public function dispose(): void
-	{
-		parent::dispose();
-		unset($this->properties);
-		unset($this->propertyTypes);
+	public function getQueryStatementString():string{
+		return "do ".implode(',', $this->getExpressions());
 	}
 }

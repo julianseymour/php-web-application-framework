@@ -1,41 +1,43 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait UriTrait
-{
+trait UriTrait{
 
 	protected $uri;
 
-	public function setUri($uri)
-	{
-		$f = __METHOD__; //"UriTrait(".static::getShortClass().")->setUri()";
+	public function setUri($uri){
+		$f = __METHOD__;
 		$print = false;
-		if($uri instanceof ValueReturningCommandInterface) {
-			if($print) {
+		if($uri instanceof ValueReturningCommandInterface){
+			if($print){
 				Debug::print("{$f} URI is a value-returning command");
 			}
-		}elseif(!is_string($uri)) {
+		}elseif(!is_string($uri)){
 			Debug::error("{$f} URI is not a string");
-		}elseif(empty($uri)) {
+		}elseif(empty($uri)){
 			Debug::error("{$f} URI is empty string");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} assigning URI \"{$uri}\"");
 		}
-		return $this->uri = $uri;
+		if($this->hasURI()){
+			$this->release($this->uri);
+		}
+		return $this->uri = $this->claim($uri);
 	}
 
-	public function hasURI()
-	{
-		return isset($this->uri) && ! empty($this->uri);
+	public function hasURI():bool{
+		return isset($this->uri) && !empty($this->uri);
 	}
 
-	public function getUri()
-	{
-		$f = __METHOD__; //"UriTrait(".static::getShortClass().")->getUri()";
-		if(!$this->hasURI()) {
+	public function getUri(){
+		$f = __METHOD__;
+		if(!$this->hasURI()){
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} URI is undefined; declared {$decl}");
 		}

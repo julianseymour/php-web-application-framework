@@ -1,8 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\common;
 
-interface StaticHumanReadableNameInterface
-{
+interface StaticHumanReadableNameInterface{
 
 	static function getHumanReadableNameStatic(?StaticHumanReadableNameInterface $that = null);
 }

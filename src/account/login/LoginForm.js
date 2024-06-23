@@ -1,48 +1,28 @@
-function loginButtonClicked(event, button){//XXX here's your fucking problem
+function loginButtonClicked(event, button){
 	let f = "loginButtonClicked()";
 	try{
 		event.preventDefault();
-		/*if(!validateLoginParameters()){
-			console.error(f+": login parameters invalid");
-			return;
-		}//else{
-			console.log(f+": login parameters valid - submitting form");*/
-			AjaxForm.appendSubmitterName(event, button);
-			let form = document.getElementById("login_form");
-			if(!form.onsubmit){
-				return error(f, "Form lacks a submit event listener");
-			}else{
-				console.log(form.onsubmit);
-				console.log(f+": about to dispatch a submit event on the login form");
+		AjaxForm.appendSubmitterName(event, button);
+		let form = document.getElementById("login_form");
+		if(!form.onsubmit){
+			return error(f, "Form lacks a submit event listener");
+		}else{
+			console.log(form.onsubmit);
+			console.log(f+": about to dispatch a submit event on the login form");
+		}
+		//form.dispatchEvent(new Event("submit")); //firefox bypasses the onsubmit event for some reason
+		let load = "load_login_form";
+		AjaxForm.submitForm(
+			form, 
+			function(response){
+				AjaxForm.terminateLoadAnimation(load);
+				controller(response);
+			}, 
+			function(response){
+				AjaxForm.terminateLoadAnimation(load);
+				error_cb(form);
 			}
-			//form.dispatchEvent(new Event("submit")); //XXX firefox bypasses the onsubmit event for some reason
-			let load = "load_login_form";
-			AjaxForm.submitForm(
-				form, 
-				function(response){
-					AjaxForm.terminateLoadAnimation(load);
-					controller(
-						response
-						/*, 
-						function(response){
-							if(response.hasCommands()){
-								//console.log(response);
-								console.log(f+": about to process media commands");
-								console.trace();
-								response.processCommands(); //, callback_1, callback_2);
-							}else{
-								return error(f, "No media commands to process after login");
-							}
-						}, 
-						error_cb*/
-					);
-				}, 
-				function(response){
-					AjaxForm.terminateLoadAnimation(load);
-					error_cb(form);
-				}
-			);
-		//}
+		);
 	}catch(x){
 		return error(f, x);
 	}

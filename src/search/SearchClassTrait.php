@@ -1,40 +1,38 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\search;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
-trait SearchClassTrait
-{
+trait SearchClassTrait{
 
 	protected $searchClass;
 
-	public function hasSearchClass()
-	{
+	public function hasSearchClass():bool{
 		return isset($this->searchClass) && is_string($this->searchClass) && class_exists($this->searchClass);
 	}
 
-	public function getSearchClass()
-	{
-		$f = __METHOD__; //"SearchClassTrait(".static::getShortClass().")->getSearchClass()";
-		if(!$this->hasSearchClass()) {
-			Debug::error("{$f} search class is undefined");
+	public function getSearchClass(){
+		$f = __METHOD__;
+		if(!$this->hasSearchClass()){
+			Debug::error("{$f} search class is undefined for this ".$this->getDebugString());
 		}
 		return $this->searchClass;
 	}
-
-	public function setSearchClass($sc)
-	{
-		$f = __METHOD__; //"SearchClassTrait(".static::getShortClass().")->setSearchClass()";
-		if($sc == null) {
-			unset($this->searchClass);
-			return null;
-		}elseif(!is_string($sc)) {
-			Debug::error("{$f} input parameter must be a string");
-		}elseif(empty($sc)) {
+	
+	public function setSearchClass($class){
+		$f = __METHOD__;
+		if(!is_string($class)){
+			Debug::error("{$f} class is not a string");
+		}elseif(empty($class)){
 			Debug::error("{$f} input parameter cannot be an empty string");
-		}elseif(! class_exists($sc)) {
-			Debug::error("{$f} class \"{$sc}\" does not exist");
+		}elseif(!class_exists($class)){
+			Debug::error("{$f} class \"{$class}\" does not exist");
+		}elseif($this->hasSearchClass()){
+			$this->release($this->searchClass);
 		}
-		return $this->searchClass = $sc;
+		return $this->searchClass = $this->claim($class);
 	}
 }

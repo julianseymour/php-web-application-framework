@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\account\shadow;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
@@ -10,6 +11,7 @@ use JulianSeymour\PHPWebApplicationFramework\input\EmailInput;
 use JulianSeymour\PHPWebApplicationFramework\input\TextInput;
 use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
 use JulianSeymour\PHPWebApplicationFramework\language\settings\LanguageSettingsData;
+use JulianSeymour\PHPWebApplicationFramework\app\Request;
 
 class ShadowProfileForm extends AjaxForm{
 
@@ -25,7 +27,7 @@ class ShadowProfileForm extends AjaxForm{
 
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
-		switch ($name) {
+		switch($name){
 			case DIRECTIVE_INSERT:
 			case DIRECTIVE_UPDATE:
 			case DIRECTIVE_DELETE:
@@ -44,7 +46,8 @@ class ShadowProfileForm extends AjaxForm{
 	public function getFormDataIndices(): ?array{
 		$session = new LanguageSettingsData();
 		$lang = $session->getLanguageCode();
-		if(Internationalization::lastNameFirst($lang)) {
+		deallocate($session);
+		if(Internationalization::lastNameFirst($lang)){
 			$indices = [
 				'lastName' => TextInput::class,
 				'firstName' => TextInput::class
@@ -59,17 +62,23 @@ class ShadowProfileForm extends AjaxForm{
 		return $indices;
 	}
 
-	public static function getMethodAttributeStatic(): ?string
-	{
+	public static function getMethodAttributeStatic():?string{
 		return HTTP_REQUEST_METHOD_POST;
 	}
 
-	public function getDirectives(): ?array
-	{
+	public function getDirectives():?array{
+		$f = __METHOD__;
+		$print = false;
 		$context = $this->getContext();
-		return $context->isUninitialized() ? [
-			DIRECTIVE_INSERT
-		] : [
+		if($context->isUninitialized()){
+			if($print){
+				Debug::error("{$f} context ".$context->getDebugString()." is uninitialized");
+			}
+			return [DIRECTIVE_INSERT];
+		}elseif($print){
+			Debug::print("{$f} context ".$context->getDebugString()." is initialized");
+		}
+		return [
 			DIRECTIVE_UPDATE,
 			DIRECTIVE_DELETE
 		];

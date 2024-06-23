@@ -18,7 +18,7 @@ class ListIpAddressAttempt extends CodeConfirmationAttempt{
 		return RESULT_CODE_VALIDATED;
 	}
 
-	public function isSecurityNotificationWarranted(){
+	public function isSecurityNotificationWarranted():bool{
 		return false;
 	}
 

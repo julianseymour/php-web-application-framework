@@ -30,16 +30,16 @@ class SharedMessageEncryptionScheme extends MessageEncryptionScheme implements S
 		try{
 			$ds = $datum->getDataStructure();
 			$user = user();
-			if($ds->getUserKey() !== $user->getIdentifierValue()) {
+			if($ds->getUserKey() !== $user->getIdentifierValue()){
 				$vn = $datum->getName()."AesKeyCopy";
 				$column = $ds->getColumn($vn);
-				if(!$column->hasDataStructure()) {
+				if(!$column->hasDataStructure()){
 					Debug::error("{$f} column \"{$vn}\" is not being assigned its data structure");
 				}
 				return $ds->getColumnValue($vn);
 			}
 			return parent::extractTranscryptionKey($datum);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\query\table;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use function JulianSeymour\PHPWebApplicationFramework\validateTableName;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\CommonTableExpression;
@@ -14,18 +16,21 @@ trait TableNameTrait{
 	public function setTableName(?string $tableName):?string{
 		$f = __METHOD__;
 		$print = false;
-		if($tableName instanceof TableFactor) {
-			if($print) {
+		if($tableName instanceof TableFactor){
+			if($print){
 				Debug::print("{$f} table name is the table factor \"{$tableName}\"");
 			}
 			// ok
-		}elseif($tableName instanceof CommonTableExpression) {
+		}elseif($tableName instanceof CommonTableExpression){
 			return $this->setTableName($tableName->getName());
-		}elseif(! validateTableName($tableName)) {
+		}elseif(!validateTableName($tableName)){
 			Debug::error("{$f} invalid table name \"{$tableName}\"");
 			return $this->setObjectStatus(ERROR_INVALID_TABLE_NAME);
 		}
-		return $this->tableName = $tableName;
+		if($this->hasTableName()){
+			$this->release($this->tableName);
+		}
+		return $this->tableName = $this->claim($tableName);
 	}
 
 	public function hasTableName():bool{
@@ -34,7 +39,7 @@ trait TableNameTrait{
 
 	public function getTableName(): string{
 		$f = __METHOD__;
-		if(!$this->hasTableName()) {
+		if(!$this->hasTableName()){
 			Debug::error("{$f} full table name is undefined");
 		}
 		return $this->tableName;

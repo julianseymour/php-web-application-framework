@@ -1,13 +1,15 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\LabelElement;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
-use Exception;
 use JulianSeymour\PHPWebApplicationFramework\style\StyleSheetPathTrait;
+use Exception;
 
 class ToggleInput extends CheckboxInput{
 
@@ -24,29 +26,35 @@ class ToggleInput extends CheckboxInput{
 		$f = __METHOD__;
 		try{
 			$value = $context->getValue();
-			if($value) {
+			if($value){
 				$this->addClassAttribute("init_on");
 			}else{
 				$this->addClassAttribute("init_off");
 			}
 			return parent::bindContext($context);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function hasLabelWrapper(){
+	public function hasLabelWrapper():bool{
 		return isset($this->labelWrapper);
 	}
 
-	public function configure(AjaxForm $form): int{
+	public function setIdAttribute($id){
+		$f = __METHOD__;
+		if($this->getDebugFlag()){
+			Debug::printStackTraceNoExit("{$f} entered");
+		}
+		return parent::setIdAttribute($id);
+	}
+	
+	public function configure(?AjaxForm $form=null): int{
 		$ret = parent::configure($form);
 		$mode = $this->getAllocationMode();
 		$label = new LabelElement($mode);
 		$label->setForAttribute($this->getIdAttribute());
 		$label->addClassAttribute("toggle_input_label");
-		$span1 = new SpanElement($mode);
-		$span1->setInnerHTML($this->getLabelString());
 		$span2 = new SpanElement($mode);
 		$span2->addClassAttribute("toggle_switch");
 		$span2->addClassAttribute("toggle_switch_from_gp");
@@ -54,11 +62,11 @@ class ToggleInput extends CheckboxInput{
 		$span2->setInnerHTML("&nbsp");
 		$label->appendChild($span2);
 		$this->pushSuccessor($label);
-		if(!$this->hasWrapperElement()) {
+		if(!$this->hasWrapperElement()){
 			$mcns_m = new DivElement($mode);
 			$mcns_m->addClassAttribute("mncns_m");
 			$this->setWrapperElement($mcns_m);
 		}
-		return SUCCESS;
+		return $ret;
 	}
 }

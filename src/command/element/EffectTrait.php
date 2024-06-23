@@ -1,27 +1,26 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\command\element;
 
-trait EffectTrait
-{
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
+
+trait EffectTrait{
 
 	protected $effect;
 
-	public function hasEffect()
-	{
+	public function hasEffect():bool{
 		return isset($this->effect);
 	}
 
-	public function getEffect()
-	{
+	public function getEffect(){
 		return $this->hasEffect() ? $this->effect : EFFECT_NONE;
 	}
 
-	public function setEffect($effect)
-	{
-		if($effect == null) {
-			unset($this->effect);
-			return null;
+	public function setEffect($effect){
+		if($this->hasEffect()){
+			$this->release($this->effect);
 		}
-		return $this->effect = $effect;
+		return $this->effect = $this->claim($effect);
 	}
 }

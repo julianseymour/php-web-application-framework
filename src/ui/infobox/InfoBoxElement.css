@@ -25,6 +25,20 @@ input[type="checkbox"]:checked + .client-editor-form .collapseme{
 	box-sizing:border-box;
 	opacity:1;
 	height:100%;
+	padding-top:50px;
+}
+
+.info_box_replace input[type="text"], 
+.info_box_replace input[type="tel"], 
+.info_box_replace input[type="password"], 
+.info_box_replace input[type="email"], 
+.info_box_replace input[type="number"]{
+	height: 50px;
+	/* display: block; */
+	width: 100%;
+	box-sizing: border-box;
+	/* margin-top: 0.5rem; */
+	padding: 0 0.5rem;
 }
 
 .info_box_contents img{
@@ -34,7 +48,7 @@ input[type="checkbox"]:checked + .client-editor-form .collapseme{
 }
 
 input[type="checkbox"]:checked + .info_box_contents{
-	transform:translateX(0);
+	transform:translate(0, calc(50px + 1rem));
 }
 
 input[type="checkbox"]:checked + .info_box_contents + .info_box_bg{
@@ -63,7 +77,7 @@ input[type="checkbox"]:checked + .info_box_contents + .info_box_bg{
 	/*height:calc(100% - 4rem);*/
 	width:640px;
 	margin:1rem;
-	transform:translateX(100vw);
+	transform:translate(100vw, calc(50px + 1rem));
 	transition:transform 0.5s;
 	box-sizing: border-box;
 	max-width: calc(100% - 2rem);

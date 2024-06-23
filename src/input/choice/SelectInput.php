@@ -1,9 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\input\choice;
 
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\common\OptionsTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
+use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\attributes\ActionAttributeTrait;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
 use JulianSeymour\PHPWebApplicationFramework\form\AjaxForm;
@@ -12,54 +15,46 @@ use JulianSeymour\PHPWebApplicationFramework\input\MultipleAttributeTrait;
 use JulianSeymour\PHPWebApplicationFramework\input\RequiredAttributeTrait;
 use Exception;
 
-class SelectInput extends InputElement
-{
+class SelectInput extends InputElement{
 
 	use ActionAttributeTrait;
 	use MultipleAttributeTrait;
 	use MultipleChoiceInputTrait;
+	use OptionsTrait;
 	use RequiredAttributeTrait;
-
-	protected $options;
 
 	public static function isEmptyElement(): bool{
 		return false;
 	}
 
-	public function configure(AjaxForm $form): int{
+	public function configure(?AjaxForm $form=null): int{
 		$f = __METHOD__;
 		$print = false;
 		$ret = parent::configure($form);
 		$datum = $this->getContext();
-		if(!$this->hasPredecessors() && $datum->hasHumanReadableName()) {
-			$span = new SpanElement($this->getAllocationMode());
-			$span->setInnerHTML($datum->getHumanReadableName());
-			$this->pushPredecessor($span);
+		if(!$this->hasLabelString() && $datum->hasHumanReadableName()){
+			$this->setLabelString($datum->getHumanReadableName());
 		}
-		if($this->hasOptions()) {
-			if($print) {
-				Debug::print("{$f} options are defined");
-			}
-			return $this->getOptions()->configure($form);
-		}elseif($print) {
-			Debug::print("{$f} this object does not have options");
+		if(!$this->hasPredecessors() && $this->hasLabelString()){
+			$span = new SpanElement($this->getAllocationMode());
+			$span->setInnerHTML($this->getLabelString());
+			$this->pushPredecessor($span);
 		}
 		if(!$datum->isNullable() && !$datum->hasDefaultValue()){
 			$this->setRequiredAttribute("required");
 		}
-		return $ret;
-	}
-
-	public function hasOptions(): bool{
-		return isset($this->options) && $this->options instanceof MultipleOptions;
-	}
-
-	public function setOptions(?MultipleOptions $options): ?MultipleOptions{
-		if($options == null) {
-			unset($this->options);
-			return null;
+		if(!$this->hasWrapperElement()){
+			$this->setWrapperElement(new DivElement());
 		}
-		return $this->options = $options;
+		if($this->hasOptions()){
+			if($print){
+				Debug::print("{$f} options are defined");
+			}
+			return $this->getOptions()->configure($form);
+		}elseif($print){
+			Debug::print("{$f} this object does not have options");
+		}
+		return $ret;
 	}
 
 	public function getOptions(): MultipleOptions{
@@ -76,12 +71,12 @@ class SelectInput extends InputElement
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($print) {
-				if($this->hasContext()) {
+			if($print){
+				if($this->hasContext()){
 					$context = $this->getContext();
-					if(is_object($context)) {
+					if(is_object($context)){
 						$cc = $context->getClass();
-						if($context instanceof Datum) {
+						if($context instanceof Datum){
 							$cn = $context->getName();
 							Debug::print("{$f} context is a {$cc} named \"{$cn}\"");
 						}else{
@@ -95,23 +90,19 @@ class SelectInput extends InputElement
 					Debug::print("{$f} context is undefined");
 				}
 			}
-			if($this->hasChildNodes()) {
-				if($print) {
+			if($this->hasChildNodes()){
+				if($print){
 					Debug::print("{$f} child nodes were already generated");
 				}
-				return $this->getChildNodes();
-			}elseif($print) {
+				return $this->hasChildNodes() ? $this->getChildNodes() : [];
+			}elseif($print){
 				Debug::print("{$f} generating child nodes now");
 			}
 			$this->appendChild($this->getOptions());
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
-	}
-
-	public function hasURI(){
-		return true;
 	}
 
 	public static function getNoSelectInputOptionsMessage(){
@@ -150,10 +141,10 @@ class SelectInput extends InputElement
 		return $this->getOptions()->setChoices($choices);
 	}
 	
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->choiceGenerator);
-		unset($this->options);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->choiceGenerator, $deallocate);
+		$this->release($this->options, $deallocate);
 	}
 }
 

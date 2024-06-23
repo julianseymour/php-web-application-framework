@@ -1,6 +1,8 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\email\content;
 
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use JulianSeymour\PHPWebApplicationFramework\command\str\TextContentTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\CharacterSetTrait;
@@ -16,7 +18,7 @@ class PlaintextEmailContent extends EmailContent{
 	}
 
 	public function getCharacterSet(): string{
-		if(!$this->hasCharacterSet()) {
+		if(!$this->hasCharacterSet()){
 			return "utf-8";
 		}
 		return $this->getCharacterSet();
@@ -36,7 +38,7 @@ class PlaintextEmailContent extends EmailContent{
 		$f = __METHOD__;
 		$eol = "\r\n";
 		$ret = "";
-		if($this->hasParentNode()) {
+		if($this->hasParentNode()){
 			$content_type = $this->getContentType();
 			$ret .= "Content-Type:{$content_type}{$eol}{$eol}";
 		}else{
@@ -46,9 +48,9 @@ class PlaintextEmailContent extends EmailContent{
 		return $ret;
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->characterSet);
-		unset($this->textContent);
+	public function dispose(bool $deallocate=false): void{
+		parent::dispose($deallocate);
+		$this->release($this->characterSet, $deallocate);
+		$this->release($this->textContent, $deallocate);
 	}
 }

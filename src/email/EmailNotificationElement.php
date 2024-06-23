@@ -16,7 +16,7 @@ class EmailNotificationElement extends SimpleEmailElement
 			$middle = parent::getBodyElement();
 			$context = $this->getContext();
 			$prompts = $context->getActionURIPromptMap();
-			if(!empty($prompts)) {
+			if(!empty($prompts)){
 				$links = new DivElement($mode);
 				$links->setStyleProperties([
 					"position" => "relative",
@@ -24,7 +24,7 @@ class EmailNotificationElement extends SimpleEmailElement
 					"width" => "100%",
 					"margin-top" => "6px"
 				]);
-				foreach($prompts as $uri => $prompt) {
+				foreach($prompts as $uri => $prompt){
 					$a = new AnchorElement($mode);
 					$a->setHrefAttribute($uri);
 					$a->setInnerHTML($prompt);
@@ -42,7 +42,7 @@ class EmailNotificationElement extends SimpleEmailElement
 				$middle->appendChild($links);
 			}
 			return $middle;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}

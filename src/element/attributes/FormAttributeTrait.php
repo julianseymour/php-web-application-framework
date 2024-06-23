@@ -1,60 +1,58 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element\attributes;
 
+use function JulianSeymour\PHPWebApplicationFramework\backwards_ref_enabled;
 use JulianSeymour\PHPWebApplicationFramework\common\FlagBearingTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\FormElement;
 use JulianSeymour\PHPWebApplicationFramework\form\FormTrait;
 
-trait FormAttributeTrait
-{
+trait FormAttributeTrait{
 
 	use FlagBearingTrait;
 	use FormTrait;
 
-	public function setUseFormAttributeFlag($value)
-	{
-		if($value === true && $this->hasForm()) {
+	public function setUseFormAttributeFlag(bool $value=true):bool{
+		if($value === true && $this->hasForm()){
 			$form = $this->getForm();
-			if($form->hasIdAttribute()) {
+			if($form->hasIdAttribute()){
 				$this->setFormAttribute($form->getIdAttribute());
 			}
 		}
 		return $this->setFlag("useFormAttribute", $value);
 	}
 
-	public function getUseFormAttributeFlag()
-	{
+	public function getUseFormAttributeFlag():bool{
 		return $this->getFlag("useFormAttribute");
 	}
 
-	public function hasFormAttribute()
-	{
+	public function hasFormAttribute():bool{
 		return $this->hasAttribute("form");
 	}
 
-	public function getFormAttribute()
-	{
-		$f = __METHOD__; //"FormAttributeTrait(".static::getShortClass().")->getFormAttribute()";
-		if(!$this->hasFormAttribute()) {
+	public function getFormAttribute(){
+		$f = __METHOD__;
+		if(!$this->hasFormAttribute()){
 			Debug::error("{$f} form attribute is undefined");
 		}
 		return $this->getAttribute("form");
 	}
 
-	public function setFormAttribute($value)
-	{
+	public function setFormAttribute($value){
 		return $this->setAttribute("form", $value);
 	}
 
-	public function setForm(?FormElement $form):?FormElement
-	{
-		if($form === null) {
-			unset($this->form);
-			return null;
-		}elseif($this->getUseFormAttributeFlag() && $form->hasIdAttribute()) {
+	public function setForm(?FormElement $form):?FormElement{
+		if($this->hasForm()){
+			$this->releaseForm();
+		}
+		if($this->getUseFormAttributeFlag() && $form->hasIdAttribute()){
 			$this->setFormAttribute($form->getIdAttribute());
 		}
-		return $this->form = $form;
+		if(!BACKWARDS_REFERENCES_ENABLED){
+			return $this->form = $form;
+		}
+		return $this->form = $this->claim($form);
 	}
 }

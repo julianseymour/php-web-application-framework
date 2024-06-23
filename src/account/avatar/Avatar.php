@@ -2,16 +2,20 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\account\avatar;
 
+use function JulianSeymour\PHPWebApplicationFramework\claim;
+use function JulianSeymour\PHPWebApplicationFramework\release;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\online\OnlineStatusIndicator;
-use JulianSeymour\PHPWebApplicationFramework\command\CommandBuilder;
 use JulianSeymour\PHPWebApplicationFramework\command\control\NodeBearingIfCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\data\GetForeignDataStructureCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\element\AppendChildCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use JulianSeymour\PHPWebApplicationFramework\element\inline\SpanElement;
+use JulianSeymour\PHPWebApplicationFramework\style\StyleSheetPathTrait;
 use JulianSeymour\PHPWebApplicationFramework\template\TemplateElementInterface;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\style\StyleSheetPathTrait;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 
 class Avatar extends SpanElement implements TemplateElementInterface{
 
@@ -30,13 +34,20 @@ class Avatar extends SpanElement implements TemplateElementInterface{
 	}
 
 	public function setAvatarType($type){
-		return $this->avatarType = $type;
+		if($this->hasAvatarType()){
+			$this->release($this->avatarType);
+		}
+		return $this->avatarType = $this->claim($type);
 	}
 
 	public function getAvatarType(){
 		return $this->avatarType;
 	}
 
+	public function hasAvatarType():bool{
+		return isset($this->avatarType);
+	}
+	
 	public function generateChildNodes(): ?array{
 		$f = __METHOD__;
 		try{
@@ -46,7 +57,7 @@ class Avatar extends SpanElement implements TemplateElementInterface{
 			$avatar_bg = new DivElement($mode);
 			$avatar_bg->addClassAttribute("avatar_bg");
 			$avatar_bg->setIdOverride("avatar_bg");
-			if($this->getAvatarType() === AVATAR_TYPE_PREVIEW) {
+			if($this->getAvatarType() === AVATAR_TYPE_PREVIEW){
 				$avatar_bg->setIdAttribute("msg_preview_avatar");
 			}
 			$avatar_head = new DivElement($mode);
@@ -60,22 +71,36 @@ class Avatar extends SpanElement implements TemplateElementInterface{
 			$pid = new GetForeignDataStructureCommand($context, "profileImageKey");
 			$thumb = new ProfileImageThumbnail($mode);
 			$thumb->setIdOverride("thumb");
-			$avatar_bg->resolveTemplateCommand(NodeBearingIfCommand::if(CommandBuilder::and($context->hasForeignDataStructureCommand("profileImageKey"), $pid->hasColumnValueCommand("status")))->then($avatar_bg->appendChildCommand($thumb->bindElementCommand($pid))));
+			$bind = $thumb->bindElementCommand($pid);
+			$if = NodeBearingIfCommand::if(
+				new AndCommand(
+					$context->hasForeignDataStructureCommand("profileImageKey"),
+					$pid->hasColumnValueCommand("status")
+				)
+			)->then(
+				new AppendChildCommand($avatar_bg, $bind)
+			);
+			$avatar_bg->resolveTemplateCommand($if);
+			if(!$this->getTemplateFlag()){
+				$avatar_bg->disableDeallocation();
+				deallocate($if);
+				$avatar_bg->enableDeallocation();
+			}
 			$this->appendChild($avatar_bg);
-			if($this->getAvatarType() !== AVATAR_TYPE_PREVIEW) {
+			if($this->getAvatarType() !== AVATAR_TYPE_PREVIEW){
 				$indicator = new OnlineStatusIndicator($mode);
 				$indicator->bindContext($context);
 				$this->appendChild($indicator);
 			}
-			return $this->getChildNodes();
-		}catch(Exception $x) {
+			return $this->hasChildNodes() ? $this->getChildNodes() : [];
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->avatarType);
+	public function dispose(bool $deallocate=false):void{
+		parent::dispose($deallocate);
+		$this->release($this->avatarType, $deallocate);
 	}
 
 	public static function getTemplateContextClass(): string{

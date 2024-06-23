@@ -45,7 +45,7 @@ class MultilingualStringDatumBundle extends DatumBundle implements StaticElement
 	
 	public function generateTranslatedStringValueDatum():TextDatum{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		$column_name = $this->getName();
 		$datum_class = static::getStringDatumClassStatic();
 		$localized = new $datum_class($column_name);
@@ -61,10 +61,14 @@ class MultilingualStringDatumBundle extends DatumBundle implements StaticElement
 		$alias = $localized->getSubqueryTableAlias();
 		$idn = $localized->getSubqueryClass()::getIdentifierNameStatic();
 		$rcn = $localized->setReferenceColumnName("{$column_name}Key");
-		$where = BinaryExpressionCommand::equals(
-			new GetDeclaredVariableCommand("{$alias}.{$idn}"),
-			new GetDeclaredVariableCommand("t0.{$rcn}")
-		);
+		$gdvc1 = new GetDeclaredVariableCommand();
+		$gdvc1->setVariableName("{$alias}.{$idn}");
+		$gdvc2 = new GetDeclaredVariableCommand();
+		$gdvc2->setVariableName("t0.{$rcn}");
+		$where = new BinaryExpressionCommand();
+		$where->setLeftHandSide($gdvc1);
+		$where->setOperator(OPERATOR_EQUALSEQUALS);
+		$where->setRightHandSide($gdvc2);
 		$localized->setSubqueryWhereCondition($where);
 		if($print){
 			Debug::print("{$f} subquery \"".$where->toSQL()."\"");
@@ -79,7 +83,7 @@ class MultilingualStringDatumBundle extends DatumBundle implements StaticElement
 	 */
 	public function generateComponents(?DataStructure $ds = null):array{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		$column_name = $this->getName();
 		//foreign key for selecting name data structure
 			$translatedStringKey = $this->generateTranslatedStringKeyDatum();

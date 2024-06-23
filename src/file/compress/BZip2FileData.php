@@ -20,7 +20,7 @@ class BZip2FileData extends CompressedFileData{
 		$f = __METHOD__;
 		$bz = bzopen($compressed_filename, "r");
 		$decompressed_file = "";
-		while (! feof($bz)) {
+		while(! feof($bz)){
 			$decompressed_file .= bzread($bz, 8192);
 		}
 		bzclose($bz);

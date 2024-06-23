@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework;
 
 // lifted from http://blog.markhatton.co.uk/2011/03/15/regular-expressions-for-ip-addresses-cidr-ranges-and-hostnames/
@@ -50,8 +51,8 @@ define("REGEX_TEMPLATE_LITERAL", '/(.*\${.*}.*)+/');
  */
 // define('REGEX_DISALLOWED_EMAIL_CHARACTERS', '[^\0\"\#\%\'\(\)\+\/\;\<\>\?\@\\\`\|\s]');
 // define('REGEX_DISALLOWED_EMAIL_CHARACTERS', '[^\0#%\'()+;<>?@`|\s]'); //valid -- the \42 and \/ are causing problems
-define('REGEX_DISALLOWED_EMAIL_CHARACTERS', '[^\0"#%\'()+\/;<>?@`|\s]');
-
+//define('REGEX_DISALLOWED_EMAIL_CHARACTERS', '[^\0"#%\'()+\/;<>?@`|\s]');
+define('REGEX_DISALLOWED_EMAIL_CHARACTERS', '[^\0"#%\'\(\)+\/;<>?@`\|\s]');
 /**
  * This regular expression rejects some technically valid email addresses because the specifications are extremely complex.
  * Constraints:
@@ -59,5 +60,5 @@ define('REGEX_DISALLOWED_EMAIL_CHARACTERS', '[^\0"#%\'()+\/;<>?@`|\s]');
  * disallows more than 1 @ or + because that would make the email address difficult to parse
  * domain must consist of only alphanumeric characters, . and -
  */
-define('REGEX_EMAIL_ADDRESS', '/^' . REGEX_DISALLOWED_EMAIL_CHARACTERS . '+(\+' . REGEX_DISALLOWED_EMAIL_CHARACTERS . '+)?@([A-Za-z0-9]+([-.]*[A-Za-z0-9]*)*)+/i' // '/^'.REGEX_DISALLOWED_EMAIL_CHARACTERS.'+(\+'.REGEX_DISALLOWED_EMAIL_CHARACTERS.'+)?@([A-Za-z0-9]+([\-\.]*[A-Za-z0-9]+)*)+/i'
+define('REGEX_EMAIL_ADDRESS', '/^' . REGEX_DISALLOWED_EMAIL_CHARACTERS . '+(\+' . REGEX_DISALLOWED_EMAIL_CHARACTERS . '+)?@([A-Za-z0-9]+([\-.]*[A-Za-z0-9]*)*)+/i' // '/^'.REGEX_DISALLOWED_EMAIL_CHARACTERS.'+(\+'.REGEX_DISALLOWED_EMAIL_CHARACTERS.'+)?@([A-Za-z0-9]+([\-\.]*[A-Za-z0-9]+)*)+/i'
 );

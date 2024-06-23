@@ -2,23 +2,22 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
-use function JulianSeymour\PHPWebApplicationFramework\back_quote;
 use function JulianSeymour\PHPWebApplicationFramework\close_enough;
-use function JulianSeymour\PHPWebApplicationFramework\getTypeSpecifier;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
+use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\set_secure_cookie;
-use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use function JulianSeymour\PHPWebApplicationFramework\starts_with;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\auth\permit\PermissiveInterface;
 use JulianSeymour\PHPWebApplicationFramework\auth\permit\PermissiveTrait;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
-use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\ArrayKeyProviderInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\DisabledFlagTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\ElementBindableTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\NamedTrait;
-use JulianSeymour\PHPWebApplicationFramework\common\ReplicableTrait;
+use JulianSeymour\PHPWebApplicationFramework\common\HitPointsInterface;
+use JulianSeymour\PHPWebApplicationFramework\common\ReplicableInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\UpdateFlagBearingTrait;
@@ -26,8 +25,9 @@ use JulianSeymour\PHPWebApplicationFramework\common\ValuedTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\CipherDatum;
 use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\SharedEncryptionSchemeInterface;
-use JulianSeymour\PHPWebApplicationFramework\crypt\schemes\SymmetricEncryptionScheme;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructuralTrait;
+use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\DataStructureClassTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\EmbeddedData;
 use JulianSeymour\PHPWebApplicationFramework\data\EventSourceData;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
@@ -40,31 +40,12 @@ use JulianSeymour\PHPWebApplicationFramework\event\AfterUnsetValueEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\BeforeEjectValueEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\BeforeSetValueEvent;
 use JulianSeymour\PHPWebApplicationFramework\event\BeforeUnsetValueEvent;
-use JulianSeymour\PHPWebApplicationFramework\event\EventListeningTrait;
+use JulianSeymour\PHPWebApplicationFramework\event\ReleaseParentNodeEvent;
 use JulianSeymour\PHPWebApplicationFramework\input\InputElement;
 use JulianSeymour\PHPWebApplicationFramework\json\JsonDatum;
-use JulianSeymour\PHPWebApplicationFramework\query\CollatedTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\CommentTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
-use JulianSeymour\PHPWebApplicationFramework\query\SecondaryEngineAttributeTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnAlias;
-use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnAliasExpression;
-use JulianSeymour\PHPWebApplicationFramework\query\column\PrimaryKeyFlagBearingTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\column\UniqueFlagBearingTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\column\VisibilityTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\constraint\CheckConstraint;
-use JulianSeymour\PHPWebApplicationFramework\query\constraint\ConstrainableTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\constraint\Constraint;
-use JulianSeymour\PHPWebApplicationFramework\query\constraint\PrimaryKeyConstraint;
-use JulianSeymour\PHPWebApplicationFramework\query\constraint\UniqueConstraint;
-use JulianSeymour\PHPWebApplicationFramework\query\index\IndexDefinition;
-use JulianSeymour\PHPWebApplicationFramework\query\index\IndexNameTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\index\IndexTypeTrait;
-use JulianSeymour\PHPWebApplicationFramework\query\index\KeyPart;
-use JulianSeymour\PHPWebApplicationFramework\query\join\TableFactor;
-use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatement;
 use JulianSeymour\PHPWebApplicationFramework\validate\DatumValidator;
-use JulianSeymour\PHPWebApplicationFramework\validate\ValidationClosureTrait;
 use Closure;
 use Exception;
 use mysqli;
@@ -74,29 +55,20 @@ use mysqli;
  *
  * @author j
  */
-abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface, SQLInterface, StaticPropertyTypeInterface{
+abstract class Datum extends AbstractDatum 
+implements ArrayKeyProviderInterface, ColumnDefinitionInterface, PermissiveInterface, ReplicableInterface, SQLInterface, StaticPropertyTypeInterface{
 
-	use CollatedTrait;
-	use CommentTrait;
-	use ConstrainableTrait;
+	use ColumnAliasableTrait;
+	use ColumnDefinitionTrait;
 	use DataStructuralTrait;
+	use DataStructureClassTrait;
 	use DisabledFlagTrait;
 	use ElementBindableTrait;
-	use EmbeddableTrait;
-	use EventListeningTrait;
-	use IndexNameTrait;
-	use IndexTypeTrait;
-	use NamedTrait;
 	use PermissiveTrait;
-	use PrimaryKeyFlagBearingTrait;
-	use ReplicableTrait;
-	use SecondaryEngineAttributeTrait;
 	use StaticPropertyTypeTrait;
-	use UniqueFlagBearingTrait;
+	use TranscryptionKeyNamesTrait;
 	use UpdateFlagBearingTrait;
-	use ValidationClosureTrait;
 	use ValuedTrait;
-	use VisibilityTrait;
 
 	/**
 	 * Attempting to pass this value to setValue will trigger the apoptose() function on the
@@ -106,42 +78,12 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	 */
 	protected $apoptoticSignal;
 
-	protected $columnAlias;
-
-	/**
-	 * specifies COLUMN_FORMAT part of declaration string
-	 *
-	 * @var string
-	 */
-	protected $columnFormatType;
-
 	/**
 	 * fallback for loose datums declared without a data structure
 	 *
 	 * @var string
 	 */
 	protected $dataStructureClass;
-
-	/**
-	 * Used in create table query generation.
-	 * Not to be confused with $persistenceMode.
-	 * Only applies to datums with $persistenceMode === PERSISTENCE_MODE_DATABASE
-	 */
-	protected $databaseStorageType;
-
-	/**
-	 * Name of a virtual column used to get the key used to decrypt this column's cipher value
-	 *
-	 * @var string
-	 */
-	protected $decryptionKeyName;
-
-	/**
-	 * expression for generating values of datums with GENERATED ALWAYS AS in their declaration string
-	 *
-	 * @var ExpressionCommand
-	 */
-	protected $generatedAlwaysAsExpression;
 
 	/**
 	 * closure for generating initial value prior to insertion
@@ -166,13 +108,6 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	protected $originalValue;
 
 	/**
-	 * needed to make aliased columns searchable
-	 */
-	protected $referenceColumn;
-
-	protected $referenceColumnName;
-
-	/**
 	 * similar to the generationClosure, but for columns with special logic for generating a new, non-initial value, i.e.
 	 * when changing password
 	 *
@@ -180,50 +115,9 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	 */
 	protected $regenerationClosure;
 
-	/**
-	 * SelectStatement for columns whose values are selected via subquery
-	 *
-	 * @var SelectStatement
-	 */
-	protected $aliasExpression;
-
-	// these are for generating the aliasExpression if it is not set explicitly
-	protected $subqueryClass;
-
-	protected $subqueryColumnName;
-
-	protected $subqueryDatabaseName;
-
-	protected $subqueryTableName;
-
-	protected $subqueryTableAlias;
-
-	protected $subqueryExpression;
-
-	protected $subqueryLimit;
-
-	protected $subqueryOrderBy;
-
-	protected $subqueryParameters;
-
-	protected $subqueryTypeSpecifier;
-
-	protected $subqueryWhereCondition;
-
-	/**
-	 * name of the neighbor column that contains the key for en/decrypting this one
-	 *
-	 * @var string
-	 */
-	protected $transcryptionKeyName;
-
 	public abstract function parseValueFromSuperglobalArray($value);
 
 	public abstract function parseValueFromQueryResult($raw);
-
-	public abstract static function validateStatic($value): int;
-
-	public abstract static function getTypeSpecifier();
 
 	public abstract function getUrlEncodedValue();
 
@@ -231,34 +125,30 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 
 	public abstract function getHumanWritableValue();
 
-	public abstract static function parseString(string $string);
-
-	public abstract function getColumnTypeString(): string;
-
 	protected abstract function getConstructorParams(): ?array;
 
-	public function __construct(string $name){
+	public function __construct(string $name=null){
 		$f = __METHOD__;
 		parent::__construct();
-		// $this->requirePropertyType("constraints", Constraint::class); //memprof says this is a hog
-		if(! isset($name)) {
-			Debug::error("{$f} name is undefined");
+		if($name !== null){
+			$this->setName($name);
 		}
-		$this->setName($name);
 		$this->setRewritableFlag(true);
 		$this->setTrimmableFlag(true);
 	}
 
-	public static function declareFlags(): ?array{
+	public static function declareFlags():?array{
+		Debug::checkMemoryUsage("gothca", 112000000);
 		return array_merge(parent::declareFlags(), [
 			"adminInterface", // true => automatically generate an input for this datum in a DefaultForm
 			COLUMN_FILTER_ALWAYS_VALID,
 			COLUMN_FILTER_APOPTOTIC, // true => apoptotic signal has been defined, possibly as null
 			COLUMN_FILTER_ARRAY_MEMBER, // true => datum's value will be in the array generated by its DataStructure->toArray()
+			"deallocating",
 			COLUMN_FILTER_DECLARED, // true => this datum was declared by the containing structure
 			COLUMN_FILTER_DISABLED,
 			COLUMN_FILTER_INDEX, // true => this column is an index
-			"ignoreInequivalence", // true => I forgot
+			"ignoreInequivalence", // true => this columns is ignored in DataStructure::equals()
 			"neverLeaveServer", // true => value should never leave the database server
 			"paginator", // true => column is part of a paginator's GET parameters
 			COLUMN_FILTER_PRIMARY_KEY, // true => column has a primary key constraint
@@ -278,6 +168,154 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		]);
 	}
 
+	public static function getCopyableFlags():?array{
+		return array_merge(parent::getCopyableFlags(), [
+			"adminInterface",
+			COLUMN_FILTER_ALWAYS_VALID,
+			COLUMN_FILTER_APOPTOTIC,
+			COLUMN_FILTER_INDEX,
+			"ignoreInequivalence",
+			"neverLeaveServer",
+			COLUMN_FILTER_PRIMARY_KEY,
+			'processValuelessInput',
+			COLUMN_FILTER_RETAIN_ORIGINAL_VALUE,
+			COLUMN_FILTER_REWRITABLE,
+			COLUMN_FILTER_SEARCHABLE,
+			COLUMN_FILTER_SENSITIVE,
+			COLUMN_FILTER_SORTABLE,
+			COLUMN_FILTER_TRIMMABLE,
+			COLUMN_FILTER_UNIQUE,
+			DIRECTIVE_UPDATE, //needed for embedded columns to update properly
+			"userWritable"
+		]);
+	}
+	
+	public function copy($that): int{
+		$f = __METHOD__;
+		$print = false;
+		$ret = parent::copy($that);
+		if($that->hasCollationName()){
+			$this->setCollationName(replicate($that->getCollationName()));
+		}
+		if($that->hasComment()){
+			$this->setComment(replicate($that->getComment()));
+		}
+		if($that->hasArrayProperty("constraints")){ //do not use hasConstraints because that always returns true for ForeignKeyDatum, which will for sure cause problems
+			$this->setConstraints(replicate($that->getConstraints()));
+		}
+		if($that->hasElementClass()){
+			$this->setElementClass(replicate($that->getElementClass()));
+		}
+		if($that->hasIndexName()){
+			$this->setIndexName(replicate($that->getIndexName()));
+		}
+		if($that->hasIndexType()){
+			$this->setIndexType(replicate($that->getIndexType()));
+		}
+		$this->copyPermissions($that);
+		if($that->hasEngineAttribute()){
+			$this->setEngineAttribute(replicate($that->getEngineAttribute()));
+		}
+		if($that->hasSecondaryEngineAttribute()){
+			$this->setSecondaryEngineAttribute(replicate($that->getSecondaryEngineAttribute()));
+		}
+		if($that instanceof VirtualDatum){
+			$column_name = $that->getName();
+			if($print){
+				Debug::print("{$f} other datum at index \"{$column_name}\" is virtual");
+			}
+		}elseif($that->hasValue()){
+			$value = replicate($that->getValue());
+			if($print){
+				Debug::print("{$f} setting value \"{$value}\"");
+			}
+			$this->setValue($value);
+		}elseif($print){
+			Debug::print("{$f} non-virtual datum does not have a value");
+		}
+		if($that->hasVisibility()){
+			$this->setVisibility(replicate($that->getVisibility()));
+		}
+		if($that->hasApoptoticSignal()){
+			$this->setApoptoticSignal(replicate($that->getApoptoticSignal()));
+		}
+		if($that->hasColumnAlias()){
+			$this->setColumnAlias(replicate($that->getColumnAlias()));
+		}
+		if($that->hasColumnFormat()){
+			$this->setColumnFormat(replicate($that->getColumnFormat()));
+		}
+		if($that->hasDataStructureClass()){
+			$this->setDataStructureClass(replicate($that->getDataStructureClass()));
+		}
+		if($that->hasDatabaseStorage()){
+			$this->setDatabaseStorage(replicate($that->getDatabaseStorage()));
+		}
+		if($that->hasDecryptionKeyName()){
+			$this->setDecryptionKeyName(replicate($that->getDecryptionKeyName()));
+		}
+		if($that->hasGeneratedAlwaysAsExpression()){
+			$this->setGeneratedAlwaysAsExpression(replicate($that->getGeneratedAlwaysAsExpression()));
+		}
+		if($that->hasMirrorIndices()){
+			foreach($that->getMirrorIndices() as $mi){
+				$this->mirrorAtIndex($mi);
+			}
+		}
+		if($that->hasOriginalValue()){
+			$this->setOriginalValue(replicate($that->getOriginalValue()));
+		}
+		if($that->hasPersistenceMode()){
+			$this->setPersistenceMode(replicate($that->getPersistenceMode()));
+		}
+		if($that->hasReferenceColumn()){
+			$this->setReferenceColumn($that->getReferenceColumn());
+		}
+		if($that->hasReferenceColumnName()){
+			$this->setReferenceColumnName(replicate($that->getReferenceColumnName()));
+		}
+		if($that->hasAliasExpression()){
+			$this->setAliasExpression(replicate($that->getAliasExpression()));
+		}
+		if($that->hasSubqueryClass()){
+			$this->setSubqueryClass(replicate($that->getSubqueryClass()));
+		}
+		if($that->hasSubqueryColumnName()){
+			$this->setSubqueryColumnName(replicate($that->getSubqueryColumnName()));
+		}
+		if($that->hasSubqueryDatabaseName()){
+			$this->setSubqueryDatabaseName(replicate($that->getSubqueryDatabaseName()));
+		}
+		if($that->hasSubqueryTableName()){
+			$this->setSubqueryTableName(replicate($that->getSubqueryTableName()));
+		}
+		if($that->hasSubqueryTableAlias()){
+			$this->setSubqueryTableAlias(replicate($that->getSubqueryTableAlias()));
+		}
+		if($that->hasSubqueryExpression()){
+			$this->setSubqueryExpression(replicate($that->getSubqueryExpression()));
+		}
+		if($that->hasSubqueryLimit()){
+			$this->setSubqueryLimit(replicate($that->getSubqueryLimit()));
+		}
+		if($that->hasSubqueryOrderBy()){
+			$this->setSubqueryOrderBy(replicate($that->getSubqueryOrderBy()));
+		}
+		if($that->hasSubqueryParameters()){
+			$this->setSubqueryParameters(replicate($this->getSubqueryParameters()));
+		}
+		if($that->hasSubqueryTypeSpecifier()){
+			$this->setSubqueryTypeSpecifier(replicate($that->getSubqueryTypeSpecifier()));
+		}
+		if($that->hasSubqueryWhereCondition()){
+			$this->setSubqueryWhereCondition(replicate($that->getSubqueryWhereCondition()));
+		}
+		if($that->hasTranscryptionKeyName()){
+			$this->setTranscryptionKeyName(replicate($that->getTranscryptionKeyName()));
+		}
+		return $ret;
+	}
+	
 	public function setAlwaysValidFlag(bool $value = true): bool{
 		return $this->setFlag(COLUMN_FILTER_ALWAYS_VALID, $value);
 	}
@@ -301,8 +339,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	}
 
 	public function setUpdateFlag(bool $value = true):bool{
-		$f = __METHOD__;
-		if($this->hasDataStructure()) {
+		if($value && $this->hasDataStructure()){
 			$this->getDataStructure()->setUpdateFlag($value);
 		}
 		return $this->setFlag(DIRECTIVE_UPDATE, $value);
@@ -318,18 +355,18 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 
 	public function setGenerationClosure(?Closure $closure): ?Closure{
 		$f = __METHOD__;
-		if($closure == null) {
-			unset($this->generationClosure);
-			return null;
-		}elseif(!$closure instanceof Closure) {
+		if(!$closure instanceof Closure){
 			Debug::error("{$f} closure must be a closure");
 		}
-		return $this->generationClosure = $closure;
+		if($this->hasGenerationClosure()){
+			$this->release($this->generationClosure);
+		}
+		return $this->generationClosure = $this->claim($closure);
 	}
 
 	public function getGenerationClosure(): ?Closure{
 		$f = __METHOD__;
-		if(!$this->hasGenerationClosure()) {
+		if(!$this->hasGenerationClosure()){
 			Debug::error("{$f} generation closure is undefined");
 		}
 		return $this->generationClosure;
@@ -341,18 +378,17 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 
 	public function setRegenerationClosure(?Closure $closure): ?Closure{
 		$f = __METHOD__;
-		if($closure == null) {
-			unset($this->regenerationClosure);
-			return null;
-		}elseif(!$closure instanceof Closure) {
+		if(!$closure instanceof Closure){
 			Debug::error("{$f} closure must be a closure");
+		}elseif($this->hasRegenerationClosure()){
+			$this->release($this->regenerationClosure);
 		}
 		return $this->regenerationClosure = $closure;
 	}
 
 	public function getRegenerationClosure(): ?Closure{
 		$f = __METHOD__;
-		if(!$this->hasRegenerationClosure()) {
+		if(!$this->hasRegenerationClosure()){
 			Debug::error("{$f} regeneration closure is undefined");
 		}
 		return $this->regenerationClosure;
@@ -373,61 +409,56 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 			$print = false;
 			$event_src = new EventSourceData($this, ALLOCATION_MODE_EAGER);
 			$event_src->setUserData(user());
-			if($previous_state !== null) {
+			if($previous_state !== null){
 				$event_src->setPreviousState($previous_state);
 			}
-			if($input_token !== null) {
+			if($input_token !== null){
 				$event_src->setToken($input_token);
 			}
 			$event_src->setCurrentState($next_state);
 			$event_src->setTargetData($this->getDataStructure());
 			$status = $event_src->insert($mysqli);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} inserting event source returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} successfully inserted event source data");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
-	}
-
-	public function encrypt(?string $scheme): Datum{
-		$this->setEncryptionScheme($scheme);
-		return $this;
 	}
 
 	public function generate(): int{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			if($this->hasGenerationClosure()) {
-				if($print) {
+			if($this->hasGenerationClosure()){
+				if($print){
 					Debug::print("{$f} this object has a generation closure");
 				}
 				$closure = $this->getGenerationClosure();
 				$value = $closure($this);
-				if($print) {
+				if($print){
 					Debug::print("{$f} generated initial value \"{$value}\"");
 				}
 				$this->setValue($value);
-			}elseif($this->hasDefaultValue()) {
-				if($print) {
+			}elseif($this->hasDefaultValue()){
+				if($print){
 					Debug::print("{$f} this column has a default value");
 				}
 				$value = $this->getDefaultValue();
-				if($print) {
+				if($print){
 					Debug::print("{$f} generated initial value \"{$value}\"");
 				}
 				$this->setValue($value);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} this column has neither a generation closure nor a default value");
 			}
 			return SUCCESS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -435,91 +466,21 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	public function regenerate(): int{
 		$f = __METHOD__;
 		$print = false;
-		if($this->hasRegenerationClosure()) {
-			if($print) {
+		if($this->hasRegenerationClosure()){
+			if($print){
 				Debug::print("{$f} this object has a generation closure");
 			}
 			$closure = $this->getRegenerationClosure();
 			$value = $closure($this);
-			if($print) {
+			if($print){
 				Debug::print("{$f} generated initial value \"{$value}\"");
 			}
 			$this->setValue($value);
 			return SUCCESS;
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} regeneration closure is undefined; falling back to initial generation function");
 		}
 		return $this->generate();
-	}
-
-	public function hasDecryptionKeyName():bool{
-		return isset($this->decryptionKeyName);
-	}
-
-	public function setDecryptionKeyName(?string $n):?string{
-		$f = __METHOD__;
-		if($n == null) {
-			unset($this->decryptionKeyName);
-			return null;
-		}elseif(!is_string($n)) {
-			Debug::error("{$f }transcryption key name must be a string");
-			return null;
-		}elseif(empty($n)) {
-			Debug::error("{$f} transcryption key name cannot be the empty string");
-			return null;
-		}
-		return $this->decryptionKeyName = $n;
-	}
-
-	public function getDecryptionKeyName():string{
-		$f = __METHOD__;
-		if(!$this->hasDecryptionKeyName()) {
-			$name = $this->getName();
-			Debug::error("{$f} transcryption key name is undefined for column \"{$name}\"");
-			return null;
-		}
-		return $this->decryptionKeyName;
-	}
-
-	public function hasTranscryptionKeyName():bool{
-		return isset($this->transcryptionKeyName);
-	}
-
-	public function setTranscryptionKeyName(?string $n):?string{
-		$f = __METHOD__;
-		if($n == null) {
-			unset($this->transcryptionKeyName);
-			return null;
-		}elseif(!is_string($n)) {
-			Debug::error("{$f }transcryption key name must be a string");
-			return null;
-		}elseif(empty($n)) {
-			Debug::error("{$f} transcryption key name cannot be the empty string");
-			return null;
-		}
-		return $this->transcryptionKeyName = $n;
-	}
-
-	public function getTranscryptionKeyName(){
-		$f = __METHOD__;
-		if(!$this->hasTranscryptionKeyName()) {
-			$name = $this->getName();
-			Debug::error("{$f} transcryption key name is undefined for column \"{$name}\"");
-			return null;
-		}
-		return $this->transcryptionKeyName;
-	}
-
-	public function setDataStructureClass(?string $class):?string{
-		$f = __METHOD__;
-		if(! class_exists($class)) {
-			Debug::error("{$f} class \"{$class}\" does not exist");
-		}
-		return $this->dataStructureClass = $class;
-	}
-
-	protected function hasDataStructureClass():bool{
-		return isset($this->dataStructureClass);
 	}
 
 	private function setApoptoticSignalFlag(bool $value = true):bool{
@@ -531,21 +492,24 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	}
 
 	public function setApoptoticSignal($value){
+		if($this->hasApoptoticSignal()){
+			$this->release($this->apoptoticSignal);
+		}
 		$this->setApoptoticSignalFlag(true);
-		return $this->apoptoticSignal = $value;
+		return $this->apoptoticSignal = $this->claim($value);
 	}
 
 	public function hasApoptoticSignal():bool{
 		$f = __METHOD__;
 		$cn = $this->getName();
 		$print = false;
-		if($print) {
-			if(isset($this->apoptoticSignal)) {
+		if($print){
+			if(isset($this->apoptoticSignal)){
 				Debug::print("{$f} apoptotic signal is set");
 			}else{
 				Debug::print("{$f} apoptotic signal is NOT set");
 			}
-			if($this->getApoptoticSignalFlag()) {
+			if($this->getApoptoticSignalFlag()){
 				Debug::print("{$f} apoptotic signal flag is set");
 			}else{
 				Debug::print("{$f} apoptotic signal flag is NOT set");
@@ -556,14 +520,14 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 
 	public function getApoptoticSignal(){
 		$f = __METHOD__;
-		if(!$this->hasApoptoticSignal()) {
+		if(!$this->hasApoptoticSignal()){
 			Debug::error("{$f} apoptotic signal is undefined");
 		}
 		return $this->apoptoticSignal;
 	}
 
 	public function clearApoptoticSignal(){
-		unset($this->apoptoticSignal);
+		$this->release($this->apoptoticSignal);
 		$this->setFlag(COLUMN_FILTER_APOPTOTIC, false);
 	}
 
@@ -575,21 +539,10 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->getFlag(COLUMN_FILTER_TRIMMABLE);
 	}
 
-	public function setIndexFlag(bool $value = true): bool{
-		return $this->setFlag(COLUMN_FILTER_INDEX, $value);
-	}
-
-	public function getIndexFlag(): bool{
-		return $this->getFlag(COLUMN_FILTER_INDEX);
-	}
-
-	public function index(bool $value = true): Datum{
-		$this->setIndexFlag($value);
-		return $this;
-	}
-
 	protected function beforeEjectValueHook():int{
-		$this->dispatchEvent(new BeforeEjectValueEvent());
+		if($this->hasAnyEventListener(EVENT_BEFORE_EJECT)){
+			$this->dispatchEvent(new BeforeEjectValueEvent());
+		}
 		return SUCCESS;
 	}
 
@@ -597,9 +550,9 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		$f = __METHOD__;
 		$name = $this->getName();
 		$print = false;
-		if($this->hasValue()) {
+		if($this->hasValue()){
 			$status = $this->beforeEjectValueHook();
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} beforeEjectValueHook for column \"{$name}\" returned error status \"{$err}\"");
 				$this->setObjectStatus($status);
@@ -607,27 +560,29 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 			}
 			$ret = $this->getValue();
 			$this->unsetValue(true);
-			if($this->hasValue()) {
+			if($this->hasValue()){
 				Debug::error("{$f} immediately after unsetValue, value is still defined for column \"{$name}\"");
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} returning \"{$ret}\" for column \"{$name}\"");
 			}
 			$this->afterEjectValueHook($ret);
 			return $ret;
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} value is already undefined for column \"{$name}\"");
 		}
 		return null;
 	}
 
 	protected function afterEjectValueHook($v):int{
-		$this->dispatchEvent(new AfterEjectValueEvent($v));
+		if($this->hasAnyEventListener(EVENT_AFTER_EJECT)){
+			$this->dispatchEvent(new AfterEjectValueEvent($v));
+		}
 		return SUCCESS;
 	}
 
 	public function configureArrayMembership($value){
 		$f = __METHOD__;
-		if(!is_bool($value)) {
+		if(!is_bool($value)){
 			Debug::error("{$f} only foreign key datums can configure array membership");
 		}
 		return $this->setArrayMembershipFlag($value);
@@ -650,46 +605,17 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	}
 
 	public function setArrayMembershipFlag(bool $value): bool{
-		if($this->getNeverLeaveServer()) {
+		if($this->getNeverLeaveServer()){
 			return false;
 		}
 		return $this->setFlag(COLUMN_FILTER_ARRAY_MEMBER, $value);
 	}
 
 	public function getArrayMembershipFlag():bool{
-		if($this->getNeverLeaveServer()) { // note: sensitive data can still be converted to array because the backup server needs them
+		if($this->getNeverLeaveServer()){ // note: sensitive data can still be converted to array because the backup server needs them
 			return false;
 		}
 		return $this->getFlag(COLUMN_FILTER_ARRAY_MEMBER);
-	}
-
-	public function copy(Datum $that): int{
-		$f = __METHOD__;
-		$print = false;
-		if($that->hasFlags()) { // XXX should not be copying flags
-			foreach($that->declareFlags() as $flag) {
-				if($that->getFlag($flag)) {
-					$this->setFlag($flag, true);
-				}
-			}
-		}elseif($print) {
-			Debug::print("{$f} other datum does not have flags");
-		}
-		if($that instanceof VirtualDatum) {
-			$column_name = $that->getName();
-			if($print) {
-				Debug::print("{$f} other datum at index \"{$column_name}\" is virtual");
-			}
-		}elseif($that->hasValue()) {
-			$value = $that->getValue();
-			if($print) {
-				Debug::print("{$f} setting value \"{$value}\"");
-			}
-			$this->setValue($value);
-		}elseif($print) {
-			Debug::print("{$f} other datum does not have a value");
-		}
-		return SUCCESS;
 	}
 
 	public function setValueFromSuperglobalArray($value){
@@ -705,53 +631,35 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	public function getDataStructureKey(){
 		$f = __METHOD__;
 		try{
-			if(!$this->hasDataStructure()) {
+			if(!$this->hasDataStructure()){
 				Debug::error("{$f} row data object is undefined");
 			}
 			$obj = $this->getDataStructure();
 			$key = $obj->getIdentifierValue();
 			// Debug::print("{$f} returning \"{$key}\"");
 			return $key;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
-	public function validate($v): int{
-		$f = __METHOD__;
-		$print = false;
-		if($this->hasValidationClosure()) {
-			if($print) {
-				Debug::print("{$f} this datum has a validation closure");
-			}
-			$closure = $this->getValidationClosure();
-			$status = $closure($v, $this);
-			if($status !== SUCCESS) {
-				$err = ErrorMessage::getResultMessage($status);
-				Debug::warning("{$f} validation closure returned error status \"{$err}\"");
-				return $this->setObjectStatus($status);
-			}
-		}elseif($print) {
-			Debug::print("{$f} this datum does not have a validation closure");
-		}
-		return static::validateStatic($v);
-	}
-
 	public function setOriginalValue($value){
 		$f = __METHOD__;
-		if(!$this->getRetainOriginalValueFlag()) {
+		if(!$this->getRetainOriginalValueFlag()){
 			Debug::error("{$f} retain original value flag is undefined");
+		}elseif($this->hasOriginalValue()){
+			$this->release($this->originalValue);
 		}
 		return $this->originalValue = $value;
 	}
 
 	public function getOriginalValue(){
 		$f = __METHOD__;
-		if(!$this->getRetainOriginalValueFlag()) {
+		if(!$this->getRetainOriginalValueFlag()){
 			$cn = $this->getName();
 			$dsc = $this->getDataStructureClass();
 			Debug::error("{$f} column \"{$cn}\" from class \"{$dsc}\" does not retain its original value");
-		}elseif(!$this->hasOriginalValue()) {
+		}elseif(!$this->hasOriginalValue()){
 			return null;
 		}
 		return $this->originalValue;
@@ -761,17 +669,17 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		$f = __METHOD__;
 		$column_name = $this->getName();
 		$print = false;
-		if($this->getRetainOriginalValueFlag()) {
-			if($print) {
+		if($this->getRetainOriginalValueFlag()){
+			if($print){
 				Debug::print("{$f} retain original value flag is set");
-				if(empty($this->originalValue)) {
+				if(empty($this->originalValue)){
 					Debug::print("{$f} column \"{$column_name}\" does not have a value");
 				}else{
 					Debug::print("{$f} original value of column \"{$column_name}\" is \"{$this->originalValue}\"");
 				}
 			}
 			return $this->originalValue !== null;
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} retain original value flag of column \"{$column_name}\" is not set, or original value is undefined");
 		}
 		return false;
@@ -782,25 +690,25 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		try{
 			$vn = $this->getName();
 			$print = false;
-			if($this instanceof VirtualDatum) {
+			if($this instanceof VirtualDatum){
 				$ds = $this->getDataStructure();
 				$dsc = $ds->getClass();
 				Debug::error("{$f} data structure of class \"{$dsc}\" is storing a virtual datum at index \"{$vn}\"");
 			}
 			$value = $this->parseValueFromQueryResult($raw);
-			if($print) {
+			if($print){
 				Debug::print("{$f} parsed value \"{$value}\" from raw result \"{$raw}\"");
 			}
-			if($this->getRetainOriginalValueFlag()) {
-				if($print) {
+			if($this->getRetainOriginalValueFlag()){
+				if($print){
 					Debug::print("{$f} retain original value flag is set");
 				}
 				$this->setOriginalValue($value);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} retain original value flag is not set");
 			}
 			return $this->setValue($value);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -819,7 +727,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	}
 
 	public function getDataStructureClass(){
-		if($this->hasDataStructureClass()) {
+		if($this->hasDataStructureClass()){
 			return $this->dataStructureClass;
 		}
 		return $this->getDataStructure()->getClass();
@@ -833,53 +741,36 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->getFlag(COLUMN_FILTER_SENSITIVE);
 	}
 
-	/**
-	 * if true, throw an error if a DataStructure is loaded without this datum's mandatory info defined
-	 *
-	 * @param boolean $mandatory
-	 * @return boolean \/
-	 *         public function setMandatoryOnLoad($mandatory){
-	 *         return $this->setFlag('mandatoryOnLoad', $mandatory);
-	 *         }
-	 */
 	public final function getDatabaseEncodedValue(){
 		$f = __METHOD__;
 		$name = $this->getName();
 		$print = false;
-		if($this->hasValue()) {
-			if($print) {
+		if($this->hasValue()){
+			if($print){
 				Debug::print("{$f} value is defined for column \"{$name}\"");
 			}
 			$value = $this->getValue();
-		}elseif($this->hasDefaultValue()) {
-			if($print) {
+		}elseif($this->hasDefaultValue()){
+			if($print){
 				Debug::print("{$f} value is undefined for column \"{$name}\", but there is a default value");
 			}
 			$value = $this->getDefaultValue();
 		}else{
-			if($print) {
+			if($print){
 				Debug::print("{$f} neither value nor default value are defined for column \"{$name}\"");
 			}
 			return null;
 		}
-		if($print) {
+		if($print){
 			Debug::print("{$f} about to return encoding of value \"{$value}\" for column \"{$name}\"");
 		}
 		return static::getDatabaseEncodedValueStatic($value);
 	}
 
-	public static function getDatabaseEncodedValueStatic($value){
-		return $value;
-	}
-
-	public function getIdentifierValue(){
-		return $this->getValue();
-	}
-
-	public function replicate(){
+	public function replicate(...$params):?ReplicableInterface{
 		$f = __METHOD__;
 		$status = $this->beforeReplicateHook();
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} before replicate hook returned error status \"{$err}\"");
 			$this->setObjectStatus($status);
@@ -891,7 +782,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		$replica->setReplicaFlag(true);
 		$replica->copy($this);
 		$status = $this->afterReplicateHook($replica);
-		if($status !== SUCCESS) {
+		if($status !== SUCCESS){
 			$err = ErrorMessage::getResultMessage($status);
 			Debug::warning("{$f} after replicate hook returned error status \"{$err}\"");
 			$this->setObjectStatus($status);
@@ -903,31 +794,19 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	public function getSelectOperatorAndIncrement($value){
 		$f = __METHOD__;
 		try{
-			if($value === null) {
-				if(!$this->isNullable()) {
+			if($value === null){
+				if(!$this->isNullable()){
 					$name = $this->getName();
 					Debug::error("{$f} this datum \"{$name}\" is not nullable");
 				}
-				$this->operatorCount ++;
+				$this->operatorCount++;
 				return OPERATOR_IS_NULL;
 			}
-			$this->operatorCount ++;
+			$this->operatorCount++;
 			return OPERATOR_EQUALS;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
-	}
-
-	/**
-	 * XXX what is this used for
-	 *
-	 * @param mixed $v
-	 * @return NULL|ValueReturningCommandInterface
-	 */
-	public function setIdentifierValue($v){
-		$f = __METHOD__;
-		Debug::printStackTrace("{$f} what is this used for?");
-		return $this->setValue($v);
 	}
 
 	public function getUserWritableFlag():bool{
@@ -938,23 +817,10 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->setFlag("userWritable", $v);
 	}
 
-	public function cast($v){
-		return $v;
-	}
-
-	/**
-	 * in the derived class this is used to initialize cryptographic keys and nonces that are randomized
-	 *
-	 * @return int
-	 */
-	public function initializeLinkedData(){
-		return SUCCESS;
-	}
-
 	public function getCipherColumn(): ?CipherDatum{
 		$f = __METHOD__;
 		try{
-			if(!$this->hasDataStructure()) {
+			if(!$this->hasDataStructure()){
 				Debug::error("{$f} data structure is undefined");
 			}
 			$row = $this->getDataStructure();
@@ -962,15 +828,15 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 			$vn = "{$name}Cipher";
 			$cipher = $row->getColumn($vn);
 			return $cipher;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	private function pushMirrorIndex(string $column_name):string{
-		if(!is_array($this->mirrorIndices)) {
+		if(!is_array($this->mirrorIndices)){
 			$this->mirrorIndices = [];
-		}elseif(array_key_exists($column_name, $this->mirrorIndices)) {
+		}elseif(array_key_exists($column_name, $this->mirrorIndices)){
 			return $column_name;
 		}
 		return $this->mirrorIndices[$column_name] = $column_name;
@@ -984,22 +850,37 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $mirror;
 	}
 
-	private function hasMirrorIndices(){
-		return is_array($this->mirrorIndices) && ! empty($this->mirrorIndices);
+	public function hasMirrorIndices():bool{
+		return is_array($this->mirrorIndices) && !empty($this->mirrorIndices);
 	}
 
+	public function setMirrorIndices(?array $mi):?array{
+		if($this->hasMirrorIndices()){
+			$this->release($this->mirrorIndices);
+		}
+		return $this->mirrorIndices = $this->claim($mi);
+	}
+	
+	public function getMirrorIndices():array{
+		$f = __METHOD__;
+		if(!$this->hasMirrorIndices()){
+			Debug::error("{$f} mirror indices are undefined");
+		}
+		return $this->mirrorIndices;
+	}
+	
 	private function setMirroredValues($v){
 		$f = __METHOD__;
 		$print = false;
-		if(!$this->hasMirrorIndices()) { // empty($this->mirrorIndices)){
-			if($print) {
+		if(!$this->hasMirrorIndices()){
+			if($print){
 				Debug::print("{$f} mirrorIndices is empty");
 			}
 			return $v;
 		}
 		$ds = $this->getDataStructure();
-		foreach($this->mirrorIndices as $column_name) {
-			if($print) {
+		foreach($this->getMirrorIndices() as $column_name){
+			if($print){
 				Debug::print("{$f} setting value at mirror index \"{$column_name}\"");
 			}
 			$datum = $ds->getColumn($column_name);
@@ -1021,7 +902,9 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	}
 
 	protected function beforeUnsetValueHook(bool $force = false): int{
-		$this->dispatchEvent(new BeforeUnsetValueEvent($force));
+		if($this->hasAnyEventListener(EVENT_BEFORE_UNSET_VALUE)){
+			$this->dispatchEvent(new BeforeUnsetValueEvent($force));
+		}
 		return SUCCESS;
 	}
 
@@ -1031,95 +914,144 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 			$column_name = $this->getName();
 			$print = false;
 			$status = $this->beforeUnsetValueHook($force);
-			if($status !== SUCCESS) {
+			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} beforeUnsetValueHook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
-			}elseif($force) {
-				if($print) {
+			}elseif($force){
+				if($print){
 					Debug::print("{$f} ignoring nullability");
 				}
-			}elseif(!$this->isNullable() || ($this->hasValue() && ! $this->isRewritable())) {
-				if($print) {
+			}elseif(!$this->isNullable() || ($this->hasValue() && ! $this->isRewritable())){
+				if($print){
 					Debug::print("{$f} column \"{$column_name}\" is not nullable");
 				}
 				return FAILURE;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} this column is nullable");
 			}
-			if($this->hasValue()) {
-				if($print) {
+			if($this->hasValue()){
+				if($print){
 					Debug::printStackTraceNoExit("{$f} column \"{$column_name}\" has a value, unsetting it now");
 				}
-				unset($this->value); // $this->setValue(null);
+				unset($this->value);
 				$persist_mode = $this->getPersistenceMode();
-				switch ($persist_mode) {
+				switch($persist_mode){
 					case PERSISTENCE_MODE_COOKIE:
-						if(headers_sent()) {
+						if(headers_sent()){
 							Debug::warning("{$f} headers already sent somehow");
 						}else{
-							setcookie($column_name, null, time() - 3600);
+							setcookie($column_name, '', time() - 3600);
 						}
-						unset($_COOKIE[$column_name]); // array_remove_key($_COOKIE, $column_name);
-						if(array_key_exists($column_name, $_COOKIE)) {
-							Debug::error("{$f} use array_remove_key");
-						}
+						unset($_COOKIE[$column_name]);
 						break;
 					case PERSISTENCE_MODE_ENCRYPTED:
 						$this->getCipherColumn()->unsetValue($force);
-						// XXX don't have a way to determine nonce column name from here, but it really doesn't matter
+						// XXX TODO don't have a way to determine nonce column name from here, but it really doesn't matter
 						break;
 					case PERSISTENCE_MODE_SESSION:
-						unset($_SESSION[$column_name]); // array_remove_key($_SESSION, $column_name);
-						if(array_key_exists($column_name, $_SESSION)) {
-							Debug::error("{$f} use array_remove_key");
-						}elseif($this->hasValue()) {
+						unset($_SESSION[$column_name]);
+						if($this->hasValue()){
 							$v = $this->getValue();
 							Debug::warning("{$f} before even getting through the switch statement, value of column \"{$column_name}\" is still defined as \"{$v}\"");
 							Debug::printSessionHash();
 							Debug::printStackTrace();
-						}elseif($print) {
+						}elseif($print){
 							Debug::print("{$f} unset seems to have worked");
 						}
 						break;
 					default:
 						break;
 				}
-				if($this->hasValue()) {
+				if($this->hasValue()){
 					$v = $this->getValue();
 					Debug::error("{$f} before exiting this function, value of column \"{$column_name}\" is still defined as \"{$v}\"");
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} this function seems to have worked");
 				}
 				$this->setUpdateFlag(true);
 				$this->afterUnsetValueHook($force);
 				return SUCCESS;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} column \"{$column_name}\" is already valueless");
 			}
 			return STATUS_UNCHANGED;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	protected function afterUnsetValueHook($force = false){
-		$this->dispatchEvent(new AfterUnsetValueEvent($force));
+		if($this->hasAnyEventListener(EVENT_AFTER_UNSET_VALUE)){
+			$this->dispatchEvent(new AfterUnsetValueEvent($force));
+		}
 		return SUCCESS;
 	}
 
+	public function releaseDataStructure(bool $deallocate=false){
+		$f = __METHOD__;
+		if(!$this->hasDataStructure()){
+			Debug::error("{$f} data structure is undefined");
+		}
+		$ds = $this->getDataStructure();
+		unset($this->dataStructure);
+		if($this->hasAnyEventListener(EVENT_RELEASE_PARENT)){
+			$this->dispatchEvent(new ReleaseParentNodeEvent($ds, $deallocate));
+		}
+		if(!BACKWARDS_REFERENCES_ENABLED){
+			unset($ds);
+			return;
+		}
+		$this->release($ds, $deallocate);
+	}
+	
+	/**
+	 *
+	 * @param DataStructure $obj
+	 * @return DataStructure
+	 */
+	public function setDataStructure($obj){
+		$f = __METHOD__;
+		$print = false && $this->getDebugFlag();
+		if($this->hasDataStructure()){
+			if($print){
+				Debug::printStackTraceNoExit("{$f} data structure was already assigned, releasing it now for this ".$this->getDebugString());
+			}
+			$this->releaseDataStructure();
+		}elseif($print){
+			Debug::print("{$f} assigning data structure for the first time for this ".$this->getDebugString());
+		}
+		if(!BACKWARDS_REFERENCES_ENABLED){
+			if($print){
+				Debug::print("{$f} backwards references are not enabled");
+			}
+			return $this->dataStructure = $obj;
+		}elseif($print){
+			Debug::print("{$f} backwards references are enabled");
+		}
+		if($obj instanceof HitPointsInterface){
+			if($print){
+				Debug::print("{$f} data structure is a HitPointsInterface");
+			}
+			$this->addDataStructureDeallocateListener($obj);
+		}elseif($print){
+			Debug::print("{$f} received something that is not a HitPointsInterface");
+		}
+		return $this->dataStructure = $this->claim($obj);
+	}
+	
 	public function setValue($v){
 		$f = __METHOD__;
 		try{
 			$vn = $this->getName();
-			$print = $this->getDebugFlag();
-			if($v instanceof ValueReturningCommandInterface) {
-				while ($v instanceof ValueReturningCommandInterface) {
+			$print = false;
+			if($v instanceof ValueReturningCommandInterface){
+				while($v instanceof ValueReturningCommandInterface){
 					$v = $v->evaluate();
 				}
 			}
-			if($print) {
-				if($this->hasDataStructure()) {
+			if($print){
+				if($this->hasDataStructure()){
 					$ds = $this->getDataStructure();
 					$dsc = $ds->getClass();
 					$did = $ds->getDebugId();
@@ -1127,58 +1059,66 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 					Debug::print("{$f} data structure of class \"{$dsc}\" with debug ID {$did} was instantiated {$decl}");
 				}
 			}
-			$this->dispatchEvent(new BeforeSetValueEvent($v));
-			$event = new AfterSetValueEvent($v);
-			if(!$this->isRewritable() && $this->hasValue()) {
+			if($this->hasAnyEventListener(EVENT_BEFORE_SET_VALUE)){
+				$this->dispatchEvent(new BeforeSetValueEvent($v));
+			}
+			if($this->hasAnyEventListener(EVENT_AFTER_SET_VALUE)){
+				$event = new AfterSetValueEvent($v);
+			}else{
+				$event = null;
+			}
+			if(!$this->isRewritable() && $this->hasValue()){
 				Debug::print("{$f} sorry, this datum is non-rewritable");
-				$this->dispatchEvent($event);
+				if($this->hasAnyEventListener(EVENT_AFTER_SET_VALUE)){
+					$this->dispatchEvent($event);
+				}
 				return null;
 			}
 			$receptivity = $this->hasDataStructure() ? $this->getDataStructure()->getReceptivity() : DATA_MODE_DEFAULT;
-			if($this->getSealedFlag()) {
+			if($this->getSealedFlag()){
 				Debug::error("{$f} datum is sealed");
 				return null;
-			}elseif($this->hasApoptoticSignal()) {
+			}elseif($this->hasApoptoticSignal()){
 				$signal = $this->getApoptoticSignal();
-				if($signal === $v) {
-					if($print) {
+				if($signal === $v){
+					if($print){
 						Debug::print("{$f} value matches apoptotic signal \"{$signal}\"");
 					}
 					$this->getDataStructure()->apoptose($this);
-					if($this->hasValue()) {
+					if($this->hasValue()){
 						$this->unsetValue(true);
 					}
 					return $v;
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} value does not match apoptotic signal");
 				}
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} this column does not have an apoptotic signal");
 			}
-			if(!$this->hasDataStructure()) {
-				if($print) {
+			if(!$this->hasDataStructure()){
+				if($print){
 					Debug::print("{$f} data structure is undefined");
 				}
-			}elseif($receptivity !== DATA_MODE_RECEPTIVE && $this->getDataStructure()->isUninitialized()) {
-				if($print) {
+			}elseif($receptivity !== DATA_MODE_RECEPTIVE && $this->getDataStructure()->isUninitialized()){
+				if($print){
 					Debug::print("{$f} data structure is uninitialized");
 				}
-			}elseif((! $this->hasValue() && $v !== null) || ($this->hasValue() && $this->value !== $v)) {
-				if($print) {
+			}elseif((!$this->hasValue() && $v !== null) || ($this->hasValue() && $this->value !== $v)){
+				if($print){
 					Debug::print("{$f} new value \"{$v}\" differs from existing one \"{$this->value}\" -- setting update flag. Receptivity is {$receptivity}");
 				}
 				$this->setUpdateFlag(true);
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} new value \"{$v}\" is the same as the old one \"{$this->value}\"");
 			}
 			$mode = $this->getPersistenceMode();
-			switch ($mode) {
+			switch($mode){
 				case (PERSISTENCE_MODE_COOKIE):
-					if($print) {
+					if($print){
 						Debug::print("{$f} datum \"{$vn}\" is stored in cookies");
 					}
 					$encoded = static::getDatabaseEncodedValueStatic($v);
-					if(headers_sent()) {
+					if(headers_sent()){
 						Debug::error("{$f} cannot set cookie for column {$vn} -- headers already sent somehow");
 						$_COOKIE[$vn] = $encoded;
 					}else{
@@ -1186,39 +1126,43 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 					}
 					break;
 				case (PERSISTENCE_MODE_SESSION):
-					if($print) {
+					if($print){
 						Debug::print("{$f} datum \"{$vn}\" is stored in session memory; setting it to \"{$v}\"");
 					}
 					$_SESSION[$vn] = $v;
 					$this->setMirroredValues($v);
 					break;
 				case PERSISTENCE_MODE_ENCRYPTED:
-					if($print) {
+					if($print){
 						Debug::print("{$f} column \"{$vn}\" is encrypted");
 					}
-					if($v === null) {
-						if($print) {
+					if($v === null){
+						if($print){
 							Debug::print("{$f} value is null; not going to encrypt an empty string just to waste space");
 						}
 						$this->value = $this->setMirroredValues($v);
-						$this->dispatchEvent($event);
+						if($this->hasAnyEventListener(EVENT_AFTER_SET_VALUE)){
+							$this->dispatchEvent($event);
+						}
 						return $this->value;
-					}elseif($receptivity === DATA_MODE_PASSIVE) {
-						if($print) {
+					}elseif($receptivity === DATA_MODE_PASSIVE){
+						if($print){
 							Debug::print("{$f} we are not going to do any encrypting because data mode is passive");
 						}
 						$this->value = $this->setMirroredValues($v);
-						$this->dispatchEvent($event);
+						if($this->hasAnyEventListener(EVENT_AFTER_SET_VALUE)){
+							$this->dispatchEvent($event);
+						}
 						return $this->value;
-					}elseif($print) {
-						Debug::print("{$f} value is not null and data mode is not passive ({$receptivity}) -- about to encrypt this sumbitch");
+					}elseif($print){
+						Debug::print("{$f} value is not null and data mode is not passive ({$receptivity}) -- about to encrypt contained value");
 					}
 					$cipher = $this->getCipherColumn();
 					$scheme_class = $this->getEncryptionScheme();
 					$scheme = new $scheme_class();
-					switch ($receptivity) {
+					switch($receptivity){
 						case DATA_MODE_RECEPTIVE:
-							if($print) {
+							if($print){
 								$dsc = $this->getDataStructureClass();
 								Debug::print("{$f} about to generate encryption key and nonce with scheme \"{$scheme_class}\" for datum \"{$vn}\" in a data structure of class \"{$dsc}\"; line 1166");
 							}
@@ -1226,7 +1170,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 							$nonce = $scheme->generateNonce($this);
 							break;
 						default:
-							if($print) {
+							if($print){
 								Debug::print("{$f} about to extract key and nonce with encryption scheme \"{$scheme_class}\" for datum \"{$vn}\"");
 							}
 							$key = $scheme->extractEncryptionKey($this);
@@ -1235,16 +1179,16 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 					}
 					$encoded = static::getDatabaseEncodedValueStatic($v);
 					$encrypted = $scheme->encrypt($encoded, $key, $nonce);
-					if($print && $scheme instanceof SymmetricEncryptionScheme) {}
+					deallocate($scheme);
 					$cipher->setValue($encrypted);
 					break;
 				default:
-					if($print) {
+					if($print){
 						Debug::print("{$f} datum \"{$vn}\" has storage mode \"{$mode}\"");
 					}
 					break;
 			}
-			if($print) {
+			if($print){
 				if(is_bool($v)){
 					if($v){
 						$vs = "true";
@@ -1257,9 +1201,11 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 				Debug::print("{$f} setting value of column \"{$vn}\" to \"{$vs}\"");
 			}
 			$this->value = $this->setMirroredValues($v);
-			$this->dispatchEvent($event);
+			if($this->hasAnyEventListener(EVENT_AFTER_SET_VALUE)){
+				$this->dispatchEvent($event);
+			}
 			return $this->value;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -1268,7 +1214,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		$vn = new ConcatenateCommand($compound_name, "[{$subindex}]");
 		$class = static::class;
 		$args = [];
-		foreach($args as $arg) {
+		foreach($args as $arg){
 			array_push($args, $arg);
 		}
 		return new $class($vn, $vn, ...$args);
@@ -1281,12 +1227,12 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 			$mode = $this->getPersistenceMode();
 			$print = false;
 			$mode = $this->getPersistenceMode();
-			if(isset($this->value)) {
-				if($print) {
+			if(isset($this->value)){
+				if($print){
 					$gottype = gettype($this->value);
 					Debug::print("{$f} value \"".base64_encode($this->value)."\" of type {$gottype} is already set for datum \"{$column_name}\"");
-					if(is_bool($this->value)) {
-						if($this->value === true) {
+					if(is_bool($this->value)){
+						if($this->value === true){
 							Debug::print("{$f} value is true");
 						}else{
 							Debug::print("{$f} value is false");
@@ -1295,48 +1241,48 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 				}
 				return $this->value;
 			}
-			switch ($mode) {
+			switch($mode){
 				case PERSISTENCE_MODE_COOKIE:
-					if($print) {
+					if($print){
 						Debug::print("{$f} about to get datum \"{$column_name}\" from cookies");
 					}
-					if(isset($_COOKIE[$column_name])) {
+					if(isset($_COOKIE[$column_name])){
 						$value = $this->parseValueFromQueryResult($_COOKIE[$column_name]);
-						if($print) {
+						if($print){
 							Debug::print("{$f} returning cookie value \"{$value}\"");
 						}
 						return $value;
 					}
 					break;
 				case PERSISTENCE_MODE_SESSION:
-					if($print) {
+					if($print){
 						Debug::print("{$f} about to get datum \"{$column_name}\" from session");
 					}
-					if(isset($_SESSION[$column_name])) {
+					if(isset($_SESSION[$column_name])){
 						$value = $_SESSION[$column_name];
-						if($print) {
+						if($print){
 							Debug::print("{$f} returning session value \"{$value}\"");
 						}
 						return $value;
 					}
-					if($print) {
+					if($print){
 						Debug::print("{$f} session datum \"{$column_name}\" is undefined");
 					}
 					break;
 				case PERSISTENCE_MODE_ENCRYPTED:
-					if(!$this->hasDataStructure()) {
+					if(!$this->hasDataStructure()){
 						Debug::error("{$f} data structure for column \"{$column_name}\" is undefined");
 					}
 					$cipher = $this->getCipherColumn();
-					if(!$cipher->hasValue()) {
+					if(!$cipher->hasValue()){
 						break;
 					}
 					$scheme_class = $this->getEncryptionScheme();
-					if($print) {
+					if($print){
 						Debug::print("{$f} encryption scheme class is \"{$scheme_class}\"");
 					}
 					$scheme = new $scheme_class();
-					if($print) {
+					if($print){
 						$dsc = $this->getDataStructureClass();
 						$dsk = $this->getDataStructureKey();
 						$did = $this->getDataStructure()->getDebugId();
@@ -1344,28 +1290,29 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 					}
 					$key = $scheme->extractDecryptionKey($this);
 					$ds = $this->getDataStructure();
-					if(empty($key)) {
+					if(empty($key)){
 						Debug::warning("{$f} decryption key is undefined for datum \"{$column_name}\"");
-						if($scheme instanceof SharedEncryptionSchemeInterface && ! $ds->getReplacementKeyRequested()) {
-							if($print) {
+						if($scheme instanceof SharedEncryptionSchemeInterface && ! $ds->getReplacementKeyRequested()){
+							if($print){
 								Debug::print("{$f} about to request replacement key");
 							}
 							$ds->requestReplacementDecryptionKey();
-						}elseif($print) {
+						}elseif($print){
 							Debug::print("{$f} scheme \"{$scheme_class}\" is not shared, or data structure has already requested a replacement key");
 						}
 						break;
-					}elseif($scheme instanceof SharedEncryptionSchemeInterface && $ds->getReplacementKeyRequested()) {
-						if($print) {
+					}elseif($scheme instanceof SharedEncryptionSchemeInterface && $ds->getReplacementKeyRequested()){
+						if($print){
 							Debug::print("{$f} fulfilling request for replacing encryption key");
 						}
 						$ds->fulfillReplacementKeyRequest();
 					}
 					$nonce = $scheme->extractNonce($this);
 					$raw = $scheme->decrypt($cipher->getValue(), $key, $nonce);
-					if($print && empty($raw)) {
+					deallocate($scheme);
+					if($print && empty($raw)){
 						Debug::error("{$f} raw decrypted value of column \"{$column_name}\" is empty");
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} raw decrypted value of column \"{$column_name}\" is \"".base64_encode($raw)."\"");
 						if($this instanceof StringDatum && $this->hasRequiredLength()){
 							if(strlen($raw) !== $this->getRequiredLength()){
@@ -1379,11 +1326,11 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 				default:
 					break;
 			}
-			if($this->hasDefaultValue()) {
+			if($this->hasDefaultValue()){
 				return $this->getDefaultValue();
 			}
 			return null;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -1398,149 +1345,147 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $scheme->extractNonce($this);
 	}
 
-	public function getNeverLeaveServer(){
+	public function getNeverLeaveServer():bool{
 		return $this->getFlag('neverLeaveServer');
 	}
 
-	public function setNeverLeaveServer($ever){
+	public function setNeverLeaveServer(bool $ever=true):bool{
 		return $this->setFlag('neverLeaveServer', $ever);
 	}
 
 	public function compareExistingValue($value){
 		$f = __METHOD__;
-		$print = $this->getDebugFlag();
+		$print = false && $this->getDebugFlag();
 		$old = $this->getValue();
-		if($print) {
+		if($print){
 			$name = $this->getName();
 			Debug::print("{$f} old value of datum \"{$name}\" is \"{$old}\"");
 		}
-		if($old === null) {
-			if($value === null || is_string($value) && $value === "") {
-				if($print) {
+		if($old === null){
+			if($value === null || is_string($value) && $value === ""){
+				if($print){
 					Debug::print("{$f} old and new values are both null/empty string");
 				}
 				return STATUS_UNCHANGED;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} old value is null, new value ain't");
 			}
 			return SUCCESS;
-		}elseif($value === null) {
-			if($print) {
+		}elseif($value === null){
+			if($print){
 				Debug:
 				print("{$f} old value is \"{$old}\", but new value is null");
 			}
 			return SUCCESS;
 		}
-		if(is_string($old) && is_string($value)) {
-			if(strcmp($old, $value) === 0) {
-				if($print) {
+		if(is_string($old) && is_string($value)){
+			if(strcmp($old, $value) === 0){
+				if($print){
 					Debug::print("{$f} strcmp({$old}, {$value}) returned true");
 				}
 				return STATUS_UNCHANGED;
-			}elseif(trim($old) === trim($value)) {
-				if($print) {
+			}elseif(trim($old) === trim($value)){
+				if($print){
 					Debug::print("{$f} they match once trimmed");
 				}
 				return STATUS_UNCHANGED;
-			}elseif($print) {
+			}elseif($print){
 				Debug::print("{$f} strcmp returned false");
 			}
-		}elseif($old === $value) {
-			if($print) {
+		}elseif($old === $value){
+			if($print){
 				Debug::print("{$f} value \"{$value}\" has not changed");
 			}
 			return STATUS_UNCHANGED;
-		}elseif($this instanceof FloatingPointDatum) {
-			if(close_enough($old, $value)) {
-				if($print) {
+		}elseif($this instanceof FloatingPointDatum){
+			if(close_enough($old, $value)){
+				if($print){
 					Debug::print("{$f} floating point comparison is close enough");
 				}
 				return STATUS_UNCHANGED;
 			}
 		}
-		if($print) {
+		if($print){
 			$old_type = gettype($old);
 			$new_type = gettype($value);
 			Debug::print("{$f} {$old_type} value has changed from \"{$old}\" to {$new_type} \"{$value}\"");
 		}
 		$old_hash = sha1($old);
 		$new_hash = sha1($value);
-		if($old_hash === $new_hash) {
+		if($old_hash === $new_hash){
 			Debug::warning("{$f} value has changed, but hash has not somewhow");
 			$old_hex = bin2hex($old);
 			$new_hex = bin2hex($value);
 			Debug::warning("{$f} old value in hex is \"{$old_hex}\"");
 			Debug::error("{$f} new value in hex is \"{$new_hex}\"");
-		}elseif($print) {
+		}elseif($print){
 			Debug::print("{$f} old hash is \"{$old_hash}\"; new hash is \"{$new_hash}\"");
 		}
 		return SUCCESS;
 	}
 
 	public function getValidators($value){
-		return [
-			new DatumValidator($this, $value)
-		];
+		return [new DatumValidator($this, $value)];
 	}
 
 	public function hasValue(){
 		$f = __METHOD__;
 		$vn = $this->getName();
 		$print = false;
-		switch ($this->getPersistenceMode()) {
+		switch($this->getPersistenceMode()){
 			case PERSISTENCE_MODE_ENCRYPTED:
 				// $value = $this->getValue();
-				if($print) {
+				if($print){
 					Debug::print("{$f} this datum is encrypted");
 				}
 				return $this->getCipherColumn()->hasValue(); // $value !== null && $value !== "" && strlen($value) > 0;
 			case PERSISTENCE_MODE_COOKIE:
-				if($print) {
+				if($print){
 					Debug::print("{$f} value is stored in cookies");
 				}
 				return array_key_exists($vn, $_COOKIE) && $_COOKIE[$vn] !== null && $_COOKIE[$vn] !== "";
 			case PERSISTENCE_MODE_SESSION:
-				if($print) {
+				if($print){
 					Debug::print("{$f} value is stored in session");
-					if(isset($_SESSION)) {
+					if(isset($_SESSION)){
 						Debug::print("{$f} session is defined");
 					}else{
 						Debug::print("{$f} session is undefined");
 					}
-					if(is_array($_SESSION)) {
+					if(is_array($_SESSION)){
 						Debug::print("{$f} session is an array");
 					}else{
 						Debug::print("{$f} session is not an array");
 					}
-					if(!empty($_SESSION)) {
+					if(!empty($_SESSION)){
 						Debug::print("{$f} session is not empty");
 					}else{
 						Debug::print("{$f} session is empty");
 					}
-					if(array_key_exists($vn, $_SESSION)) {
+					if(array_key_exists($vn, $_SESSION)){
 						Debug::print("{$f} key \"{$vn}\" exists in session");
 					}else{
 						Debug::print("{$f} key \"{$vn}\" does not exist in session");
 					}
-					if($_SESSION[$vn] !== null) {
+					if($_SESSION[$vn] !== null){
 						Debug::print("{$f} key \"{$vn}\" has maps to a non-null value");
 					}else{
 						Debug::print("{$f} key \"{$vn}\" maps to a null value");
 					}
-					if($_SESSION[$vn] !== "") {
+					if($_SESSION[$vn] !== ""){
 						Debug::print("{$f} key \"{$vn}\" maps to something other than an empty string");
 					}else{
 						Debug::print("{$f} key \"{$vn}\" maps to an empty string");
 					}
 					// Debug::printSession();
 				}
-				return isset($_SESSION) && is_array($_SESSION) && ! empty($_SESSION) && array_key_exists($vn, $_SESSION) && $_SESSION[$vn] !== null && $_SESSION[$vn] !== "";
+				return isset($_SESSION) && is_array($_SESSION) && !empty($_SESSION) && array_key_exists($vn, $_SESSION) && $_SESSION[$vn] !== null && $_SESSION[$vn] !== "";
 			case PERSISTENCE_MODE_DATABASE:
 			case PERSISTENCE_MODE_VOLATILE:
 			default:
-				if($print) {
+				if($print){
 					Debug::print("{$f} default case");
-					if($this->value !== null && $this->value !== "") {
+					if($this->value !== null && $this->value !== ""){
 						Debug::print("{$f} yes, value of \"{$vn}\" is non-null and not empty string");
 					}else{
 						$decl = $this->hasDataStructure() ? $this->getDataStructure()->getDeclarationLine() : "[unavailable]";
@@ -1561,29 +1506,28 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		try{
 			$vn = $this->getName();
 			$print = false;
-			if($print) {
+			if($print){
 				$ic = $input->getShortClass();
 				Debug::print("{$f} about to call {$ic}->negotiateValue");
-				$input->debug();
 			}
 			$negotiated = $input->negotiateValue($this);
 			$value = $this->cast($negotiated);
-			if($print) {
+			if($print){
 				Debug::print("{$f} cast negotiated value \"{$negotiated}\" into \"{$value}\" for datum \"{$vn}\"");
 			}
-			if($this->hasApoptoticSignal() && $this->getApoptoticSignal() === $value) {
-				if($print) {
+			if($this->hasApoptoticSignal() && $this->getApoptoticSignal() === $value){
+				if($print){
 					Debug::print("{$f} value is the apoptotic signal, doesn't matter if it's valid");
 				}
 				$status = $this->setObjectStatus(STATUS_UNCHANGED);
 				$this->getDataStructure()->apoptose($this); // must set this here -- needed in processForm to determine which status code to return
 			}else{
-				if($print) {
-					if(!$this->hasApoptoticSignal()) {
+				if($print){
+					if(!$this->hasApoptoticSignal()){
 						Debug::print("{$f} there is no apoptotic signal");
 					}else{
 						$apop = $this->getApoptoticSignal();
-						if($apop !== $value) {
+						if($apop !== $value){
 							Debug::print("{$f} apoptotic signal \"{$apop}\" does not match value \"{$value}\"");
 						}else{
 							Debug::error("{$f} apoptotic signal matches");
@@ -1592,25 +1536,25 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 				}
 				if(!$this->getAlwaysValidFlag()){
 					$status = $this->validate($value);
-					if($status !== SUCCESS) {
+					if($status !== SUCCESS){
 						$err = ErrorMessage::getResultMessage($status);
 						Debug::print("{$f} validation of datum \"{$vn}\" returned error status \"{$err}\"");
 						return $this->setObjectStatus($status);
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} validation successful");
 					}
 				}elseif($print){
 					Debug::print("{$f} skipping validation");
 				}
 				$status = $this->compareExistingValue($value);
-				switch ($status) {
+				switch($status){
 					case SUCCESS:
-						if($print) {
+						if($print){
 							Debug::print("{$f} value \"{$value}\" has changed for datum \"{$vn}\"");
 						}
 						break;
 					case STATUS_UNCHANGED:
-						if($print) {
+						if($print){
 							Debug::print("{$f} value \"{$value}\" has not changed for datum \"{$vn}\"");
 						}
 						return $status;
@@ -1623,15 +1567,15 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 						return $status;
 				}
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} about to assign value to field \"{$vn}\"");
 			}
 			$value = $this->setValue($value);
-			if($print) {
+			if($print){
 				Debug::print("{$f} assigned value \"{$value}\" to field \"{$vn}\"");
 			}
 			return $status;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -1652,271 +1596,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->setFlag(COLUMN_FILTER_SORTABLE, $value);
 	}
 
-	public function setGeneratedAlwaysAsExpression($expression){
-		if($expression == null) {
-			unset($this->generatedAlwaysAsExpression);
-			return null;
-		}
-		return $this->generatedAlwaysAsExpression = $expression;
-	}
-
-	public function hasGeneratedAlwaysAsExpression():bool{
-		return isset($this->generatedAlwaysAsExpression);
-	}
-
-	public function getGeneratedAlwaysAsExpression(){
-		$f = __METHOD__;
-		if(!$this->hasGeneratedAlwaysAsExpression()) {
-			Debug::error("{$f} generated always as expression is undefined");
-		}
-		return $this->generatedAlwaysAsExpression;
-	}
-
-	public function generatedAlwaysAs($expression){
-		$this->setGeneratedAlwaysAsExpression($expression);
-		return $this;
-	}
-
-	public function setColumnFormat($type){
-		$f = __METHOD__;
-		if($type == null) {
-			unset($this->columnFormatType);
-			return null;
-		}elseif(!is_string($type)) {
-			Debug::error("{$f} input parameter must be a string");
-		}
-		$type = strtolower($type);
-		switch ($type) {
-			case COLUMN_FORMAT_DEFAULT:
-			case COLUMN_FORMAT_DYNAMIC:
-			case COLUMN_FORMAT_FIXED:
-				break;
-			default:
-				Debug::error("{$f} invalid column format \"{$type}\"");
-		}
-		return $this->columnFormatType = $type;
-	}
-
-	public function hasColumnFormat():bool{
-		return isset($this->columnFormatType);
-	}
-
-	public function getColumnFormat(){
-		$f = __METHOD__;
-		if(!$this->hasColumnFormat()) {
-			Debug::error("{$f} column format is undefined");
-		}
-		return $this->columnFormatType;
-	}
-
-	public function columnFormat($type){
-		$this->setColumnFormat($type);
-		return $this;
-	}
-
-	public function setDatabaseStorage($type){
-		$f = __METHOD__;
-		if($type == null) {
-			unset($this->databaseStorageType);
-			return null;
-		}elseif(!is_string($type)) {
-			Debug::error("{$f} database storage type must be a string");
-		}
-		$type = strtolower($type);
-		switch ($type) {
-			case DATABASE_STORAGE_DISK:
-			case DATABASE_STORAGE_MEMORY:
-				if($this->hasGeneratedAlwaysExpression()) {
-					Debug::error("{$f} generated columns cannot specify storage to disk or memory");
-				}
-			case DATABASE_STORAGE_GENERATED_STORED:
-			case DATABASE_STORAGE_GENERATED_VIRTUAL:
-				// allowed regardless of generated always expression which may be set after this variable
-				break;
-			default:
-				Debug::error("{$f} invalid database storage type \"{$type}\"");
-		}
-		return $this->databaseStorageType = $type;
-	}
-
-	public function hasDatabaseStorage():bool{
-		return isset($this->databaseStorageType);
-	}
-
-	public function getDatabaseStorage(){
-		$f = __METHOD__;
-		if(!$this->hasDatabaseStorage()) {
-			Debug::error("{$f} database storage is undefined");
-		}
-		return $this->databaseStorageType;
-	}
-
-	public function databaseStorage($type){
-		$this->setDatabaseStorage($type);
-		return $type;
-	}
-
-	public function withDefaultValue($value){
-		$this->setDefaultValue($value);
-		return $this;
-	}
-
-	/**
-	 * Generate an IndexDefinition object for this datum.
-	 * XXX IndexDefinitions have engine attributes, key block size, visibility and comments,
-	 * but they are not necessarily the same as the ones declared for this column.
-	 * They also have a parser name for full text indices.
-	 *
-	 * @return IndexDefinition
-	 */
-	public function generateIndexDefinition(){
-		$f = __METHOD__;
-		try{
-			$cn = $this->getName();
-			if($this->hasIndexName()) {
-				$name = $this->getIndexName();
-			}else{
-				$ds = $this->getDataStructure();
-				$type = $ds->getTableName();
-				$name = "{$type}_{$cn}_index";
-			}
-			$index = new IndexDefinition($name);
-			if($this->hasIndexType()) {
-				$index->setIndexType($this->getIndexType());
-			}
-			if($this instanceof StringDatum) {
-				$length = $this->getMaximumLength();
-			}else{
-				$length = null;
-			}
-			$keypart = new KeyPart($cn, $length);
-			$index->setKeyParts([
-				$keypart
-			]);
-			if($this->isPrimaryKey()) {
-				return new PrimaryKeyConstraint($index);
-			}elseif($this->getUniqueFlag()) {
-				return new UniqueConstraint($index);
-			}
-			return $index;
-		}catch(Exception $x) {
-			x($f, $x);
-		}
-	}
-
 	public function canHaveDefaultValue(): bool{
-		return ! ($this instanceof BlobDatum || $this instanceof JsonDatum || $this instanceof TextDatum || $this instanceof GeometryDatum);
-	}
-
-	// XXX missing reference definition
-	public function toSQL(): string{
-		$f = __METHOD__;
-		try{
-			$print = false;
-			$string = back_quote($this->getName()) . " " . $this->getColumnTypeString();
-			if($this->hasGeneratedAlwaysAsExpression()) {
-				if($print) {
-					Debug::print("{$f} this column has a generated always as expression");
-				}
-				// [COLLATE collation_name]
-				if($this->hasCollationName()) {
-					$string .= " collate " . $this->getCollationName();
-				}
-				// [GENERATED ALWAYS] AS (expr)
-				$expr = $this->getGeneratedAlwaysAsExpression();
-				if($expr instanceof SQLInterface) {
-					$expr = $expr->toSQL();
-				}
-				$string .= " as ({$expr})";
-				// [VIRTUAL | STORED] [NOT NULL | NULL]
-				if($this->hasDatabaseStorage()) {
-					$string .= " " . $this->getDatabaseStorage();
-					if(!$this->isNullable()) {
-						$string .= " not null";
-					}
-				}
-				// [VISIBLE | INVISIBLE]
-				if($this->hasVisibility()) {
-					$string .= " " . $this->getVisibility();
-				}
-				// [UNIQUE [KEY]] [[PRIMARY] KEY]
-				if($this->getUniqueFlag()) {
-					$string .= " unique";
-				}
-				if($this->isPrimaryKey()) {
-					$string .= " primary key";
-				}
-				// [COMMENT 'string']
-				if($this->hasComment()) {
-					$string .= " comment " . single_quote($this->getComment());
-				}
-			}else{
-				if($print) {
-					Debug::print("{$f} generated always as expressions is undefined");
-				}
-				// data_type [NOT NULL | NULL] [DEFAULT {literal | (expr)} ]
-				if(!$this->isNullable()) {
-					$string .= " not null";
-				}
-				if($this->hasDefaultValue() && $this->canHaveDefaultValue()) {
-					$string .= " default " . $this->getDefaultValueString();
-				}
-				// [VISIBLE | INVISIBLE]
-				if($this->hasVisibility()) {
-					$string .= " " . $this->getVisibility();
-				}
-				// [AUTO_INCREMENT] [UNIQUE [KEY]] [[PRIMARY] KEY]
-				if($this instanceof IntegerDatum && $this->getAutoIncrementFlag()) {
-					$string .= " auto_increment";
-				}
-				if($this->getUniqueFlag()) {
-					$string .= " unique";
-				}
-				if($this->isPrimaryKey()) {
-					$string .= " primary key";
-				}
-				// [COMMENT 'string']
-				if($this->hasComment()) {
-					$string .= " comment " . single_quote($this->getComment());
-				}
-				// [COLLATE collation_name]
-				if($this->hasCollationName()) {
-					$string .= " collate " . $this->getCollationName();
-				}
-				// [COLUMN_FORMAT {FIXED | DYNAMIC | DEFAULT}]
-				if($this->hasColumnFormat()) {
-					$string .= " column_format " . $this->getColumnFormat();
-				}
-				// [ENGINE_ATTRIBUTE [=] 'string']
-				if($this->hasEngineAttribute()) {
-					$string .= " engine_attribute " . single_quote($this->getEngineAttribute());
-					// [SECONDARY_ENGINE_ATTRIBUTE [=] 'string']]
-					if($this->hasSecondaryEngineAttribute()) {
-						$string .= " secondary_engine_attribute " . single_quote($this->getSecondaryEngineAttribute());
-					}
-				}
-				// [STORAGE {DISK | MEMORY}]
-				if($this->hasDatabaseStorage()) {
-					$string .= " storage " . $this->getDatabaseStorage();
-				}
-			}
-			if(false && $this->hasReferenceDefinition()) {
-				// [reference_definition]
-				// XXX TODO unimplemented
-			}
-			if($this->hasConstraints()) {
-				// [check_constraint_definition]
-				foreach($this->getConstraints() as $constraint) {
-					if(!$constraint instanceof CheckConstraint) {
-						continue;
-					}
-					$string .= " {$constraint}";
-				}
-			}
-			return $string;
-		}catch(Exception $x) {
-			x($f, $x);
-		}
+		return !($this instanceof BlobDatum || $this instanceof JsonDatum || $this instanceof TextDatum || $this instanceof GeometryDatum);
 	}
 
 	public function isComparable(){
@@ -1937,27 +1618,27 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 	 * @param string[] $filters
 	 * @return boolean
 	 */
-	public function applyFilter(...$filters): bool{
+	public function applyFilter(...$filters):bool{
 		$f = __METHOD__;
 		try{
 			$column_name = $this->getName();
 			// $ds = $this->getDataStructure();
 			$pm = $this->getPersistenceMode();
-			$print = false;
-			if(count($filters) === 1 && is_array($filters[0])) {
+			$print = false && $this->getDebugFlag();
+			if(count($filters) === 1 && is_array($filters[0])){
 				$filters = $filters[0];
 			}
-			foreach($filters as $filter) {
-				if(!is_string($filter)) {
+			foreach($filters as $filter){
+				if(!is_string($filter)){
 					Debug::error("{$f} filter name must be a string");
-				}elseif($print) {
+				}elseif($print){
 					Debug::print("{$f} entered for filter \"{$filter}\"");
 				}
 				$negate = false;
-				if(starts_with($filter, '!')) { // XXX trim all '!!' occurences
-					if(starts_with($filter, "!!")) {
+				if(starts_with($filter,'!')){ // XXX TODO trim all '!!' occurences
+					if(starts_with($filter, "!!")){
 						Debug::error("{$f} please don't double negate filter names you prick");
-					}elseif($print) {
+					}elseif($print){
 						Debug::print("{$f} negating filter \"{$filter}\"");
 					}
 					$negate = ! $negate;
@@ -1970,7 +1651,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 				// paginator
 				// processValuelessInput',//true => processInput will get called in DataStructure->processForm even if the input does not have a value attribute
 				// userWritable
-				switch ($filter) {
+				switch($filter){
 					case COLUMN_FILTER_ADD_TO_RESPONSE:
 						$pass = $this instanceof ForeignKeyDatumInterface && $this->getFlag(COLUMN_FILTER_ADD_TO_RESPONSE);
 						break;
@@ -2002,20 +1683,20 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 						$pass = $this instanceof StringDatum && $this->getFlag(COLUMN_FILTER_BBCODE);
 						break;
 					case CONST_BEFORE: // foreign columns that are inserted or updated before the host data structure
-						if($print) {
-							if($this->applyFilter(COLUMN_FILTER_FOREIGN)) {
+						if($print){
+							if($this->applyFilter(COLUMN_FILTER_FOREIGN)){
 								Debug::print("{$f} column \"{$column_name}\" is a foreign column");
-								if($this->applyFilter(COLUMN_FILTER_DECLARED)) {
+								if($this->applyFilter(COLUMN_FILTER_DECLARED)){
 									Debug::print("{$f} column \"{$column_name}\" has the declared flag set, whatever that is");
-									if($this->getRelativeSequence() === CONST_BEFORE) {
+									if($this->getRelativeSequence() === CONST_BEFORE){
 										Debug::print("{$f} the foreign data structure at column \"{$column_name}\" must be inserted/updated before the host. Filter satisfied.");
 									}else{
 										Debug::print("{$f} Filter failed. The foreign data structure at column \"{$column_name}\" is inserted/updated after the host");
 									}
-								}elseif($print) {
+								}elseif($print){
 									Debug::print("{$f} Filter failed. Column \"{$column_name}\" does not have the declared flag set");
 								}
-							}elseif($print) {
+							}elseif($print){
 								Debug::print("{$f} Filter failed. Column \"{$column_name}\" is not a foreign column");
 							}
 						}
@@ -2042,7 +1723,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 						$pass = $pm === PERSISTENCE_MODE_COOKIE;
 						break;
 					case COLUMN_FILTER_CREATE_TABLE:
-						if($this->getDataStructure() instanceof EmbeddedData) {
+						if($this->getDataStructure() instanceof EmbeddedData){
 							$pass = ! $this instanceof VirtualDatum && ($pm === PERSISTENCE_MODE_EMBEDDED || $pm === PERSISTENCE_MODE_DATABASE);
 							if($print){
 								Debug::print("{$f} data structure is embedded");
@@ -2124,7 +1805,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 						$pass = $this instanceof FullTextStringDatum && $this->getFlag(COLUMN_FILTER_FULLTEXT);
 						break;
 					case COLUMN_FILTER_ID:
-						if(!$this->hasDataStructure()) {
+						if(!$this->hasDataStructure()){
 							Debug::error("{$f} cannot apply the ID filter to datums without data structures");
 						}
 						$pass = $column_name === $this->getDataStructure()->getIdentifierName();
@@ -2142,7 +1823,7 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 						break;
 					case "intersect":
 					case COLUMN_FILTER_INTERSECTION: // foreign key columns whose values are stored in intersections tables
-						if(!$this->applyFilter(COLUMN_FILTER_FOREIGN)) {
+						if(!$this->applyFilter(COLUMN_FILTER_FOREIGN)){
 							$pass = false;
 							break;
 						}
@@ -2164,8 +1845,8 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 						break;
 					case COLUMN_FILTER_ONE_SIDED:
 						$pass = $this instanceof KeyListDatum && $this->getOneSidedFlag();
-						if(true || $print) {
-							if($pass) {
+						if(true || $print){
+							if($pass){
 								Debug::print("{$f} column \"{$column_name}\" is flagged as one-sided");
 							}
 						}
@@ -2262,10 +1943,10 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 						$pass = $pm === PERSISTENCE_MODE_VOLATILE;
 						break;
 					default:
-						if(is_a($filter, Datum::class, true)) {
-							if($print) {
+						if(is_a($filter, Datum::class, true)){
+							if($print){
 								Debug::print("{$f} filter is a datum class");
-								if($this instanceof $filter) {
+								if($this instanceof $filter){
 									Debug::print("{$f} yes, column {$column_name} is a {$filter}");
 								}else{
 									Debug::print("{$f} no, column {$column_name} of class ".$this->getClass()." is not a {$filter}");
@@ -2276,23 +1957,23 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 						}
 						Debug::error("{$f} invalid filter \"{$filter}\"");
 				}
-				if($pass) {
-					if($print) {
+				if($pass){
+					if($print){
 						Debug::print("{$f} filter \"{$filter}\" satisfied");
 					}
-					if($negate) {
-						if($print) {
+					if($negate){
+						if($print){
 							Debug::print("{$f} negation in effect, returning false");
 						}
 						return false;
 					}
 					continue;
 				}else{
-					if($print) {
+					if($print){
 						Debug::print("{$f} filter \"{$filter}\" failed for column \"{$column_name}\"");
 					}
-					if($negate) {
-						if($print) {
+					if($negate){
+						if($print){
 							Debug::print("{$f} negation in effect, continuing");
 						}
 						continue;
@@ -2300,11 +1981,11 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 					return false;
 				}
 			}
-			if($print) {
+			if($print){
 				Debug::print("{$f} all filters satisfied");
 			}
 			return true;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -2322,351 +2003,6 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this->getFlag(COLUMN_FILTER_SEALED);
 	}
 
-	public function hasAliasExpression(): bool{
-		return isset($this->aliasExpression);
-	}
-
-	public function setAliasExpression($st){
-		if($st == null) {
-			unset($this->aliasExpression);
-			return null;
-		}
-		$this->setPersistenceMode(PERSISTENCE_MODE_ALIAS);
-		return $this->aliasExpression = $st;
-	}
-
-	public function alias($st): Datum{
-		$this->setAliasExpression($st);
-		return $this;
-	}
-
-	public function hasSubqueryWhereCondition(): bool{
-		return isset($this->subqueryWhereCondition);
-	}
-
-	public function getSubqueryWhereCondition(){
-		$f = __METHOD__;
-		if(!$this->hasSubqueryWhereCondition()) {
-			$name = $this->getName();
-			$decl = $this->getDeclarationLine();
-			Debug::error("{$f} subquery where condition is undefined for coulmn \"{$name}\", declared {$decl}");
-		}
-		return $this->subqueryWhereCondition;
-	}
-
-	public function setSubqueryWhereCondition($where){
-		if($where == null) {
-			unset($this->subqueryWhereCondition);
-			return null;
-		}
-		$this->setPersistenceMode(PERSISTENCE_MODE_ALIAS);
-		return $this->subqueryWhereCondition = $where;
-	}
-
-	public function hasSubqueryColumnName(): bool{
-		return isset($this->subqueryColumnName);
-	}
-
-	public function setSubqueryColumnName(?string $sqcn): ?string{
-		if($sqcn === null) {
-			unset($this->subqueryColumnName);
-			return null;
-		}
-		return $this->subqueryColumnName = $sqcn;
-	}
-
-	public function getSubqueryColumnName(): string{
-		$f = __METHOD__;
-		$print = false;
-		if(!$this->hasSubqueryColumnName()) {
-			if($print) {
-				Debug::warning("{$f} subquery column name is undefined, assuning it's the same at this column's name");
-			}
-			return $this->getName();
-		}
-		return $this->subqueryColumnName;
-	}
-
-	public function setSubqueryExpression($expr){
-		$f = __METHOD__;
-		if($expr == null) {
-			unset($this->subqueryExpression);
-			return null;
-		}
-		$this->setPersistenceMode(PERSISTENCE_MODE_ALIAS);
-		return $this->subqueryExpression = $expr;
-	}
-
-	public function hasSubqueryExpression(): bool{
-		return isset($this->subqueryExpression);
-	}
-
-	public function getSubqueryExpression(){
-		$f = __METHOD__;
-		$print = false;
-		$name = $this->getName();
-		if(!$this->hasSubqueryExpression()) {
-			if($this->hasSubqueryTableName() || $this->hasSubqueryClass()) {
-				if($print) {
-					Debug::print("{$f} subquery table name or class is defined");
-				}
-				return new ColumnAlias(new ColumnAliasExpression($this->getSubqueryTableAlias(), $this->getSubqueryColumnName()), $name);
-			}
-			Debug::error("{$f} subquery expression and table name are undefined for column \"{$name}\"");
-		}elseif($print) {
-			Debug::print("{$f} subquery expression was already assigned");
-		}
-		return $this->subqueryExpression;
-	}
-
-	public function setSubqueryClass(?string $class): ?string{
-		$f = __METHOD__; 
-		if($class == null) {
-			unset($this->subqueryClass);
-			return null;
-		}elseif(! class_exists($class)) {
-			Debug::error("{$f} class \"{$class}\" does not exist");
-		}
-		return $this->subqueryClass = $class;
-	}
-
-	public function hasSubqueryClass(): bool{
-		return isset($this->subqueryClass);
-	}
-
-	public function getSubqueryClass(): string{
-		$f = __METHOD__;
-		if(!$this->hasSubqueryClass()) {
-			Debug::error("{$f} subquery class is undefined");
-		}
-		return $this->subqueryClass;
-	}
-
-	public function hasSubqueryDatabaseName(): bool{
-		return isset($this->subqueryDatabaseName);
-	}
-
-	public function setSubqueryDatabaseName(?string $db): ?string{
-		if($db == null) {
-			unset($this->subqueryDatabaseName);
-			return null;
-		}
-		return $this->subqueryDatabaseName = $db;
-	}
-
-	public function getSubqueryDatabaseName(): string{
-		$f = __METHOD__;
-		if($this->hasSubqueryDatabaseName()) {
-			return $this->subqueryDatabaseName;
-		}elseif($this->hasSubqueryClass()) {
-			return $this->getSubqueryClass()::getDatabaseNameStatic();
-		}
-		Debug::error("{$f} subquery database name and class are undefined");
-	}
-
-	public function hasSubqueryTableName(): bool{
-		return isset($this->subqueryTableName);
-	}
-
-	public function setSubqueryTableName(?string $db): ?string{
-		if($db == null) {
-			unset($this->subqueryTableName);
-			return null;
-		}
-		return $this->subqueryTableName = $db;
-	}
-
-	public function getSubqueryTableName(): string{
-		$f = __METHOD__;
-		if($this->hasSubqueryTableName()) {
-			return $this->subqueryTableName;
-		}elseif($this->hasSubqueryClass()) {
-			$sqc = $this->getSubqueryClass();
-			if(!method_exists($sqc, 'getTableNameStatic')){
-				Debug::error("{$f} table name cannot be determined statically for subquery class \"{$sqc}\"");
-			}
-			return $sqc::getTableNameStatic();
-		}
-		Debug::error("{$f} subquery table name and class are undefined");
-	}
-
-	public function getFullSubqueryTableName(): string{
-		$f = __METHOD__;
-		ErrorMessage::deprecated($f);
-		return $this->getSubqueryDatabaseName() . "." . $this->getSubqueryTableName();
-	}
-
-	public function hasSubqueryTableAlias(): bool{
-		return isset($this->subqueryTableAlias);
-	}
-
-	public function setSubqueryTableAlias(?string $alias): ?string{
-		if($alias == null) {
-			unset($this->subqueryTableAlias);
-			return null;
-		}
-		return $this->subqueryTableAlias = $alias;
-	}
-
-	public function getSubqueryTableAlias(): string{
-		if($this->hasSubqueryTableAlias()) {
-			return $this->subqueryTableAlias;
-		}
-		return $this->getSubqueryTableName() . "_alias";
-	}
-
-	public function hasSubqueryOrderBy(): bool{
-		return isset($this->subqueryOrderBy);
-	}
-
-	public function setSubqueryOrderBy($ob): ?array{
-		if($ob == null) {
-			unset($this->subqueryOrderBy);
-			return null;
-		}elseif(!is_array($ob)) {
-			$ob = [
-				$ob
-			];
-		}
-		return $this->subqueryOrderBy = $ob;
-	}
-
-	public function getSubqueryOrderBy(): array{
-		$f = __METHOD__;
-		if(!$this->hasSubqueryOrderBy()) {
-			Debug::error("{$f} subquery order by is undefined");
-		}
-		return $this->subqueryOrderBy;
-	}
-
-	public function hasSubqueryLimit(): bool{
-		return isset($this->subqueryLimit);
-	}
-
-	public function getSubqueryLimit(): int{
-		$f = __METHOD__;
-		if(!$this->hasSubqueryLimit()) {
-			Debug::error("{$f} subquery limit is undefined");
-		}
-		return $this->subqueryLimit;
-	}
-
-	public function setSubqueryLimit(?int $limit): ?int{
-		if($limit == null) {
-			unset($this->subqueryLimit);
-			return null;
-		}
-		return $this->subqueryLimit = $limit;
-	}
-
-	public function hasSubqueryParameters(): bool{
-		return isset($this->subqueryParameters);
-	}
-
-	public function getSubqueryParameters(): array{
-		$f = __METHOD__;
-		if(!$this->hasSubqueryParameters()) {
-			Debug::error("{$f} subquery parameters are undefined");
-		}
-		return $this->subqueryParameters;
-	}
-
-	public function setSubqueryParameters($params): ?array{
-		if($params == null) {
-			unset($this->subqueryParameters);
-			return null;
-		}elseif(!is_array($params)) {
-			$params = [
-				$params
-			];
-		}
-		return $this->subqueryParameters = $params;
-	}
-
-	public function hasSubqueryTypeSpecifier(): bool{
-		return isset($this->subqueryTypeSpecifier);
-	}
-
-	public function setSubqueryTypeSpecifier(?string $ts): ?string{
-		if($ts == null) {
-			unset($this->subqueryTypeSpecifier);
-			return null;
-		}
-		return $this->subqueryTypeSpecifier = $ts;
-	}
-
-	public function getSubqueryTypeSpecifier(): string{
-		$f = __METHOD__;
-		if($this->hasSubqueryTypeSpecifier()) {
-			return $this->subqueryTypeSpecifier;
-		}elseif($this->hasSubqueryClass() && $this->hasSubqueryWhereCondition()) {
-			return $this->getSubqueryClass()::getTypeSpecifierStatic($this->getSubqueryWhereCondition()->getConditionalColumnNames());
-		}
-		Debug::warning("{$f} explicit type specifier or subquery class and where condition are undefined -- inferring type specifier from parameters");
-		return getTypeSpecifier($this->getSubqueryParameters());
-	}
-
-	public function getAliasExpression(){
-		$f = __METHOD__;
-		$print = $this->getDebugFlag();
-		if($this->hasAliasExpression()) {
-			if($print){
-				Debug::print("{$f} alias expression is already defined");
-			}
-			return $this->aliasExpression;
-		}elseif($print){
-			Debug::print("{$f} alias expression is not already defined, creating one now");
-		}
-		$select = new SelectStatement($this->getSubqueryExpression());
-		$select->withJoinExpressions(
-			TableFactor::create()->withDatabaseName(
-				$this->getSubqueryDatabaseName()
-			)->withTableName(
-				$this->getSubqueryTableName()
-			)->as(
-				$this->getSubqueryTableAlias()
-			)
-		)->where(
-			$this->getSubqueryWhereCondition()
-		);
-		if($this->hasSubqueryOrderBy()) {
-			$select->setOrderBy(...$this->getSubqueryOrderBy());
-		}
-		if($this->hasSubqueryLimit()) {
-			$select->limit($this->getSubqueryLimit());
-		}
-		if($this->hasSubqueryParameters()) {
-			$select->withTypeSpecifier($this->getSubqueryTypeSpecifier())->withParameters($this->getSubqueryParameters());
-		}elseif($print) {
-			$decl = $this->getDeclarationLine();
-			Debug::print("{$f} no subquery parameters. Instantiated {$decl}");
-		}
-		return $select;
-	}
-
-	public function hasColumnAlias(): bool{
-		return isset($this->columnAlias);
-	}
-
-	public function setColumnAlias($alias){
-		if($alias == null) {
-			unset($this->columnAlias);
-			return null;
-		}
-		return $this->columnAlias = $alias;
-	}
-
-	public function getColumnAlias(): ColumnAlias{
-		if($this->hasColumnAlias()) {
-			return $this->columnAlias;
-		}
-		return new ColumnAlias($this->getAliasExpression(), $this->getName());
-	}
-
-	public function getPrimaryKeyFlag():bool{
-		return $this->getFlag(COLUMN_FILTER_PRIMARY_KEY);
-	}
-
 	public function setDirtyCacheFlag(bool $value = true): bool{
 		return $this->setFlag(COLUMN_FILTER_DIRTY_CACHE, $value);
 	}
@@ -2680,96 +2016,56 @@ abstract class Datum extends AbstractDatum implements ArrayKeyProviderInterface,
 		return $this;
 	}
 
-	public function setReferenceColumn(?ForeignKeyDatum $column): ?ForeignKeyDatum{
-		if($column == null) {
-			unset($this->referenceColumn);
-			return null;
-		}
-		return $this->referenceColumn = $column;
-	}
-
-	public function hasReferenceColumn(): bool{
-		return isset($this->referenceColumn);
-	}
-
-	public function getReferenceColumn(): ForeignKeyDatum{
-		$f = __METHOD__;
-		if(!$this->hasReferenceColumn()) {
-			Debug::error("{$f} reference column is undefined");
-		}
-		return $this->referenceColumn;
-	}
-
-	public function setReferenceColumnName(?string $rcn): ?string{
-		if($rcn == null) {
-			unset($this->referenceColumnName);
-			return null;
-		}
-		return $this->referenceColumnName = $rcn;
-	}
-
-	public function hasReferenceColumnName(): bool{
-		return isset($this->referenceColumnName);
-	}
-
-	public function getReferenceColumnName(): string{
-		$f = __METHOD__;
-		if(!$this->hasReferenceColumnName()) {
-			Debug::error("{$f} reference column name is undefined");
-		}elseif($this->hasReferenceColumn()) {
-			return $this->getReferenceColumn()->getName();
-		}
-		return $this->referenceColumnName;
-	}
-
-	public function antialias(int $persistence_mode = PERSISTENCE_MODE_DATABASE): Datum{
-		unset($this->columnAlias);
-		unset($this->subqueryClass);
-		unset($this->subqueryColumnName);
-		unset($this->subqueryDatabaseName);
-		unset($this->subqueryExpression);
-		unset($this->subqueryLimit);
-		unset($this->subqueryOrderBy);
-		unset($this->subqueryParameters);
-		unset($this->subqueryTableAlias);
-		unset($this->subqueryTableName);
-		unset($this->subqueryTypeSpecifier);
-		unset($this->subqueryWhereCondition);
-		$this->setPersistenceMode($persistence_mode);
+	public function encrypt(?string $scheme): Datum{
+		$this->setEncryptionScheme($scheme);
 		return $this;
 	}
-
-	public function dispose(): void{
-		parent::dispose();
-		unset($this->apoptoticSignal);
-		unset($this->properties);
-		unset($this->propertyTypes);
-		unset($this->columnAlias);
-		unset($this->databaseStorageType);
-		unset($this->dataStructure);
-		unset($this->dataStructureClass);
-		unset($this->decryptionKeyName);
-		unset($this->elementClass);
-		unset($this->engineAttributeString);
-		unset($this->eventListeners);
-		unset($this->generationClosure);
-		unset($this->humanReadableName);
-		unset($this->mirrorIndices);
-		unset($this->regenerationClosure);
-		unset($this->subqueryClass);
-		unset($this->subqueryColumnName);
-		unset($this->subqueryDatabaseName);
-		unset($this->subqueryExpression);
-		unset($this->subqueryLimit);
-		unset($this->subqueryOrderBy);
-		unset($this->subqueryParameters);
-		unset($this->aliasExpression);
-		unset($this->subqueryTableAlias);
-		unset($this->subqueryTypeSpecifier);
-		unset($this->subqueryWhereCondition);
-		unset($this->transcryptionKeyName);
-		unset($this->validationClosure);
-		unset($this->value);
-		unset($this->variableName);
+	
+	public function dispose(bool $deallocate=false): void{
+		$f = __METHOD__;
+		$print = false;
+		if($this->hasDataStructure()){
+			$this->releaseDataStructure($deallocate);
+		}
+		parent::dispose($deallocate);
+		$this->release($this->aliasExpression, $deallocate);
+		$this->release($this->apoptoticSignal, $deallocate);
+		$this->release($this->columnAlias, $deallocate);
+		$this->release($this->databaseStorageType, $deallocate);
+		$this->release($this->dataStructureClass, $deallocate);
+		$this->release($this->decryptionKeyName, $deallocate);
+		$this->release($this->elementClass, $deallocate);
+		$this->release($this->engineAttributeString, $deallocate);
+		$this->release($this->generationClosure, $deallocate);
+		$this->release($this->humanReadableName, $deallocate);
+		$this->release($this->mirrorIndices, $deallocate);
+		$this->release($this->permissionGateway, $deallocate);
+		if($this->hasPermissions()){
+			$this->releasePermissions($deallocate);
+		}
+		$this->release($this->singlePermissionGateways, $deallocate);
+		$this->release($this->propertyTypes, $deallocate);
+		if($this->hasReferenceColumn()){
+			if($print){
+				Debug::print("{$f} about to release reference column ");
+			}
+			$this->release($this->referenceColumn);
+		}
+		$this->release($this->referenceColumnName, $deallocate);
+		$this->release($this->regenerationClosure, $deallocate);
+		$this->release($this->subqueryClass, $deallocate);
+		$this->release($this->subqueryColumnName, $deallocate);
+		$this->release($this->subqueryDatabaseName, $deallocate);
+		$this->release($this->subqueryExpression, $deallocate);
+		$this->release($this->subqueryLimit, $deallocate);
+		$this->release($this->subqueryOrderBy, $deallocate);
+		$this->release($this->subqueryParameters, $deallocate);
+		$this->release($this->subqueryTableAlias, $deallocate);
+		$this->release($this->subqueryTypeSpecifier, $deallocate);
+		$this->release($this->subqueryWhereCondition, $deallocate);
+		$this->release($this->transcryptionKeyName, $deallocate);
+		$this->release($this->validationClosure, $deallocate);
+		$this->release($this->value, $deallocate);
+		$this->release($this->variableName, $deallocate);
 	}
 }

@@ -10,7 +10,6 @@ use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\element\DivElement;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\input\KeypadInput;
 
 class DefaultForm extends AjaxForm{
 
@@ -30,8 +29,7 @@ class DefaultForm extends AjaxForm{
 		return "default";
 	}
 
-	public static function getMethodAttributeStatic(): ?string
-	{
+	public static function getMethodAttributeStatic(): ?string{
 		return HTTP_REQUEST_METHOD_POST;
 	}
 
@@ -45,7 +43,7 @@ class DefaultForm extends AjaxForm{
 
 	public function bindContext($context){
 		$f = __METHOD__;
-		if(!$this->hasActionAttribute()) {
+		if(!$this->hasActionAttribute()){
 			Debug::error("{$f} don't bind context until you have an action attribute");
 		}
 		return parent::bindContext($context);
@@ -54,12 +52,12 @@ class DefaultForm extends AjaxForm{
 	public function generateButtons(string $name): ?array{
 		$f = __METHOD__;
 		try{
-			if($this->hasDirectives()) {
-				if(false === array_search($name, $this->directives)) {
+			if($this->hasDirectives()){
+				if(false === array_search($name, $this->directives)){
 					Debug::error("{$f} illegal name attribute \"{$name}\"");
 				}
 			}
-			switch ($name) {
+			switch($name){
 				case DIRECTIVE_INSERT:
 				case DIRECTIVE_UPDATE:
 				case DIRECTIVE_DELETE:
@@ -70,7 +68,7 @@ class DefaultForm extends AjaxForm{
 				default:
 					Debug::error("{$f} invalid name attribute \"{$name}\"");
 			}
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
@@ -89,16 +87,16 @@ class DefaultForm extends AjaxForm{
 			]);
 			$input->setWrapperElement($div);
 			return parent::reconfigureInput($input);
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function getFormDataIndices(): ?array{
-		$f = "DefaultForm(".static::getShortClass().")->getFormDataIndices()";
+		$f = __METHOD__;
 		try{
 			$print = false;
-			if(!$this->hasContext()) {
+			if(!$this->hasContext()){
 				Debug::error("{$f} context is undefined");
 			}elseif($print){
 				$decl = $this->getDeclarationLine();
@@ -109,55 +107,55 @@ class DefaultForm extends AjaxForm{
 			$indices = [];
 			//$columns = $context->getColumns();
 			$reordered = $this->getReorderedColumnIndices($context);
-			if($reordered === null){
+			if(empty($reordered)){
 				$reordered = $context->getColumnNames();
 			}
-			foreach($reordered as $index) {
+			foreach($reordered as $index){
 				$datum = $context->getColumn($index);
-				if($datum instanceof VirtualDatum) {
-					if($print) {
+				if($datum instanceof VirtualDatum){
+					if($print){
 						Debug::print("{$f} datum at index \"{$index}\" is virtual");
 					}
 					continue;
-				}elseif($datum->getSensitiveFlag()) {
-					if($print) {
+				}elseif($datum->getSensitiveFlag()){
+					if($print){
 						Debug::print("{$f} datum at index \"{$index}\" is sensitive");
 					}
 					continue;
-				}elseif($datum->getNeverLeaveServer()) {
-					if($print) {
+				}elseif($datum->getNeverLeaveServer()){
+					if($print){
 						Debug::print("{$f} datum must never leave server");
 					}
 					continue;
-				}elseif(!$datum->getAdminInterfaceFlag()) {
-					if($print) {
+				}elseif(!$datum->getAdminInterfaceFlag()){
+					if($print){
 						Debug::print("{$f} admin interface flag is undefined for datum at index \"{$index}\"");
 					}
 					continue;
-				}elseif(!$datum->hasElementClass() && ! $datum instanceof StaticElementClassInterface) {
-					if($print) {
+				}elseif(!$datum->hasElementClass() && ! $datum instanceof StaticElementClassInterface){
+					if($print){
 						Debug::print("{$f} datum at index \"{$index}\" has no default input element class");
 					}
 					continue;
 				}
 				$indices[$index] = $datum->getElementClass();
-				if($print) {
+				if($print){
 					Debug::print("{$f} set index \"{$index}\" to class \"{$indices[$index]}\"");
 				}
 			}
-			if(empty($indices)) {
+			if(empty($indices)){
 				Debug::error("{$f} indices array is empty for class \"{$class}\"");
 			}elseif($print){
 				Debug::printArray($indices);
 			}
 			return $indices;
-		}catch(Exception $x) {
+		}catch(Exception $x){
 			x($f, $x);
 		}
 	}
 
 	public function getDirectives(): ?array{
-		if($this->hasDirectives()) {
+		if($this->hasDirectives()){
 			return $this->directives;
 		}
 		$context = $this->getContext();

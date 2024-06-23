@@ -14,7 +14,7 @@ class NegationCommand extends Command implements JavaScriptInterface, ServerExec
 
 	public function __construct($ex){
 		parent::__construct();
-		if($ex !== null) {
+		if($ex !== null){
 			$this->setExpression($ex);
 		}
 	}
@@ -27,7 +27,7 @@ class NegationCommand extends Command implements JavaScriptInterface, ServerExec
 		$f = __METHOD__;
 		$print = false;
 		$expr = $this->getExpression();
-		while ($expr instanceof ValueReturningCommandInterface) {
+		while($expr instanceof ValueReturningCommandInterface){
 			$expr = $expr->evaluate($params);
 		}
 		if($expr){
@@ -47,7 +47,7 @@ class NegationCommand extends Command implements JavaScriptInterface, ServerExec
 
 	public function toJavaScript(): string{
 		$expr = $this->getExpression();
-		if($expr instanceof JavaScriptInterface) {
+		if($expr instanceof JavaScriptInterface){
 			$expr = $expr->toJavaScript();
 		}
 		return "!{$expr}";

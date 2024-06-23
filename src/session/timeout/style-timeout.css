@@ -68,10 +68,3 @@
 .refresh_session_form label > span{
 	transform:translateY(50%);
 }
-
-.page_content{
-	/*animation:blur_timeout 60s normal;
-	animation-play-state:running;*/
-	transition:all 0.6s;
-	will-change:transform;
-}
