@@ -6,6 +6,7 @@ use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousAccountTypeP
 use JulianSeymour\PHPWebApplicationFramework\account\owner\OwnerPermission;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\NormalizedNameColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
@@ -15,7 +16,7 @@ use mysqli;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class UsernameData extends DataStructure implements StaticTableNameInterface{
+class UsernameData extends StandardDataStructure implements StaticTableNameInterface{
 
 	use NormalizedNameColumnTrait;
 	use StaticTableNameTrait;

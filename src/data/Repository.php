@@ -48,7 +48,7 @@ class Repository extends Basic{
 				Debug::warning("{$f} update permission for class ".$that->getShortClass()." returned error status \"{$err}\"");
 				return $that->setObjectStatus($status);
 			}
-			$that->log(DIRECTIVE_UPDATE);
+			$that->logDatabaseOperation(DIRECTIVE_UPDATE);
 			// start database transaction
 			$transactionId = null;
 			if(!db()->hasPendingTransactionId()){
@@ -471,7 +471,7 @@ class Repository extends Basic{
 				Debug::warning("{$f} delete permission returned error status \"{$err}\"");
 				return $that->setObjectStatus($status);
 			}
-			$that->log(DIRECTIVE_DELETE);
+			$that->logDatabaseOperation(DIRECTIVE_DELETE);
 			// start a database transaction if one hasn't already
 			if(! db()->hasPendingTransactionId()){
 				$transactionId = sha1(random_bytes(32));
@@ -635,7 +635,7 @@ class Repository extends Basic{
 			}elseif($print){
 				Debug::print("{$f} on duplicate entry update");
 			}
-			$that->log(DIRECTIVE_INSERT);
+			$that->logDatabaseOperation(DIRECTIVE_INSERT);
 			// insert foreign data structures that must exist prior to this object
 			if($that->getPreInsertForeignDataStructuresFlag()){
 				if($print){

@@ -9,6 +9,7 @@ use JulianSeymour\PHPWebApplicationFramework\common\ArrayPropertyTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\HumanReadableNameTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 
 /**
  * base class for Datum and DatumBundle
@@ -117,6 +118,7 @@ abstract class AbstractDatum extends Basic implements ArrayKeyProviderInterface{
 	}
 
 	public function setPersistenceMode(?int $pm):?int{
+		$f = __METHOD__;
 		if($this->hasPersistenceMode()){
 			$this->release($this->persistenceMode);
 		}

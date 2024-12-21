@@ -290,6 +290,18 @@ abstract class AuthenticationData extends DataStructure{
 	public function generateReauthenticationHash(string $reauth_nonce, string $reauth_key):string{
 		$f = __METHOD__;
 		try{
+			$print = false;
+			if(strlen($reauth_nonce) == 0){
+				Debug::error("{$f} reauthentication nonce is null/empty string");
+			}elseif(str_contains($reauth_nonce, "\0")){
+				Debug::error("{$f} reauthentication nonce contains null character");
+			}elseif(strlen($reauth_key) == 0){
+				Debug::error("{$f} reauthentication key is null/empty string");
+			}elseif(str_contains($reauth_nonce, "\0")){
+				Debug::error("{$f} reauthentication key contains null character");
+			}elseif($print){
+				Debug::print("{$f} reauthentication nonce is \"{$reauth_nonce}\"; reauthentication key is \"{$reauth_key}\"");
+			}
 			$this->setReauthenticationNonce($reauth_nonce);
 			$hash = password_hash($reauth_nonce . $reauth_key, PASSWORD_BCRYPT);
 			return $this->setReauthenticationHash($hash);

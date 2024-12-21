@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;

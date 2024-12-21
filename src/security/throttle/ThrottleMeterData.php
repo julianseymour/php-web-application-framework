@@ -5,6 +5,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\security\throttle;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\DataTypeDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 use JulianSeymour\PHPWebApplicationFramework\datum\QuotaDatum;
@@ -17,7 +18,7 @@ use Exception;
 use mysqli;
 use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 
-abstract class ThrottleMeterData extends DataStructure{
+abstract class ThrottleMeterData extends StandardDataStructure{
 
 	public static function getDatabaseNameStatic():string{
 		return "security";

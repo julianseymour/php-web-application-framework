@@ -2,8 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
-use function JulianSeymour\PHPWebApplicationFramework\backwards_ref_enabled;
 use function JulianSeymour\PHPWebApplicationFramework\deallocate;
+use function JulianSeymour\PHPWebApplicationFramework\debug;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\is_abstract;
 use function JulianSeymour\PHPWebApplicationFramework\registry;
@@ -394,6 +394,30 @@ class IntersectionData extends DataStructure implements StaticDatabaseNameInterf
 
 	public static function getPhylumName(): string{
 		return "intersections";
+	}
+	
+	public function logDatabaseOperation(string $directive): int{
+		if($this->getFlag("disableLog")){
+			return 0;
+		}
+		$class = static::getShortClass();
+		if($this->hasHostDataStructureClass()){
+			$class .= " between " . $this->getHostDataStructureClass()::getShortClass();
+			if($this->hasHostKey()){
+				$class .= " (with host key \"" . $this->getHostKey() . "\")";
+			}
+			if($this->hasForeignDataStructureClass()){
+				$class .= " and " . $this->getForeignDataStructureClass()::getShortClass();
+				if($this->hasForeignKey()){
+					$class .= " (with foreign key \"" . $this->getForeignKey() . "\")";
+				}
+			}
+		}
+		$idn = $this->getIdentifierName();
+		$key = $idn === null ? "[unidentifiable]" : $this->getIdentifierValue();
+		$did = $this->getDebugId();
+		$decl = $this->getDeclarationLine();
+		return debug()->digest("{$directive} {$class} with key {$key} (debug ID {$did}, declared {$decl})");
 	}
 	
 	public function dispose(bool $deallocate=false): void{

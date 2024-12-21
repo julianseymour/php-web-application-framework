@@ -11,7 +11,10 @@ class CascadeDeletableClassResolver extends IntersectionTableResolver{
 	public static function getIntersections():array{
 		$ret = [];
 		foreach(mods()->getDataStructureClasses() as $dsc){
-			if(is_a($dsc, CascadeDeletableInterface::class, true)){
+			if(
+				is_a($dsc, CascadeDeletableInterface::class, true)
+				&& !is_a($dsc, CascadeDeleteTriggerData::class, true) 
+			){
 				$type = $dsc::getDataType();
 				if(is_a($dsc, StaticSubtypeInterface::class, true)){
 					if(!array_key_exists($type, $ret)){

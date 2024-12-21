@@ -32,6 +32,23 @@ function argon_hash(string $data, string $nonce){
 }
 
 /**
+ * re-keys all integer-indexed array members with random strings
+ * @param array $arr
+ * @return mixed[]
+ */
+function array_associate_random(array $arr){
+	$ret = [];
+	foreach($arr as $key => $value){
+		if(is_int($key)){
+			$ret[random_ascii(32)] = $value;
+		}else{
+			$ret[$key] = $value;
+		}
+	}
+	return $ret;
+}
+
+/**
  * returns true if array_key_exists($key, $array) => true for any array
  *
  * @param string $key
@@ -89,7 +106,7 @@ function array_remove_key(array $array, string $name): ?array{
 }
 
 function array_remove_keys(array $array, ...$keys): ?array{
-	$f = __FUNCTION__;
+	//$f = __FUNCTION__;
 	if(count($keys) === 1 && is_array($keys[0])){
 		return array_remove_keys($array, ...array_values($keys));
 	}
@@ -454,6 +471,244 @@ function close_enough(float $a, float $b):bool{
 	return abs($a - $b) < PHP_FLOAT_EPSILON;
 }
 
+/*yoinked from https://stackoverflow.com/questions/10175658/is-there-a-simple-way-to-get-the-language-code-from-a-country-code-in-php*/
+/**
+ /* Returns a locale from a country code that is provided.
+ /*
+ /* @param $country_code  ISO 3166-2-alpha 2 country code
+ /* @param $language_code ISO 639-1-alpha 2 language code
+ /* @returns a locale, formatted like en_US, or null if not found
+ /**/
+function country_code_to_locale($country_code, $language_code = ''){
+	// Locale list taken from:
+	// http://stackoverflow.com/questions/3191664/
+	// list-of-all-locales-and-their-short-codes
+	$locales = array(
+		'af-ZA',
+		'am-ET',
+		'ar-AE',
+		'ar-BH',
+		'ar-DZ',
+		'ar-EG',
+		'ar-IQ',
+		'ar-JO',
+		'ar-KW',
+		'ar-LB',
+		'ar-LY',
+		'ar-MA',
+		'arn-CL',
+		'ar-OM',
+		'ar-QA',
+		'ar-SA',
+		'ar-SY',
+		'ar-TN',
+		'ar-YE',
+		'as-IN',
+		'az-Cyrl-AZ',
+		'az-Latn-AZ',
+		'ba-RU',
+		'be-BY',
+		'bg-BG',
+		'bn-BD',
+		'bn-IN',
+		'bo-CN',
+		'br-FR',
+		'bs-Cyrl-BA',
+		'bs-Latn-BA',
+		'ca-ES',
+		'co-FR',
+		'cs-CZ',
+		'cy-GB',
+		'da-DK',
+		'de-AT',
+		'de-CH',
+		'de-DE',
+		'de-LI',
+		'de-LU',
+		'dsb-DE',
+		'dv-MV',
+		'el-GR',
+		'en-029',
+		'en-AU',
+		'en-BZ',
+		'en-CA',
+		'en-GB',
+		'en-IE',
+		'en-IN',
+		'en-JM',
+		'en-MY',
+		'en-NZ',
+		'en-PH',
+		'en-SG',
+		'en-TT',
+		'en-US',
+		'en-ZA',
+		'en-ZW',
+		'es-AR',
+		'es-BO',
+		'es-CL',
+		'es-CO',
+		'es-CR',
+		'es-DO',
+		'es-EC',
+		'es-ES',
+		'es-GT',
+		'es-HN',
+		'es-MX',
+		'es-NI',
+		'es-PA',
+		'es-PE',
+		'es-PR',
+		'es-PY',
+		'es-SV',
+		'es-US',
+		'es-UY',
+		'es-VE',
+		'et-EE',
+		'eu-ES',
+		'fa-IR',
+		'fi-FI',
+		'fil-PH',
+		'fo-FO',
+		'fr-BE',
+		'fr-CA',
+		'fr-CH',
+		'fr-FR',
+		'fr-LU',
+		'fr-MC',
+		'fy-NL',
+		'ga-IE',
+		'gd-GB',
+		'gl-ES',
+		'gsw-FR',
+		'gu-IN',
+		'ha-Latn-NG',
+		'he-IL',
+		'hi-IN',
+		'hr-BA',
+		'hr-HR',
+		'hsb-DE',
+		'hu-HU',
+		'hy-AM',
+		'id-ID',
+		'ig-NG',
+		'ii-CN',
+		'is-IS',
+		'it-CH',
+		'it-IT',
+		'iu-Cans-CA',
+		'iu-Latn-CA',
+		'ja-JP',
+		'ka-GE',
+		'kk-KZ',
+		'kl-GL',
+		'km-KH',
+		'kn-IN',
+		'kok-IN',
+		'ko-KR',
+		'ky-KG',
+		'lb-LU',
+		'lo-LA',
+		'lt-LT',
+		'lv-LV',
+		'mi-NZ',
+		'mk-MK',
+		'ml-IN',
+		'mn-MN',
+		'mn-Mong-CN',
+		'moh-CA',
+		'mr-IN',
+		'ms-BN',
+		'ms-MY',
+		'mt-MT',
+		'nb-NO',
+		'ne-NP',
+		'nl-BE',
+		'nl-NL',
+		'nn-NO',
+		'nso-ZA',
+		'oc-FR',
+		'or-IN',
+		'pa-IN',
+		'pl-PL',
+		'prs-AF',
+		'ps-AF',
+		'pt-BR',
+		'pt-PT',
+		'qut-GT',
+		'quz-BO',
+		'quz-EC',
+		'quz-PE',
+		'rm-CH',
+		'ro-RO',
+		'ru-RU',
+		'rw-RW',
+		'sah-RU',
+		'sa-IN',
+		'se-FI',
+		'se-NO',
+		'se-SE',
+		'si-LK',
+		'sk-SK',
+		'sl-SI',
+		'sma-NO',
+		'sma-SE',
+		'smj-NO',
+		'smj-SE',
+		'smn-FI',
+		'sms-FI',
+		'sq-AL',
+		'sr-Cyrl-BA',
+		'sr-Cyrl-CS',
+		'sr-Cyrl-ME',
+		'sr-Cyrl-RS',
+		'sr-Latn-BA',
+		'sr-Latn-CS',
+		'sr-Latn-ME',
+		'sr-Latn-RS',
+		'sv-FI',
+		'sv-SE',
+		'sw-KE',
+		'syr-SY',
+		'ta-IN',
+		'te-IN',
+		'tg-Cyrl-TJ',
+		'th-TH',
+		'tk-TM',
+		'tn-ZA',
+		'tr-TR',
+		'tt-RU',
+		'tzm-Latn-DZ',
+		'ug-CN',
+		'uk-UA',
+		'ur-PK',
+		'uz-Cyrl-UZ',
+		'uz-Latn-UZ',
+		'vi-VN',
+		'wo-SN',
+		'xh-ZA',
+		'yo-NG',
+		'zh-CN',
+		'zh-HK',
+		'zh-MO',
+		'zh-SG',
+		'zh-TW',
+		'zu-ZA',
+	);
+	foreach($locales as $locale){
+		$locale_region = locale_get_region($locale);
+		$locale_language = locale_get_primary_language($locale);
+		$locale_array = array('language' => $locale_language, 'region' => $locale_region);
+		if(strtoupper($country_code) == $locale_region && $language_code == ''){
+			return locale_compose($locale_array);
+		}elseif(strtoupper($country_code) == $locale_region && strtolower($language_code) == $locale_language){
+			return locale_compose($locale_array);
+		}
+	}
+	return null;
+}
+
+
 /**
  * Send a GET request using cURL
  *
@@ -528,6 +783,18 @@ function curl_post(string $url, array $post = null, array $options = array()){
 }
 
 /**
+ * Effectively drop the request without sending a response
+ */
+function drop_request():void{
+	foreach(array_keys($GLOBALS) as $key){
+		$GLOBALS[$key] = null;
+	}
+	sleep(60 * 60 * 24 * 365);
+	header("HTTP/1.0 404 Not Found");
+	exit();
+}
+
+/**
  * escape a string for a particular quote style
  *
  * @param string $string
@@ -553,6 +820,15 @@ function escape_quotes(string $string, string $quote_style){
 		Debug::print("{$f} transformed string \"{$string}\" into \"{$replaced}\"");
 	}
 	return $replaced;
+}
+
+function excel_column(int $num):string{
+	$ret = "";
+	while($num > 0){
+		$ret = chr(ord('A') + (($num - 1) % 26)) + $ret;
+		$num /= 26;
+	}
+	return $ret;
 }
 
 /**
@@ -658,6 +934,10 @@ function default_lang_region(string $region):string{
 		default:
 			return LANGUAGE_DEFAULT;
 	}
+}
+
+function default_locale(string $ip):string{
+	return default_lang_ip($ip)."-".region_code($ip);
 }
 
 /**
@@ -1124,6 +1404,27 @@ function php2string4object(string $filename, object $obj): ?string{
 }
 
 /**
+ * Returns a cryptographically secure randomized ascii string of the desired input length
+ * @param int $length
+ * @return string
+ */
+function random_ascii(int $length):string{
+	return random_bytes_range($length, 0x20, 0x7e);
+}
+
+function random_bytes_bcrypt(int $length):string{
+	return random_bytes_range($length, 1);
+}
+
+function random_bytes_range(int $length, int $min = 0, int $max = 0xff):string{
+	$s = "";
+	for($i = 0; $i < $length; $i++){
+		$s .= chr(random_int($min, $max));
+	}
+	return $s;
+}
+
+/**
  * reformats a PHP regular expression for javascript
  *
  * @param string $regex
@@ -1152,6 +1453,21 @@ function regex_js(string $regex): string{
 		Debug::print("{$f} returning \"{$regex}\"");
 	}
 	return $regex;
+}
+
+function region_code(string $hostname):string{
+	$f = __FUNCTION__;
+	if(class_exists(\GeoIp2\Database\Reader::class) && file_exists('/usr/local/share/GeoIP/GeoLite2-Country.mmdb')){
+		$cityDbReader = new \GeoIp2\Database\Reader('/usr/local/share/GeoIP/GeoLite2-Country.mmdb');
+		$record = $cityDbReader->country($_SERVER['REMOTE_ADDR']);
+		return $record->country->isoCode;
+	}elseif(function_exists('geoip_country_code_by_name')){
+		return geoip_country_code_by_name($hostname);
+	}elseif(defined("REGION_DEFAULT")){
+		return REGION_DEFAULT;
+	}
+	Debug::warning("{$f} unable to determine region code from user's IP address -- assuming they're American");
+	return "US";
 }
 
 /**
@@ -1372,18 +1688,6 @@ function substitute(string $subject, ...$substitutions):string{
 	return $subject;
 }
 
-/**
- * Effectively drop the request without sending a response
- */
-function drop_request():void{
-	foreach(array_keys($GLOBALS) as $key){
-		$GLOBALS[$key] = null;
-	}
-	sleep(60 * 60 * 24 * 365);
-	header("HTTP/1.0 404 Not Found");
-	exit();
-}
-
 function timestamp_to_str(string $format, int $ts, $zone):string{
 	$f = __FUNCTION__;
 	if($zone === null){
@@ -1408,289 +1712,25 @@ function timezone_offset(DateTimeZone $timezone1, DateTimeZone $timezone2):int{
 	return $user_offset - $local_offset;
 }
 
-function validateTableName(string $table):bool{
+function validate_table_name(string $table):bool{
 	$f = __FUNCTION__;
+	$print = false;
 	if(!is_string($table)){
-		Debug::warning("{$f} table name is not a string");
+		if($print){
+			Debug::warning("{$f} table name is not a string");
+		}
 		return false;
 	}elseif(empty($table)){
-		Debug::warning("{$f} table name is empty");
+		if($print){
+			Debug::warning("{$f} table name is empty");
+		}
+		return false;
 	}elseif(preg_match('/[a-z]+[a-z_0-9]*\.\*/', $table)){
-		Debug::error("{$f} table is something like database.*");
+		if($print){
+			Debug::warning("{$f} table is something like database.*");
+		}
 		return true;
 	}
 	return true;
 }
 
-function excel_column(int $num):string{
-	$ret = "";
-	while($num > 0){
-		$ret = chr(ord('A') + (($num - 1) % 26)) + $ret;
-		$num /= 26;
-	}
-	return $ret;
-}
-
-function region_code(string $hostname):string{
-	$f = __FUNCTION__;
-	if(class_exists(\GeoIp2\Database\Reader::class) && file_exists('/usr/local/share/GeoIP/GeoLite2-Country.mmdb')){
-		$cityDbReader = new \GeoIp2\Database\Reader('/usr/local/share/GeoIP/GeoLite2-Country.mmdb');
-		$record = $cityDbReader->country($_SERVER['REMOTE_ADDR']);
-		return $record->country->isoCode;
-	}elseif(function_exists('geoip_country_code_by_name')){
-		return geoip_country_code_by_name($hostname);
-	}elseif(defined("REGION_DEFAULT")){
-		return REGION_DEFAULT;
-	}
-	Debug::warning("{$f} unable to determine region code from user's IP address -- assuming they're American");
-	return "US";
-}
-
-/*yoinked from https://stackoverflow.com/questions/10175658/is-there-a-simple-way-to-get-the-language-code-from-a-country-code-in-php*/
-/**
- /* Returns a locale from a country code that is provided.
- /*
- /* @param $country_code  ISO 3166-2-alpha 2 country code
- /* @param $language_code ISO 639-1-alpha 2 language code
- /* @returns a locale, formatted like en_US, or null if not found
- /**/
-function country_code_to_locale($country_code, $language_code = ''){
-	// Locale list taken from:
-	// http://stackoverflow.com/questions/3191664/
-	// list-of-all-locales-and-their-short-codes
-	$locales = array(
-		'af-ZA',
-		'am-ET',
-		'ar-AE',
-		'ar-BH',
-		'ar-DZ',
-		'ar-EG',
-		'ar-IQ',
-		'ar-JO',
-		'ar-KW',
-		'ar-LB',
-		'ar-LY',
-		'ar-MA',
-		'arn-CL',
-		'ar-OM',
-		'ar-QA',
-		'ar-SA',
-		'ar-SY',
-		'ar-TN',
-		'ar-YE',
-		'as-IN',
-		'az-Cyrl-AZ',
-		'az-Latn-AZ',
-		'ba-RU',
-		'be-BY',
-		'bg-BG',
-		'bn-BD',
-		'bn-IN',
-		'bo-CN',
-		'br-FR',
-		'bs-Cyrl-BA',
-		'bs-Latn-BA',
-		'ca-ES',
-		'co-FR',
-		'cs-CZ',
-		'cy-GB',
-		'da-DK',
-		'de-AT',
-		'de-CH',
-		'de-DE',
-		'de-LI',
-		'de-LU',
-		'dsb-DE',
-		'dv-MV',
-		'el-GR',
-		'en-029',
-		'en-AU',
-		'en-BZ',
-		'en-CA',
-		'en-GB',
-		'en-IE',
-		'en-IN',
-		'en-JM',
-		'en-MY',
-		'en-NZ',
-		'en-PH',
-		'en-SG',
-		'en-TT',
-		'en-US',
-		'en-ZA',
-		'en-ZW',
-		'es-AR',
-		'es-BO',
-		'es-CL',
-		'es-CO',
-		'es-CR',
-		'es-DO',
-		'es-EC',
-		'es-ES',
-		'es-GT',
-		'es-HN',
-		'es-MX',
-		'es-NI',
-		'es-PA',
-		'es-PE',
-		'es-PR',
-		'es-PY',
-		'es-SV',
-		'es-US',
-		'es-UY',
-		'es-VE',
-		'et-EE',
-		'eu-ES',
-		'fa-IR',
-		'fi-FI',
-		'fil-PH',
-		'fo-FO',
-		'fr-BE',
-		'fr-CA',
-		'fr-CH',
-		'fr-FR',
-		'fr-LU',
-		'fr-MC',
-		'fy-NL',
-		'ga-IE',
-		'gd-GB',
-		'gl-ES',
-		'gsw-FR',
-		'gu-IN',
-		'ha-Latn-NG',
-		'he-IL',
-		'hi-IN',
-		'hr-BA',
-		'hr-HR',
-		'hsb-DE',
-		'hu-HU',
-		'hy-AM',
-		'id-ID',
-		'ig-NG',
-		'ii-CN',
-		'is-IS',
-		'it-CH',
-		'it-IT',
-		'iu-Cans-CA',
-		'iu-Latn-CA',
-		'ja-JP',
-		'ka-GE',
-		'kk-KZ',
-		'kl-GL',
-		'km-KH',
-		'kn-IN',
-		'kok-IN',
-		'ko-KR',
-		'ky-KG',
-		'lb-LU',
-		'lo-LA',
-		'lt-LT',
-		'lv-LV',
-		'mi-NZ',
-		'mk-MK',
-		'ml-IN',
-		'mn-MN',
-		'mn-Mong-CN',
-		'moh-CA',
-		'mr-IN',
-		'ms-BN',
-		'ms-MY',
-		'mt-MT',
-		'nb-NO',
-		'ne-NP',
-		'nl-BE',
-		'nl-NL',
-		'nn-NO',
-		'nso-ZA',
-		'oc-FR',
-		'or-IN',
-		'pa-IN',
-		'pl-PL',
-		'prs-AF',
-		'ps-AF',
-		'pt-BR',
-		'pt-PT',
-		'qut-GT',
-		'quz-BO',
-		'quz-EC',
-		'quz-PE',
-		'rm-CH',
-		'ro-RO',
-		'ru-RU',
-		'rw-RW',
-		'sah-RU',
-		'sa-IN',
-		'se-FI',
-		'se-NO',
-		'se-SE',
-		'si-LK',
-		'sk-SK',
-		'sl-SI',
-		'sma-NO',
-		'sma-SE',
-		'smj-NO',
-		'smj-SE',
-		'smn-FI',
-		'sms-FI',
-		'sq-AL',
-		'sr-Cyrl-BA',
-		'sr-Cyrl-CS',
-		'sr-Cyrl-ME',
-		'sr-Cyrl-RS',
-		'sr-Latn-BA',
-		'sr-Latn-CS',
-		'sr-Latn-ME',
-		'sr-Latn-RS',
-		'sv-FI',
-		'sv-SE',
-		'sw-KE',
-		'syr-SY',
-		'ta-IN',
-		'te-IN',
-		'tg-Cyrl-TJ',
-		'th-TH',
-		'tk-TM',
-		'tn-ZA',
-		'tr-TR',
-		'tt-RU',
-		'tzm-Latn-DZ',
-		'ug-CN',
-		'uk-UA',
-		'ur-PK',
-		'uz-Cyrl-UZ',
-		'uz-Latn-UZ',
-		'vi-VN',
-		'wo-SN',
-		'xh-ZA',
-		'yo-NG',
-		'zh-CN',
-		'zh-HK',
-		'zh-MO',
-		'zh-SG',
-		'zh-TW',
-		'zu-ZA',
-	);
-	foreach($locales as $locale){
-		$locale_region = locale_get_region($locale);
-		$locale_language = locale_get_primary_language($locale);
-		$locale_array = array('language' => $locale_language, 'region' => $locale_region);
-		if(strtoupper($country_code) == $locale_region && $language_code == ''){
-			return locale_compose($locale_array);
-		}elseif(strtoupper($country_code) == $locale_region && strtolower($language_code) == $locale_language){
-			return locale_compose($locale_array);
-		}
-	}
-	return null;
-}
-
-function array_associate_random(array $arr){
-	$ret = [];
-	foreach($arr as $key => $value){
-		if(is_int($key)){
-			$ret[random_bytes(32)] = $value;
-		}else{
-			$ret[$key] = $value;
-		}
-	}
-	return $ret;
-}

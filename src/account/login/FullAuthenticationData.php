@@ -4,6 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\account\login;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\deallocate;
+use function JulianSeymour\PHPWebApplicationFramework\random_bytes_bcrypt;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\account\PlayableUser;
 use JulianSeymour\PHPWebApplicationFramework\account\guest\AnonymousUser;
@@ -110,10 +111,15 @@ class FullAuthenticationData extends AuthenticationData{
 					Debug::error("{$f} invalid login mode \"{$mode}\"");
 			}
 			$cookie = new ReauthenticationCookie();
-			$reauth_hash = $this->generateReauthenticationHash(
-				random_bytes(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES), 
-				$cookie->generateReauthenticationKey()
-			);
+			$reauth_nonce = random_bytes_bcrypt(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES);
+			if(strlen($reauth_nonce) == 0){
+				Debug::error("{$f} reauthentication nonce is null/empty string");
+			}
+			$reauth_key = $cookie->generateReauthenticationKey();
+			if(strlen($reauth_key) == 0){
+				Debug::error("{$f} reauthentication key is null/empty string");
+			}
+			$reauth_hash = $this->generateReauthenticationHash($reauth_nonce, $reauth_key);
 			deallocate($cookie);
 			app()->setUserData($user);
 			if($print){

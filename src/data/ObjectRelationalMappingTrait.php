@@ -226,6 +226,7 @@ trait ObjectRelationalMappingTrait{
 	public function getForeignDataStructure(string $column_name): DataStructure{
 		$f = __METHOD__;
 		if(!$this->hasForeignDataStructure($column_name)){
+			$class = get_class($this);
 			if($this->hasIdentifierValue()){
 				$key = $this->getIdentifierValue();
 			}else{
@@ -233,9 +234,9 @@ trait ObjectRelationalMappingTrait{
 			}
 			$decl = $this->getDeclarationLine();
 			if($this->hasColumnValue($column_name)){
-				Debug::error("{$f} foreign data structure \"{$column_name}\" is undefined for object with debug ID \"{$this->debugId}\" and key \"{$key}\", declared {$decl}. However, the column value is defined. Fix this by flagging that column to auto load.");
+				Debug::error("{$f} foreign data structure \"{$column_name}\" is undefined for {$class} with debug ID \"{$this->debugId}\" and key \"{$key}\", declared {$decl}. However, the column value is defined. Fix this by flagging that column to auto load.");
 			}else{
-				Debug::error("{$f} foreign data structure \"{$column_name}\" is undefined for object with debug ID \"{$this->debugId}\" and key \"{$key}\", declared {$decl}. Furthermore, the column value is undefined.");
+				Debug::error("{$f} foreign data structure \"{$column_name}\" is undefined for {$class} with debug ID \"{$this->debugId}\" and key \"{$key}\", declared {$decl}. Furthermore, the column value is undefined.");
 			}
 		}elseif(is_array($this->foreignDataStructures[$column_name])){
 			Debug::error("{$f} foreign data structure {$column_name} is an array for this ".$this->getDebugString());
@@ -1811,11 +1812,13 @@ trait ObjectRelationalMappingTrait{
 						Debug::print("{$f} about to generate key for foreign data structure \"{$name}\"");
 					}
 					$struct = $this->getForeignDataStructure($name);
-					$status = $struct->generateKey();
-					if($status !== SUCCESS){
-						$err = ErrorMessage::getResultMessage($status);
-						Debug::warning("{$f} generating key for foreign data structure \"{$name}\" returned error status \"{$err}\"");
-						return $this->setObjectStatus($status);
+					if($struct->hasIdentifierName() && !$struct->hasIdentifierValue()){
+						$status = $struct->generateKey();
+						if($status !== SUCCESS){
+							$err = ErrorMessage::getResultMessage($status);
+							Debug::warning("{$f} generating key for foreign data structure \"{$name}\" returned error status \"{$err}\"");
+							return $this->setObjectStatus($status);
+						}
 					}
 					$this->setForeignDataStructure($name, $struct);
 				}elseif($column instanceof KeyListDatum){
@@ -2711,7 +2714,7 @@ trait ObjectRelationalMappingTrait{
 				if(!$this instanceof EmbeddedData){
 					$error = $this->reportAmbiguousRelationship($column_name);
 					if($error){
-						debug()->log($error);
+						debug()->digest($error);
 					}
 				}
 				if(!BACKWARDS_REFERENCES_ENABLED){
@@ -2967,7 +2970,7 @@ trait ObjectRelationalMappingTrait{
 	public function insertForeignDataStructures(mysqli $mysqli, string $when): int{
 		$f = __METHOD__;
 		try{
-			$print = false && $this->getDebugFlag();
+			$print = $this->getDataType() === DATATYPE_MANUFACTURER; //false && $this->getDebugFlag();
 			switch($when){
 				case CONST_BEFORE:
 					if($print){

@@ -9,6 +9,7 @@ use JulianSeymour\PHPWebApplicationFramework\account\UserMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\BooleanDatum;
 use JulianSeymour\PHPWebApplicationFramework\email\content\HTMLEmailContent;
 use JulianSeymour\PHPWebApplicationFramework\email\content\MultipartAlternativeEmailContent;
@@ -24,7 +25,7 @@ use mysqli;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-abstract class SpamEmail extends DataStructure implements StaticElementClassInterface, StaticTableNameInterface{
+abstract class SpamEmail extends StandardDataStructure implements StaticElementClassInterface, StaticTableNameInterface{
 	
 	use StaticTableNameTrait;
 	

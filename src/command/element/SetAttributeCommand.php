@@ -107,7 +107,7 @@ class SetAttributeCommand extends ElementCommand implements ServerExecutableComm
 						$value = single_quote($value);
 					}else{
 						$avc = $value->getClass();
-						Debug::error("{$f} attribute value is an object of class \"${avc}\"");
+						Debug::error("{$f} attribute value is an object of class \"{$avc}\"");
 					}
 				}elseif(is_string($value) || $value === null){
 					if($value === null){

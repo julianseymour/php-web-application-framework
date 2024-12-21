@@ -7,6 +7,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
+use JulianSeymour\PHPWebApplicationFramework\datum\PseudokeyDatum;
 
 /**
  * This class is used to automatically delete data structures when another data structure that they are dependent on is deleted, but not directly referenced. 
@@ -23,12 +24,15 @@ class CascadeDeleteTriggerData extends DataStructure implements StaticTableNameI
 	}
 	
 	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
-		parent::declareColumns($columns, $ds);
+		//parent::declareColumns($columns, $ds);
+		$uniqueKey = new PseudokeyDatum("uniqueKey");
+		$uniqueKey->setUniqueFlag(true);
+		$uniqueKey->setIndexFlag(true);
 		$instigator = new ForeignMetadataBundle("instigator", $ds);
 		$instigator->setRelationshipType(RELATIONSHIP_TYPE_ONE_TO_ONE);
 		$instigator->setForeignDataStructureClassResolver(CascadeDeletableClassResolver::class);
 		$instigator->constrain();
-		array_push($columns, $instigator);
+		array_push($columns, $uniqueKey, $instigator);
 	}
 
 	public static function getPrettyClassName():string{

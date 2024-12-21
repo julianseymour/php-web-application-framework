@@ -15,7 +15,7 @@ trait ValueAttributeTrait{
 
 	public function setValueAttribute($value){
 		$f = __METHOD__;
-		$print = false;
+		$print = $this->getDebugFlag();
 		if($print){
 			Debug::print("{$f} assigning value \"{$value}\"");
 		}

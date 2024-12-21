@@ -8,12 +8,13 @@ use JulianSeymour\PHPWebApplicationFramework\common\ElementBindableTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class MultilingualStringData extends DataStructure implements StaticElementClassInterface, StaticTableNameInterface{
+class MultilingualStringData extends StandardDataStructure implements StaticElementClassInterface, StaticTableNameInterface{
 
 	use ElementBindableTrait;
 	use StaticTableNameTrait;

@@ -57,7 +57,7 @@ trait SuperiorFormTrait{
 	}
 	
 	public function setNestedFlag(bool $value = true): bool{
-		return $this->setFlag("nested", true);
+		return $this->setFlag("nested", $value);
 	}
 	
 	public function getNestedFlag(): bool{

@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\data;
 
 use mysqli;
 
-class GenericData extends DataStructure{
+class GenericData extends StandardDataStructure{
 
 	public function generateInsertTimestamp():int{
 		return time();

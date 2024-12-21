@@ -5,6 +5,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\account\login;
 use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\getInputParameter;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\auth\AuthenticatedUser;
 use JulianSeymour\PHPWebApplicationFramework\auth\PreauthenticationUseCase;
 use JulianSeymour\PHPWebApplicationFramework\auth\mfa\PreMultifactorAuthenticationData;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
@@ -16,6 +17,8 @@ use mysqli;
 
 abstract class AbstractLoginUseCase extends PreauthenticationUseCase implements ClientUseCaseInterface{
 
+	public abstract function loadUserData(mysqli $mysqli, LoginAttempt $attempt) : ?AuthenticatedUser;
+	
 	public function initializeAccessAttempt(mysqli $mysqli, LoginAttempt $attempt): int{
 		$f = __METHOD__;
 		try{

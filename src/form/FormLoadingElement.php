@@ -12,6 +12,8 @@ use Exception;
 
 class FormLoadingElement extends DivElement{
 	
+	protected $context;
+	
 	public function generateChildNodes():?array{
 		$f = __METHOD__;
 		try{

@@ -24,6 +24,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\table\CreateTableStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\table\TableNameTrait;
 use Exception;
 use mysqli;
+use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 
 trait TableDefinitionTrait{
 	
@@ -33,6 +34,8 @@ trait TableDefinitionTrait{
 	use MultipleIndexDefiningTrait;
 	use TableNameTrait;
 	use TemporaryFlagBearingTrait;
+	
+	protected $identifierName;
 	
 	/**
 	 * reorder columns in the order returned by getReorderedColumnIndices())
@@ -408,6 +411,12 @@ trait TableDefinitionTrait{
 					Debug::print("{$f} {$count} intersection tables");
 				}
 				foreach($polys as $name => $poly){
+					if($poly instanceof ForeignKeyDatum && !$poly->getConstraintFlag()){
+						Debug::error("{$f} non-constrained monomorphic keys should not be getting returned by the filter function, for example ".$poly->getDebugString());
+					}
+					if($name === "indexedKey"){
+						Debug::error("{$f} indexed key is not constrained, but is considered polymorphic");
+					}
 					if($print){
 						Debug::print("{$f} creating intersection table for column \"{$name}\"");
 					}
@@ -481,13 +490,13 @@ trait TableDefinitionTrait{
 	}
 	
 	public function hasIdentifierName(): bool{
-		return isset($this->identifierName);
+		return isset($this->identifierName) || $this->getIdentifierNameStatic() !== null;
 	}
 	
 	public function getIdentifierName(): ?string{
 		$f = __METHOD__;
 		$print = false;
-		if($this->hasIdentifierName()){
+		if(isset($this->identifierName)){
 			if($print){
 				Debug::print("{$f} non-static identifier name is \"{$this->identifierName}\"");
 			}

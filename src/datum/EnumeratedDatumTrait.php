@@ -16,7 +16,7 @@ trait EnumeratedDatumTrait{
 
 	public function setValidEnumerationMap(?array $map): ?array{
 		if($this->hasValidEnumerationMap()){
-			$this->release($this->validENumaerationMap);
+			$this->release($this->validEnumerationMap);
 		}
 		return $this->validEnumerationMap = $this->claim($map);
 	}

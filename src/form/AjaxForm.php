@@ -483,7 +483,7 @@ implements JavaScriptCounterpartInterface, PermissiveInterface{
 		return false;
 	}
 
-	public function generateChoices($input): ?array{
+	public function generateChoices($input):?array{
 		$f = "AjaxForm(".static::getShortClass().")->generateChoices()";
 		if($input->hasContext()){
 			$context = $input->getContext();

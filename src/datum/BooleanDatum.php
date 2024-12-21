@@ -284,4 +284,26 @@ class BooleanDatum extends UnsignedIntegerDatum implements StaticElementClassInt
 		}
 		return parent::processInput($input);
 	}
+	
+	public final function setValueFromQueryResult($raw){
+		$f = __METHOD__;
+		try{
+			$print = false;
+			$value = $this->parseValueFromQueryResult($raw);
+			if($print){
+				Debug::print("{$f} parsed value \"{$value}\" from raw result \"{$raw}\"");
+			}
+			if($this->getRetainOriginalValueFlag()){
+				if($print){
+					Debug::print("{$f} retain original value flag is set");
+				}
+				$this->setOriginalValue($value);
+			}elseif($print){
+				Debug::print("{$f} retain original value flag is not set");
+			}
+			return $this->setValue($value);
+		}catch(Exception $x){
+			x($f, $x);
+		}
+	}
 }

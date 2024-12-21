@@ -48,7 +48,6 @@ class IndexDefinition extends Basic implements ArrayKeyProviderInterface, SQLInt
 		$this->release($this->indexName, $deallocate);
 		$this->release($this->indexType, $deallocate);
 		$this->release($this->keyBlockSizeValue, $deallocate);
-		$this->release($this->keyParts, $deallocate);
 		$this->release($this->parserName, $deallocate);
 		$this->release($this->visibility, $deallocate);
 		if($this->hasPropertyTypes()){

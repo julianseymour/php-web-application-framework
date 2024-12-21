@@ -144,6 +144,7 @@ class InstallFrameworkUseCase extends UseCase{
 				}
 				continue;
 			}
+			Debug::print("About to created table for data structure class \"{$dsc}\"");
 			$dummy = new $dsc();
 			$status = $dummy->createTable($mysqli);
 			if($status !== SUCCESS){

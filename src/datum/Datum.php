@@ -685,15 +685,19 @@ implements ArrayKeyProviderInterface, ColumnDefinitionInterface, PermissiveInter
 		return false;
 	}
 
-	public final function setValueFromQueryResult($raw){
+	public function setValueFromQueryResult($raw){
 		$f = __METHOD__;
 		try{
 			$vn = $this->getName();
 			$print = false;
-			if($this instanceof VirtualDatum){
-				$ds = $this->getDataStructure();
-				$dsc = $ds->getClass();
-				Debug::error("{$f} data structure of class \"{$dsc}\" is storing a virtual datum at index \"{$vn}\"");
+			if($raw === null){
+				if($this->hasValue()){
+					$this->setValue(null);
+				}
+				if($print){
+					Debug::print("{$f} received null input parameter");
+				}
+				return null;
 			}
 			$value = $this->parseValueFromQueryResult($raw);
 			if($print){
@@ -1044,7 +1048,7 @@ implements ArrayKeyProviderInterface, ColumnDefinitionInterface, PermissiveInter
 		$f = __METHOD__;
 		try{
 			$vn = $this->getName();
-			$print = false;
+			$print = $this->getDebugFlag();
 			if($v instanceof ValueReturningCommandInterface){
 				while($v instanceof ValueReturningCommandInterface){
 					$v = $v->evaluate();
@@ -1428,10 +1432,10 @@ implements ArrayKeyProviderInterface, ColumnDefinitionInterface, PermissiveInter
 		return [new DatumValidator($this, $value)];
 	}
 
-	public function hasValue(){
+	public function hasValue():bool{
 		$f = __METHOD__;
 		$vn = $this->getName();
-		$print = false;
+		$print = $this->getDebugFlag();
 		switch($this->getPersistenceMode()){
 			case PERSISTENCE_MODE_ENCRYPTED:
 				// $value = $this->getValue();
@@ -1505,12 +1509,16 @@ implements ArrayKeyProviderInterface, ColumnDefinitionInterface, PermissiveInter
 		$f = __METHOD__;
 		try{
 			$vn = $this->getName();
-			$print = false;
+			$print = $vn === "price";
 			if($print){
 				$ic = $input->getShortClass();
 				Debug::print("{$f} about to call {$ic}->negotiateValue");
 			}
 			$negotiated = $input->negotiateValue($this);
+			if($print){
+				$gottype = gettype($negotiated);
+				Debug::print("{$f} negotiated value \"{$negotiated}\" is type {$gottype}");
+			}
 			$value = $this->cast($negotiated);
 			if($print){
 				Debug::print("{$f} cast negotiated value \"{$negotiated}\" into \"{$value}\" for datum \"{$vn}\"");
@@ -2066,6 +2074,5 @@ implements ArrayKeyProviderInterface, ColumnDefinitionInterface, PermissiveInter
 		$this->release($this->transcryptionKeyName, $deallocate);
 		$this->release($this->validationClosure, $deallocate);
 		$this->release($this->value, $deallocate);
-		$this->release($this->variableName, $deallocate);
 	}
 }

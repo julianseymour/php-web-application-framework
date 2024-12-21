@@ -13,4 +13,8 @@ class DocumentFragment extends Element{
 	public static function getElementTagStatic(): string{
 		return "fragment";
 	}
+	
+	protected function generateAttributes():int{
+		return SUCCESS;
+	}
 }

@@ -6,10 +6,11 @@ use function JulianSeymour\PHPWebApplicationFramework\release;
 use JulianSeymour\PHPWebApplicationFramework\core\Basic;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\event\DeallocateEvent;
-use JulianSeymour\PHPWebApplicationFramework\input\InputElement;
 use JulianSeymour\PHPWebApplicationFramework\input\HiddenInput;
 
 trait ContextualTrait{
+	
+	protected $context;
 	
 	public function hasContext():bool{
 		return isset($this->context);
@@ -29,7 +30,7 @@ trait ContextualTrait{
 			Debug::error("{$f} context is undefined as this ".$this->getDebugString());
 		}
 		$context = $this->context;
-		if($context instanceof Basic && !$context->getAllocatedFlag()){
+		if(SUPPLEMENTAL_GARBAGE_COLLECTION_ENABLED && $context instanceof Basic && !$context->getAllocatedFlag()){
 			Debug::error("{$f} context is already deallocated for this ".$this->getDebugString());
 		}
 		unset($this->context);

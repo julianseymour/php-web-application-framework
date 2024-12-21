@@ -12,6 +12,13 @@ class FloatingPointDatum extends AbstractNumericDatum{
 	
 	protected $scaleValue;
 
+	public function cast($v){
+		if(is_string($v) && $this->hasApoptoticSignal() && $this->getApoptoticSignal() === $v){
+			return $v;
+		}
+		return floatval($v);
+	}
+	
 	public function setScale($value){
 		$f = __METHOD__;
 		if(!is_int($value)){
@@ -37,7 +44,7 @@ class FloatingPointDatum extends AbstractNumericDatum{
 	}
 
 	public function parseValueFromSuperglobalArray($value){
-		return doubleval($value);
+		return static::parseString($value);
 	}
 
 	public function getHumanReadableValue(){
@@ -59,12 +66,29 @@ class FloatingPointDatum extends AbstractNumericDatum{
 	}
 
 	public static function validateStatic($value): int{
+		$f = __METHOD__;
+		$print = false;
+		if($print){
+			$type = gettype($value);
+			Debug::print("{$f} entered for {$type} value \"{$value}\"");
+		}
 		if(is_double($value)){
+			if($print){
+				Debug::print("{$f} {$type} {$value} is a double");
+			}
 			return SUCCESS;
 		}elseif(is_float($value)){
+			if($print){
+				Debug::print("{$f} {$type} {$value} is a float");
+			}
 			return SUCCESS;
 		}elseif(is_int($value)){
+			if($print){
+				Debug::print("{$f} {$type} {$value} is an integer");
+			}
 			return SUCCESS;
+		}elseif($print){
+			Debug::print("{$f} {$type} {$value} is none of the above");
 		}
 		return FAILURE;
 	}

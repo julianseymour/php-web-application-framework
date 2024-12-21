@@ -473,6 +473,7 @@ abstract class InteractiveUseCase extends UseCase{
 
 	protected function getInteractorClass(): ?string{
 		$f = __METHOD__;
+		$print = false;
 		switch(directive()){
 			case DIRECTIVE_DELETE: //moved before update as a hacky workaround for CIDR IP address form
 				return DeleteUseCase::class;
@@ -498,7 +499,9 @@ abstract class InteractiveUseCase extends UseCase{
 			case DIRECTIVE_VALIDATE:
 				return ValidateUseCase::class;
 			default:
-				Debug::print("{$f} no directive");
+				if($print){
+					Debug::print("{$f} no directive");
+				}
 				return null;
 		}
 	}

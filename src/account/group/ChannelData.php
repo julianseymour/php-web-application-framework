@@ -4,6 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\account\group;
 
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\DescriptionColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\EnabledTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\NameColumnTrait;
@@ -15,7 +16,7 @@ use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class ChannelData extends DataStructure implements StaticTableNameInterface{
+class ChannelData extends StandardDataStructure implements StaticTableNameInterface{
 
 	use DescriptionColumnTrait;
 	use EnabledTrait;

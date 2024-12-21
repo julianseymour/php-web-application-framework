@@ -6,13 +6,14 @@ use JulianSeymour\PHPWebApplicationFramework\account\group\GroupData;
 use JulianSeymour\PHPWebApplicationFramework\account\group\GroupKeyColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\IteratorTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\NameColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class RoleDeclaration extends DataStructure implements StaticTableNameInterface{
+class RoleDeclaration extends StandardDataStructure implements StaticTableNameInterface{
 
 	use GroupKeyColumnTrait;
 	use IteratorTrait;

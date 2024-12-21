@@ -397,9 +397,6 @@ trait ArrayPropertyTrait{
 			if($print){
 				Debug::print("{$f} property \"{$name}\" is an array property, with the following keys:");
 				Debug::printArray($this->properties[$name]);
-				if($print && $name === "codeBlocks"){
-					Debug::printStackTraceNoExit();
-				}
 			}
 			foreach($keys as $key){
 				$this->releaseArrayPropertyKey($name, $key, $deallocate);

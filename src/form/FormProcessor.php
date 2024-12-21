@@ -17,7 +17,6 @@ use JulianSeymour\PHPWebApplicationFramework\input\CheckedInput;
 use JulianSeymour\PHPWebApplicationFramework\input\FileInput;
 use JulianSeymour\PHPWebApplicationFramework\input\InputlikeInterface;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\account\NormalUser;
 
 class FormProcessor extends Basic{
 	
@@ -188,6 +187,9 @@ class FormProcessor extends Basic{
 				}
 				$column = $that->getColumn($column_name);
 				$input = new $input_class(ALLOCATION_MODE_FORM);
+				if(!$input instanceof AjaxForm){
+					$input->setForm($form);
+				}
 				///$input->setColumnName($column_name);
 				// if the input is a subordinate form, match the subordinate form the the foreign data structure at the same index
 				if($input instanceof AjaxForm){
@@ -386,7 +388,7 @@ class FormProcessor extends Basic{
 						}
 					}else{
 						if($print){
-							Debug::print("${f} {$subclass} is not a FileData");
+							Debug::print("{$f} {$subclass} is not a FileData");
 						}
 						$delete = true;
 					}

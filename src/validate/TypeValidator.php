@@ -5,7 +5,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\validate;
 use function JulianSeymour\PHPWebApplicationFramework\is_base64;
 use function JulianSeymour\PHPWebApplicationFramework\is_sha1;
 use function JulianSeymour\PHPWebApplicationFramework\starts_with;
-use function JulianSeymour\PHPWebApplicationFramework\validateTableName;
+use function JulianSeymour\PHPWebApplicationFramework\validate_table_name;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\OrCommand;
@@ -86,7 +86,7 @@ class TypeValidator extends Validator{
 					case "string":
 						return (is_string($value) && !empty($value)) ? SUCCESS : FAILURE;
 					case "table":
-						return validateTableName($value) ? SUCCESS : FAILURE;
+						return validate_table_name($value) ? SUCCESS : FAILURE;
 					case "sha1":
 						return is_sha1($value) ? SUCCESS : FAILURE;
 					default:

@@ -14,14 +14,14 @@ abstract class EventListenerCommand extends Command implements JavaScriptInterfa
 
 	use TypeTrait;
 
-	protected $eventTarget;
+	protected $target;
 
 	protected $listener;
 
-	public function __construct($eventTarget=null, $type=null, $listener=null){
+	public function __construct($target=null, $type=null, $listener=null){
 		parent::__construct();
-		if($eventTarget !== null){
-			$this->setEventTarget($eventTarget);
+		if($target !== null){
+			$this->setEventTarget($target);
 		}
 		if($type !== null){
 			$this->setType($type);
@@ -66,7 +66,7 @@ abstract class EventListenerCommand extends Command implements JavaScriptInterfa
 
 	public function setEventTarget($target){
 		if($this->hasEventTarget()){
-			$this->release($this->eventTarget);
+			$this->release($this->target);
 		}
 		return $this->target = $this->claim($target);
 	}
@@ -101,6 +101,6 @@ abstract class EventListenerCommand extends Command implements JavaScriptInterfa
 		parent::dispose($deallocate);
 		$this->release($this->type, $deallocate);
 		$this->release($this->listener, $deallocate);
-		$this->release($this->eventTarget, $deallocate);
+		$this->release($this->target, $deallocate);
 	}
 }

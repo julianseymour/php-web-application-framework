@@ -1,8 +1,10 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework;
 
 define("DATATYPE_UNKNOWN", "unknown"); // used for objects that don't get written to the database
 define("DATATYPE_CASCADE_DELETE", "cascadeDelete");
+define("DATATYPE_GLOBAL_INDEX", "globalIndex");
 define("DATATYPE_USER", "user");
 define("DATATYPE_IP_ADDRESS", "ipAddress");
 define("DATATYPE_ENCRYPTED_DATABASE_CREDENTIALS", "databaseCredentials"); // password for a mysql user that only the admin needs (e.g. for adding new services)

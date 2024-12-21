@@ -10,6 +10,7 @@ use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterf
 use JulianSeymour\PHPWebApplicationFramework\command\str\ConcatenateCommand;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use Exception;
+use JulianSeymour\PHPWebApplicationFramework\datum\BooleanDatum;
 
 class GetColumnValueCommand extends ColumnValueCommand{
 
@@ -130,7 +131,7 @@ class GetColumnValueCommand extends ColumnValueCommand{
 		$f = __METHOD__;
 		try{
 			$vn = $this->getColumnName();
-			$print = false && $this->getDebugFlag();
+			$print = $this->getDebugFlag();
 			$context = $this->getDataStructure();
 			while($context instanceof ValueReturningCommandInterface){
 				$class = $context->getClass();
@@ -162,6 +163,26 @@ class GetColumnValueCommand extends ColumnValueCommand{
 			}
 			if($print){
 				Debug::print("{$f} context is now a " . $context->getClass() . "; about to get value of column {$vn}");
+			}
+			if(
+				$context->hasColumn($vn) && 
+				!$context->getColumn($vn) instanceof BooleanDatum && 
+				!$context->hasColumnValue($vn)
+			){
+				if($print){
+					Debug::print("{$f} column {$vn} value is undefined");
+				}
+				return null;
+			}elseif($print){
+				if(!$context->hasColumn($vn)){
+					Debug::error("{$f} context somehow does not have a column \"{$vn}\"");
+				}elseif($context->getColumn($vn) instanceof BooleanDatum){
+					Debug::print("{$f} column \"{$vn}\" is a boolean datum");
+				}elseif($context->hasColumnValue($vn)){
+					Debug::print("{$f} column \"{$vn}\" has a value");
+				}else{
+					Debug::error("{$f} none of the above");
+				}
 			}
 			$format = $this->getFormat();
 			switch($format){

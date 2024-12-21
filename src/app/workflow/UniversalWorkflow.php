@@ -28,7 +28,7 @@ class UniversalWorkflow extends StandardWorkflow{
 	protected function authenticate(Request $request, UseCase $entry_point): int{
 		$f = __METHOD__;
 		try{
-			$print = false;
+			$print = $this->getDebugFlag();
 			$directive = directive();
 			switch($directive){
 				case DIRECTIVE_FORGOT_CREDENTIALS:

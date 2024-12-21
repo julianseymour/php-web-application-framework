@@ -2,9 +2,9 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\crypt;
 
-use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 
-abstract class SodiumKeypair extends DataStructure{
+abstract class SodiumKeypair extends StandardDataStructure{
 
 	use KeypairedTrait;
 

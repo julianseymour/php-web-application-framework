@@ -6,6 +6,7 @@ use function JulianSeymour\PHPWebApplicationFramework\ip_version;
 use JulianSeymour\PHPWebApplicationFramework\admin\AdminOnlyAccountTypePermission;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
@@ -17,7 +18,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\UnsignedIntegerDatum;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class NonexistentUriData extends DataStructure implements StaticTableNameInterface{
+class NonexistentUriData extends StandardDataStructure implements StaticTableNameInterface{
 	
 	use StaticTableNameTrait;
 	

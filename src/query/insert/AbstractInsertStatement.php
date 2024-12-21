@@ -6,7 +6,7 @@ use function JulianSeymour\PHPWebApplicationFramework\back_quote;
 use function JulianSeymour\PHPWebApplicationFramework\claim;
 use function JulianSeymour\PHPWebApplicationFramework\implode_back_quotes;
 use function JulianSeymour\PHPWebApplicationFramework\release;
-use function JulianSeymour\PHPWebApplicationFramework\validateTableName;
+use function JulianSeymour\PHPWebApplicationFramework\validate_table_name;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\IgnoreFlagBearingTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\PrioritizedTrait;
@@ -46,7 +46,6 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 		}
 		parent::dispose($deallocate);
 		$this->release($this->propertyTypes, $deallocate);
-		$this->release($this->columnExpressionLists, $deallocate);
 		$this->release($this->insertStatementForm, $deallocate);
 		$this->release($this->priorityLevel, $deallocate);
 		$this->release($this->rowCount, $deallocate);
@@ -232,7 +231,7 @@ abstract class AbstractInsertStatement extends QueryStatement implements SelectS
 			}
 		}elseif(!is_string($name)){
 			Debug::error("{$f} table form table name must be a string");
-		}elseif(!validateTableName($name)){
+		}elseif(!validate_table_name($name)){
 			Debug::error("{$f} invalid table name \"{$name}\"");
 		}
 		$form = $this->getInsertStatementForm();

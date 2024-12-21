@@ -618,6 +618,10 @@ abstract class UseCase extends ProgramFlowControlUnit implements JavaScriptCount
 		return [];
 	}
 
+	public function isCrossOriginProtected():bool{
+		return false;
+	}
+	
 	public function validateCrossOriginRequest(array $parsed_origin){
 		$f = __METHOD__;
 		try{

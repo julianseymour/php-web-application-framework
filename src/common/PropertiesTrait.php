@@ -160,7 +160,7 @@ trait PropertiesTrait{
 	
 	public function setProperty($key, $value){
 		$f = __METHOD__;
-		$print = $this->getDebugFlag() && $key === "columns";
+		$print = false;
 		if(!isset($this->properties) || !is_array($this->properties)){
 			$this->properties = [];
 		}elseif($this->hasProperty($key)){

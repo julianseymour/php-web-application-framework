@@ -185,7 +185,7 @@ class Request extends Basic{
 		return "/" . implode('/', $pieces);
 	}
 
-	public static function getOriginHeader(){
+	public static function getOriginHeader():string{
 		$f = __METHOD__;
 		$print = false;
 		if(array_key_exists('HTTP_ORIGIN', $_SERVER)){
@@ -415,6 +415,10 @@ class Request extends Basic{
 					}
 			}
 			if(!isset($names) || !is_array($names) || empty($names)){
+				if($print){
+					Debug::print("{$f} received the following input parameters:");
+					Debug::printArray($arr);
+				}
 				return $arr;
 			}
 			$ret = [];

@@ -22,7 +22,7 @@ abstract class Workflow extends Basic{
 	public function respond(UseCase $use_case): int{
 		$f = __METHOD__;
 		try{
-			$print = false;
+			$print = $this->getDebugFlag();
 			$use_case->beforeRespondHook();
 			$status = $this->beforeRespondHook();
 			app()->advanceExecutionState(EXECUTION_STATE_RESPONDING);

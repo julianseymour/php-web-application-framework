@@ -20,6 +20,7 @@ use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\crypt\SodiumCryptoBoxPublicKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\NormalizedNameColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\SubtypeColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\StringEnumeratedDatum;
@@ -35,7 +36,7 @@ use DateTimeZone;
 use Exception;
 use mysqli;
 
-abstract class UserData extends DataStructure implements ConcreteSubtypeColumnInterface, StaticSubtypeInterface, StaticTableNameInterface{
+abstract class UserData extends StandardDataStructure implements ConcreteSubtypeColumnInterface, StaticSubtypeInterface, StaticTableNameInterface{
 
 	use CorrespondentKeyColumnTrait;
 	use EmailAddressColumnTrait;

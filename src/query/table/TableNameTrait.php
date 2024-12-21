@@ -4,7 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\query\table;
 
 use function JulianSeymour\PHPWebApplicationFramework\claim;
 use function JulianSeymour\PHPWebApplicationFramework\release;
-use function JulianSeymour\PHPWebApplicationFramework\validateTableName;
+use function JulianSeymour\PHPWebApplicationFramework\validate_table_name;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\query\CommonTableExpression;
 use JulianSeymour\PHPWebApplicationFramework\query\join\TableFactor;
@@ -23,7 +23,7 @@ trait TableNameTrait{
 			// ok
 		}elseif($tableName instanceof CommonTableExpression){
 			return $this->setTableName($tableName->getName());
-		}elseif(!validateTableName($tableName)){
+		}elseif(!validate_table_name($tableName)){
 			Debug::error("{$f} invalid table name \"{$tableName}\"");
 			return $this->setObjectStatus(ERROR_INVALID_TABLE_NAME);
 		}

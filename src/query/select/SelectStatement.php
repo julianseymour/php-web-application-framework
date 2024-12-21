@@ -3,17 +3,22 @@
 namespace JulianSeymour\PHPWebApplicationFramework\query\select;
 
 use function JulianSeymour\PHPWebApplicationFramework\back_quote;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\single_quote;
 use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\command\Command;
+use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\BinaryExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\MultipleExpressionsTrait;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\OrCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\VariadicExpressionCommand;
+use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticPropertyTypeTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\data\IntersectionData;
+use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\query\CharacterSetTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\DistinctionTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\LockOptionTrait;
@@ -25,6 +30,7 @@ use JulianSeymour\PHPWebApplicationFramework\query\WindowSpecification;
 use JulianSeymour\PHPWebApplicationFramework\query\WithClause;
 use JulianSeymour\PHPWebApplicationFramework\query\WithClauseTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnAlias;
+use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnAliasExpression;
 use JulianSeymour\PHPWebApplicationFramework\query\join\JoinExpression;
 use JulianSeymour\PHPWebApplicationFramework\query\join\JoinExpressionsTrait;
 use JulianSeymour\PHPWebApplicationFramework\query\join\JoinedTable;
@@ -1059,6 +1065,79 @@ implements /*CacheableInterface,*/ StaticPropertyTypeInterface{
 				Debug::printArray($new_params);
 			}
 			return parent::prepareBindExecuteGetStatement($mysqli, $new_typedef, ...$new_params);
+		}catch(Exception $x){
+			x($f, $x);
+		}
+	}
+	
+	/**
+	 * generates a select statement useful for selecting keys from an intersection table
+	 * @param string $hostClass : host class in the intersection table
+	 * @param string $foreignClass
+	 *        	: foreign class with which the host class has an intersection table
+	 * @param string $foreignKeyName
+	 *        	: name of the foreign key stored in that intersection table. Provide it if you're selecting the foreign data structure, leave it blank if you're selecting the current class.
+	 * @param SelectStatement $subquery
+	 *        	: optional subquery for specifying key selection criteria. Leave it blank and it will match the an alias for this class's identifying column
+	 * @return SelectStatement
+	 */
+	// XXX TODO this is confusing because it does different things based off whether the second parameter is present; break it into 2 functions, one for selecting host keys and the other for foreign keys. Thse third parameter is also rather confusing
+	public static function generateLazyAliasExpression($hostClass, $foreignClass, ?string $foreignKeyName = null, ?SelectStatement $subquery = null): SelectStatement{
+		$f = __METHOD__;
+		try{
+			$print = false;
+			if($print){
+				Debug::print("{$f} entered");
+			}
+			if(is_object($hostClass)){
+				$hostClass = get_class($hostClass);
+			}
+			if(is_object($foreignClass)){
+				$foreignClass = get_class($foreignClass);
+			}
+			$idn = $foreignClass::getIdentifierNameStatic();
+			if($foreignKeyName !== null){
+				$fkn = $foreignKeyName;
+			}else{
+				$fkn = $idn;
+			}
+			$intersection = new IntersectionData($hostClass, $foreignClass, $fkn);
+			$table = $intersection->getTableName();
+			$alias = "{$table}_alias";
+			if($foreignKeyName !== null){
+				$subq_expr = new ColumnAlias(new ColumnAliasExpression($alias, "foreignKey"), $foreignKeyName);
+				$get_key = new ColumnAliasExpression($alias, "hostKey");
+			}else{
+				$subq_expr = new ColumnAlias(new ColumnAliasExpression($alias, "hostKey"), $idn);
+				$get_key = new ColumnAliasExpression($alias, "foreignKey");
+			}
+			$foreignKey = new ForeignKeyDatum($fkn);
+			$foreignKey->setSubqueryTableAlias($alias);
+			$foreignKey->setSubqueryDatabaseName($intersection->getDatabaseName());
+			deallocate($intersection);
+			$foreignKey->setSubqueryTableName($table);
+			$foreignKey->setSubqueryExpression($subq_expr);
+			if($subquery === null){
+				$where1 = new BinaryExpressionCommand($get_key, OPERATOR_EQUALS, new GetDeclaredVariableCommand("t0." . back_quote($idn)));
+			}else{
+				$where1 = new WhereCondition($get_key, OPERATOR_EQUALS, null, $subquery);
+			}
+			$where2 = new WhereCondition((new GetDeclaredVariableCommand("{$alias}.relationship"))->withTypeSpecifier("s"), OPERATOR_EQUALS, 's');
+			$and = new AndCommand($where1, $where2);
+			if(!$and->hasParameters()){
+				Debug::error("{$f} AND command lacks parameters immediately after instantiation");
+			}elseif($print){
+				$decl = $and->getDeclarationLine();
+				$did = $and->getDebugId();
+				Debug::print("{$f} and command was declared {$decl} with debug ID {$did}");
+			}
+			$foreignKey->setSubqueryWhereCondition($and);
+			$select = $foreignKey->getAliasExpression()->escape(ESCAPE_TYPE_PARENTHESIS);
+			deallocate($foreignKey);
+			if($print){
+				Debug::print("{$f} returning \"".$select->toSQL()."\"");
+			}
+			return $select;
 		}catch(Exception $x){
 			x($f, $x);
 		}

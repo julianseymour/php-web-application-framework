@@ -172,7 +172,7 @@ abstract class CompoundElement extends Element{
 	
 	public function echoJson(bool $destroy = false): void{
 		$f = __METHOD__;
-		$print = $this instanceof MultipleCheckboxes;
+		$print = false;
 		if($this->getTemplateFlag()){
 			Debug::print($this->__toString());
 			Debug::error("{$f} should not be echoing a templated object");

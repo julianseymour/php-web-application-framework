@@ -2,14 +2,14 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\datum;
 
-use function JulianSeymour\PHPWebApplicationFramework\claim;
-use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\x;
 use JulianSeymour\PHPWebApplicationFramework\common\ReturnTypeTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StaticElementClassInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\input\GhostInput;
 use Closure;
+use Exception;
 
 /**
  * Read-only datum that is not stored in the database and must rely on closures or the data structure for its value
@@ -182,5 +182,18 @@ class VirtualDatum extends Datum implements StaticElementClassInterface{
 		$this->release($this->existencePredicate, $deallocate);
 		$this->release($this->mutator, $deallocate);
 		$this->release($this->returnType, $deallocate);
+	}
+	
+	public function setValueFromQueryResult($raw){
+		$f = __METHOD__;
+		try{
+			$vn = $this->getName();
+			$ds = $this->getDataStructure();
+			$dsc = $ds->getClass();
+			Debug::error("{$f} data structure of class \"{$dsc}\" is storing a virtual datum at index \"{$vn}\"");
+			return $this->setValue(null);
+		}catch(Exception $x){
+			x($f, $x);
+		}
 	}
 }

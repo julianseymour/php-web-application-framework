@@ -26,6 +26,10 @@ class HTMLCommentElement extends Element{
 		}
 	}
 
+	protected function generateAttributes():int{
+		return SUCCESS;
+	}
+	
 	public function setAttribute($key, $value = null){
 		$f = __METHOD__;
 		ErrorMessage::unimplemented($f);

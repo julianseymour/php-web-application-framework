@@ -2,9 +2,11 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\ui;
 
-use function JulianSeymour\PHPWebApplicationFramework\mods;
+use function JulianSeymour\PHPWebApplicationFramework\app;
+use function JulianSeymour\PHPWebApplicationFramework\default_locale;
 use function JulianSeymour\PHPWebApplicationFramework\user;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\app\ApplicationRuntime;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\element\BaseElement;
 use JulianSeymour\PHPWebApplicationFramework\element\HeadElement;
@@ -12,8 +14,8 @@ use JulianSeymour\PHPWebApplicationFramework\element\LinkElement;
 use JulianSeymour\PHPWebApplicationFramework\element\MetaElement;
 use JulianSeymour\PHPWebApplicationFramework\element\ScriptElement;
 use JulianSeymour\PHPWebApplicationFramework\element\TitleElement;
+use JulianSeymour\PHPWebApplicationFramework\language\Internationalization;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
 class RiggedHeadElement extends HeadElement{
 
@@ -28,7 +30,11 @@ class RiggedHeadElement extends HeadElement{
 
 	public static function getScriptBundleElement():ScriptElement{
 		$script = new ScriptElement();
-		$locale = user()->getLocaleString();
+		if(app() instanceof ApplicationRuntime && app()->hasUserData()){
+			$locale = user()->getLocaleString();
+		}else{
+			$locale = Internationalization::getFallbackLocale(default_locale($_SERVER['REMOTE_ADDR']));
+		}
 		$path = "/script/{$locale}/bundle.js";
 		$script->setSourceAttribute($path);
 		$script->setTypeAttribute("text/javascript");

@@ -28,36 +28,38 @@ abstract class IntersectionTableResolver extends ClassResolver{
 		}
 		$intersections = static::getIntersections();
 		if(empty($intersections)){
-			Debug::error("{$f} getIntersections returned null/empty array");
-		}
-		$no = false;
-		$yes = false;
-		foreach($intersections as $class){
-			if(is_array($class)){
-				$yes = true;
-			}elseif(
-				is_string($class) 
-				&& class_exists($class) 
-				&& is_a($class, SubtypeInterface::class, true)
-			){
-				$yes = true;
-			}else{
-				$no = true;
-			}
-			if($yes && $no){
-				break;
-			}
-		}
-		if($yes){
-			if($no){
-				$subtypability = SUBTYPABILITY_PARTIAL;
-			}else{
-				$subtypability = SUBTYPABILITY_ALL;
-			}
-		}elseif($no){
+			Debug::warning("{$f} ".static::class."->getIntersections returned null/empty array");
 			$subtypability = SUBTYPABILITY_NONE;
 		}else{
-			Debug::error("{$f} impossible subtypability for class ".static::getShortClass());
+			$no = false;
+			$yes = false;
+			foreach($intersections as $class){
+				if(is_array($class)){
+					$yes = true;
+				}elseif(
+					is_string($class) 
+					&& class_exists($class) 
+					&& is_a($class, SubtypeInterface::class, true)
+				){
+					$yes = true;
+				}else{
+					$no = true;
+				}
+				if($yes && $no){
+					break;
+				}
+			}
+			if($yes){
+				if($no){
+					$subtypability = SUBTYPABILITY_PARTIAL;
+				}else{
+					$subtypability = SUBTYPABILITY_ALL;
+				}
+			}elseif($no){
+				$subtypability = SUBTYPABILITY_NONE;
+			}else{
+				Debug::error("{$f} impossible subtypability for class ".static::getShortClass());
+			}
 		}
 		if($cache){
 			cache()->setAPCu($cache_key, $subtypability);

@@ -4,6 +4,7 @@ namespace JulianSeymour\PHPWebApplicationFramework\auth\permit;
 
 use JulianSeymour\PHPWebApplicationFramework\account\correspondent\CorrespondentKeyColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\SubjectiveTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\TimestampDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
@@ -11,7 +12,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class GrantData extends DataStructure implements StaticTableNameInterface{
+class GrantData extends StandardDataStructure implements StaticTableNameInterface{
 
 	use AccessControlListKeyColumnTrait;
 	use CorrespondentKeyColumnTrait;

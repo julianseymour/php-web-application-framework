@@ -11,10 +11,11 @@ use JulianSeymour\PHPWebApplicationFramework\account\UserMetadataBundle;
 use JulianSeymour\PHPWebApplicationFramework\account\UserNameKeyColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use Exception;
 use mysqli;
 
-abstract class UserOwned extends DataStructure{
+abstract class UserOwned extends StandardDataStructure{
 
 	use UserKeyColumnTrait;
 	use UserNameKeyColumnTrait;

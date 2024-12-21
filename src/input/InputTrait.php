@@ -9,6 +9,8 @@ use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 trait InputTrait{
 	
+	protected $input;
+	
 	public function releaseInput(bool $deallocate=false){
 		$f = __METHOD__;
 		if(!$this->hasInput()){

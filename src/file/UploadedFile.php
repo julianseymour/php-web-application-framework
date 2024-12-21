@@ -1,12 +1,12 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\file;
 
 use function JulianSeymour\PHPWebApplicationFramework\array_keys_exist;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 
-class UploadedFile implements \Psr\Http\Message\UploadedFileInterface
-{
+class UploadedFile implements \Psr\Http\Message\UploadedFileInterface{
 
 	private $name;
 
@@ -25,7 +25,7 @@ class UploadedFile implements \Psr\Http\Message\UploadedFileInterface
 	public function setArray(array $array):array{
 		$f = __METHOD__;
 		$print = false;
-		if(! array_keys_exist($array, "error", "size", "name", "tmp_name")){
+		if(!array_keys_exist($array, "error", "size", "name", "tmp_name")){
 			Debug::error("{$f} missing one or more array indices");
 		}elseif($print){
 			Debug::printArray($array);

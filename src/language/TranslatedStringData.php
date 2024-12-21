@@ -4,12 +4,13 @@ namespace JulianSeymour\PHPWebApplicationFramework\language;
 
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\database\StaticDatabaseNameTrait;
 
-class TranslatedStringData extends DataStructure implements StaticDatabaseNameInterface{
+class TranslatedStringData extends StandardDataStructure implements StaticDatabaseNameInterface{
 	
 	use StaticDatabaseNameTrait;
 	

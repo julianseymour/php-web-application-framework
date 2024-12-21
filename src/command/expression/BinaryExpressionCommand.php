@@ -15,8 +15,6 @@ use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\where\WhereConditionalInterface;
 use JulianSeymour\PHPWebApplicationFramework\script\JavaScriptInterface;
 use Exception;
-use JulianSeymour\PHPWebApplicationFramework\language\MultilingualStringDatumBundle;
-use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
 
 class BinaryExpressionCommand extends ExpressionCommand implements JavaScriptInterface, SQLInterface, WhereConditionalInterface{
 

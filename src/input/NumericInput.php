@@ -3,12 +3,13 @@ namespace JulianSeymour\PHPWebApplicationFramework\input;
 
 use JulianSeymour\PHPWebApplicationFramework\datum\AbstractNumericDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\FloatingPointDatum;
+use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 
 abstract class NumericInput extends KeypadInput{
 
 	use ListAttributeTrait;
 
-	public function hasStepAttribute(){
+	public function hasStepAttribute():bool{
 		return $this->hasAttribute("step");
 	}
 
@@ -24,7 +25,7 @@ abstract class NumericInput extends KeypadInput{
 		return $this->getAttribute("max");
 	}
 
-	public function hasMaximumAttribute(){
+	public function hasMaximumAttribute():bool{
 		return $this->hasAttribute("max");
 	}
 
@@ -36,7 +37,7 @@ abstract class NumericInput extends KeypadInput{
 		return $this->getAttribute("min");
 	}
 
-	public function hasMinimumAttribute(){
+	public function hasMinimumAttribute():bool{
 		return $this->hasAttribute("min");
 	}
 

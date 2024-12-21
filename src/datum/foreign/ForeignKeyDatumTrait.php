@@ -136,7 +136,7 @@ trait ForeignKeyDatumTrait{
 	}
 
 	public function setConstraintFlag(bool $value = true): bool{
-		return $this->setFlag(COLUMN_FILTER_CONSTRAIN, true);
+		return $this->setFlag(COLUMN_FILTER_CONSTRAIN, $value);
 	}
 
 	public function getConstraintFlag(): bool{

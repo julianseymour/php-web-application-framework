@@ -1,7 +1,9 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\auth\permit;
 
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\NameColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\ParentKeyColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\PriorityColumnTrait;
@@ -12,7 +14,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\foreign\KeyListDatum;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class AccessControlListData extends DataStructure implements StaticTableNameInterface{
+class AccessControlListData extends StandardDataStructure implements StaticTableNameInterface{
 
 	use NameColumnTrait;
 	use ParentKeyColumnTrait;

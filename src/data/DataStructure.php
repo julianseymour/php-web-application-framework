@@ -3,14 +3,11 @@
 namespace JulianSeymour\PHPWebApplicationFramework\data;
 
 use function JulianSeymour\PHPWebApplicationFramework\app;
-use function JulianSeymour\PHPWebApplicationFramework\back_quote;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
-use function JulianSeymour\PHPWebApplicationFramework\db;
 use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\debug;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
 use function JulianSeymour\PHPWebApplicationFramework\ends_with;
-use function JulianSeymour\PHPWebApplicationFramework\getDateTimeStringFromTimestamp;
 use function JulianSeymour\PHPWebApplicationFramework\get_class_filename;
 use function JulianSeymour\PHPWebApplicationFramework\get_short_class;
 use function JulianSeymour\PHPWebApplicationFramework\mods;
@@ -27,9 +24,6 @@ use JulianSeymour\PHPWebApplicationFramework\cache\CacheableTrait;
 use JulianSeymour\PHPWebApplicationFramework\command\ValueReturningCommandInterface;
 use JulianSeymour\PHPWebApplicationFramework\command\data\ConstructorCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\data\GetColumnValueCommand;
-use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
-use JulianSeymour\PHPWebApplicationFramework\command\expression\BinaryExpressionCommand;
-use JulianSeymour\PHPWebApplicationFramework\command\variable\GetDeclaredVariableCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\AllocationModeInterface;
 use JulianSeymour\PHPWebApplicationFramework\common\AllocationModeTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\ConcreteSubtypeColumnInterface;
@@ -48,18 +42,11 @@ use JulianSeymour\PHPWebApplicationFramework\datum\AbstractDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\BooleanDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\Datum;
 use JulianSeymour\PHPWebApplicationFramework\datum\DatumBundle;
-use JulianSeymour\PHPWebApplicationFramework\datum\HashKeyDatum;
-use JulianSeymour\PHPWebApplicationFramework\datum\IpAddressDatum;
-use JulianSeymour\PHPWebApplicationFramework\datum\PseudokeyDatum;
-use JulianSeymour\PHPWebApplicationFramework\datum\SerialNumberDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\TimestampDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\VirtualDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignKeyDatumInterface;
 use JulianSeymour\PHPWebApplicationFramework\datum\foreign\KeyListDatum;
-use JulianSeymour\PHPWebApplicationFramework\db\credentials\DatabaseCredentials;
-use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicReadCredentials;
-use JulianSeymour\PHPWebApplicationFramework\db\credentials\PublicWriteCredentials;
 use JulianSeymour\PHPWebApplicationFramework\db\load\LoadedFlagTrait;
 use JulianSeymour\PHPWebApplicationFramework\db\load\Loadout;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
@@ -88,11 +75,10 @@ use JulianSeymour\PHPWebApplicationFramework\json\EchoJsonInterface;
 use JulianSeymour\PHPWebApplicationFramework\json\EchoJsonTrait;
 use JulianSeymour\PHPWebApplicationFramework\json\Json;
 use JulianSeymour\PHPWebApplicationFramework\json\JsonDatum;
+use JulianSeymour\PHPWebApplicationFramework\query\AssignmentExpression;
 use JulianSeymour\PHPWebApplicationFramework\query\DeleteStatement;
 use JulianSeymour\PHPWebApplicationFramework\query\OrderByClause;
 use JulianSeymour\PHPWebApplicationFramework\query\UpdateStatement;
-use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnAlias;
-use JulianSeymour\PHPWebApplicationFramework\query\column\ColumnAliasExpression;
 use JulianSeymour\PHPWebApplicationFramework\query\constraint\Constraint;
 use JulianSeymour\PHPWebApplicationFramework\query\index\IndexDefinition;
 use JulianSeymour\PHPWebApplicationFramework\query\insert\InsertStatement;
@@ -106,7 +92,6 @@ use JulianSeymour\PHPWebApplicationFramework\security\throttle\GenericThrottleMe
 use JulianSeymour\PHPWebApplicationFramework\validate\ValidationClosureTrait;
 use Exception;
 use mysqli;
-use JulianSeymour\PHPWebApplicationFramework\query\AssignmentExpression;
 
 /**
  * Data stored in and queried from the database (usually), session or cookie superglobals, or RAM.
@@ -190,20 +175,6 @@ TableDefinitionInterface{
 				$this->setAllocationMode($mode);
 			}
 			$this->setReceptivity(DATA_MODE_DEFAULT);
-			if(
-				!app()->getFlag("install") && 
-				method_exists($this, "getTableNameStatic") && 
-				method_exists($this, "getDatabaseNameStatic") &&
-				!$this instanceof EmbeddedData && 
-				!$this instanceof IntersectionData &&
-				!$this instanceof EventSourceData &&
-				!$this instanceof DatabaseCredentials &&
-				$this->getDefaultPersistenceMode() === PERSISTENCE_MODE_DATABASE
-			){
-				if(!$this->tableExists(db()->getConnection(PublicReadCredentials::class))){
-					Debug::error("{$f} table \"".$this->getTableName()."\" does not exist");
-				}
-			}
 		}catch(Exception $x){
 			x($f, $x);
 		}
@@ -214,7 +185,7 @@ TableDefinitionInterface{
 			"autoRegister", //if true, this object will be registered as soon as its key is generated
 			"arrayMembershipConfigured",
 			"blockInsertion", //set this to true to stop insertion from happening at the last minute
-			"cascadeDelete", // checked in afterDeleteHook
+			//"cascadeDelete", // checked in afterDeleteHook
 			"dealloc", //if true, this object will be deallocated when a related data structure is deallocated. This is a memory saving trick, be careful with it
 			DIRECTIVE_DELETE, // if true, this object is flagged for deletion if it is being managed by a related data structure in the process of an update operation; if it has yet to be inserted, this flag prevents its insertion from happening in the first place
 			DIRECTIVE_DELETE_FOREIGN, // if true, this object is flagged to delete foreign data structures as part of its update operation
@@ -262,6 +233,59 @@ TableDefinitionInterface{
 			"columns" => Datum::class, // nonstatic declaration was commented out in constructor -- maybe for a reason
 			"indexDefinitions" => IndexDefinition::class
 		];
+	}
+	
+	/**
+	 * declare columns that make up the content of this object's row.
+	 * You will want to redeclare this function in derived classes
+	 *
+	 * @param DataStructure $ds
+	 *        	: optional DataStructure parameter
+	 * @return Datum[]
+	 */
+	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
+		$f = __METHOD__;
+		try{
+			$datatype = new VirtualDatum("dataType");
+			$status = new VirtualDatum("status");
+			$pretty = new VirtualDatum("prettyClassName");
+			$search_result = new VirtualDatum("searchResult");
+			$elementClass = new VirtualDatum("elementClass");
+			$columns = [
+				$datatype,
+				$status,
+				$pretty,
+				$search_result,
+				$elementClass
+			];
+			if(
+				is_a(static::class, StaticSubtypeInterface::class, true)
+				&& !is_a(static::class, ConcreteSubtypeColumnInterface::class, true)
+			){
+				$subtype = new VirtualDatum("subtype");
+				array_push($columns, $subtype);
+			}
+			if(is_a(static::class, SoftDeletableInterface::class, true)){
+				$soft = new TimestampDatum("softDeletionTimestamp");
+				$soft->setDefaultValue(null);
+				$soft->setUserWritableFlag(true);
+				array_push($columns, $soft);
+			}
+		}catch(Exception $x){
+			x($f, $x);
+		}
+	}
+	
+	/**
+	 * XXX TODO I want to make this abstract but I'm too lazy to redefine it in derived classes
+	 * @return int
+	 */
+	public static function getKeyGenerationMode(): int{
+		return KEY_GENERATION_MODE_PSEUDOKEY;
+	}
+	
+	public static function getDefaultPersistenceModeStatic(): int{
+		return PERSISTENCE_MODE_DATABASE;
 	}
 	
 	public static function getPrettyClassName():string{
@@ -345,14 +369,6 @@ TableDefinitionInterface{
 		return GenericThrottleMeter::class;
 	}
 
-	public static function getDefaultPersistenceModeStatic(): int{
-		return PERSISTENCE_MODE_DATABASE;
-	}
-
-	public function hasSerialNumber():bool{
-		return $this->hasColumnValue('num');
-	}
-
 	/**
 	 * this is used to tell this data's Datum objects which phase of their lifecycle it is so they know whether to generate key/nonces (for example) or just set the value
 	 *
@@ -377,74 +393,9 @@ TableDefinitionInterface{
 	public function getProcessedFormFlag():bool{
 		return $this->getFlag("processedForm");
 	}
-
-	public function getReplacementKeyRequested():bool{
-		return $this->hasColumn("replacementKeyRequested") && $this->getColumnValue("replacementKeyRequested");
-	}
-
-	/**
-	 * call this to request a replacement decryption key (needed after hard password reset)
-	 * to be filfilled by some other samaritan who has access to that key
-	 *
-	 * @return int
-	 */
-	public function requestReplacementDecryptionKey():int{
-		$f = __METHOD__;
-		try{
-			$print = false;
-			$this->setObjectStatus(ERROR_REPLACEMENT_KEY_REQUESTED);
-			if($this->getReplacementKeyRequested()){
-				if($print){
-					Debug::print("{$f} replacement key was already requested");
-				}
-				return $this->getObjectStatus();
-			}elseif($print){
-				Debug::print("{$f} replacement key was not already requested");
-			}
-			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			$column = $this->getColumn("replacementKeyRequested");
-			$column->setValue(true);
-			$column->setUpdateFlag(true);
-			$status = $this->update($mysqli);
-			if($status !== SUCCESS){
-				$err = ErrorMessage::getResultMessage($status);
-				Debug::warning("{$f} update() returned error status \"{$err}\"");
-				return $this->setObjectStatus($status);
-			}elseif($print){
-				Debug::print("{$f} successfully wrote key replacement request");
-			}
-			return $this->getObjectStatus();
-		}catch(Exception $x){
-			x($f, $x);
-		}
-	}
-
-	public function fulfillReplacementKeyRequest():int{
-		$f = __METHOD__;
-		try{
-			$this->setColumnValue("replacementKeyRequested", 0);
-			$replica = $this->replicate();
-			$replica->setReceptivity(DATA_MODE_RECEPTIVE);
-			foreach(array_keys($this->getColumns()) as $column_name){
-				$replica->setColumnValue($column_name, $this->getColumnValue($column_name));
-				$column = $replica->getColumn($column_name);
-				$column->setUpdateFlag(true);
-			}
-			$mysqli = db()->getConnection(PublicWriteCredentials::class);
-			$status = $replica->update($mysqli);
-			if($status !== SUCCESS){
-				$err = ErrorMessage::getResultMessage($status);
-				Debug::error("{$f} updating replica returned error status \"{$err}\"");
-				return $this->setObjectStatus($status);
-			}
-			return SUCCESS;
-		}catch(Exception $x){
-			x($f, $x);
-		}
-	}
 	
 	public function setBlockInsertionFlag(bool $value = true): bool{
-		return $this->setFlag("blockInsertion", true);
+		return $this->setFlag("blockInsertion", $value);
 	}
 
 	public function getBlockInsertionFlag(): bool{
@@ -924,7 +875,7 @@ TableDefinitionInterface{
 				Debug::print("{$f} parent function returned true");
 			}else{
 				$err = ErrorMessage::getResultMessage($this->getObjectStatus());
-				Debug::print("{$f} nope, status is \"${err}\"");
+				Debug::print("{$f} nope, status is \"{$err}\"");
 			}
 		}
 		return $this->hasObjectStatus() && $this->getObjectStatus() === STATUS_PRELAZYLOAD || parent::isUninitialized();
@@ -948,12 +899,6 @@ TableDefinitionInterface{
 			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
 				Debug::warning("{$f} flagForeignDataStructuresForRecursiveDeletion returned error status \"{$err}\" for this ".$this->getDebugString());
-			}
-			// delete cascade triggers
-			if($this->getFlag("cascadeDelete")){
-				$this->cascadeDelete($mysqli);
-			}elseif($print){
-				Debug::print("{$f} cascade delete flag is not set");
 			}
 			return SUCCESS;
 		}catch(Exception $x){
@@ -1100,6 +1045,9 @@ TableDefinitionInterface{
 		$f = __METHOD__;
 		try{
 			$print = false;
+			if($print){
+				Debug::print("{$f} entered for this ".$this->getDebugString());
+			}
 			$status = $this->generateUndefinedForeignKeys();
 			if($status !== SUCCESS){
 				$err = ErrorMessage::getResultMessage($status);
@@ -1335,10 +1283,6 @@ TableDefinitionInterface{
 		return $this->getRepository()->preventDuplicateEntry($mysqli, $this);
 	}
 
-	public static function getKeyGenerationMode(): int{
-		return KEY_GENERATION_MODE_PSEUDOKEY;
-	}
-
 	public function setIdentifierValue($value){
 		return $this->setColumnValue($this->getIdentifierName(), $value);
 	}
@@ -1364,7 +1308,7 @@ TableDefinitionInterface{
 	}
 
 	public function loadFromKey(mysqli $mysqli, $key): int{
-		$f = __METHOD__;
+		$f = $this->getShortClass()."(".static::getShortClass().")->loadFromKey()";
 		$print = false;
 		$status = $this->load($mysqli, $this->getIdentifierName(), $key);
 		if($status !== SUCCESS){
@@ -1374,22 +1318,6 @@ TableDefinitionInterface{
 			Debug::print("{$f} loaded object with key \"{$key}\" successfully");
 		}
 		return $status;
-	}
-
-	public function ejectInsertIpAddress():?string{
-		return $this->ejectColumnValue("insertIpAddress");
-	}
-
-	public function hasInsertIpAddress():bool{
-		return $this->hasColumnValue("insertIpAddress");
-	}
-
-	public function setInsertIpAddress(string $ip):string{
-		return $this->setColumnValue("insertIpAddress", $ip);
-	}
-
-	public function getInsertIpAddress():string{
-		return $this->getColumnValue("insertIpAddress");
 	}
 
 	/**
@@ -1421,46 +1349,7 @@ TableDefinitionInterface{
 	 * @return boolean[]
 	 */
 	public function getArrayMembershipConfiguration($config_id): ?array{
-		$f = __METHOD__;
-		$print = false;
-		if($print){
-			Debug::warning("{$f} override this is derived classes to determine which data are returned in the toArray function for a given use case");
-		}
-		switch($config_id){
-			case "default":
-			default:
-				$print = false;
-				if($print){
-					if($this->hasElementClass()){
-						Debug::print("{$f} element class is defined");
-					}else{
-						Debug::print("{$f} element class is undefined");
-						if($this->getSearchResultFlag()){
-							Debug::error("{$f} element class must be defined for object with search result flag set");
-						}
-					}
-				}
-				$config = [
-					"num" => $this->hasColumn("num"),
-					$this->getIdentifierName() => $this->hasColumn($this->getIdentifierName()),
-					"insertTimestamp" => $this->hasColumn("insertTimestamp"),
-					"updatedTimestamp" => $this->hasColumn("updatedTimestamp"),
-					"dataType" => $this->hasColumn("dataType"),
-					"searchResult" => $this->hasColumn("searchResult") && $this->getSearchResultFlag(),
-					"status" => $this->hasColumn("status"),
-					"prettyClassName" => false,
-					"elementClass" => $this->hasElementClass()
-				];
-				//some common ones
-				if($this->hasColumnValue('subtype') || $this instanceof StaticSubtypeInterface){
-					$config['subtype'] = true;
-				}
-				if($this->hasColumn("name")){
-					$config['name'] = true;
-				}
-				break;
-		}
-		return $config;
+		return null;
 	}
 
 	public function setArrayMembershipConfiguredFlag(bool $value = true): bool{
@@ -1501,78 +1390,6 @@ TableDefinitionInterface{
 			$this->getColumn($column_name)->configureArrayMembership($value);
 		}
 		return SUCCESS;
-	}
-
-	/**
-	 * declare columns that make up the content of this object's row.
-	 * You will want to redeclare this function in derived classes
-	 *
-	 * @param DataStructure $ds
-	 *        	: optional DataStructure parameter
-	 * @return Datum[]
-	 */
-	public static function declareColumns(array &$columns, ?DataStructure $ds = null): void{
-		$f = __METHOD__;
-		try{
-			$num = new SerialNumberDatum("num");
-			$num->setHumanReadableName(_("Serial number"));
-			$insert = new TimestampDatum("insertTimestamp");
-			$insert->setHumanReadableName(_("Insert timestamp"));
-			// $insert->setSortable(true);
-			$updated = new TimestampDatum("updatedTimestamp");
-			$updated->setUserWritableFlag(true);
-			// $updated->setSortable(true);
-			$updated->setHumanReadableName(_("Update timestamp"));
-			$insert_ip = new IpAddressDatum("insertIpAddress");
-			$insert_ip->setSensitiveFlag(true);
-			$datatype = new VirtualDatum("dataType");
-			$status = new VirtualDatum("status");
-			$pretty = new VirtualDatum("prettyClassName");
-			$search_result = new VirtualDatum("searchResult");
-			$elementClass = new VirtualDatum("elementClass");
-			$columns = [
-				$num,
-				$insert,
-				$updated,
-				$insert_ip,
-				$datatype,
-				$status,
-				$pretty,
-				$search_result,
-				$elementClass
-			];
-			if(is_a(static::class, SoftDeletableInterface::class, true)){
-				$soft = new TimestampDatum("softDeletionTimestamp");
-				$soft->setDefaultValue(null);
-				$soft->setUserWritableFlag(true);
-				array_push($columns, $soft);
-			}
-			$mode = static::getKeyGenerationMode();
-			if($mode !== KEY_GENERATION_MODE_NATURAL){
-				switch($mode){
-					case KEY_GENERATION_MODE_PSEUDOKEY:
-						$key = new PseudokeyDatum('uniqueKey');
-						break;
-					case KEY_GENERATION_MODE_HASH:
-						$key = new HashKeyDatum('uniqueKey');
-						break;
-					default:
-						Debug::error("{$f} invalid key generation mode \"{$mode}\"");
-				}
-				$key->setUniqueFlag(true);
-				$key->setIndexFlag(true);
-				array_push($columns, $key);
-			}
-			if(
-				is_a(static::class, StaticSubtypeInterface::class, true) 
-				&& !is_a(static::class, ConcreteSubtypeColumnInterface::class, true)
-			){
-				$subtype = new VirtualDatum("subtype");
-				array_push($columns, $subtype);
-			}
-		}catch(Exception $x){
-			x($f, $x);
-		}
 	}
 
 	protected function addColumnEventListeners(Datum $column){
@@ -1821,16 +1638,12 @@ TableDefinitionInterface{
 				return $this->getDataType();
 			case "elementClass":
 				return get_short_class($this->getElementClass());
-			case "insertTimestampString":
-				return $this->getInsertTimestampString();
 			case "prettyClassName":
 				return $this->getPrettyClassName();
 			case "searchResult":
 				return $this->getSearchResultFlag();
 			case "status":
 				return $this->getObjectStatus();
-			case "updatedTimestampString":
-				return $this->getUpdatedTimestampString();
 			default:
 				Debug::error("{$f} override this in derived classes -- column name is \"{$column_name}\"");
 		}
@@ -1852,12 +1665,8 @@ TableDefinitionInterface{
 				return true;
 			case "elementClass":
 				return $this->hasElementClass();
-			case "insertTimestampString":
-				return $this->hasInsertTimestamp();
 			case "searchResult":
 				return $this->getSearchResultFlag();
-			case "updatedTimestampString":
-				return $this->hasUpdatedTimestamp();
 			default:
 				$sc = static::getShortClass();
 				Debug::error("{$f} override this in derived classes -- class is \"{$sc}\", column name is \"{$column_name}\"");
@@ -1963,33 +1772,20 @@ TableDefinitionInterface{
 				Debug::warning("{$f} before generate key hook returned error status \"{$err}\"");
 				return $this->setObjectStatus($status);
 			}
-			if($this->hasColumn("insertTimestamp")){
-				$time = $this->generateInsertTimestamp();
-			}else{
-				$time = time();
-			}
-			if($this->hasColumn("updatedTimestamp") && ! $this->hasColumnValue("updatedTimestamp")){
-				$this->setUpdatedTimestamp($time);
-			}
-			if($this->hasColumn("insertIpAddress") && ! $this->hasColumnValue("insertIpAddress")){
-				if(isset($_SERVER['REMOTE_ADDR'])){
-					$ip = $_SERVER['REMOTE_ADDR'];
-				}else{
-					$ip = SERVER_PUBLIC_IP_ADDRESS;
-				}
-				$this->setInsertIpAddress($ip);
-			}
 			// generate this object's identifier
-			$status = $this->generateKey();
-			if($status !== SUCCESS){
-				$err = ErrorMessage::getResultMessage($status);
-				Debug::warning("{$f} generateKey returned error status \"{$err}\"");
-				return $this->setObjectStatus($status);
-			}elseif($print){
-				Debug::print("{$f} successfully generated key");
+			$mode = $this->getKeyGenerationMode();
+			$idn = $this->getIdentifierName();
+			if($this->hasIdentifierName() && !$this->hasIdentifierValue()){
+				$status = $this->generateKey();
+				if($status !== SUCCESS){
+					$err = ErrorMessage::getResultMessage($status);
+					Debug::warning("{$f} generateKey returned error status \"{$err}\"");
+					return $this->setObjectStatus($status);
+				}elseif($print){
+					Debug::print("{$f} successfully generated key");
+				}
 			}
 			// iterate through the other columns and set their values
-			$idn = $this->getIdentifierName();
 			foreach($this->getFilteredColumns("!".COLUMN_FILTER_VIRTUAL, "!".COLUMN_FILTER_ALIAS, "!".COLUMN_FILTER_ID) as $name => $column){
 				if($column->hasValue()){
 					if($print){
@@ -2062,7 +1858,7 @@ TableDefinitionInterface{
 		try{
 			$print = false;
 			if($print){
-				Debug::printStackTraceNoExit("{$f} entered");
+				Debug::printStackTraceNoExit("{$f} entered for this ".$this->getDebugString());
 			}
 			$status = $this->beforeGenerateKeyHook();
 			if($status !== SUCCESS){
@@ -2079,15 +1875,13 @@ TableDefinitionInterface{
 					}
 					break; // return SUCCESS;
 				case KEY_GENERATION_MODE_LITERAL:
-					Debug::error("{$f} don't call this for objects with literal gey generation mode");
+					Debug::error("{$f} don't call this for objects with literal key generation mode");
 				default:
 			}
 			$key = null;
 			$idn = $this->getIdentifierName();
 			if($idn === null){
-				if($print){
-					Debug::print("{$f} this object has no identifier whatsoever");
-				}
+				Debug::error("{$f} this object has no identifier whatsoever");
 			}elseif(!$this->hasColumn($idn)){
 				if($print){
 					Debug::print("{$f} this object does not have a column \"{$idn}\"");
@@ -2144,8 +1938,8 @@ TableDefinitionInterface{
 				}elseif($print){
 					Debug::print("{$f} natural key generation mode");
 				}
-			}elseif($print){
-				Debug::print("{$f} object's key was already generated");
+			}else{//if($print){
+				Debug::error("{$f} object's key was already generated for this ".$this->getDebugString());
 			}
 			$status = $this->afterGenerateKeyHook($key);
 			if($status !== SUCCESS){
@@ -2157,48 +1951,6 @@ TableDefinitionInterface{
 		}catch(Exception $x){
 			x($f, $x);
 		}
-	}
-
-	public function hasInsertTimestamp():bool{
-		return $this->hasColumnValue('insertTimestamp');
-	}
-
-	public function getInsertTimestamp():int{
-		return $this->getColumnValue('insertTimestamp');
-	}
-
-	public function setInsertTimestamp(int $ts):int{
-		return $this->setColumnValue("insertTimestamp", $ts);
-	}
-
-	public function setUpdatedTimestamp(int $ts):int{
-		return $this->setColumnValue("updatedTimestamp", $ts);
-	}
-
-	public function generateInsertTimestamp():int{
-		$f = __METHOD__;
-		try{
-			if(!$this->hasInsertTimestamp()){
-				// Debug::print("{$f} generating insert timestamp now");
-				return $this->setInsertTimestamp(time());
-			}
-			// Debug::print("{$f} insert timestamp already generated");
-			return $this->getInsertTimestamp();
-		}catch(Exception $x){
-			x($f, $x);
-		}
-	}
-
-	public function getSerialNumber():int{
-		$f = __METHOD__;
-		if(!$this->hasSerialNumber()){
-			Debug::error("{$f} serial number is undefined");
-		}
-		return $this->getColumnValue("num");
-	}
-
-	public function setSerialNumber(int $num): int{
-		return $this->setColumnValue("num", $num);
 	}
 
 	public function setInsertFlag(bool $value = true): bool{
@@ -2273,10 +2025,6 @@ TableDefinitionInterface{
 		}
 	}
 
-	public function ejectSerialNumber():?int{
-		return $this->ejectColumnValue("num");
-	}
-
 	public function getOnDuplicateKeyUpdateFlag():bool{
 		return $this->getFlag("onDuplicateKeyUpdate");
 	}
@@ -2349,44 +2097,8 @@ TableDefinitionInterface{
 		return $givc;
 	}
 
-	public function updateTimestamp(mysqli $mysqli):int{
-		$f = __METHOD__;
-		try{
-			$this->setUpdatedTimestamp(time());
-			$status = $this->update($mysqli);
-			if($status !== SUCCESS){
-				$err = ErrorMessage::getResultMessage($status);
-				Debug::warning("{$f} update() returned error status \"{$err}\"");
-				return $this->setObjectStatus($status);
-			}
-			// Debug::print("{$f} timestamp update succeeded");
-			return SUCCESS;
-		}catch(Exception $x){
-			x($f, $x);
-		}
-	}
-
-	public function getInsertTimestampString():string{
-		return getDateTimeStringFromTimestamp($this->getInsertTimestamp());
-	}
-
-	public function getUpdatedTimestampString():string{
-		return getDateTimeStringFromTimestamp($this->getUpdatedTimestamp());
-	}
-
 	public function isDeleted():bool{
 		return $this->hasObjectStatus() && $this->getObjectStatus() === STATUS_DELETED;
-	}
-
-	public function hasUpdatedTimestamp():bool{
-		return $this->hasColumnValue("updatedTimestamp");
-	}
-
-	public function getUpdatedTimestamp():int{
-		if(!$this->hasUpdatedTimestamp()){
-			return $this->getInsertTimestamp();
-		}
-		return $this->getColumnValue("updatedTimestamp");
 	}
 
 	public function getUpdateDatabaseName(): string{
@@ -2438,7 +2150,28 @@ TableDefinitionInterface{
 	}
 
 	public function hasIdentifierValue(): bool{
-		return $this->getKeyGenerationMode() === KEY_GENERATION_MODE_LITERAL || $this->hasColumnValue($this->getIdentifierName());
+		$f = __METHOD__;
+		$print = $this->getDataType() === DATATYPE_MESSAGE;
+		$mode = $this->getKeyGenerationMode();
+		if($mode === KEY_GENERATION_MODE_UNIDENTIFIABLE){
+			if($print){
+				Debug::print("{$f} this ".$this->getDebugString()." is unidentifiable");
+			}
+			return false;
+		}elseif(!$this->hasIdentifierName()){
+			if($print){
+				Debug::print("{$f} identifier name is unavailable for this ".$this->getDebugString());
+			}
+			return false;
+		}
+		$idn = $this->getIdentifierName();
+		if($idn === null){
+			if($print){
+				Debug::print("{$f} identifier name returned null for this ".$this->getDebugString());
+			}
+			return false;
+		}
+		return $this->hasColumnValue($idn);
 	}
 
 	public function ejectIdentifierValue(){
@@ -2553,162 +2286,40 @@ TableDefinitionInterface{
 	}
 
 	public static function whereIntersectionalHostKey($foreignClass, string $relationship, string $operator = OPERATOR_EQUALS): WhereCondition{
-		return static::generateIntersectionalWhereCondition($foreignClass, "hostKey", $relationship, $operator);
+		return WhereCondition::intersectional(static::class, $foreignClass, "hostKey", $relationship, $operator);
 	}
 
 	public static function whereIntersectionalForeignKey($foreignClass, string $relationship, string $operator = OPERATOR_EQUALS): WhereCondition{
-		return static::generateIntersectionalWhereCondition($foreignClass, "foreignKey", $relationship, $operator);
+		return WhereCondition::intersectional(static::class, $foreignClass, "foreignKey", $relationship, $operator);
 	}
 
-	/**
-	 * generates a WhereCondition for locating something in an intersections table that references an object of this class
-	 *
-	 * @param string|DataStructure $foreignClass
-	 *        	: foreign class used to generate IntersectionData
-	 * @param string $relationship
-	 *        	: name of foreign key -- needed because of embedded columns
-	 * @param string $operator
-	 *        	: operator used to build WhereConditions
-	 * @return WhereCondition
-	 */
-	private static function generateIntersectionalWhereCondition($foreignClass, string $select_expr, string $relationship, string $operator = OPERATOR_EQUALS): WhereCondition{
+	public static function generateLazyAliasExpression($foreignClass, ?string $foreignKeyName = null, ?SelectStatement $subquery = null): SelectStatement{
+		return SelectStatement::generateLazyAliasExpression(static::class, $foreignClass, $foreignKeyName, $subquery);
+	}
+
+	public function logDatabaseOperation(string $directive): int{
 		$f = __METHOD__;
 		$print = false;
-		if(is_object($foreignClass)){
-			$foreignClass = $foreignClass->getClass();
-		}
-		$idn = static::getIdentifierNameStatic();
-		if($print){
-			$dsc = static::class;
-			Debug::print("{$f} about to create new IntersectionData({$dsc}, {$foreignClass}, {$relationship})");
-		}
-		$intersection = new IntersectionData(static::class, $foreignClass, $relationship);
-		switch($select_expr){
-			case "hostKey":
-				$column_name = "foreignKey";
-				break;
-			case "foreignKey":
-				$column_name = "hostKey";
-				break;
-			default:
-				Debug::error("{$f} invalid columns name \"{$column_name}\"");
-		}
-		$select = new SelectStatement($select_expr);
-		$select->from(
-			$intersection->getDatabaseName(), 
-			$intersection->getTableName()
-		)->where(
-			new AndCommand(
-				new WhereCondition($column_name, $operator, 's'), 
-				new WhereCondition("relationship", $operator, 's')
-			)
-		);
-		$ret = new WhereCondition(
-			$idn, 
-			OPERATOR_IN, 
-			static::getTypeSpecifierStatic($idn), 
-			$select
-		);
-		deallocate($intersection);
-		if($print){
-			$ret->setParameterCount(1);
-			Debug::print("{$f} returning \"{$ret}\"");
-			$ret->setParameterCount(null);
-		}
-		return $ret;
-	}
-
-	/**
-	 * generates a select statement useful for selecting keys from an intersection table
-	 *
-	 * @param string $foreignClass
-	 *        	: foreign class with which this class has an intersection table
-	 * @param string $foreignKeyName
-	 *        	: name of the foreign key stored in that intersection table. Provide it if you're selecting the foreign data structure, leave it blank if you're selecting the current class.
-	 * @param SelectStatement $subquery
-	 *        	: optional subquery for specifying key selection criteria. Leave it blank and it will match the an alias for this class's identifying column
-	 * @return SelectStatement
-	 */
-	// XXX TODO this is confusing because it does different things based off whether the second parameter is present; break it into 2 functions, one for selecting host keys and the other for foreign keys. Thse third parameter is also rather confusing
-	public static function generateLazyAliasExpression(string $foreignClass, ?string $foreignKeyName = null, ?SelectStatement $subquery = null): SelectStatement{
-		$f = __METHOD__;
-		try{
-			$print = false;
-			if($print){
-				Debug::print("{$f} entered");
-			}
-			$idn = $foreignClass::getIdentifierNameStatic();
-			if($foreignKeyName !== null){
-				$fkn = $foreignKeyName;
-			}else{
-				$fkn = $idn;
-			}
-			$intersection = new IntersectionData(static::class, $foreignClass, $fkn);
-			$table = $intersection->getTableName();
-			$alias = "{$table}_alias";
-			if($foreignKeyName !== null){
-				$subq_expr = new ColumnAlias(new ColumnAliasExpression($alias, "foreignKey"), $foreignKeyName);
-				$get_key = new ColumnAliasExpression($alias, "hostKey");
-			}else{
-				$subq_expr = new ColumnAlias(new ColumnAliasExpression($alias, "hostKey"), $idn);
-				$get_key = new ColumnAliasExpression($alias, "foreignKey");
-			}
-			$foreignKey = new ForeignKeyDatum($fkn);
-			$foreignKey->setSubqueryTableAlias($alias);
-			$foreignKey->setSubqueryDatabaseName($intersection->getDatabaseName());
-			deallocate($intersection);
-			$foreignKey->setSubqueryTableName($table);
-			$foreignKey->setSubqueryExpression($subq_expr);
-			if($subquery === null){
-				$where1 = new BinaryExpressionCommand($get_key, OPERATOR_EQUALS, new GetDeclaredVariableCommand("t0." . back_quote($idn)));
-			}else{
-				$where1 = new WhereCondition($get_key, OPERATOR_EQUALS, null, $subquery);
-			}
-			$where2 = new WhereCondition((new GetDeclaredVariableCommand("{$alias}.relationship"))->withTypeSpecifier("s"), OPERATOR_EQUALS, 's');
-			$and = new AndCommand($where1, $where2);
-			if(!$and->hasParameters()){
-				Debug::error("{$f} AND command lacks parameters immediately after instantiation");
-			}elseif($print){
-				$decl = $and->getDeclarationLine();
-				$did = $and->getDebugId();
-				Debug::print("{$f} and command was declared {$decl} with debug ID {$did}");
-			}
-			$foreignKey->setSubqueryWhereCondition($and);
-			$select = $foreignKey->getAliasExpression()->escape(ESCAPE_TYPE_PARENTHESIS);
-			deallocate($foreignKey);
-			if($print){
-				Debug::print("{$f} returning \"".$select->toSQL()."\"");
-			}
-			return $select;
-		}catch(Exception $x){
-			x($f, $x);
-		}
-	}
-
-	public function log(string $directive): int{
 		if($this->getFlag("disableLog")){
 			return 0;
 		}
 		$class = static::getShortClass();
-		if($this instanceof IntersectionData){
-			if($this->hasHostDataStructureClass()){
-				$class .= " between " . $this->getHostDataStructureClass()::getShortClass();
-				if($this->hasHostKey()){
-					$class .= " (with host key \"" . $this->getHostKey() . "\")";
-				}
-				if($this->hasForeignDataStructureClass()){
-					$class .= " and " . $this->getForeignDataStructureClass()::getShortClass();
-					if($this->hasForeignKey()){
-						$class .= " (with foreign key \"" . $this->getForeignKey() . "\")";
-					}
-				}
+		if(!$this->hasIdentifierName()){
+			if($print){
+				Debug::print("{$f} identifier name is undefined");
 			}
+			$key = "[unidentifiable]";
+		}elseif($this->hasIdentifierValue()){
+			if($print){
+				Debug::print("{$f} identifier value is defined");
+			}
+			$key = $this->getIdentifierValue();
+		}else{
+			Debug::error("{$f} should not be logging database operations on objects without identifiers. Object is a ".$this->getDebugString());
 		}
-		$idn = $this->getIdentifierName();
-		$key = $idn === null ? "[unidentifiable]" : $this->getIdentifierValue();
 		$did = $this->getDebugId();
 		$decl = $this->getDeclarationLine();
-		return debug()->log("{$directive} {$class} with key {$key} (debug ID {$did}, declared {$decl})");
+		return debug()->digest("{$directive} {$class} with key {$key} (debug ID {$did}, declared {$decl})");
 	}
 
 	public function setInsertingFlag(bool $value = true): bool{

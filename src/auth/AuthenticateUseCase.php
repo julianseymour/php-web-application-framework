@@ -6,6 +6,7 @@ use function JulianSeymour\PHPWebApplicationFramework\app;
 use function JulianSeymour\PHPWebApplicationFramework\cache;
 use function JulianSeymour\PHPWebApplicationFramework\config;
 use function JulianSeymour\PHPWebApplicationFramework\db;
+use function JulianSeymour\PHPWebApplicationFramework\debug;
 use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\directive;
 use function JulianSeymour\PHPWebApplicationFramework\f;
@@ -266,6 +267,7 @@ class AuthenticateUseCase extends UseCase{
 		try{
 			$print = false;
 			if($print){
+				debug()->startLog();
 				Debug::print("{$f} entered");
 			}
 			$user = null;
@@ -479,6 +481,7 @@ class AuthenticateUseCase extends UseCase{
 			}
 			if($print){
 				Debug::print("{$f} returning successfully");
+				debug()->disableLog();
 			}
 			$user->setObjectStatus(SUCCESS);
 			$session->setUserData($user);

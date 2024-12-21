@@ -107,6 +107,13 @@ trait UserKeyColumnTrait{
 			}
 			if($this->hasColumn("userAccountType") && $user->hasSubtype()){
 				$this->setUserAccountType($user->getSubtype());
+			}elseif($print){
+				if(!$this->hasColumn("userAccountType")){
+					Debug::print("{$f} this ".$this->getDebugString()." does not have a userAccountType columns");
+				}
+				if(!$user->hasSubtype()){
+					Debug::print("{$f} user ".$user->getDebugString()." does not have a subtype");
+				}
 			}
 			if(!$user->isUninitialized()){
 				if($print){

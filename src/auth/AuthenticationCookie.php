@@ -2,6 +2,8 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\auth;
 
+use function JulianSeymour\PHPWebApplicationFramework\f;
+use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
 use JulianSeymour\PHPWebApplicationFramework\datum\BlobDatum;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
@@ -35,7 +37,7 @@ abstract class AuthenticationCookie extends DataStructure{
 		array_push($columns, $reauthenticationKey);
 	}
 
-	public function hasReauthenticationKey(){
+	public function hasReauthenticationKey():bool{
 		return $this->hasColumnValue(static::getReauthenticationKeyColumnName());
 	}
 
@@ -47,7 +49,12 @@ abstract class AuthenticationCookie extends DataStructure{
 		return $this->setColumnValue(static::getReauthenticationKeyColumnName(), $value);
 	}
 
-	public function generateReauthenticationKey(){
-		return $this->setReauthenticationKey(base64_encode(random_bytes(32)));
+	public function generateReauthenticationKey():string{
+		$f = __METHOD__;
+		$key = base64_encode(random_bytes(32));
+		if(strlen($key) == 0){
+			Debug::error("{$f} generated a null/empty string");
+		}
+		return $this->setReauthenticationKey($key);
 	}
 }

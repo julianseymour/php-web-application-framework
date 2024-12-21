@@ -6,7 +6,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\TextDatum;
 
 trait SortNameColumnTrait{
 
-	public static function getSortNameDatum(string $name = "sortName"){
+	private static function getSortNameDatum(string $name = "sortName"){
 		$sort_name = new TextDatum($name);
 		$sort_name->setAlphanumeric(true);
 		$sort_name->setHumanReadableName(_("Invisible string for sorting"));

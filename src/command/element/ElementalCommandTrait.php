@@ -61,7 +61,7 @@ trait ElementalCommandTrait{
 			Debug::error("{$f} element is undefined");
 		}
 		$element = $this->element;
-		if(!$element->getAllocatedFlag()){
+		if(SUPPLEMENTAL_GARBAGE_COLLECTION_ENABLED && !$element->getAllocatedFlag()){
 			Debug::error("{$f} element ".$element->getDebugString()." was already deallocated, but never released");
 		}
 		unset($this->element);

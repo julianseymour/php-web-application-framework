@@ -3,6 +3,7 @@
 namespace JulianSeymour\PHPWebApplicationFramework\auth\permit;
 
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\NameColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\PriorityColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\BooleanDatum;
@@ -12,7 +13,7 @@ use JulianSeymour\PHPWebApplicationFramework\datum\foreign\ForeignMetadataBundle
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\table\StaticTableNameTrait;
 
-class PermissionData extends DataStructure implements StaticTableNameInterface{
+class PermissionData extends StandardDataStructure implements StaticTableNameInterface{
 
 	use NameColumnTrait;
 	use PriorityColumnTrait;

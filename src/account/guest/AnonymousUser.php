@@ -260,6 +260,10 @@ class AnonymousUser extends PlayableUser{
 		return $_SERVER['REMOTE_ADDR'];
 	}
 
+	public function hasSubtype():bool{
+		return parent::hasSubtype();
+	}
+	
 	public function initializeAnonymousSession(): int{
 		$f = __METHOD__;
 		try{
@@ -326,6 +330,11 @@ class AnonymousUser extends PlayableUser{
 				$recovery = new SessionRecoveryData();
 				//$recovery->setDeallocateFlag(true);
 				$recovery->setUserData($this);
+				if(!$recovery->hasUserAccountType()){
+					Debug::error("{$f} ".$recovery->getDebugString()." user account type is undefined");
+				}elseif($print){
+					Debug::print("{$f} user account type set properly for ".$recovery->getDebugString());
+				}
 				$recovery->generateKey();
 				$recovery->generateCookie();
 				$this->setSessionRecoveryData($recovery);

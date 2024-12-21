@@ -73,10 +73,14 @@ class InputElement extends ValuedElement implements InputlikeInterface{
 	public function getDebugString():string{
 		$sc = $this->getShortClass();
 		$name = $this->hasNameAttribute() ? $this->getNameAttribute() : "[undefined]";
+		if(is_object($name)){
+			$name = get_class($name)."(".$name->getDebugString().")";
+		}
 		$cn = $this->hasColumnName() ? $this->getColumnName() : "[undefined]";
 		$decl = $this->getDeclarationLine();
 		$did = $this->getDebugId();
-		return "{$sc} with name attribute {$name} and column name {$cn} declared {$decl} with debug ID {$did}";
+		$form = $this->hasForm() ? $this->getForm()->getDebugString() : "[undefined]";
+		return "{$sc} with name attribute {$name}, column name {$cn}, and form {$form} declared {$decl} with debug ID {$did}";
 	}
 	
 	public function configure(?AjaxForm $form=null): int{
@@ -589,6 +593,9 @@ class InputElement extends ValuedElement implements InputlikeInterface{
 				}
 				$data = $context->getDataStructure();
 				$get = new GetColumnValueCommand();
+				if($print){
+					$get->debug();
+				}
 				$get->setDataStructure($data);
 				$get->setColumnName($vn);
 				if($this instanceof HiddenInput){
@@ -617,6 +624,9 @@ class InputElement extends ValuedElement implements InputlikeInterface{
 					$predicate = $has;
 				}
 				$set = new SetInputValueCommand();
+				if($print){
+					$set->setDebugFlag();
+				}
 				$set->setElement($this);
 				$set->incrementCyclicalReferenceCount();
 				$set->setValue($get);

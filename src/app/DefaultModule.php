@@ -156,6 +156,10 @@ class DefaultModule extends EmptyModule{
 				\JulianSeymour\PHPWebApplicationFramework\security\condemn\CondemnedIpAddress::class => [
 					DIRECTIVE_INSERT
 				],
+				\JulianSeymour\PHPWebApplicationFramework\cascade\CascadeDeleteTriggerData::class => [
+					DIRECTIVE_SELECT,
+					DIRECTIVE_DELETE
+				],
 				\JulianSeymour\PHPWebApplicationFramework\account\login\LoginAttempt::class => [
 					DIRECTIVE_INSERT
 				],
@@ -200,6 +204,11 @@ class DefaultModule extends EmptyModule{
 				],
 				\JulianSeymour\PHPWebApplicationFramework\email\DummyEmail::class => [
 					DIRECTIVE_INSERT
+				],
+				\JulianSeymour\PHPWebApplicationFramework\data\GlobalIndexData::class => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE,
+					DIRECTIVE_DELETE
 				],
 				\JulianSeymour\PHPWebApplicationFramework\image\ImageData::class => [
 					DIRECTIVE_INSERT,
@@ -278,6 +287,11 @@ class DefaultModule extends EmptyModule{
 				],
 				\JulianSeymour\PHPWebApplicationFramework\contact\ContactusEmail::class => [
 					DIRECTIVE_INSERT
+				],
+				\JulianSeymour\PHPWebApplicationFramework\data\GlobalIndexData::class => [
+					DIRECTIVE_INSERT,
+					DIRECTIVE_UPDATE,
+					DIRECTIVE_DELETE
 				],
 				\JulianSeymour\PHPWebApplicationFramework\image\ImageData::class => [
 					DIRECTIVE_INSERT,
@@ -363,6 +377,7 @@ class DefaultModule extends EmptyModule{
 			\JulianSeymour\PHPWebApplicationFramework\contact\ContactUsEmail::class,
 			\JulianSeymour\PHPWebApplicationFramework\cascade\CascadeDeleteTriggerData::class,
 			\JulianSeymour\PHPWebApplicationFramework\db\credentials\EncryptedDatabaseCredentials::class,
+			\JulianSeymour\PHPWebApplicationFramework\data\GlobalIndexData::class,
 			\JulianSeymour\PHPWebApplicationFramework\auth\mfa\InvalidatedOtp::class,
 			\JulianSeymour\PHPWebApplicationFramework\security\condemn\CondemnedIpAddress::class,
 			\JulianSeymour\PHPWebApplicationFramework\file\CleartextFileData::class,

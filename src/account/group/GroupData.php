@@ -11,6 +11,7 @@ use JulianSeymour\PHPWebApplicationFramework\crypt\KeypairColumnsTrait;
 use JulianSeymour\PHPWebApplicationFramework\crypt\KeypairedTrait;
 use JulianSeymour\PHPWebApplicationFramework\crypt\SodiumCryptoBoxPublicKeyDatum;
 use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\StandardDataStructure;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\NameColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\data\columns\ParentKeyColumnTrait;
 use JulianSeymour\PHPWebApplicationFramework\datum\NameDatum;
@@ -29,7 +30,7 @@ use JulianSeymour\PHPWebApplicationFramework\common\ConcreteSubtypeColumnInterfa
  * @author j
  *        
  */
-class GroupData extends DataStructure implements ConcreteSubtypeColumnInterface, StaticTableNameInterface{
+class GroupData extends StandardDataStructure implements ConcreteSubtypeColumnInterface, StaticTableNameInterface{
 
 	use KeypairedTrait;
 	use KeypairColumnsTrait;

@@ -126,7 +126,7 @@ class KeyListDatum extends JsonDatum implements ForeignKeyDatumInterface{
 		$print = false;
 		$keyvalues = $input->getValueAttribute();
 		if(!is_array($keyvalues)){
-			Debug::error("{$f} input->getValueAttribute() must return an array");
+			Debug::error("{$f} input->getValueAttribute() must return an array. This is a ".$this->getDebugString().". Input is a ".$input->getDebugString());
 		}
 		$column_name = $this->getName();
 		foreach($keyvalues as $key => $value){

@@ -50,8 +50,27 @@ trait MultipleColumnDefiningTrait{
 		return $this;
 	}
 
-	public function hasColumns(): bool{
-		return $this->hasArrayProperty("columns");
+	public function hasColumns(...$columnNames): bool{
+		if(!$this->hasArrayProperty("columns")){
+			return false;
+		}
+		switch(count($columnNames)){
+			case 0:
+				return true;
+			case 1:
+				if(!is_array($columnNames[0])){
+					return $this->hasColumn($columnNames[0]);
+					
+				}
+				$columnNames = $columnNames[0];
+			default:
+				foreach($columnNames as $cn){
+					if(!$this->hasColumn($cn)){
+						return false;
+					}
+				}
+				return true;
+		}
 	}
 
 	/**

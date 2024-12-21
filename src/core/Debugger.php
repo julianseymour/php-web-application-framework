@@ -14,13 +14,66 @@ class Debugger extends Debug{
 
 	protected $counter;
 	
+	protected $digested;
+
 	protected $enforcedPrivateKey;
 
-	protected $logged;
-
+	protected $logNumber;
+	
+	protected $logs;
+	
 	protected $nodes;
 	
 	protected $string;
+	
+	public function startLog(){
+		if(!isset($this->logNumber)){
+			$this->logNumber = 0;
+		}else{
+			$this->logNumber++;
+		}
+		if(!is_array($this->logs)){
+			$this->logs = [ [] ];
+		}else{
+			array_push($this->logs, []);
+		}
+	}
+	
+	public function disableLog(){
+		$this->logs = array_slice($this->logs, 0, $this->logNumber);
+		$this->logNumber--;
+		if($this->logNumber < 0){
+			unset($this->logNumber);
+			unset($this->logs);
+		}
+	}
+	
+	public function log(string $info):void{
+		$f = __METHOD__;
+		if(!$this->isLogEnabled()){
+			Debug::error("{$f} logging is disabled");
+		}
+		array_push($this->logs[$this->logNumber], $info);
+	}
+	
+	public function dumpLog(){
+		$f = __METHOD__;
+		if(!$this->isLogEnabled()){
+			Debug::error("{$f} logging is disabled");
+		}
+		unset($_SESSION['debug_log']);
+		foreach($this->logs[$this->logNumber] as $i => $log){
+			Debug::print($log);
+		}
+		$this->logs = array_slice($this->logs, 0, $this->logNumber);
+		$this->logNumber--;
+		if($this->logNumber < 0){
+			unset($this->logNumber);
+			unset($this->logs);
+		}else{
+			$_SERVER['debug_log'] = true;
+		}
+	}
 	
 	public static function declareFlags(): array{
 		return [
@@ -71,7 +124,7 @@ class Debugger extends Debug{
 			$key = $key->getDebugId();
 		}
 		if(!$this->has($key)){
-			Debug::warning("{$f} node \"{$key}\" is undefined");
+			Debug::printStackTraceNoExit("{$f} node \"{$key}\" is undefined");
 			return -1;
 		}
 		$node = $this->nodes[$key];
@@ -113,18 +166,18 @@ class Debugger extends Debug{
 		return $this;
 	}
 
-	public function log(string $s): int{
-		if(!isset($this->logged) || !is_array($this->logged)){
-			$this->logged = [];
+	public function digest(string $s): int{
+		if(!isset($this->digested) || !is_array($this->digested)){
+			$this->digested = [];
 		}
-		array_push($this->logged, $s);
-		return count($this->logged);
+		array_push($this->digested, $s);
+		return count($this->digested);
 	}
 
 	public function spew(): void{
 		$f = __METHOD__;
-		if(isset($this->logged) && is_array($this->logged) && !empty($this->logged)){
-			foreach($this->logged as $i => $l){
+		if(isset($this->digested) && is_array($this->digested) && !empty($this->digested)){
+			foreach($this->digested as $i => $l){
 				Debug::print("#{$i}: {$l}");
 			}
 		}
@@ -152,6 +205,7 @@ class Debugger extends Debug{
 			$string .= " Instantiated {$this->counter} objects";
 		}
 		Debug::print("{$f} {$string}");
+		Debug::printStackTraceNoExit();
 	}
 	
 	public function retain(...$objects){
@@ -314,7 +368,7 @@ class Debugger extends Debug{
 	public function __destruct(){
 		unset($this->counter);
 		unset($this->enforcedPrivateKey);
-		unset($this->logged);
+		unset($this->digested);
 		unset($this->nodes);
 		unset($this->string);
 	}

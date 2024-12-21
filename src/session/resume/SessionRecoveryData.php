@@ -167,7 +167,10 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 		}elseif($print){
 			Debug::print("{$f} session recovery cookie is undefined -- creating one now");
 		}
-		$type = $this->hasUserAccountType() ? $this->getUserAccountType() : "surprise";
+		if(!$this->hasUserAccountType()){
+			Debug::error("{$f} user account type is undefined for this ".$this->getDebugString());
+		}
+		$type = $this->getUserAccountType();
 		if($print){
 			Debug::print("{$f} user account type is \"{$type}\"");
 		}
@@ -270,6 +273,9 @@ class SessionRecoveryData extends UserFingerprint implements StaticTableNameInte
 			Debug::error("{$f} headers have already been sent");
 		}
 		$session_cookie->setCookieSecret(random_bytes(128));
+		if(!$this->hasIdentifierValue()){
+			Debug::error("{$f} identifier value is undefined for this ".$this->getDebugString());
+		}
 		$recovery_key = $this->getIdentifierValue();
 		if($print){
 			Debug::print("{$f} generated key \"{$recovery_key}\"");

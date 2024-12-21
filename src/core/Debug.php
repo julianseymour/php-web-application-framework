@@ -14,6 +14,10 @@ use ReflectionClass;
 
 abstract class Debug{
 
+	public static function isLogEnabled() : bool{
+		return isset($_SESSION) && is_array($_SESSION) && array_key_exists('debug_log', $_SESSION) && $_SESSION['debug_log'] === true;
+	}
+	
 	public static function error($what, bool $pst=true){
 		$f = __METHOD__;
 		try{
@@ -22,7 +26,8 @@ abstract class Debug{
 				return;
 			}
 			$__error = true;
-			error_log("\033[31mError: {$what}\033[0m", 0);
+			$err = "\033[31mError: {$what}\033[0m";
+			error_log($err, 0);
 			Debug::resetDebugCounterStatic();
 			if(isset($_SESSION['elements'])){
 				Debug::print("{$f} constructed {$_SESSION['elements']} elements");
@@ -32,6 +37,9 @@ abstract class Debug{
 				Debug::printStackTraceNoExit();
 				if(app() != null && app()->hasDebugger()){
 					debug()->spew();
+					if(Debug::isLogEnabled()){
+						debug()->dumpLog();
+					}
 				}
 			}
 			exit();
@@ -396,7 +404,11 @@ abstract class Debug{
 			if(defined("DEBUG_IP_ADDRESS") && $_SERVER['REMOTE_ADDR'] !== DEBUG_IP_ADDRESS){
 				return;
 			}
-			error_log($what, 0);
+			if(debug()->isLogEnabled()){
+				debug()->log($what);
+			}else{
+				error_log($what, 0);
+			}
 		}catch(Exception $x){
 			x($f, $x);
 		}

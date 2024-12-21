@@ -125,7 +125,7 @@ abstract class Basic implements DisposableInterface, HitPointsInterface{
 	
 	public function setAllocatedFlag(bool $value = true):bool{
 		$f = __METHOD__;
-		$print = $this->getDebugFlag() && !$this instanceof ApplicationRuntime;
+		$print = false && $this->getDebugFlag() && !$this instanceof ApplicationRuntime;
 		if($print){
 			if($value){
 				Debug::print("{$f} setting allocated flag for this ".$this->getDebugString());
@@ -200,10 +200,11 @@ abstract class Basic implements DisposableInterface, HitPointsInterface{
 
 	public function __destruct(){
 		$f = __METHOD__;
+		$print = false && $this->getDebugFlag();
 		global $__destructDisabled;
 		if($__destructDisabled){
 			if($this->getAllocatedFlag()){
-				if($this->getDebugFlag()){
+				if($print && $this->getDebugFlag()){
 					Debug::warning("{$f} __destruct functions are currently disabled. This might be caused by setting the __destructDisabled global variable to true, or it could be due to a bug in PHP 8.1 that randomly garbage collects objects in certain situations (calling debug_backtrace seems to cause it frequently). This object is a ".$this->getDebugString());
 				}/*else{
 					global $__error;

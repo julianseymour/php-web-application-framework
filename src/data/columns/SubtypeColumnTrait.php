@@ -2,6 +2,7 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\data\columns;
 
+use JulianSeymour\PHPWebApplicationFramework\common\StaticSubtypeInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
 
 trait SubtypeColumnTrait{
@@ -12,11 +13,20 @@ trait SubtypeColumnTrait{
 			$sc = $this->getShortClass();
 			$decl = $this->getDeclarationLine();
 			Debug::error("{$f} subtype is undefined for {$sc} declared {$decl}");
+		}elseif($this instanceof StaticSubtypeInterface){
+			$subtype = static::getSubtypeStatic();
+			if(!$this->hasColumnValue("subtype")){
+				return $this->setColumnValue("subtype", $subtype);
+			}
+			return $subtype;
 		}
 		return $this->getColumnValue("subtype");
 	}
 	
 	public function hasSubtype():bool{
+		if($this instanceof StaticSubtypeInterface){
+			return true;
+		}
 		return $this->hasColumnValue("subtype");
 	}
 	

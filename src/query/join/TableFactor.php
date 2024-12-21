@@ -78,7 +78,7 @@ class TableFactor extends JoinExpression implements StaticPropertyTypeInterface,
 	}
 
 	public function setLateralFlag(bool $value = true):bool{
-		return $this->setFlag("lateral", true);
+		return $this->setFlag("lateral", $value);
 	}
 
 	public function getLateralFlag():bool{

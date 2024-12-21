@@ -161,19 +161,6 @@ ScopedCommandInterface{
 		$this->setAllowEmptyInnerHTML(false);
 		Debug::incrementElementConstructorCount();
 		parent::__construct($mode, $context);
-		if(!$this instanceof HTMLCommentElement && !$this instanceof DocumentFragment){
-			if($this->hasDeclarationLine()){
-				$decl = $this->getDeclarationLine();
-				$this->setAttribute("declared", $decl);
-				if($print){
-					Debug::print("{$f} declared \"{$decl}\"");
-				}
-			}
-			if($this->hasDebugId()){
-				//$this->setAttribute("debugid", $this->getDebugId());
-			}
-			$this->setAttribute("php_class", get_short_class(static::class));
-		}
 		$this->setAllocationMode($mode);
 		if(isset($context)){
 			$this->bindContext($context);
@@ -707,7 +694,7 @@ ScopedCommandInterface{
 	}
 
 	public function setDisableRenderingFlag(bool $value = true): bool{
-		return $this->setFlag("disableRendering", true);
+		return $this->setFlag("disableRendering", $value);
 	}
 
 	public function disableRendering(bool $value = true): Element{
@@ -896,10 +883,31 @@ ScopedCommandInterface{
 		return $script;
 	}
 
+	/**
+	 * This is just a convenience function to easily attach attributes to the element
+	 */
+	protected function generateAttributes():int{
+		$f = __METHOD__;
+		$print = false;
+		if($this->hasDeclarationLine()){
+			$decl = $this->getDeclarationLine();
+			$this->setAttribute("declared", $decl);
+			if($print){
+				Debug::print("{$f} declared \"{$decl}\"");
+			}
+		}
+		if($this->hasDebugId()){
+			//$this->setAttribute("debugid", $this->getDebugId());
+		}
+		$this->setAttribute("php_class", get_short_class(static::class));
+		return SUCCESS;
+	}
+	
 	protected function beforeRenderHook(): int{
 		if($this->hasAnyEventListener(EVENT_BEFORE_RENDER)){
 			$this->dispatchEvent(new BeforeRenderEvent());
 		}
+		$this->generateAttributes();
 		return SUCCESS;
 	}
 	
@@ -1056,8 +1064,9 @@ ScopedCommandInterface{
 			}elseif($print){
 				Debug::print("{$f} cache this object is not cacheable");
 			}
+			$this->generateContents();
 			if($this->hasParentNode()){
-				$this->generateContents();
+				//$this->generateContents();
 				if($this->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY){
 					if($print){
 						Debug::print("{$f} ultra lazy rendering mode -- generating predecessors now");
@@ -1068,7 +1077,7 @@ ScopedCommandInterface{
 				if($print){
 					Debug::print("{$f} parent node is undefined");
 				}
-				$this->generateContents();
+				//$this->generateContents();
 				if($this->getAllocationMode() === ALLOCATION_MODE_ULTRA_LAZY){
 					if($print){
 						Debug::print("{$f} ultra lazy rendering mode -- generating predecessors/successors now");
@@ -2601,7 +2610,6 @@ ScopedCommandInterface{
 				Debug::error("{$f} predecessorsGenerated flag should be set by now");
 			}
 			$tag = $this->getElementTag();
-			$print = $tag === "fragment";
 			if($print){
 				Debug::print("{$f} tag is \"{$tag}\" for this ".$this->getDebugString());
 			}
@@ -3716,8 +3724,8 @@ ScopedCommandInterface{
 	public function dispose(bool $deallocate=false): void{
 		$f = __METHOD__;
 		$print = false;
-		$ds = $this->getDebugString();
 		if($print){
+			$ds = $this->getDebugString();
 			if($deallocate){
 				Debug::print("{$f} entered for this {$ds}. Hard deallocation");
 			}else{

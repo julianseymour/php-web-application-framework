@@ -48,7 +48,7 @@ abstract class StringDatum extends Datum{
 	}
 	
 	public function setAlphanumeric(bool $value=true):bool{
-		return $this->setFlag("alphanumeric", true);
+		return $this->setFlag("alphanumeric", $value);
 	}
 
 	public function isAlphanumeric():bool{

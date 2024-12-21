@@ -38,7 +38,7 @@ class MultipleChoiceInput extends CompoundInput{
 	use MultipleInputsTrait;
 
 	protected $individualWrapperClass;
-
+	
 	protected $labelElementClass;
 
 	protected $uniqueSuffix;
@@ -108,7 +108,7 @@ class MultipleChoiceInput extends CompoundInput{
 		$f = __METHOD__;
 		$print = false;
 		if($print){
-			Debug::printStackTraceNoExit("{$f} entered");
+			Debug::print("{$f} entered for this ".$this->getDebugString());
 		}
 		return $this->setFlag("autoLabel", $value);
 	}
@@ -431,7 +431,7 @@ class MultipleChoiceInput extends CompoundInput{
 	public function generateInput(Choice $choice): Element{
 		$f = __METHOD__;
 		try{
-			$print = false;
+			$print = false; //$this instanceof MultipleRadioButtons && $this->hasColumnName() && $this->getColumnName() === "subtype" && $this->hasContext() && $this->getContext() instanceof Datum && $this->getContext()->getDataStructure()->getDataType() === DATATYPE_SERVICE;
 			$ec = $this->getElementClass();
 			if(is_a($ec, OptionElement::class, true)){
 				return $this->generateOptionElement($choice);
@@ -480,7 +480,7 @@ class MultipleChoiceInput extends CompoundInput{
 							break;
 						}elseif(!$this->getAutoLabelFlag()){
 							if($print){
-								Debug::print("{$f} autolabel flag is not set");
+								Debug::print("{$f} autolabel flag is not set for this ".$this->getDebugString());
 							}
 							break;
 						}elseif($print){
@@ -531,9 +531,9 @@ class MultipleChoiceInput extends CompoundInput{
 		$f = __METHOD__;
 		try{
 			$print = false;
-			/*if($print){
+			if($print){
 				Debug::print("{$f} entered for ".$choice->getDebugString()." with label string ".$choice->getLabelString());
-			}*/
+			}
 			if(is_string($choice)){
 				$choice = $this->getChoice($choice);
 			}
@@ -786,13 +786,12 @@ class MultipleChoiceInput extends CompoundInput{
 	}
 
 	public function dispose(bool $deallocate=false): void{
-		$f = __METHOD__;
+		//$f = __METHOD__;
 		parent::dispose($deallocate);
 		$this->release($this->choiceGenerator, $deallocate);
 		$this->release($this->elementClass, $deallocate);
 		$this->release($this->individualWrapperClass, $deallocate);
 		$this->release($this->inputs, $deallocate);
-		$this->release($this->labelClassAttribute, $deallocate);
 		$this->release($this->labelElementClass, $deallocate);
 		$this->release($this->uniqueSuffix, $deallocate);
 		$this->release($this->valueAttributeNameOverride, $deallocate);

@@ -1,4 +1,5 @@
 <?php
+
 namespace JulianSeymour\PHPWebApplicationFramework\element;
 
 /**
@@ -7,17 +8,9 @@ namespace JulianSeymour\PHPWebApplicationFramework\element;
  * @author j
  *        
  */
-class MainElement extends Element
-{
+class MainElement extends Element{
 
-	/*
-	 * public function __construct($mode=ALLOCATION_MODE_UNDEFINED, $context=null){
-	 * parent::__construct($mode, $context);
-	 * $this->setFlag("requireClassAttribute", true);
-	 * }
-	 */
-	public static function getElementTagStatic(): string
-	{
+	public static function getElementTagStatic(): string{
 		return "main";
 	}
 }

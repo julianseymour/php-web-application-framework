@@ -22,7 +22,7 @@ class StandardWorkflow extends Workflow{
 	public function handleRequest(Request $request, UseCase $entry_point): int{
 		$f = __METHOD__;
 		try{
-			$print = false && $this->getDebugFlag();
+			$print = $this->getDebugFlag();
 			$random = sha1(random_bytes(32));
 			app()->setUseCase($entry_point);
 			// set XHR and service worker POST flags if this is a fetch event
@@ -107,7 +107,7 @@ class StandardWorkflow extends Workflow{
 	protected function execute(Request $request, UseCase $entry_point): int{
 		$f = __METHOD__;
 		try{
-			$print = false && $this->getDebugFlag();
+			$print = $this->getDebugFlag();
 			$use_case = $entry_point;
 			$status = FAILURE;
 			$iterations = 0;
@@ -210,7 +210,7 @@ class StandardWorkflow extends Workflow{
 	protected function authenticate(Request $request, UseCase $entry_point): int{
 		$f = __METHOD__;
 		try{
-			$print = false;
+			$print = $this->getDebugFlag();
 			// before authenticate hook
 			$status = $entry_point->beforeAuthenticateHook();
 			if($status !== SUCCESS){

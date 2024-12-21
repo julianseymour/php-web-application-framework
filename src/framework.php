@@ -50,7 +50,7 @@ function cache():MultiCache{
 
 function claim($resource, ?string $claimant_id = null){
 	$f = __FUNCTION__;
-	$print = $resource instanceof Basic && $resource->getDebugFlag();
+	$print = false && $resource instanceof Basic && $resource->getDebugFlag();
 	if(SUPPLEMENTAL_GARBAGE_COLLECTION_ENABLED){
 		if($resource instanceof HitPointsInterface){
 			if($print){
@@ -132,7 +132,7 @@ function db(): DatabaseManager{
 
 function deallocate(&$v):void{
 	$f = __FUNCTION__;
-	$print = $v instanceof Basic && $v->getDebugFlag();
+	$print = false && $v instanceof Basic && $v->getDebugFlag();
 	if(is_array($v)){
 		foreach(array_keys($v) as $key){
 			if($print){
@@ -538,7 +538,7 @@ function registry(){
 
 function release(&$resource, bool $deallocate=false, ?string $claimant_id=null){
 	$f = __FUNCTION__;
-	$print = $resource instanceof Basic && $resource->getDebugFlag();
+	$print = false && $resource instanceof Basic && $resource->getDebugFlag();
 	if($print){
 		$ds = $resource->getDebugString();
 	}

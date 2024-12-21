@@ -92,7 +92,7 @@ class SetInputValueCommand extends ElementCommand implements ServerExecutableCom
 	public function resolve(){
 		$f = __METHOD__;
 		try{
-			$print = false && $this->getDebugFlag();
+			$print = $this->getDebugFlag();
 			$element = $this->getElement();
 			if($element === null){
 				$decl = $this->getDeclarationLine();
@@ -111,13 +111,17 @@ class SetInputValueCommand extends ElementCommand implements ServerExecutableCom
 			$value = $this->getValue();
 			if($print){
 				if($value instanceof ValueReturningCommandInterface){
-					Debug::print("{$f} value is a value-returning command interface");
+					$did = $value->getDebugString();
+					Debug::print("{$f} value is a value-returning command interface {$did}");
 				}else{
 					Debug::print("{$f} value is NOT a value-returning command interface");
 				}
 			}
 			while($value instanceof ValueReturningCommandInterface){
 				$value = $value->evaluate();
+			}
+			if($print){
+				Debug::print("{$f} value resolved itself to \"{$value}\"");
 			}
 			return $element->setValueAttribute($value);
 		}catch(Exception $x){

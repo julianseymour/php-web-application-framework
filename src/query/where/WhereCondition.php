@@ -2,13 +2,16 @@
 
 namespace JulianSeymour\PHPWebApplicationFramework\query\where;
 
-use function JulianSeymour\PHPWebApplicationFramework\release;
+use function JulianSeymour\PHPWebApplicationFramework\deallocate;
 use function JulianSeymour\PHPWebApplicationFramework\replicate;
 use function JulianSeymour\PHPWebApplicationFramework\x;
+use JulianSeymour\PHPWebApplicationFramework\command\expression\AndCommand;
 use JulianSeymour\PHPWebApplicationFramework\command\expression\ExpressionCommand;
 use JulianSeymour\PHPWebApplicationFramework\common\ParameterCountingTrait;
 use JulianSeymour\PHPWebApplicationFramework\common\StringifiableInterface;
 use JulianSeymour\PHPWebApplicationFramework\core\Debug;
+use JulianSeymour\PHPWebApplicationFramework\data\DataStructure;
+use JulianSeymour\PHPWebApplicationFramework\data\IntersectionData;
 use JulianSeymour\PHPWebApplicationFramework\error\ErrorMessage;
 use JulianSeymour\PHPWebApplicationFramework\query\SQLInterface;
 use JulianSeymour\PHPWebApplicationFramework\query\TypeSpecificInterface;
@@ -19,7 +22,13 @@ use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatementInterfa
 use JulianSeymour\PHPWebApplicationFramework\query\select\SelectStatementTrait;
 use Exception;
 
-class WhereCondition extends ExpressionCommand implements SelectStatementInterface, StringifiableInterface, TypeSpecificInterface, WhereConditionalInterface{
+class WhereCondition extends ExpressionCommand 
+implements 
+SelectStatementInterface, 
+StringifiableInterface, 
+TypeSpecificInterface, 
+WhereConditionalInterface
+{
 
 	use ColumnNameTrait;
 	use ParameterCountingTrait;
@@ -262,5 +271,63 @@ class WhereCondition extends ExpressionCommand implements SelectStatementInterfa
 
 	public function __toString(): string{
 		return $this->toSQL();
+	}
+	
+	/**
+	 * generates a WhereCondition for locating something in an intersections table that references an object of this class
+	 *
+	 * @param string|DataStructure $hostClass : host class used to generate IntersectionData
+	 * @param string|DataStructure $foreignClass : foreign class used to generate IntersectionData
+	 * @param string $relationship : name of foreign key -- needed because of embedded columns
+	 * @param string $operator : operator used to build WhereConditions
+	 * @return WhereCondition
+	 */
+	public static function intersectional(string $hostClass, string $foreignClass, string $select_expr, string $relationship, string $operator = OPERATOR_EQUALS){
+		$f = __METHOD__;
+		$print = false;
+		if(is_object($hostClass)){
+			$hostClass = get_class($hostClass);
+		}
+		if(is_object($foreignClass)){
+			$foreignClass = get_class($foreignClass);
+		}
+		$idn = $hostClass::getIdentifierNameStatic();
+		if($print){
+			Debug::print("{$f} about to create new IntersectionData({$hostClass}, {$foreignClass}, {$relationship})");
+		}
+		$intersection = new IntersectionData($hostClass, $foreignClass, $relationship);
+		switch($select_expr){
+			case "hostKey":
+				$column_name = "foreignKey";
+				break;
+			case "foreignKey":
+				$column_name = "hostKey";
+				break;
+			default:
+				Debug::error("{$f} invalid columns name \"{$column_name}\"");
+		}
+		$select = new SelectStatement($select_expr);
+		$select->from(
+			$intersection->getDatabaseName(),
+			$intersection->getTableName()
+		)->where(
+			new AndCommand(
+				new WhereCondition($column_name, $operator, 's'),
+				new WhereCondition("relationship", $operator, 's')
+			)
+		);
+		$ret = new WhereCondition(
+			$idn,
+			OPERATOR_IN,
+			$hostClass::getTypeSpecifierStatic($idn),
+			$select
+		);
+		deallocate($intersection);
+		if($print){
+			$ret->setParameterCount(1);
+			Debug::print("{$f} returning \"{$ret}\"");
+			$ret->setParameterCount(null);
+		}
+		return $ret;
 	}
 }
